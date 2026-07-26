@@ -39,6 +39,16 @@ GameBootstrap
 | City | `Assets/Valgor/City/Scenes/City.unity` |
 | WorldMap | `Assets/_Valgor/Scenes/WorldMap.unity` |
 
+## Fluxo Beta Técnica 0.1
+
+```text
+Bootstrap → Loading → MainMenu → City → Heroes → Torre dos Dragões (na City) → WorldMap → City
+```
+
+Navegação provisória DDOL: `BetaNavigationBar` (Menu / Cidade / Heróis / Dragões / Mapa).
+Versão: `ValgorVersion.Display` = `Beta Técnica 0.1`.
+Build Windows: menu `Valgor/Build/Windows Beta Técnica 0.1` → `builds/windows/Valgor-Beta-0.1/Valgor.exe`.
+
 ## Integração de módulos
 
 Contratos em `Valgor.Core.Modules`:

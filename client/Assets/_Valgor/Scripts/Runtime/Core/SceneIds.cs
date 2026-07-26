@@ -7,5 +7,6 @@ namespace Valgor.Core
         public const string MainMenu = "MainMenu";
         public const string City = "City";
         public const string WorldMap = "WorldMap";
+        public const string Heroes = "HeroesDemo";
     }
 }

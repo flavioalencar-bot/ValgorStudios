@@ -54,6 +54,20 @@ namespace Valgor.City.Core
 
         public BuildingDefinition GetDefinition(BuildingInstance instance) => _definitions[instance];
 
+        public bool TrySelectByDefinitionId(string definitionId)
+        {
+            foreach (var building in _buildings)
+            {
+                if (string.Equals(building.DefinitionId, definitionId, StringComparison.Ordinal))
+                {
+                    Selection.Select(building);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool TryUpgradeSelected()
         {
             var building = Selection.Selected;

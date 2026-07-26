@@ -34,10 +34,16 @@ namespace Valgor.Core
                 (GameState.Loading, GameState.MainMenu) => true,
                 (GameState.MainMenu, GameState.PlayerCity) => true,
                 (GameState.MainMenu, GameState.WorldMap) => true,
+                (GameState.MainMenu, GameState.Heroes) => true,
                 (GameState.PlayerCity, GameState.WorldMap) => true,
                 (GameState.PlayerCity, GameState.MainMenu) => true,
+                (GameState.PlayerCity, GameState.Heroes) => true,
                 (GameState.WorldMap, GameState.PlayerCity) => true,
                 (GameState.WorldMap, GameState.MainMenu) => true,
+                (GameState.WorldMap, GameState.Heroes) => true,
+                (GameState.Heroes, GameState.PlayerCity) => true,
+                (GameState.Heroes, GameState.MainMenu) => true,
+                (GameState.Heroes, GameState.WorldMap) => true,
                 _ => false
             };
         }

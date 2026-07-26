@@ -27,6 +27,7 @@ namespace Valgor.Bootstrap
             DontDestroyOnLoad(gameObject);
             Services = BuildRegistry();
             Game = new ValgorGame(Services);
+            Valgor.UI.BetaNavigationBar.Ensure();
         }
 
         private System.Collections.IEnumerator Start()

@@ -5,6 +5,7 @@ using Valgor.City.Buildings;
 using Valgor.City.Core;
 using Valgor.City.Data;
 using Valgor.City.UI;
+using Valgor.Core;
 using Valgor.Core.Modules;
 using Valgor.Dragons.Core;
 
@@ -65,7 +66,14 @@ namespace Valgor.City
             }
         }
 
-        public void Enter() => IsLoaded = true;
+        public void Enter()
+        {
+            IsLoaded = true;
+            if (BetaFocusHints.TryConsumeBuildingFocus(out var buildingId))
+            {
+                Controller.TrySelectByDefinitionId(buildingId);
+            }
+        }
 
         public void Exit() => IsLoaded = false;
 

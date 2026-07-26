@@ -7,6 +7,7 @@ namespace Valgor.Core
         Loading = 2,
         MainMenu = 3,
         PlayerCity = 4,
-        WorldMap = 5
+        WorldMap = 5,
+        Heroes = 6
     }
 }

@@ -80,7 +80,7 @@ namespace Valgor.WorldMap.UI
             _title = new Label("World Map");
             _title.style.position = Position.Absolute;
             _title.style.left = 18;
-            _title.style.top = 18;
+            _title.style.top = 64;
             _title.style.fontSize = 28;
             _title.style.color = Color.white;
             root.Add(_title);
@@ -88,7 +88,7 @@ namespace Valgor.WorldMap.UI
             _wallet = new Label();
             _wallet.style.position = Position.Absolute;
             _wallet.style.left = 18;
-            _wallet.style.top = 56;
+            _wallet.style.top = 100;
             _wallet.style.color = new Color(0.9f, 0.92f, 0.85f);
             _wallet.style.fontSize = 14;
             root.Add(_wallet);
@@ -96,7 +96,7 @@ namespace Valgor.WorldMap.UI
             _march = new Label();
             _march.style.position = Position.Absolute;
             _march.style.left = 18;
-            _march.style.top = 84;
+            _march.style.top = 128;
             _march.style.color = new Color(0.75f, 0.9f, 1f);
             _march.style.fontSize = 13;
             _march.style.whiteSpace = WhiteSpace.Normal;
@@ -115,7 +115,7 @@ namespace Valgor.WorldMap.UI
             var actions = new VisualElement();
             actions.style.position = Position.Absolute;
             actions.style.right = 18;
-            actions.style.top = 18;
+            actions.style.top = 64;
             root.Add(actions);
             actions.Add(CreateButton("Voltar para a Cidade", () =>
                 StartCoroutine(GameBootstrap.Game.Navigator.GoToCity())));
@@ -125,7 +125,7 @@ namespace Valgor.WorldMap.UI
             var locate = new VisualElement();
             locate.style.position = Position.Absolute;
             locate.style.right = 230;
-            locate.style.top = 70;
+            locate.style.top = 120;
             locate.style.width = 180;
             locate.style.paddingLeft = 10;
             locate.style.paddingRight = 10;

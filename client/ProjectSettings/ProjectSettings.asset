@@ -17,7 +17,7 @@ PlayerSettings:
   m_AllowedAutorotateToLandscapeRight: 1
   m_AllowedAutorotateToLandscapeLeft: 1
   targetDevice: 2
-  bundleVersion: 0.1.0
+  bundleVersion: 0.1.0-beta
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 23
   AndroidTargetSdkVersion: 0

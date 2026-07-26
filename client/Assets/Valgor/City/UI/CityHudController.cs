@@ -6,7 +6,9 @@ using Valgor.Bootstrap;
 using Valgor.City.Core;
 using Valgor.City.Data;
 using Valgor.City.Production;
+using Valgor.Core;
 using Valgor.Core.Modules;
+using Valgor.UI;
 
 namespace Valgor.City.UI
 {
@@ -70,35 +72,39 @@ namespace Valgor.City.UI
             _resources = new Label();
             _resources.style.position = Position.Absolute;
             _resources.style.left = 18;
-            _resources.style.top = 18;
+            _resources.style.top = 64;
             _resources.style.paddingLeft = 12;
             _resources.style.paddingRight = 12;
             _resources.style.paddingTop = 8;
             _resources.style.paddingBottom = 8;
-            _resources.style.backgroundColor = new Color(0.04f, 0.07f, 0.12f, 0.88f);
-            _resources.style.color = Color.white;
+            _resources.style.backgroundColor = BetaVisualTheme.BackgroundPanel;
+            _resources.style.color = BetaVisualTheme.TextPrimary;
+            _resources.style.borderLeftWidth = 2;
+            _resources.style.borderLeftColor = BetaVisualTheme.AgedGold;
             _resources.pickingMode = PickingMode.Ignore;
             root.Add(_resources);
 
             var actions = new VisualElement();
             actions.style.position = Position.Absolute;
             actions.style.right = 18;
-            actions.style.top = 18;
+            actions.style.top = 64;
             root.Add(actions);
             actions.Add(CreateButton("Mapa Mundial", () =>
             {
                 _city.Persist();
                 StartCoroutine(GameBootstrap.Game.Navigator.GoToWorldMap());
             }));
-
-            if (GameBootstrap.Services != null &&
-                GameBootstrap.Services.TryGet<IHeroesGateway>(out var heroes) &&
-                heroes.IsAvailable)
+            actions.Add(CreateButton("Heróis", () =>
             {
-                actions.Add(CreateButton("Heróis", () => Debug.Log("Integração de heróis disponível.")));
-            }
-
-            actions.Add(CreateButton("Debug: Main Menu", () =>
+                _city.Persist();
+                StartCoroutine(GameBootstrap.Game.Navigator.GoToHeroes());
+            }));
+            actions.Add(CreateButton("Torre dos Dragões", () =>
+            {
+                _city.TrySelectByDefinitionId(BetaFocusHints.DragonTowerBuildingId);
+                RefreshSelection();
+            }));
+            actions.Add(CreateButton("Menu Principal", () =>
             {
                 _city.Persist();
                 StartCoroutine(GameBootstrap.Game.Navigator.GoToMainMenu());
@@ -112,11 +118,19 @@ namespace Valgor.City.UI
             _selectedPanel.style.paddingRight = 14;
             _selectedPanel.style.paddingTop = 12;
             _selectedPanel.style.paddingBottom = 12;
-            _selectedPanel.style.backgroundColor = new Color(0.04f, 0.07f, 0.12f, 0.92f);
-            _selectedPanel.style.width = 360;
+            _selectedPanel.style.backgroundColor = BetaVisualTheme.BackgroundPanel;
+            _selectedPanel.style.borderTopWidth = 2;
+            _selectedPanel.style.borderBottomWidth = 2;
+            _selectedPanel.style.borderLeftWidth = 2;
+            _selectedPanel.style.borderRightWidth = 2;
+            _selectedPanel.style.borderTopColor = BetaVisualTheme.AgedGold;
+            _selectedPanel.style.borderBottomColor = BetaVisualTheme.AgedGold;
+            _selectedPanel.style.borderLeftColor = BetaVisualTheme.AgedGold;
+            _selectedPanel.style.borderRightColor = BetaVisualTheme.AgedGold;
+            _selectedPanel.style.width = 380;
             _selectedText = new Label();
             _selectedText.style.whiteSpace = WhiteSpace.Normal;
-            _selectedText.style.color = Color.white;
+            _selectedText.style.color = BetaVisualTheme.TextPrimary;
             _selectedPanel.Add(_selectedText);
             _collectButton = CreateButton("Coletar", () =>
             {
@@ -134,7 +148,7 @@ namespace Valgor.City.UI
             _evolveButton = CreateButton("Evoluir dragão", OnEvolve);
             _selectedPanel.Add(_evolveButton);
             _feedback = new Label();
-            _feedback.style.color = new Color(1f, 0.85f, 0.45f);
+            _feedback.style.color = BetaVisualTheme.AgedGoldBright;
             _feedback.style.marginTop = 6;
             _feedback.style.whiteSpace = WhiteSpace.Normal;
             _selectedPanel.Add(_feedback);
@@ -150,8 +164,19 @@ namespace Valgor.City.UI
             button.style.marginTop = 8;
             button.style.paddingLeft = 12;
             button.style.paddingRight = 12;
-            button.style.paddingTop = 7;
-            button.style.paddingBottom = 7;
+            button.style.paddingTop = 8;
+            button.style.paddingBottom = 8;
+            button.style.backgroundColor = BetaVisualTheme.ButtonFace;
+            button.style.color = BetaVisualTheme.TextPrimary;
+            button.style.borderTopWidth = 1;
+            button.style.borderBottomWidth = 1;
+            button.style.borderLeftWidth = 1;
+            button.style.borderRightWidth = 1;
+            button.style.borderTopColor = BetaVisualTheme.ButtonBorder;
+            button.style.borderBottomColor = BetaVisualTheme.ButtonBorder;
+            button.style.borderLeftColor = BetaVisualTheme.ButtonBorder;
+            button.style.borderRightColor = BetaVisualTheme.ButtonBorder;
+            button.style.fontSize = 14;
             return button;
         }
 
@@ -246,7 +271,7 @@ namespace Valgor.City.UI
             var definition = _city.GetDefinition(building);
             var productionBlock = BuildProductionBlock(building);
             var builder = new StringBuilder();
-            builder.AppendLine(definition.DisplayName);
+            builder.AppendLine($"{definition.DisplayName}  ·  PLACEHOLDER");
             builder.AppendLine($"Nível {building.Level}/{definition.MaxLevel}");
             builder.AppendLine($"Estado: {building.State}");
             builder.AppendLine($"Custo upgrade: {definition.GetUpgradeCost(ResourceType.Gold, building.Level)} ouro");
@@ -256,11 +281,12 @@ namespace Valgor.City.UI
             if (isTower && _dragons != null)
             {
                 builder.AppendLine($"Ninho: {_dragons.RoostOccupantCount}/{_dragons.RoostCapacity}");
+                builder.AppendLine("Modelos de dragão: PLACEHOLDER visual");
                 foreach (var status in _dragons.GetDragonStatuses())
                 {
                     builder.AppendLine(
                         $"• {status.DisplayName}: {status.StateLabel} | {status.GrowthStageLabel} | " +
-                        $"vínculo {status.BondLevel} | fome {status.Hunger}/{status.MaxHunger}");
+                        $"fome {status.Hunger}/{status.MaxHunger} | stamina {status.Stamina} | vínculo {status.BondLevel}");
                 }
             }
 

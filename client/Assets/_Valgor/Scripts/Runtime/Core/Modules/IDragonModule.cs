@@ -37,7 +37,8 @@ namespace Valgor.Core.Modules
             int maxHunger,
             string growthStageLabel = "",
             int bondLevel = 0,
-            int growthPoints = 0)
+            int growthPoints = 0,
+            int stamina = 100)
         {
             DragonId = dragonId;
             DisplayName = displayName;
@@ -47,6 +48,7 @@ namespace Valgor.Core.Modules
             GrowthStageLabel = growthStageLabel;
             BondLevel = bondLevel;
             GrowthPoints = growthPoints;
+            Stamina = stamina;
         }
 
         public string DragonId { get; }
@@ -57,6 +59,7 @@ namespace Valgor.Core.Modules
         public string GrowthStageLabel { get; }
         public int BondLevel { get; }
         public int GrowthPoints { get; }
+        public int Stamina { get; }
     }
 
     /// <summary>

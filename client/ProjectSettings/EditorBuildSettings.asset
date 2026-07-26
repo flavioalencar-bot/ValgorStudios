@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Valgor/Scenes/WorldMap.unity
     guid: 28394a5b6c7d8e9f0123456789abcdef
+  - enabled: 1
+    path: Assets/Valgor/Heroes/Scenes/HeroesDemo.unity
+    guid: a226e5c68ec67c041a4eaa3d11340c6d
   m_configObjects: {}

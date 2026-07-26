@@ -78,5 +78,24 @@ public sealed class SceneIdsTests
         Assert.Equal("City", SceneIds.City);
         Assert.Equal("WorldMap", SceneIds.WorldMap);
         Assert.Equal("MainMenu", SceneIds.MainMenu);
+        Assert.Equal("HeroesDemo", SceneIds.Heroes);
+    }
+}
+
+public sealed class BetaFlowTests
+{
+    [Fact]
+    public void City_Heroes_WorldMap_City_Flow_IsValid()
+    {
+        var sm = new GameStateMachine();
+        sm.TransitionTo(GameState.Bootstrapping);
+        sm.TransitionTo(GameState.Loading);
+        sm.TransitionTo(GameState.MainMenu);
+        sm.TransitionTo(GameState.PlayerCity);
+        sm.TransitionTo(GameState.Heroes);
+        sm.TransitionTo(GameState.PlayerCity);
+        sm.TransitionTo(GameState.WorldMap);
+        sm.TransitionTo(GameState.PlayerCity);
+        Assert.Equal(GameState.PlayerCity, sm.Current);
     }
 }

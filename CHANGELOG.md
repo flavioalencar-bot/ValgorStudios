@@ -19,6 +19,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - Documentação `docs/architecture/dragons.md`
 - Complemento 02 de dragões: estados oficiais (EGG/JUVENILE/DEPLOYED/…), `DragonHungerService`, descanso e recuperação com timers
 - Complemento 03 de dragões: estágios de crescimento (HATCHLING…ANCIENT), vínculo e evolução de espécie
+- Beta Técnica 0.1: fluxo Bootstrap→Loading→MainMenu→City→Heroes→Torre→WorldMap→City, navegação provisória, identidade visual e build Windows
 
 ### Added
 

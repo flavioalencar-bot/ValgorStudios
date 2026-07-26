@@ -154,11 +154,24 @@ namespace Valgor.Dragons.Core
                     definition.MaxHunger,
                     pair.Value.GrowthStage.ToString().ToUpperInvariant(),
                     pair.Value.BondLevel,
-                    pair.Value.GrowthPoints));
+                    pair.Value.GrowthPoints,
+                    ResolveStamina(pair.Value)));
             }
 
             return list;
         }
+
+        private static int ResolveStamina(DragonInstance dragon) =>
+            dragon.State switch
+            {
+                DragonState.Ready or DragonState.Deployed => 100,
+                DragonState.Resting => 70,
+                DragonState.Hungry => 45,
+                DragonState.Recovering => 35,
+                DragonState.Exhausted or DragonState.Injured => 10,
+                DragonState.Juvenile => 55,
+                _ => 0
+            };
 
         public bool TryFeed(string dragonId, out string error)
         {

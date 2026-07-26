@@ -8,8 +8,7 @@ using Valgor.Scenes;
 namespace Valgor.Navigation
 {
     /// <summary>
-    /// Navegação entre estados/cenas principais do jogo.
-    /// Módulos de cidade/mundo são opcionais até serem registrados.
+    /// Navegação entre estados/cenas principais do jogo (Beta Técnica 0.1).
     /// </summary>
     public sealed class GameNavigator
     {
@@ -35,11 +34,7 @@ namespace Valgor.Navigation
 
         public IEnumerator GoToCity()
         {
-            if (_services.TryGet<IWorldMapModule>(out var world) && world.IsLoaded)
-            {
-                world.Exit();
-            }
-
+            ExitWorldAndHeroesModules();
             yield return _sceneLoader.LoadAsync(SceneIds.City, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.PlayerCity);
 
@@ -54,11 +49,7 @@ namespace Valgor.Navigation
 
         public IEnumerator GoToWorldMap()
         {
-            if (_services.TryGet<IPlayerCityModule>(out var city) && city.IsLoaded)
-            {
-                city.Exit();
-            }
-
+            ExitCityAndHeroesModules();
             yield return _sceneLoader.LoadAsync(SceneIds.WorldMap, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.WorldMap);
 
@@ -68,13 +59,47 @@ namespace Valgor.Navigation
             }
         }
 
-        private void ExitOptionalModules()
+        public IEnumerator GoToHeroes()
         {
             if (_services.TryGet<IPlayerCityModule>(out var city) && city.IsLoaded)
             {
                 city.Exit();
             }
 
+            if (_services.TryGet<IWorldMapModule>(out var world) && world.IsLoaded)
+            {
+                world.Exit();
+            }
+
+            yield return _sceneLoader.LoadAsync(SceneIds.Heroes, LoadSceneMode.Single);
+            _stateMachine.TransitionTo(GameState.Heroes);
+        }
+
+        public IEnumerator GoToDragonTower()
+        {
+            BetaFocusHints.RequestDragonTower();
+            yield return GoToCity();
+        }
+
+        private void ExitOptionalModules()
+        {
+            ExitCityAndHeroesModules();
+            if (_services.TryGet<IWorldMapModule>(out var world) && world.IsLoaded)
+            {
+                world.Exit();
+            }
+        }
+
+        private void ExitCityAndHeroesModules()
+        {
+            if (_services.TryGet<IPlayerCityModule>(out var city) && city.IsLoaded)
+            {
+                city.Exit();
+            }
+        }
+
+        private void ExitWorldAndHeroesModules()
+        {
             if (_services.TryGet<IWorldMapModule>(out var world) && world.IsLoaded)
             {
                 world.Exit();
