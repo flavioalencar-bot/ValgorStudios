@@ -9,6 +9,12 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- Dragon Foundation em `Assets/Valgor/Dragons`: definição/instância, state machine, ninho, alimentação, recuperação, deployment em marchas e `IDragonGateway`
+- Integração City (Torre dos Dragões) + World Map (destaque/recall/poder provisório) + recursos (Food/Essence)
+- Documentação `docs/architecture/dragons.md`
+
+### Added
+
 - Pipeline do herói real **Vortex** (`Assets/Valgor/Heroes/Characters/Vortex/`): pastas, import profile, validators, menus `Valgor/Heroes/Vortex/*`, prefab shell `Vortex_Hero`, Animator Controller, materiais URP placeholder, Addressable key `heroes/HERO_VORTEX_000/prefab`, fallback técnico até o FBX final, postprocessor de auto-build
 - Preview 360° resolve Vortex via `HeroVisualResolver` (prefab real ou fallback) e dispara animação/VFX de poder especial no botão da demo
 

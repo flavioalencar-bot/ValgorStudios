@@ -57,6 +57,9 @@ namespace Valgor.Bootstrap
             var navigator = new GameNavigator(registry);
             registry.Register(navigator);
             registry.Register<IHeroesGateway>(new ProvisionalHeroesGateway());
+            var dragons = new ProvisionalDragonGateway();
+            registry.Register<IDragonModule>(dragons);
+            registry.Register<IDragonGateway>(dragons);
 
             return registry;
         }

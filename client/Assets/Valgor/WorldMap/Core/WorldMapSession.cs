@@ -22,6 +22,7 @@ namespace Valgor.WorldMap.Core
         private readonly Dictionary<string, WorldCreatureInstance> _creatures = new();
         private readonly Dictionary<string, WorldTerritoryRuntime> _territories = new();
         private readonly IHeroesGateway _heroes;
+        private IDragonGateway _dragons = new ProvisionalDragonGateway();
         private readonly WorldNodeOccupationService _occupation = new();
         private readonly IEnergyPersistenceRepository _energyRepository;
         private DateTime _lastTickUtc;
@@ -113,6 +114,7 @@ namespace Valgor.WorldMap.Core
         public int Energy => EnergyWallet.CurrentEnergy;
         public ResourceWallet? BoundWallet { get; private set; }
         private Action? _persistBoundWallet;
+        public IDragonGateway Dragons => _dragons;
         public WorldCameraPersistenceService CameraPersistence { get; }
         public IReadOnlyDictionary<string, WorldNodeInstance> Nodes => _nodes;
         public IReadOnlyDictionary<string, WorldCreatureInstance> Creatures => _creatures;
@@ -130,6 +132,11 @@ namespace Valgor.WorldMap.Core
         {
             BoundWallet = wallet;
             _persistBoundWallet = persistWallet;
+        }
+
+        public void BindDragons(IDragonGateway dragons)
+        {
+            _dragons = dragons ?? throw new ArgumentNullException(nameof(dragons));
         }
 
         public WorldMapNodeDefinition GetDefinition(string id) => WorldNodeCatalog.Get(id);
@@ -207,6 +214,7 @@ namespace Valgor.WorldMap.Core
             AdvanceResourceRespawns(now);
             DepositCompletedMarch(Marches.LastCompleted);
             AdvanceCreatures(now);
+            _dragons.Tick();
             Persist();
             Changed?.Invoke();
         }
@@ -242,6 +250,11 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
+            if (Marches.Active != null)
+            {
+                _dragons.TryDeployFirstReadyToMarch(Marches.Active.Id, out _);
+            }
+
             Changed?.Invoke();
             return true;
         }
@@ -259,9 +272,15 @@ namespace Valgor.WorldMap.Core
 
         public bool TryCancelMarch(out string error)
         {
+            var marchId = Marches.Active?.Id;
             if (!Marches.TryCancel(out error))
             {
                 return false;
+            }
+
+            if (!string.IsNullOrEmpty(marchId))
+            {
+                _dragons.TryRecallFromMarch(marchId, out _);
             }
 
             Changed?.Invoke();
@@ -362,6 +381,11 @@ namespace Valgor.WorldMap.Core
             }
 
             EnergyWallet.SyncFromExternal(available, EnergyWallet.LastUpdatedAt);
+            if (Marches.Active != null)
+            {
+                _dragons.TryEnterCombatForMarch(Marches.Active.Id, out _);
+            }
+
             Persist();
             Changed?.Invoke();
             return true;
@@ -406,9 +430,10 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
+            var attackerPower = _heroes.GetProvisionalMarchPower() + _dragons.GetProvisionalDragonPower();
             if (!Encounters.TryResolveProvisional(
                     Selection.Selected.DefinitionId,
-                    _heroes.GetProvisionalMarchPower(),
+                    attackerPower,
                     wallet,
                     Clock.UtcNow,
                     out error,
@@ -547,6 +572,8 @@ namespace Valgor.WorldMap.Core
             {
                 return;
             }
+
+            _dragons.TryRecallFromMarch(completed.Id, out _);
 
             if (completed.RewardsDelivered && completed.IsCommitted)
             {

@@ -3,6 +3,7 @@
   "rootNamespace": "Valgor.City",
   "references": [
     "Valgor.Runtime",
+    "Valgor.Dragons",
     "Unity.InputSystem",
     "UnityEngine.UIElementsModule"
   ],

@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Valgor.Bootstrap;
 using Valgor.City.Core;
 using Valgor.Core.Modules;
+using Valgor.Dragons.Core;
 using Valgor.WorldMap.Camera;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Data;
@@ -56,6 +58,7 @@ namespace Valgor.WorldMap
         {
             if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<WorldMapSession>(out var existing))
             {
+                existing.BindDragons(ResolveDragons());
                 EnsureSimulation(existing);
                 return existing;
             }
@@ -78,9 +81,35 @@ namespace Valgor.WorldMap
                 session.BindWallet(economy.Wallet, economy.PersistWallet);
             }
 
+            session.BindDragons(ResolveDragons());
+
             GameBootstrap.Services?.Register(session);
             EnsureSimulation(session);
             return session;
+        }
+
+        private static IDragonGateway ResolveDragons()
+        {
+            if (GameBootstrap.Services != null &&
+                GameBootstrap.Services.TryGet<IDragonGateway>(out var gateway) &&
+                gateway.IsReady)
+            {
+                return gateway;
+            }
+
+            IDragonResourceWallet? wallet = null;
+            Action? persist = null;
+            if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<CityEconomy>(out var economy))
+            {
+                wallet = new CityDragonResourceWallet(economy.Wallet);
+                persist = economy.PersistWallet;
+            }
+
+            var dragons = DragonService.Create(wallet, persist);
+            GameBootstrap.Services?.Register(dragons);
+            GameBootstrap.Services?.Register<IDragonModule>(dragons);
+            GameBootstrap.Services?.Register<IDragonGateway>(dragons);
+            return dragons;
         }
 
         private static WorldSimulationClock ResolveSimulationClock()

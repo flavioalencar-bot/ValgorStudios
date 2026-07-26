@@ -63,8 +63,12 @@ Filtros persistem via `WorldMapFilterPersistenceRepository` (memória + PlayerPr
 - `WorldVillageNode` — vilarejos
 - `WorldResourceNode` — pontos de coleta
 - `WorldCreatureNode` — criaturas (inspeção; combate em sprint futura)
-- `WorldDragonNode` — dragões (inspeção)
+- `WorldDragonNode` — dragões selvagens no mapa (inspeção + status do ninho via `IDragonGateway`)
 - `WorldLandmarkNode` — marcos
+
+## Dragões em marchas
+
+Despacho tenta destacar o primeiro dragão READY (`TryDeployFirstReadyToMarch`). Engajar criatura move o dragão para COMBAT; conclusão ou cancelamento faz recall + recovery. Poder provisório do dragão soma ao dos heróis na resolução. Ver [dragons.md](dragons.md).
 
 ## Coleta, carga e respawn
 

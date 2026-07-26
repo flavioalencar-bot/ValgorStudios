@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Valgor.City.Buildings;
 using Valgor.City.Data;
 using Valgor.City.Production;
+using Valgor.Core.Modules;
+using Valgor.Dragons.Core;
 
 namespace Valgor.City.Core
 {
@@ -13,6 +15,7 @@ namespace Valgor.City.Core
         private readonly Dictionary<BuildingInstance, BuildingDefinition> _definitions = new();
         private readonly Dictionary<BuildingInstance, BuildingView> _views = new();
         private readonly List<BuildingInstance> _buildings = new();
+        private DragonService? _dragons;
 
         public CityController(CityEconomy economy, BuildingSelectionService selection)
         {
@@ -29,8 +32,15 @@ namespace Valgor.City.Core
 
         public BuildingSelectionService Selection { get; }
         public CityEconomy Economy => _economy;
+        public IDragonGateway? Dragons => _dragons;
         public IReadOnlyList<BuildingInstance> Buildings => _buildings;
         public event Action? BuildingChanged;
+
+        public void BindDragons(DragonService dragons)
+        {
+            _dragons = dragons ?? throw new ArgumentNullException(nameof(dragons));
+            _dragons.Changed += (_, __) => BuildingChanged?.Invoke();
+        }
 
         public void Add(BuildingSlot slot, BuildingInstance instance, BuildingDefinition definition, BuildingView view)
         {
@@ -96,11 +106,15 @@ namespace Valgor.City.Core
         public void Tick()
         {
             _economy.Tick.Update();
-            // Marchas avançam via GlobalMarchTickHost (DDOL), não aqui.
+            _dragons?.Tick();
             RefreshCollectableIndicators();
         }
 
-        public void Persist() => _economy.Persist(_buildings);
+        public void Persist()
+        {
+            _economy.Persist(_buildings);
+            _dragons?.Persist();
+        }
 
         private void RefreshCollectableIndicators()
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Valgor.Bootstrap;
@@ -14,15 +15,20 @@ namespace Valgor.City.UI
     {
         private UIDocument _document = null!;
         private CityController _city = null!;
+        private IDragonGateway? _dragons;
         private Label _resources = null!;
         private VisualElement _selectedPanel = null!;
         private Label _selectedText = null!;
         private Button _upgradeButton = null!;
         private Button _collectButton = null!;
+        private Button _feedButton = null!;
+        private Button _hatchButton = null!;
+        private Label _feedback = null!;
 
-        public void Initialize(CityController city)
+        public void Initialize(CityController city, IDragonGateway? dragons = null)
         {
             _city = city;
+            _dragons = dragons ?? city.Dragons;
             _document = GetComponent<UIDocument>();
             EnsurePanelSettings();
             Build();
@@ -106,7 +112,7 @@ namespace Valgor.City.UI
             _selectedPanel.style.paddingTop = 12;
             _selectedPanel.style.paddingBottom = 12;
             _selectedPanel.style.backgroundColor = new Color(0.04f, 0.07f, 0.12f, 0.92f);
-            _selectedPanel.style.width = 340;
+            _selectedPanel.style.width = 360;
             _selectedText = new Label();
             _selectedText.style.whiteSpace = WhiteSpace.Normal;
             _selectedText.style.color = Color.white;
@@ -120,13 +126,22 @@ namespace Valgor.City.UI
             _selectedPanel.Add(_collectButton);
             _upgradeButton = CreateButton("Melhorar", OnUpgrade);
             _selectedPanel.Add(_upgradeButton);
+            _feedButton = CreateButton("Alimentar dragão", OnFeed);
+            _selectedPanel.Add(_feedButton);
+            _hatchButton = CreateButton("Chocar ovo", OnHatch);
+            _selectedPanel.Add(_hatchButton);
+            _feedback = new Label();
+            _feedback.style.color = new Color(1f, 0.85f, 0.45f);
+            _feedback.style.marginTop = 6;
+            _feedback.style.whiteSpace = WhiteSpace.Normal;
+            _selectedPanel.Add(_feedback);
             _selectedPanel.Add(CreateButton("Fechar", () => _city.Selection.Deselect()));
             root.Add(_selectedPanel);
             RefreshResources();
             RefreshSelection();
         }
 
-        private Button CreateButton(string text, System.Action action)
+        private Button CreateButton(string text, Action action)
         {
             var button = new Button(action) { text = text };
             button.style.marginTop = 8;
@@ -140,6 +155,42 @@ namespace Valgor.City.UI
         private void OnUpgrade()
         {
             _city.TryUpgradeSelected();
+            RefreshSelection();
+        }
+
+        private void OnFeed()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.StateLabel is "HUNGRY" or "RESTING" or "READY")
+                {
+                    _feedback.text = _dragons.TryFeed(status.DragonId, out var error)
+                        ? "Dragão alimentado."
+                        : error;
+                    RefreshResources();
+                    RefreshSelection();
+                    return;
+                }
+            }
+
+            _feedback.text = "Nenhum dragão disponível para alimentar.";
+        }
+
+        private void OnHatch()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            _feedback.text = _dragons.TryUnlockAndHatch("ash-drake", out var error)
+                ? "Incubação iniciada."
+                : error;
             RefreshSelection();
         }
 
@@ -164,15 +215,32 @@ namespace Valgor.City.UI
 
             var definition = _city.GetDefinition(building);
             var productionBlock = BuildProductionBlock(building);
-            _selectedText.text =
-                $"{definition.DisplayName}\nNível {building.Level}/{definition.MaxLevel}\nEstado: {building.State}\n" +
-                $"Custo upgrade: {definition.GetUpgradeCost(ResourceType.Gold, building.Level)} ouro\n{productionBlock}";
+            var builder = new StringBuilder();
+            builder.AppendLine(definition.DisplayName);
+            builder.AppendLine($"Nível {building.Level}/{definition.MaxLevel}");
+            builder.AppendLine($"Estado: {building.State}");
+            builder.AppendLine($"Custo upgrade: {definition.GetUpgradeCost(ResourceType.Gold, building.Level)} ouro");
+            builder.AppendLine(productionBlock);
+
+            var isTower = string.Equals(building.DefinitionId, "dragon-tower", StringComparison.Ordinal);
+            if (isTower && _dragons != null)
+            {
+                builder.AppendLine($"Ninho: {_dragons.RoostOccupantCount}/{_dragons.RoostCapacity}");
+                foreach (var status in _dragons.GetDragonStatuses())
+                {
+                    builder.AppendLine($"• {status.DisplayName}: {status.StateLabel} (fome {status.Hunger}/{status.MaxHunger})");
+                }
+            }
+
+            _selectedText.text = builder.ToString();
             _upgradeButton.SetEnabled(building.CanUpgrade(definition));
             var canCollect = _city.Economy.Production.TryGetState(building.DefinitionId, out var state) && state.HasCollectable;
             _collectButton.SetEnabled(canCollect);
             _collectButton.style.display = ProductionCatalog.TryGet(building.DefinitionId, out _)
                 ? DisplayStyle.Flex
                 : DisplayStyle.None;
+            _feedButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
+            _hatchButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private string BuildProductionBlock(BuildingInstance building)

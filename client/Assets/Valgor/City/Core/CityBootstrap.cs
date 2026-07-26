@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Valgor.Bootstrap;
@@ -7,6 +6,7 @@ using Valgor.City.Core;
 using Valgor.City.Data;
 using Valgor.City.UI;
 using Valgor.Core.Modules;
+using Valgor.Dragons.Core;
 
 namespace Valgor.City
 {
@@ -33,13 +33,16 @@ namespace Valgor.City
 
         public bool IsLoaded { get; private set; }
         public CityEconomy Economy { get; private set; } = null!;
+        public DragonService Dragons { get; private set; } = null!;
         public CityController Controller { get; private set; } = null!;
         public ResourceWallet Wallet => Economy.Wallet;
 
         private void Awake()
         {
             Economy = ResolveEconomy();
+            Dragons = ResolveDragons(Economy);
             Controller = new CityController(Economy, new BuildingSelectionService());
+            Controller.BindDragons(Dragons);
             GameBootstrap.Services?.Register<IPlayerCityModule>(this);
             GameBootstrap.Services?.Register<IResourceModule>(new CityResourceModule(Economy.Wallet));
             CreateBuildings();
@@ -57,6 +60,7 @@ namespace Valgor.City
             if (IsLoaded)
             {
                 Controller.Persist();
+                Dragons.Persist();
                 Exit();
             }
         }
@@ -75,6 +79,22 @@ namespace Valgor.City
             var economy = CityEconomy.Create();
             GameBootstrap.Services?.Register(economy);
             return economy;
+        }
+
+        private static DragonService ResolveDragons(CityEconomy economy)
+        {
+            var wallet = new CityDragonResourceWallet(economy.Wallet);
+            if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<DragonService>(out var existing))
+            {
+                existing.BindWallet(wallet, economy.PersistWallet);
+                return existing;
+            }
+
+            var dragons = DragonService.Create(wallet, economy.PersistWallet);
+            GameBootstrap.Services?.Register(dragons);
+            GameBootstrap.Services?.Register<IDragonModule>(dragons);
+            GameBootstrap.Services?.Register<IDragonGateway>(dragons);
+            return dragons;
         }
 
         private void CreateBuildings()
@@ -111,7 +131,7 @@ namespace Valgor.City
         private void CreateHud()
         {
             var hud = GetComponent<CityHudController>() ?? gameObject.AddComponent<CityHudController>();
-            hud.Initialize(Controller);
+            hud.Initialize(Controller, Dragons);
         }
 
         private static void ConfigureCamera()

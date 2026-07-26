@@ -1,0 +1,413 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Valgor.Core.Modules;
+using Valgor.Dragons.Data;
+using Valgor.Dragons.Deployment;
+using Valgor.Dragons.Feeding;
+using Valgor.Dragons.Recovery;
+
+namespace Valgor.Dragons.Core
+{
+    /// <summary>
+    /// Fachada do sistema de dragões: ninho, estados, alimentação, recuperação e destaque em marcha.
+    /// </summary>
+    public sealed class DragonService : IDragonGateway
+    {
+        private readonly Dictionary<string, DragonInstance> _dragons = new();
+        private readonly IDragonRepository _repository;
+        private readonly DragonSettings _settings;
+        private readonly Func<DateTime> _utcNow;
+        private readonly DragonStateMachine _stateMachine = new();
+        private IDragonResourceWallet? _wallet;
+        private Action? _persistWallet;
+
+        public DragonService(
+            DragonSettings settings,
+            IDragonRepository repository,
+            Func<DateTime>? utcNow = null)
+        {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _utcNow = utcNow ?? (() => DateTime.UtcNow);
+            Feeding = new DragonFeedingService(_settings, _stateMachine);
+            Recovery = new DragonRecoveryService(_settings, _stateMachine);
+            Deployment = new DragonDeploymentService(_stateMachine);
+            Roost = new DragonRoost(
+                _settings.DefaultRoostId,
+                "dragon-tower",
+                _settings.DefaultRoostCapacity);
+        }
+
+        public bool IsReady => true;
+        public DragonRoost Roost { get; private set; }
+        public int RoostOccupantCount => Roost.OccupantIds.Count;
+        public int RoostCapacity => Roost.Capacity;
+        public DragonFeedingService Feeding { get; }
+        public DragonRecoveryService Recovery { get; }
+        public DragonDeploymentService Deployment { get; }
+        public DragonStateMachine StateMachine => _stateMachine;
+        public IReadOnlyDictionary<string, DragonInstance> Dragons => _dragons;
+        public event EventHandler<DragonChangedEvent>? Changed;
+
+        public void BindWallet(IDragonResourceWallet? wallet, Action? persistWallet = null)
+        {
+            _wallet = wallet;
+            _persistWallet = persistWallet;
+        }
+
+        public void LoadOrInitialize()
+        {
+            var snapshot = _repository.Load();
+            if (snapshot?.Roost != null)
+            {
+                Roost = snapshot.Roost;
+            }
+
+            _dragons.Clear();
+            if (snapshot != null)
+            {
+                foreach (var pair in snapshot.Dragons)
+                {
+                    _dragons[pair.Key] = pair.Value.Clone();
+                    if (!string.IsNullOrEmpty(pair.Value.AssignedMarchId))
+                    {
+                        Deployment.RestoreAssignment(pair.Value.AssignedMarchId!, pair.Key);
+                    }
+                }
+            }
+
+            if (_dragons.Count == 0)
+            {
+                SeedStarterDragons();
+            }
+
+            Tick();
+            Persist();
+        }
+
+        public void Tick()
+        {
+            var now = _utcNow();
+            foreach (var dragon in _dragons.Values.ToList())
+            {
+                var previous = dragon.State;
+                Recovery.Advance(dragon, now);
+                ApplyHungerDecay(dragon, now);
+                if (previous != dragon.State)
+                {
+                    Raise(dragon.InstanceId, previous, dragon.State);
+                }
+            }
+
+            Persist();
+        }
+
+        public int GetReadyDragonCount() =>
+            _dragons.Values.Count(d => d.State == DragonState.Ready);
+
+        public int GetProvisionalDragonPower() =>
+            _dragons.Values
+                .Where(d => d.State is DragonState.Flying or DragonState.Combat)
+                .Sum(d => DragonCatalog.TryGet(d.DefinitionId, out var def) ? def.BasePower : 0);
+
+        public IReadOnlyList<DragonStatusInfo> GetDragonStatuses()
+        {
+            var list = new List<DragonStatusInfo>(_dragons.Count);
+            foreach (var pair in _dragons)
+            {
+                if (!DragonCatalog.TryGet(pair.Value.DefinitionId, out var definition))
+                {
+                    continue;
+                }
+
+                list.Add(new DragonStatusInfo(
+                    pair.Key,
+                    definition.DisplayName,
+                    pair.Value.State.ToString().ToUpperInvariant(),
+                    pair.Value.Hunger,
+                    definition.MaxHunger));
+            }
+
+            return list;
+        }
+
+        public bool TryFeed(string dragonId, out string error)
+        {
+            if (_wallet == null)
+            {
+                error = "Carteira indisponível.";
+                return false;
+            }
+
+            if (!TryGet(dragonId, out var dragon) || !DragonCatalog.TryGet(dragon.DefinitionId, out var definition))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            if (!Feeding.TryFeed(dragon, definition, _wallet, out error))
+            {
+                return false;
+            }
+
+            _persistWallet?.Invoke();
+            Persist();
+            Raise(dragonId, previous, dragon.State);
+            return true;
+        }
+
+        public bool TryStartRecovery(string dragonId, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            if (!Recovery.TryStartRecovery(dragon, _utcNow(), out error))
+            {
+                return false;
+            }
+
+            Persist();
+            Raise(dragonId, previous, dragon.State);
+            return true;
+        }
+
+        public bool TryDeployToMarch(string dragonId, string marchId, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            if (!Deployment.TryDeploy(dragon, marchId, out error))
+            {
+                return false;
+            }
+
+            Persist();
+            Raise(dragonId, previous, dragon.State);
+            return true;
+        }
+
+        public bool TryDeployFirstReadyToMarch(string marchId, out string error)
+        {
+            var ready = _dragons.Values.FirstOrDefault(d => d.State == DragonState.Ready);
+            if (ready == null)
+            {
+                error = "Nenhum dragão READY disponível.";
+                return false;
+            }
+
+            return TryDeployToMarch(ready.InstanceId, marchId, out error);
+        }
+
+        public bool TryEnterCombatForMarch(string marchId, out string error)
+        {
+            if (!Deployment.TryGetDragonForMarch(marchId, out var dragonId) ||
+                !TryGet(dragonId, out var dragon))
+            {
+                error = "Nenhum dragão destacado nesta marcha.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            if (!Deployment.TryEnterCombat(dragon, out error))
+            {
+                return false;
+            }
+
+            Persist();
+            Raise(dragonId, previous, dragon.State);
+            return true;
+        }
+
+        public bool TryRecallFromMarch(string marchId, out string error)
+        {
+            if (!Deployment.TryGetDragonForMarch(marchId, out var dragonId) ||
+                !TryGet(dragonId, out var dragon))
+            {
+                error = "Nenhum dragão destacado nesta marcha.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            if (!Deployment.TryRecall(dragon, injured: false, out error))
+            {
+                return false;
+            }
+
+            Recovery.TryStartRecovery(dragon, _utcNow(), out _);
+            Persist();
+            Raise(dragonId, previous, dragon.State);
+            return true;
+        }
+
+        public bool TryGetStatus(string dragonId, out string displayName, out string stateLabel)
+        {
+            displayName = string.Empty;
+            stateLabel = string.Empty;
+            if (!TryGet(dragonId, out var dragon) ||
+                !DragonCatalog.TryGet(dragon.DefinitionId, out var definition))
+            {
+                return false;
+            }
+
+            displayName = definition.DisplayName;
+            stateLabel = dragon.State.ToString().ToUpperInvariant();
+            return true;
+        }
+
+        public bool TryGetStatusByWorldCode(string worldNodeCode, out string displayName, out string stateLabel)
+        {
+            displayName = string.Empty;
+            stateLabel = string.Empty;
+            if (!DragonCatalog.TryGetByWorldCode(worldNodeCode, out var definition))
+            {
+                return false;
+            }
+
+            var instance = _dragons.Values.FirstOrDefault(d => d.DefinitionId == definition.Id);
+            if (instance == null)
+            {
+                displayName = definition.DisplayName;
+                stateLabel = DragonState.Locked.ToString().ToUpperInvariant();
+                return true;
+            }
+
+            displayName = definition.DisplayName;
+            stateLabel = instance.State.ToString().ToUpperInvariant();
+            return true;
+        }
+
+        public bool TryUnlockAndHatch(string definitionId, out string error)
+        {
+            if (!DragonCatalog.TryGet(definitionId, out _))
+            {
+                error = "Definição de dragão inválida.";
+                return false;
+            }
+
+            if (!Roost.HasSlot)
+            {
+                error = "Ninho sem vagas.";
+                return false;
+            }
+
+            var locked = _dragons.Values.FirstOrDefault(d =>
+                d.DefinitionId == definitionId && d.State == DragonState.Locked);
+            if (locked == null)
+            {
+                error = "Nenhum ovo bloqueado para esta espécie.";
+                return false;
+            }
+
+            var previous = locked.State;
+            if (!_stateMachine.TryTransition(locked, DragonState.Hatching, out error))
+            {
+                return false;
+            }
+
+            locked.StateEndsAtUtc = _utcNow().AddHours(_settings.HatchDurationHours);
+            Persist();
+            Raise(locked.InstanceId, previous, locked.State);
+            return true;
+        }
+
+        public bool TryGet(string dragonId, out DragonInstance dragon) =>
+            _dragons.TryGetValue(dragonId, out dragon!);
+
+        public void Persist()
+        {
+            var snapshot = new DragonSnapshot
+            {
+                SavedAtUtc = _utcNow(),
+                Roost = Roost
+            };
+            foreach (var pair in _dragons)
+            {
+                snapshot.Dragons[pair.Key] = pair.Value.Clone();
+            }
+
+            _repository.Save(snapshot);
+        }
+
+        private void SeedStarterDragons()
+        {
+            var ember = new DragonInstance(
+                "dragon-ember-1",
+                "ember-whelp",
+                DragonState.Ready,
+                hunger: 80,
+                roostId: Roost.RoostId);
+            var ash = new DragonInstance(
+                "dragon-ash-1",
+                "ash-drake",
+                DragonState.Locked,
+                hunger: 0,
+                roostId: Roost.RoostId);
+            _dragons[ember.InstanceId] = ember;
+            _dragons[ash.InstanceId] = ash;
+            Roost.OccupantIds.Clear();
+            Roost.OccupantIds.Add(ember.InstanceId);
+            Roost.OccupantIds.Add(ash.InstanceId);
+        }
+
+        private void ApplyHungerDecay(DragonInstance dragon, DateTime nowUtc)
+        {
+            if (dragon.State is not (DragonState.Ready or DragonState.Resting))
+            {
+                return;
+            }
+
+            if (!DragonCatalog.TryGet(dragon.DefinitionId, out var definition))
+            {
+                return;
+            }
+
+            var elapsed = nowUtc - dragon.LastUpdatedUtc;
+            if (elapsed.TotalHours < _settings.HungerIntervalHours)
+            {
+                return;
+            }
+
+            var ticks = (int)Math.Floor(elapsed.TotalHours / _settings.HungerIntervalHours);
+            if (ticks <= 0)
+            {
+                return;
+            }
+
+            dragon.Hunger = Math.Max(0, dragon.Hunger - ticks * 10);
+            dragon.LastUpdatedUtc = dragon.LastUpdatedUtc.AddHours(ticks * _settings.HungerIntervalHours);
+            if (dragon.Hunger <= definition.MaxHunger / 4 && dragon.State == DragonState.Ready)
+            {
+                _stateMachine.TryTransition(dragon, DragonState.Hungry, out _);
+            }
+        }
+
+        private void Raise(string dragonId, DragonState previous, DragonState current) =>
+            Changed?.Invoke(this, new DragonChangedEvent(dragonId, previous, current));
+
+        public static DragonService Create(
+            IDragonResourceWallet? wallet = null,
+            Action? persistWallet = null,
+            IDragonRepository? repository = null,
+            Func<DateTime>? utcNow = null)
+        {
+            var settings = new DragonSettings();
+            var service = new DragonService(
+                settings,
+                repository ?? new DragonRepository(settings.PersistenceKey),
+                utcNow);
+            service.BindWallet(wallet, persistWallet);
+            service.LoadOrInitialize();
+            return service;
+        }
+    }
+}

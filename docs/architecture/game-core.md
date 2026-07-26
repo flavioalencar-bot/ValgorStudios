@@ -47,12 +47,16 @@ Contratos em `Valgor.Core.Modules`:
 - `IWorldMapModule`
 - `IBuildingModule`
 - `IResourceModule`
-- `IDragonModule`
+- `IDragonModule` / `IDragonGateway` — implementação em `Assets/Valgor/Dragons` (`DragonService`)
 - `IHeroesGateway` — implementação pelo agente de heróis
 
 ## City Foundation
 
 `Assets/Valgor/City/` contém a cidade do jogador em uma assembly própria. `CityBootstrap` registra `IPlayerCityModule` e um adaptador de `IResourceModule`, cria o catálogo provisório de edifícios e a HUD de UI Toolkit. A cidade preserva a sessão ao navegar entre `PlayerCity` e `WorldMap`.
+
+## Dragons Foundation
+
+`Assets/Valgor/Dragons/` — ninho, estados, alimentação, recuperação e destaque em marchas. Ver [dragons.md](dragons.md).
 
 ## Testes
 

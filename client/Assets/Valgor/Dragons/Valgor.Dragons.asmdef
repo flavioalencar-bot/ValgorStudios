@@ -1,11 +1,8 @@
 {
-  "name": "Valgor.WorldMap",
-  "rootNamespace": "Valgor.WorldMap",
+  "name": "Valgor.Dragons",
+  "rootNamespace": "Valgor.Dragons",
   "references": [
     "Valgor.Runtime",
-    "Valgor.City",
-    "Valgor.Dragons",
-    "Unity.InputSystem",
     "UnityEngine.UIElementsModule"
   ],
   "includePlatforms": [],

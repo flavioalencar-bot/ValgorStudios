@@ -446,7 +446,18 @@ namespace Valgor.WorldMap.UI
 
                     break;
                 case WorldDragonNode dragon:
-                    builder.AppendLine($"Dragão: {dragon.DragonCode}");
+                    builder.AppendLine($"Código do nó: {dragon.DragonCode}");
+                    if (_map.Session.Dragons.TryGetStatusByWorldCode(
+                            dragon.DragonCode,
+                            out var dragonName,
+                            out var dragonState))
+                    {
+                        builder.AppendLine($"Espécie: {dragonName}");
+                        builder.AppendLine($"Estado no ninho: {dragonState}");
+                    }
+
+                    builder.AppendLine($"Dragões READY: {_map.Session.Dragons.GetReadyDragonCount()}");
+                    builder.AppendLine($"Poder em missão: {_map.Session.Dragons.GetProvisionalDragonPower()}");
                     break;
                 case WorldLandmarkNode landmark:
                     builder.AppendLine($"Marco: {landmark.LandmarkCode}");

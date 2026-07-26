@@ -15,7 +15,11 @@ MainMenu → `GameNavigator.GoToCity()` → `CityBootstrap` → HUD / câmera / 
 | Production | `ResourceProductionService`, `OfflineProductionCalculator`, `ResourceCollectionService`, `ProductionTickService`, `LocalProductionRepository` |
 | Buildings | `BuildingCatalog`, `BuildingSlot`, `BuildingView` |
 | Camera | `CityCameraController`, `CityBounds` |
-| UI | `CityHudController` |
+| UI | `CityHudController` (inclui painel da Torre dos Dragões) |
+
+## Torre dos Dragões
+
+Produz `DragonEssence`. Selecionada, a HUD lista o ninho (`DragonService` / `IDragonGateway`), permite alimentar e chocar ovos. Detalhes: [dragons.md](dragons.md).
 
 ## Produção passiva
 
