@@ -229,9 +229,11 @@ namespace Valgor.Heroes.EditorTools
             writer.WriteLine("Preview checklist (scene build):");
             writer.WriteLine("- [x] Humanoid dummy prefab");
             writer.WriteLine("- [x] Dedicated preview camera + light");
-            writer.WriteLine("- [x] RenderTexture bound to UI panel");
+            writer.WriteLine("- [x] RenderTexture bound to UI panel (Contain / full-body)");
             writer.WriteLine("- [x] Faction colors (vermelho / azul / dourado)");
             writer.WriteLine("- [x] Drag rotate + scroll zoom");
+            writer.WriteLine("- [x] Layout: power button above preview, no overlap");
+            writer.WriteLine("- [x] Framing: focusHeight + distance tuned for full body");
 
             Debug.Log($"Validation report written to {reportPath} ({heroes.Count} heroes)");
             if (heroes.Count != 11)

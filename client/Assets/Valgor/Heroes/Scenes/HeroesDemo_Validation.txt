@@ -19,9 +19,11 @@ Dummy prefab: True
 Preview checklist (scene build):
 - [x] Humanoid dummy prefab
 - [x] Dedicated preview camera + light
-- [x] RenderTexture bound to UI panel
+- [x] RenderTexture bound to UI panel (Contain / full-body)
 - [x] Faction colors (vermelho / azul / dourado)
 - [x] Drag rotate + scroll zoom
+- [x] Layout: power button above preview, no overlap
+- [x] Framing: focusHeight + distance tuned for full body
 
 Play Mode preview checks:
 - preview controller: True
@@ -30,5 +32,5 @@ Play Mode preview checks:
 - dummy: True
 - camera targetTexture bound: True
 - cullingMask: 256
-- dummy scale: (1.00, 1.00, 1.00)
+- dummy scale: (0.88, 0.88, 0.88)
 - shot: Assets/Valgor/Heroes/Scenes/HeroesDemo_Preview3D.png

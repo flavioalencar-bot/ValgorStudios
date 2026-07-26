@@ -16,29 +16,35 @@
     </ui:VisualElement>
 
     <ui:VisualElement class="heroes-demo-right">
-      <ui:Label text="DETALHE" class="section-label" />
-      <ui:Label name="detail-name" text="—" class="detail-name" />
-      <ui:Label name="detail-title" text="—" class="detail-title" />
-      <ui:Label name="detail-meta" text="—" class="detail-meta" />
-      <ui:Label name="detail-power" text="—" class="detail-power" />
+      <ui:ScrollView name="detail-scroll" class="heroes-detail-scroll">
+        <ui:VisualElement class="heroes-detail-block">
+          <ui:Label text="DETALHE" class="section-label" />
+          <ui:Label name="detail-name" text="—" class="detail-name" />
+          <ui:Label name="detail-title" text="—" class="detail-title" />
+          <ui:Label name="detail-meta" text="—" class="detail-meta" />
+          <ui:Label name="detail-power" text="—" class="detail-power" />
 
-      <ui:VisualElement class="power-panel">
-        <ui:Label text="PODER ESPECIAL" class="section-label" />
-        <ui:VisualElement class="power-row">
-          <ui:Label name="power-state" text="READY" class="power-state power-state--ready" />
-          <ui:Label name="power-timer" text="Disponível" class="power-timer" />
+          <ui:VisualElement class="power-panel">
+            <ui:Label text="PODER ESPECIAL" class="section-label section-label--tight" />
+            <ui:VisualElement class="power-row">
+              <ui:Label name="power-state" text="READY" class="power-state power-state--ready" />
+              <ui:Label name="power-timer" text="Disponível" class="power-timer" />
+            </ui:VisualElement>
+            <ui:VisualElement class="power-meter">
+              <ui:VisualElement name="power-fill" class="power-fill" />
+            </ui:VisualElement>
+            <ui:Button name="activate-special" text="Ativar poder especial" class="activate-button" />
+            <ui:Label text="Simulação local — o servidor valida em batalha real." class="power-note" />
+          </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement class="power-meter">
-          <ui:VisualElement name="power-fill" class="power-fill" />
-        </ui:VisualElement>
-        <ui:Button name="activate-special" text="Ativar poder especial" class="activate-button" />
-        <ui:Label text="Simulação local — o servidor valida em batalha real." class="power-note" />
-      </ui:VisualElement>
+      </ui:ScrollView>
 
-      <ui:Label text="PREVIEW 360° (dummy técnico)" class="section-label" />
-      <ui:Label text="Arraste para girar · scroll para zoom · cor por facção." class="power-note" />
-      <ui:VisualElement name="hero-preview-panel" class="hero-preview-panel">
-        <ui:VisualElement name="hero-preview-image" class="hero-preview-image" />
+      <ui:VisualElement class="hero-preview-section">
+        <ui:Label text="PREVIEW 360° (dummy técnico)" class="section-label section-label--tight" />
+        <ui:Label text="Arraste para girar · scroll para zoom · cor por facção." class="power-note power-note--tight" />
+        <ui:VisualElement name="hero-preview-panel" class="hero-preview-panel">
+          <ui:VisualElement name="hero-preview-image" class="hero-preview-image" />
+        </ui:VisualElement>
       </ui:VisualElement>
     </ui:VisualElement>
   </ui:VisualElement>

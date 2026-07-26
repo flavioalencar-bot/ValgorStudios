@@ -54,5 +54,8 @@ Atalhos:
 - Prefab: `Assets/Valgor/Heroes/Prefabs/HumanoidDummy.prefab`
 - Layer: `HeroPreview`
 - Câmera dedicada + luz + RenderTexture no painel `hero-preview-image`
+- RT com `Contain` (corpo inteiro, sem crop de pés)
 - Drag no painel para girar, scroll para zoom
+- Layout: detalhe/poder no scroll superior; preview flexível abaixo (sem sobrepor o botão)
 - Cores: Rosa de Sangue vermelho escuro · Asas azul · Guarda dourado
+- Responsivo: coluna única abaixo de 900px / mobile
