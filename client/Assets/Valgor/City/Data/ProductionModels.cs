@@ -8,9 +8,9 @@ namespace Valgor.City.Data
     /// </summary>
     public sealed class ProductionSettings
     {
-        public TimeSpan MaxOfflineDuration { get; init; } = TimeSpan.FromHours(12);
-        public TimeSpan TickInterval { get; init; } = TimeSpan.FromSeconds(1);
-        public string PersistenceKey { get; init; } = "valgor.city.production.v1";
+        public TimeSpan MaxOfflineDuration { get; set; } = TimeSpan.FromHours(12);
+        public TimeSpan TickInterval { get; set; } = TimeSpan.FromSeconds(1);
+        public string PersistenceKey { get; set; } = "valgor.city.production.v1";
     }
 
     public sealed class ResourceProductionDefinition

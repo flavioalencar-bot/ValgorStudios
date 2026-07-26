@@ -43,3 +43,5 @@ PlayerSettings:
     Android: com.valgorstudios.valgor
     iPhone: com.valgorstudios.valgor
   usePlayerLog: 1
+  activeInputHandler: 2
+  disableOldInputManagerSupport: 0

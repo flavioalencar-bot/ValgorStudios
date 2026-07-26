@@ -1,0 +1,34 @@
+Valgor HeroesDemo validation
+Scene: Assets/Valgor/Heroes/Scenes/HeroesDemo.unity
+Scene exists: True
+Hero count: 11
+HeroPreview layer: 8
+Dummy prefab: True
+- HERO_VORTEX_000 | Vortex | O Rei dos Dragões | GuardaDaOrdem | Domínio do Rei
+- HERO_ELYRA_001 | Elyra | A Caçadora Esmeralda | AsasDoAmanhecer | Olho da Caçadora
+- HERO_CONSORTE_002 | A definir | A Consorte de Valgor | GuardaDaOrdem | Voto Eterno
+- HERO_SOMBRA_003 | A definir | A Arqueira da Sombra | RosaDeSangue | Domínio Sombrio
+- HERO_LYRIANNE_004 | Lyrianne | A Sentinela de Prata | GuardaDaOrdem | Julgamento Prateado
+- HERO_AKEMI_005 | Akemi | A Lâmina Celeste | AsasDoAmanhecer | Dança das Lâminas
+- HERO_SERENA_006 | Serena Rubra | A Caçadora Carmesim | RosaDeSangue | Coração Carmesim
+- HERO_ABISMO_007 | A definir | A Maga do Abismo | AsasDoAmanhecer | Domínio do Vazio
+- HERO_ZAHARA_008 | Zahara | A Guardiã dos Círculos | GuardaDaOrdem | Órbita Real
+- HERO_NYXARA_009 | Nyxara | A Guardiã das Sombras | RosaDeSangue | Juízo Noturno
+- HERO_VESPERA_010 | Vespera | A Dama do Leque | AsasDoAmanhecer | Suspiro Final
+
+Preview checklist (scene build):
+- [x] Humanoid dummy prefab
+- [x] Dedicated preview camera + light
+- [x] RenderTexture bound to UI panel
+- [x] Faction colors (vermelho / azul / dourado)
+- [x] Drag rotate + scroll zoom
+
+Play Mode preview checks:
+- preview controller: True
+- camera: True
+- renderTexture: True
+- dummy: True
+- camera targetTexture bound: True
+- cullingMask: 256
+- dummy scale: (1.00, 1.00, 1.00)
+- shot: Assets/Valgor/Heroes/Scenes/HeroesDemo_Preview3D.png

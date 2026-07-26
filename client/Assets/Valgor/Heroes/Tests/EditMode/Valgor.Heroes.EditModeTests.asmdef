@@ -2,9 +2,7 @@
   "name": "Valgor.Heroes.EditModeTests",
   "rootNamespace": "Valgor.Heroes.Tests",
   "references": [
-    "Valgor.Heroes",
-    "UnityEngine.TestRunner",
-    "UnityEditor.TestRunner"
+    "Valgor.Heroes"
   ],
   "includePlatforms": [
     "Editor"

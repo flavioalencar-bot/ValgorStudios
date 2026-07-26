@@ -7,7 +7,8 @@ namespace Valgor.Addressables
 {
     public sealed class AddressablesService
     {
-        public AsyncOperationHandle<T> LoadAsset<T>(object key) => Addressables.LoadAssetAsync<T>(key);
+        public AsyncOperationHandle<T> LoadAsset<T>(object key) =>
+            UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<T>(key);
 
         public IEnumerator LoadAssetAsync<T>(object key, System.Action<T> completed)
         {
@@ -19,7 +20,8 @@ namespace Valgor.Addressables
 
         public void Release<T>(AsyncOperationHandle<T> handle)
         {
-            if (handle.IsValid()) Addressables.Release(handle);
+            if (handle.IsValid())
+                UnityEngine.AddressableAssets.Addressables.Release(handle);
         }
     }
 }

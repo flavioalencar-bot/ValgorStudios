@@ -2,9 +2,7 @@
   "name": "Valgor.Heroes.PlayModeTests",
   "rootNamespace": "Valgor.Heroes.Tests.PlayMode",
   "references": [
-    "Valgor.Heroes",
-    "UnityEngine.TestRunner",
-    "UnityEditor.TestRunner"
+    "Valgor.Heroes"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

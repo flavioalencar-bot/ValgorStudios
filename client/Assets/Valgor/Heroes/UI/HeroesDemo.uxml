@@ -1,0 +1,45 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:Style src="HeroesDemo.uss" />
+  <ui:VisualElement name="heroes-demo-root" class="heroes-demo-root">
+    <ui:VisualElement class="heroes-demo-left">
+      <ui:Label text="VALGOR — HERÓIS" class="heroes-title" />
+      <ui:VisualElement name="filters" class="heroes-filters">
+        <ui:Button name="filter-all" text="Todos" />
+        <ui:Button name="filter-rosa" text="Rosa de Sangue" />
+        <ui:Button name="filter-asas" text="Asas do Amanhecer" />
+        <ui:Button name="filter-guarda" text="Guarda da Ordem" />
+      </ui:VisualElement>
+      <ui:Label name="faction-hint" text="Todas as facções" class="heroes-hint" />
+      <ui:ScrollView class="heroes-scroll">
+        <ui:VisualElement name="hero-cards" class="hero-cards" />
+      </ui:ScrollView>
+    </ui:VisualElement>
+
+    <ui:VisualElement class="heroes-demo-right">
+      <ui:Label text="DETALHE" class="section-label" />
+      <ui:Label name="detail-name" text="—" class="detail-name" />
+      <ui:Label name="detail-title" text="—" class="detail-title" />
+      <ui:Label name="detail-meta" text="—" class="detail-meta" />
+      <ui:Label name="detail-power" text="—" class="detail-power" />
+
+      <ui:VisualElement class="power-panel">
+        <ui:Label text="PODER ESPECIAL" class="section-label" />
+        <ui:VisualElement class="power-row">
+          <ui:Label name="power-state" text="READY" class="power-state power-state--ready" />
+          <ui:Label name="power-timer" text="Disponível" class="power-timer" />
+        </ui:VisualElement>
+        <ui:VisualElement class="power-meter">
+          <ui:VisualElement name="power-fill" class="power-fill" />
+        </ui:VisualElement>
+        <ui:Button name="activate-special" text="Ativar poder especial" class="activate-button" />
+        <ui:Label text="Simulação local — o servidor valida em batalha real." class="power-note" />
+      </ui:VisualElement>
+
+      <ui:Label text="PREVIEW 360° (dummy técnico)" class="section-label" />
+      <ui:Label text="Arraste para girar · scroll para zoom · cor por facção." class="power-note" />
+      <ui:VisualElement name="hero-preview-panel" class="hero-preview-panel">
+        <ui:VisualElement name="hero-preview-image" class="hero-preview-image" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

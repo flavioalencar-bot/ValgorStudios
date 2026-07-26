@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Valgor HeroesDemo — Preview Estática</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: "Segoe UI", sans-serif; background: #0e121a; color: #e8eef4; }
+    .root { display: flex; min-height: 100vh; padding: 16px; gap: 16px; box-sizing: border-box; }
+    .left { flex: 1; }
+    .right { width: 40%; min-width: 320px; background: #161c26; border-left: 2px solid #3d8bfd; padding: 16px; box-sizing: border-box; }
+    h1 { font-size: 26px; letter-spacing: 2px; margin: 0 0 10px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    button { background: #243044; color: #e8eef4; border: 0; padding: 8px 12px; cursor: pointer; }
+    button.active, .card.selected { outline: 2px solid #3d8bfd; }
+    .hint { color: #9aabbc; margin-bottom: 10px; }
+    .cards { display: flex; flex-wrap: wrap; gap: 10px; }
+    .card { width: 200px; background: #1c222e; border-left: 3px solid #5a6e8c; padding: 10px; text-align: left; }
+    .card.selected { background: #222c3e; border-left-color: #3d8bfd; }
+    .name { font-size: 15px; }
+    .title { color: #aabac8; font-size: 12px; margin-top: 2px; }
+    .rarity { color: #d4af37; margin-top: 4px; }
+    .faction { color: #78aadc; font-size: 11px; margin-top: 2px; }
+    .power { color: #be96dc; margin-top: 4px; font-size: 12px; }
+    .section { color: #7896b4; letter-spacing: 1px; margin: 10px 0 6px; font-size: 12px; }
+    .detail-name { font-size: 24px; }
+    .detail-title { color: #b4c4d6; margin-bottom: 8px; }
+    .meta, .note { color: #9aabbc; white-space: pre-line; font-size: 13px; }
+    .power-panel { background: #121822; padding: 12px; margin: 8px 0 12px; }
+    .row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .state-READY { color: #5ad28c; }
+    .state-ACTIVE { color: #5aaaff; }
+    .state-COOLDOWN { color: #e68c50; }
+    .meter { height: 10px; background: #28303c; position: relative; margin-bottom: 10px; }
+    .fill { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(61,139,253,.75); height: 0%; }
+    .preview { width: 180px; height: 220px; margin-top: 8px; display: grid; place-items: center; background: #0a0d14; border: 1px solid #2a3548; }
+    .dummy { width: 70px; height: 120px; transform: rotateY(25deg); transition: background .2s; }
+    .banner { background: #3d2a14; color: #f0d9a8; padding: 8px 12px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="banner">Preview estática da HeroesDemo (espelha a UI Unity). Use o Editor para Play Mode real.</div>
+  <div class="root">
+    <div class="left">
+      <h1>VALGOR — HERÓIS</h1>
+      <div class="filters" id="filters"></div>
+      <div class="hint" id="hint">Todos · 11 heróis</div>
+      <div class="cards" id="cards"></div>
+    </div>
+    <div class="right">
+      <div class="section">DETALHE</div>
+      <div class="detail-name" id="dName">—</div>
+      <div class="detail-title" id="dTitle">—</div>
+      <div class="meta" id="dMeta">—</div>
+      <div class="meta" id="dPower" style="color:#d2b4ff">—</div>
+      <div class="power-panel">
+        <div class="section">PODER ESPECIAL</div>
+        <div class="row">
+          <strong id="pState" class="state-READY">READY</strong>
+          <span id="pTimer">Disponível</span>
+        </div>
+        <div class="meter"><div class="fill" id="pFill"></div></div>
+        <button id="activate">Ativar poder especial</button>
+        <div class="note" style="margin-top:8px">Simulação local — o servidor valida em batalha real.</div>
+      </div>
+      <div class="section">PREVIEW 360° (dummy técnico)</div>
+      <div class="preview"><div class="dummy" id="dummy"></div></div>
+      <div class="note">O bloco colorido representa o personagem até o modelo final.</div>
+    </div>
+  </div>
+  <script>
+    // Dados espelhados de heroes.seed.json — não inventados.
+    const heroes = [
+      {id:"HERO_VORTEX_000",name:"Vortex",title:"O Rei dos Dragões",rarity:"Mítica",faction:"GUARDA_DA_ORDEM",className:"Comandante Dracônico",role:"Liderança / Dano / Controle",position:"Linha de frente",weapon:"Espada dracônica e vínculo com dragão",element:"Chama Dracônica",power:"Domínio do Rei",dur:10,cd:60},
+      {id:"HERO_ELYRA_001",name:"Elyra",title:"A Caçadora Esmeralda",rarity:"Lendária",faction:"ASAS_DO_AMANHECER",className:"Arqueira",role:"Dano de longo alcance",position:"Retaguarda",weapon:"Arco longo recurvo esmeralda",element:"Natureza",power:"Olho da Caçadora",dur:10,cd:35},
+      {id:"HERO_CONSORTE_002",name:"A definir",title:"A Consorte de Valgor",rarity:"Mítica",faction:"GUARDA_DA_ORDEM",className:"Lanceira Real",role:"Suporte / Liderança / Dano",position:"Linha intermediária",weapon:"Lança-cajado celestial branca e dourada",element:"Luz Sagrada",power:"Voto Eterno",dur:10,cd:45},
+      {id:"HERO_SOMBRA_003",name:"A definir",title:"A Arqueira da Sombra",rarity:"Lendária",faction:"ROSA_DE_SANGUE",className:"Atiradora Élfica",role:"Dano / Controle",position:"Retaguarda",weapon:"Besta élfica ornamentada",element:"Sombra",power:"Domínio Sombrio",dur:8,cd:42},
+      {id:"HERO_LYRIANNE_004",name:"Lyrianne",title:"A Sentinela de Prata",rarity:"Lendária",faction:"GUARDA_DA_ORDEM",className:"Sentinela",role:"Precisão / Proteção",position:"Linha intermediária",weapon:"Arco lunar de haste longa",element:"Luz Lunar",power:"Julgamento Prateado",dur:9,cd:44},
+      {id:"HERO_AKEMI_005",name:"Akemi",title:"A Lâmina Celeste",rarity:"Lendária",faction:"ASAS_DO_AMANHECER",className:"Duelista",role:"Assassina de curto alcance",position:"Linha de frente móvel",weapon:"Lâminas gêmeas celestes",element:"Gelo Celeste",power:"Dança das Lâminas",dur:8,cd:40},
+      {id:"HERO_SERENA_006",name:"Serena Rubra",title:"A Caçadora Carmesim",rarity:"Lendária",faction:"ROSA_DE_SANGUE",className:"Atiradora",role:"Longa distância / Dano crítico",position:"Retaguarda",weapon:"Lançador rúnico carmesim de longo alcance",element:"Fogo",power:"Coração Carmesim",dur:9,cd:42},
+      {id:"HERO_ABISMO_007",name:"A definir",title:"A Maga do Abismo",rarity:"Lendária",faction:"ASAS_DO_AMANHECER",className:"Maga",role:"Dano em área / Controle / Enfraquecimento",position:"Retaguarda",weapon:"Cajado do Abismo com orbe violeta",element:"Abismo",power:"Domínio do Vazio",dur:7,cd:50},
+      {id:"HERO_ZAHARA_008",name:"Zahara",title:"A Guardiã dos Círculos",rarity:"Lendária",faction:"GUARDA_DA_ORDEM",className:"Mística",role:"Controle arcano de médio alcance",position:"Linha intermediária",weapon:"Anéis rúnicos gêmeos",element:"Éter Safira",power:"Órbita Real",dur:10,cd:46},
+      {id:"HERO_NYXARA_009",name:"Nyxara",title:"A Guardiã das Sombras",rarity:"Lendária",faction:"ROSA_DE_SANGUE",className:"Executora",role:"Assassina de controle",position:"Flanco",weapon:"Correntes-lâmina gêmeas",element:"Sombra Rubra",power:"Juízo Noturno",dur:8,cd:43},
+      {id:"HERO_VESPERA_010",name:"Vespera",title:"A Dama do Leque",rarity:"Lendária",faction:"ASAS_DO_AMANHECER",className:"Estrategista",role:"Atiradora de médio e longo alcance",position:"Retaguarda",weapon:"Leque de lâminas e dardos ocultos",element:"Crepúsculo Violeta",power:"Suspiro Final",dur:11,cd:47}
+    ];
+    const colors = {
+      ROSA_DE_SANGUE: "#b82e38",
+      ASAS_DO_AMANHECER: "#3873d1",
+      GUARDA_DA_ORDEM: "#d4ad38"
+    };
+    const display = h => h.name === "A definir" ? h.title : h.name;
+    let filter = null, selected = heroes[0], now = 0;
+    const runtimes = Object.fromEntries(heroes.map(h => [h.id, { state: "READY", activeUntil: 0, cooldownUntil: 0 }]));
+
+    const filtersEl = document.getElementById("filters");
+    [["Todos", null], ["Rosa de Sangue", "ROSA_DE_SANGUE"], ["Asas do Amanhecer", "ASAS_DO_AMANHECER"], ["Guarda da Ordem", "GUARDA_DA_ORDEM"]]
+      .forEach(([label, value]) => {
+        const b = document.createElement("button");
+        b.textContent = label;
+        b.onclick = () => { filter = value; render(); };
+        filtersEl.appendChild(b);
+      });
+
+    function evalState(rt) {
+      if (now < rt.activeUntil) return "ACTIVE";
+      if (now < rt.cooldownUntil) return "COOLDOWN";
+      return "READY";
+    }
+
+    function select(h) { selected = h; render(); }
+
+    function render() {
+      [...filtersEl.children].forEach((b, i) => {
+        const map = [null, "ROSA_DE_SANGUE", "ASAS_DO_AMANHECER", "GUARDA_DA_ORDEM"];
+        b.classList.toggle("active", map[i] === filter);
+      });
+      const list = heroes.filter(h => !filter || h.faction === filter);
+      document.getElementById("hint").textContent = filter ? filter : `Todos · ${heroes.length} heróis`;
+      const cards = document.getElementById("cards");
+      cards.innerHTML = "";
+      list.forEach(h => {
+        const c = document.createElement("button");
+        c.className = "card" + (selected.id === h.id ? " selected" : "");
+        c.innerHTML = `<div class="name">${display(h)}</div><div class="title">${h.title}</div><div class="rarity">${h.rarity}</div><div class="faction">${h.faction}</div><div class="power">${h.power}</div>`;
+        c.onclick = () => select(h);
+        cards.appendChild(c);
+      });
+      document.getElementById("dName").textContent = display(selected);
+      document.getElementById("dTitle").textContent = selected.title;
+      document.getElementById("dMeta").textContent = `${selected.rarity} · ${selected.faction} · ${selected.className}\n${selected.role} · ${selected.position}\nArma: ${selected.weapon} · Elemento: ${selected.element}`;
+      document.getElementById("dPower").textContent = `${selected.power}\nAtivo ${selected.dur}s · Recarga ${selected.cd}s`;
+      const rt = runtimes[selected.id];
+      const state = evalState(rt);
+      rt.state = state;
+      const st = document.getElementById("pState");
+      st.textContent = state;
+      st.className = "state-" + state;
+      let remaining = 0, total = 1;
+      if (state === "ACTIVE") { remaining = rt.activeUntil - now; total = selected.dur; }
+      if (state === "COOLDOWN") { remaining = rt.cooldownUntil - now; total = selected.cd; }
+      document.getElementById("pTimer").textContent = state === "READY" ? "Disponível" : `${Math.max(0, remaining).toFixed(1)}s`;
+      document.getElementById("pFill").style.height = state === "READY" ? "0%" : `${Math.min(100, (remaining / total) * 100)}%`;
+      const act = document.getElementById("activate");
+      act.disabled = state !== "READY";
+      act.textContent = state === "READY" ? "Ativar poder especial" : "Indisponível";
+      document.getElementById("dummy").style.background = colors[selected.faction];
+    }
+
+    document.getElementById("activate").onclick = () => {
+      const rt = runtimes[selected.id];
+      if (evalState(rt) !== "READY") return;
+      rt.activeUntil = now + selected.dur;
+      rt.cooldownUntil = now + selected.cd;
+      render();
+    };
+
+    setInterval(() => { now += 0.1; render(); }, 100);
+    render();
+  </script>
+</body>
+</html>
