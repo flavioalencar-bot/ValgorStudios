@@ -12,5 +12,10 @@ namespace Valgor.Core.Modules
         /// Reserva um slot de marcha provisório sem expor roster, combate ou progressão.
         /// </summary>
         bool TryReserveMarchSlot(string targetNodeId, out string reservationId);
+
+        /// <summary>
+        /// Poder provisório da formação para encontros no mapa (sem expor o sistema interno).
+        /// </summary>
+        int GetProvisionalMarchPower();
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 
 namespace Valgor.WorldMap.Core
@@ -8,7 +9,9 @@ namespace Valgor.WorldMap.Core
     {
         public DateTime SavedAtUtc { get; set; }
         public DateTime LastAdvanceUtc { get; set; }
+        public int Energy { get; set; }
         public Dictionary<string, WorldNodeInstance> Nodes { get; } = new();
+        public Dictionary<string, WorldCreatureInstance> Creatures { get; } = new();
         public MarchOrder? March { get; set; }
     }
 
@@ -66,6 +69,7 @@ namespace Valgor.WorldMap.Core
             {
                 SavedAtUtc = source.SavedAtUtc,
                 LastAdvanceUtc = source.LastAdvanceUtc,
+                Energy = source.Energy,
                 March = source.March == null
                     ? null
                     : new MarchOrder(
@@ -89,6 +93,20 @@ namespace Valgor.WorldMap.Core
                     pair.Value.RemainingAmount);
             }
 
+            foreach (var pair in source.Creatures)
+            {
+                clone.Creatures[pair.Key] = new WorldCreatureInstance(
+                    pair.Value.DefinitionId,
+                    pair.Value.State,
+                    pair.Value.RegionId,
+                    pair.Value.X,
+                    pair.Value.Z,
+                    pair.Value.RespawnAtUtc)
+                {
+                    EngagedMarchId = pair.Value.EngagedMarchId
+                };
+            }
+
             return clone;
         }
 
@@ -103,7 +121,8 @@ namespace Valgor.WorldMap.Core
             var snapshot = new WorldMapSnapshot
             {
                 SavedAtUtc = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".meta")),
-                LastAdvanceUtc = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".advance"))
+                LastAdvanceUtc = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".advance")),
+                Energy = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".energy", 0)
             };
 
             foreach (var definition in WorldNodeCatalog.All.Values)
@@ -119,6 +138,36 @@ namespace Valgor.WorldMap.Core
                     UnityEngine.PlayerPrefs.GetString(key + ".amount", "0"),
                     System.Globalization.CultureInfo.InvariantCulture);
                 snapshot.Nodes[definition.Id] = new WorldNodeInstance(definition.Id, status, amount);
+            }
+
+            foreach (var definition in WorldCreatureCatalog.All.Values)
+            {
+                var key = _keyPrefix + ".c." + definition.Id;
+                if (!UnityEngine.PlayerPrefs.HasKey(key + ".state"))
+                {
+                    continue;
+                }
+
+                DateTime? respawn = null;
+                if (UnityEngine.PlayerPrefs.HasKey(key + ".respawn"))
+                {
+                    respawn = ParseTime(UnityEngine.PlayerPrefs.GetString(key + ".respawn"));
+                }
+
+                snapshot.Creatures[definition.Id] = new WorldCreatureInstance(
+                    definition.Id,
+                    (WorldCreatureState)UnityEngine.PlayerPrefs.GetInt(key + ".state"),
+                    definition.RegionId,
+                    definition.X,
+                    definition.Z,
+                    respawn)
+                {
+                    EngagedMarchId = UnityEngine.PlayerPrefs.GetString(key + ".march", string.Empty)
+                };
+                if (string.IsNullOrEmpty(snapshot.Creatures[definition.Id].EngagedMarchId))
+                {
+                    snapshot.Creatures[definition.Id].EngagedMarchId = null;
+                }
             }
 
             if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".march.id"))
@@ -144,12 +193,28 @@ namespace Valgor.WorldMap.Core
             var inv = System.Globalization.CultureInfo.InvariantCulture;
             UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".meta", snapshot.SavedAtUtc.ToString("O", inv));
             UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".advance", snapshot.LastAdvanceUtc.ToString("O", inv));
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".energy", snapshot.Energy);
 
             foreach (var pair in snapshot.Nodes)
             {
                 var key = _keyPrefix + ".n." + pair.Key;
                 UnityEngine.PlayerPrefs.SetInt(key + ".status", (int)pair.Value.Status);
                 UnityEngine.PlayerPrefs.SetString(key + ".amount", pair.Value.RemainingAmount.ToString(inv));
+            }
+
+            foreach (var pair in snapshot.Creatures)
+            {
+                var key = _keyPrefix + ".c." + pair.Key;
+                UnityEngine.PlayerPrefs.SetInt(key + ".state", (int)pair.Value.State);
+                UnityEngine.PlayerPrefs.SetString(key + ".march", pair.Value.EngagedMarchId ?? string.Empty);
+                if (pair.Value.RespawnAtUtc.HasValue)
+                {
+                    UnityEngine.PlayerPrefs.SetString(key + ".respawn", pair.Value.RespawnAtUtc.Value.ToString("O", inv));
+                }
+                else
+                {
+                    UnityEngine.PlayerPrefs.DeleteKey(key + ".respawn");
+                }
             }
 
             if (snapshot.March == null)

@@ -6,6 +6,7 @@ using Valgor.Bootstrap;
 using Valgor.City.Core;
 using Valgor.City.Data;
 using Valgor.WorldMap.Core;
+using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 
 namespace Valgor.WorldMap.UI
@@ -23,6 +24,8 @@ namespace Valgor.WorldMap.UI
         private Label _details = null!;
         private Button _dispatchButton = null!;
         private Button _collectButton = null!;
+        private Button _engageButton = null!;
+        private Button _resolveButton = null!;
         private Button _returnButton = null!;
         private Label _feedback = null!;
 
@@ -113,9 +116,13 @@ namespace Valgor.WorldMap.UI
 
             _dispatchButton = CreateButton("Enviar marcha", OnDispatch);
             _collectButton = CreateButton("Coletar recursos", OnCollect);
+            _engageButton = CreateButton("Engajar criatura", OnEngage);
+            _resolveButton = CreateButton("Resolver encontro", OnResolve);
             _returnButton = CreateButton("Retornar à cidade", OnReturn);
             _panel.Add(_dispatchButton);
             _panel.Add(_collectButton);
+            _panel.Add(_engageButton);
+            _panel.Add(_resolveButton);
             _panel.Add(_returnButton);
             _panel.Add(CreateButton("Fechar", () => _map.Session.Selection.Deselect()));
 
@@ -183,6 +190,35 @@ namespace Valgor.WorldMap.UI
             Refresh();
         }
 
+        private void OnEngage()
+        {
+            if (_map.Session.TryEngageSelectedCreature(out var error))
+            {
+                _feedback.text = "Encontro iniciado.";
+            }
+            else
+            {
+                _feedback.text = error;
+            }
+
+            Refresh();
+        }
+
+        private void OnResolve()
+        {
+            if (_map.Session.TryResolveSelectedCreature(_economy?.Wallet, out var error, out var band))
+            {
+                _economy?.PersistWallet();
+                _feedback.text = $"Vitória provisória ({band}). Recompensas coletadas.";
+            }
+            else
+            {
+                _feedback.text = error;
+            }
+
+            Refresh();
+        }
+
         private void Refresh()
         {
             RefreshWallet();
@@ -221,8 +257,29 @@ namespace Valgor.WorldMap.UI
                     builder.AppendLine($"Acumulado: {selected.RemainingAmount} / {resource.Amount}");
                     break;
                 case WorldCreatureNode creature:
-                    builder.AppendLine($"Ameaça: {creature.ThreatLevel}");
-                    builder.AppendLine($"Código: {creature.CreatureCode}");
+                    builder.AppendLine($"Código do nó: {creature.CreatureCode}");
+                    if (_map.Session.TryGetCreature(creature.Id, out var instance) &&
+                        WorldCreatureCatalog.TryGet(creature.Id, out var creatureDef))
+                    {
+                        builder.AppendLine($"Estado: {instance.State}");
+                        builder.AppendLine($"Tipo: {creatureDef.Type}");
+                        builder.AppendLine($"Nível: {creatureDef.Level}");
+                        builder.AppendLine($"Poder recomendado: {creatureDef.RecommendedPower}");
+                        builder.AppendLine($"Custo de energia: {creatureDef.EnergyCost}");
+                        builder.AppendLine($"Respawn: {creatureDef.RespawnDuration.TotalHours:0.#} h");
+                        builder.AppendLine($"Posição: ({creatureDef.X:0.#}, {creatureDef.Z:0.#})");
+                        if (instance.RespawnAtUtc.HasValue)
+                        {
+                            var left = instance.RespawnAtUtc.Value - _map.Session.Clock.UtcNow;
+                            if (left < TimeSpan.Zero)
+                            {
+                                left = TimeSpan.Zero;
+                            }
+
+                            builder.AppendLine($"Respawn em: {FormatDuration(left)}");
+                        }
+                    }
+
                     break;
                 case WorldDragonNode dragon:
                     builder.AppendLine($"Dragão: {dragon.DragonCode}");
@@ -237,27 +294,38 @@ namespace Valgor.WorldMap.UI
             var canDispatch = selected.Status != WorldNodeStatus.Locked &&
                               definition is not WorldCityNode { IsPlayerHome: true };
             var canCollect = _map.Session.Harvest.CanCollect(selected, definition, _map.Session.Marches.Active);
+            var canEngage = definition is WorldCreatureNode &&
+                            _map.Session.Encounters.CanEngage(selected.DefinitionId, _map.Session.Energy, out _);
+            var canResolve = definition is WorldCreatureNode &&
+                             _map.Session.TryGetCreature(selected.DefinitionId, out var creatureState) &&
+                             creatureState.State == WorldCreatureState.Engaged;
             var canReturn = _map.Session.Marches.Active?.Phase == MarchPhase.Arrived;
 
             _dispatchButton.SetEnabled(canDispatch);
             _collectButton.SetEnabled(canCollect);
+            _engageButton.SetEnabled(canEngage);
+            _resolveButton.SetEnabled(canResolve);
             _returnButton.SetEnabled(canReturn);
             _collectButton.style.backgroundColor = canCollect
                 ? new Color(0.25f, 0.55f, 0.3f)
+                : new Color(0.2f, 0.2f, 0.2f);
+            _engageButton.style.backgroundColor = canEngage
+                ? new Color(0.55f, 0.3f, 0.25f)
                 : new Color(0.2f, 0.2f, 0.2f);
         }
 
         private void RefreshWallet()
         {
+            var energy = $"Energia {_map.Session.Energy}/{_map.Session.Settings.MaxEnergy}";
             if (_economy == null)
             {
-                _wallet.text = "Carteira: visite a Cidade primeiro para sincronizar recursos.";
+                _wallet.text = $"{energy} · Carteira: visite a Cidade primeiro para sincronizar recursos.";
                 return;
             }
 
             var w = _economy.Wallet;
             _wallet.text =
-                $"Gold {w.Get(ResourceType.Gold)} · Food {w.Get(ResourceType.Food)} · Wood {w.Get(ResourceType.Wood)} · Stone {w.Get(ResourceType.Stone)} · Iron {w.Get(ResourceType.Iron)}";
+                $"{energy} · Gold {w.Get(ResourceType.Gold)} · Food {w.Get(ResourceType.Food)} · Wood {w.Get(ResourceType.Wood)} · Stone {w.Get(ResourceType.Stone)} · Iron {w.Get(ResourceType.Iron)}";
         }
 
         private void RefreshMarch()

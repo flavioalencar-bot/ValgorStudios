@@ -20,5 +20,7 @@ namespace Valgor.Core.Modules
             reservationId = "provisional-" + Guid.NewGuid().ToString("N");
             return true;
         }
+
+        public int GetProvisionalMarchPower() => 100;
     }
 }

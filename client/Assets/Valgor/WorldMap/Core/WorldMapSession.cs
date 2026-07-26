@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Valgor.City.Data;
 using Valgor.Core.Modules;
+using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 
 namespace Valgor.WorldMap.Core
@@ -12,6 +13,8 @@ namespace Valgor.WorldMap.Core
     public sealed class WorldMapSession
     {
         private readonly Dictionary<string, WorldNodeInstance> _nodes = new();
+        private readonly Dictionary<string, WorldCreatureInstance> _creatures = new();
+        private readonly IHeroesGateway _heroes;
         private DateTime _lastTickUtc;
         private readonly double _tickIntervalSeconds;
 
@@ -23,15 +26,27 @@ namespace Valgor.WorldMap.Core
         {
             Settings = settings;
             Clock = clock;
+            _heroes = heroes;
             Repository = repository;
+            Energy = settings.StartingEnergy;
             Selection = new WorldNodeSelectionService();
             RegionSelection = new RegionSelectionService();
             Harvest = new WorldResourceHarvestService();
             Marches = new MarchService(clock, settings, heroes, id => WorldNodeCatalog.Get(id));
+            Encounters = new CreatureEncounterService(
+                id => WorldCreatureCatalog.TryGet(id, out var def) ? def : null,
+                id => _creatures.TryGetValue(id, out var inst) ? inst : null,
+                () => Marches.Active);
             _tickIntervalSeconds = settings.MarchTickIntervalSeconds;
             _lastTickUtc = clock.UtcNow;
             SeedNodes();
+            SeedCreatures();
             Marches.Changed += (_, _) => Persist();
+            Encounters.Changed += () =>
+            {
+                Persist();
+                Changed?.Invoke();
+            };
         }
 
         public WorldMapSettings Settings { get; }
@@ -41,7 +56,10 @@ namespace Valgor.WorldMap.Core
         public RegionSelectionService RegionSelection { get; }
         public MarchService Marches { get; }
         public WorldResourceHarvestService Harvest { get; }
+        public CreatureEncounterService Encounters { get; }
+        public int Energy { get; private set; }
         public IReadOnlyDictionary<string, WorldNodeInstance> Nodes => _nodes;
+        public IReadOnlyDictionary<string, WorldCreatureInstance> Creatures => _creatures;
         public event Action? Changed;
 
         public static WorldMapSession Create(IHeroesGateway heroes, IWorldMapClock? clock = null)
@@ -55,17 +73,35 @@ namespace Valgor.WorldMap.Core
 
         public WorldNodeInstance GetNode(string id) => _nodes[id];
 
+        public bool TryGetCreature(string id, out WorldCreatureInstance instance) =>
+            _creatures.TryGetValue(id, out instance!);
+
         public void LoadOrInitialize()
         {
             var snapshot = Repository.Load();
             if (snapshot != null)
             {
+                Energy = Math.Clamp(snapshot.Energy, 0, Settings.MaxEnergy);
                 foreach (var pair in snapshot.Nodes)
                 {
                     _nodes[pair.Key] = new WorldNodeInstance(
                         pair.Value.DefinitionId,
                         pair.Value.Status,
                         pair.Value.RemainingAmount);
+                }
+
+                foreach (var pair in snapshot.Creatures)
+                {
+                    _creatures[pair.Key] = new WorldCreatureInstance(
+                        pair.Value.DefinitionId,
+                        pair.Value.State,
+                        pair.Value.RegionId,
+                        pair.Value.X,
+                        pair.Value.Z,
+                        pair.Value.RespawnAtUtc)
+                    {
+                        EngagedMarchId = pair.Value.EngagedMarchId
+                    };
                 }
 
                 Marches.Restore(snapshot.March, snapshot.LastAdvanceUtc);
@@ -75,6 +111,7 @@ namespace Valgor.WorldMap.Core
                 Marches.Advance(Clock.UtcNow);
             }
 
+            AdvanceCreatures(Clock.UtcNow);
             Persist();
             Changed?.Invoke();
         }
@@ -89,6 +126,7 @@ namespace Valgor.WorldMap.Core
 
             _lastTickUtc = now;
             Marches.Advance(now);
+            AdvanceCreatures(now);
             Persist();
             Changed?.Invoke();
         }
@@ -155,12 +193,66 @@ namespace Valgor.WorldMap.Core
             return true;
         }
 
+        public bool TryEngageSelectedCreature(out string error)
+        {
+            if (Selection.Selected == null)
+            {
+                error = "Nenhum nó selecionado.";
+                return false;
+            }
+
+            var energy = Energy;
+            if (!Encounters.TryEngage(Selection.Selected.DefinitionId, ref energy, out error))
+            {
+                return false;
+            }
+
+            Energy = energy;
+            Persist();
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool TryResolveSelectedCreature(ResourceWallet? wallet, out string error, out CreatureDifficultyBand band)
+        {
+            band = CreatureDifficultyBand.Impossible;
+            if (Selection.Selected == null)
+            {
+                error = "Nenhum nó selecionado.";
+                return false;
+            }
+
+            if (wallet == null)
+            {
+                error = "Carteira da cidade indisponível.";
+                return false;
+            }
+
+            if (!Encounters.TryResolveProvisional(
+                    Selection.Selected.DefinitionId,
+                    _heroes.GetProvisionalMarchPower(),
+                    wallet,
+                    Clock.UtcNow,
+                    out error,
+                    out band))
+            {
+                Persist();
+                Changed?.Invoke();
+                return false;
+            }
+
+            Persist();
+            Changed?.Invoke();
+            return true;
+        }
+
         public void Persist()
         {
             var snapshot = new WorldMapSnapshot
             {
                 SavedAtUtc = Clock.UtcNow,
                 LastAdvanceUtc = Clock.UtcNow,
+                Energy = Energy,
                 March = Marches.Active
             };
 
@@ -172,7 +264,32 @@ namespace Valgor.WorldMap.Core
                     pair.Value.RemainingAmount);
             }
 
+            foreach (var pair in _creatures)
+            {
+                snapshot.Creatures[pair.Key] = new WorldCreatureInstance(
+                    pair.Value.DefinitionId,
+                    pair.Value.State,
+                    pair.Value.RegionId,
+                    pair.Value.X,
+                    pair.Value.Z,
+                    pair.Value.RespawnAtUtc)
+                {
+                    EngagedMarchId = pair.Value.EngagedMarchId
+                };
+            }
+
             Repository.Save(snapshot);
+        }
+
+        private void AdvanceCreatures(DateTime utcNow)
+        {
+            foreach (var pair in _creatures)
+            {
+                if (WorldCreatureCatalog.TryGet(pair.Key, out var definition))
+                {
+                    Encounters.AdvanceInstance(pair.Value, definition, utcNow);
+                }
+            }
         }
 
         private void SeedNodes()
@@ -181,6 +298,19 @@ namespace Valgor.WorldMap.Core
             {
                 var amount = definition is WorldResourceNode resource ? resource.Amount : 0;
                 _nodes[definition.Id] = new WorldNodeInstance(definition.Id, definition.DefaultStatus, amount);
+            }
+        }
+
+        private void SeedCreatures()
+        {
+            foreach (var definition in WorldCreatureCatalog.All.Values)
+            {
+                _creatures[definition.Id] = new WorldCreatureInstance(
+                    definition.Id,
+                    WorldCreatureState.Available,
+                    definition.RegionId,
+                    definition.X,
+                    definition.Z);
             }
         }
     }

@@ -19,6 +19,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - Produção passiva online/offline (12h), coleta, capacidade por nível, persistência local e tick determinístico
 - World Map Foundation em `Assets/Valgor/WorldMap`: regiões selecionáveis, câmera, HUD e retorno à cidade
 - World Map Interaction: nós tipados (cidade/vilarejo/recurso/criatura/dragão/marco), marcha provisória com tempo de deslocamento, coleta de recursos, persistência City↔WorldMap e contrato `IHeroesGateway.TryReserveMarchSlot`
+- Criaturas do World Map: `WorldCreatureDefinition`/`Instance`, `CreatureRewardTable`, `CreatureDifficultyResolver`, `CreatureEncounterService` (engajar, resolver provisório, respawn, energia)
 - Documentação `docs/architecture/player-city.md` e `docs/architecture/world-map.md`
 
 ## [0.2.0] — 2026-07-26

@@ -33,7 +33,18 @@ Estado (`WorldMapSession`, marchas, nós) sobrevive City↔WorldMap via `Service
 2. Estimar tempo (`distância / MarchSpeedUnitsPerHour`)  
 3. `IHeroesGateway.TryReserveMarchSlot` (stub `ProvisionalHeroesGateway` até o módulo de heróis)  
 4. Avanço por timestamp (`MarchService.Advance`) — independente de FPS  
-5. No destino: coletar (recursos) e/ou retornar  
+5. No destino: coletar (recursos), engajar criatura e/ou retornar  
+
+## Criaturas
+
+| Tipo | Papel |
+|------|--------|
+| `WorldCreatureDefinition` / `WorldCreatureInstance` | Dados e estado runtime |
+| `CreatureRewardTable` | Recompensas configuráveis |
+| `CreatureDifficultyResolver` | Faixa vs poder provisório |
+| `CreatureEncounterService` | Engajar → resolver → respawn |
+
+Estados: `Available` → `Engaged` → `Defeated` → `Respawning` → `Available`.
 
 ## Controles
 

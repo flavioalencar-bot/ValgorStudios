@@ -7,11 +7,13 @@ namespace Valgor.WorldMap.Data
     {
         public static WorldMapSettings Default { get; } = new();
 
-        public float MarchSpeedUnitsPerHour { get; init; } = 8f;
-        public float PlayerHomeX { get; init; }
-        public float PlayerHomeZ { get; init; } = -14f;
-        public string PlayerHomeNodeId { get; init; } = "home-city";
-        public string PersistenceKey { get; init; } = "valgor.worldmap.v1";
-        public double MarchTickIntervalSeconds { get; init; } = 1.0;
+        public float MarchSpeedUnitsPerHour { get; set; } = 8f;
+        public float PlayerHomeX { get; set; }
+        public float PlayerHomeZ { get; set; } = -14f;
+        public string PlayerHomeNodeId { get; set; } = "home-city";
+        public string PersistenceKey { get; set; } = "valgor.worldmap.v1";
+        public double MarchTickIntervalSeconds { get; set; } = 1.0;
+        public int StartingEnergy { get; set; } = 100;
+        public int MaxEnergy { get; set; } = 100;
     }
 }

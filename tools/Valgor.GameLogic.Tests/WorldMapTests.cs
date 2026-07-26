@@ -2,6 +2,7 @@ using Valgor.City.Data;
 using Valgor.Core;
 using Valgor.Core.Modules;
 using Valgor.WorldMap.Core;
+using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 using Xunit;
 
@@ -180,6 +181,74 @@ public sealed class WorldMapInteractionTests
         Assert.DoesNotContain(
             WorldNodeCatalog.All.Values.OfType<WorldResourceNode>(),
             node => node.Resource == ResourceType.Diamonds);
+    }
+
+    [Fact]
+    public void CreatureDefinition_HasRequiredFields()
+    {
+        var creature = WorldCreatureCatalog.Get("forest-wolf");
+        Assert.Equal("forest-wolf", creature.Id);
+        Assert.Equal(WorldCreatureType.Beast, creature.Type);
+        Assert.Equal(2, creature.Level);
+        Assert.True(creature.RecommendedPower > 0);
+        Assert.True(creature.EnergyCost > 0);
+        Assert.NotEmpty(creature.Rewards.Entries);
+        Assert.True(creature.RespawnDuration > TimeSpan.Zero);
+        Assert.Equal("forest", creature.RegionId);
+        Assert.Equal(-8f, creature.X);
+        Assert.Equal(5f, creature.Z);
+    }
+
+    [Fact]
+    public void DifficultyResolver_Bands_AreDeterministic()
+    {
+        Assert.Equal(CreatureDifficultyBand.Trivial, CreatureDifficultyResolver.Resolve(150, 100));
+        Assert.Equal(CreatureDifficultyBand.Fair, CreatureDifficultyResolver.Resolve(100, 100));
+        Assert.Equal(CreatureDifficultyBand.Impossible, CreatureDifficultyResolver.Resolve(50, 100));
+        Assert.False(CreatureDifficultyResolver.CanDefeatProvisional(50, 100));
+    }
+
+    [Fact]
+    public void Encounter_EngageResolve_GrantsRewards_AndRespawns()
+    {
+        var session = CreateSession();
+        var wallet = new ResourceWallet();
+        ArriveAt("forest-wolf", session);
+        session.Selection.Select(session.GetNode("forest-wolf"));
+
+        var energyBefore = session.Energy;
+        Assert.True(session.TryEngageSelectedCreature(out _));
+        Assert.Equal(WorldCreatureState.Engaged, session.Creatures["forest-wolf"].State);
+        Assert.True(session.Energy < energyBefore);
+
+        Assert.True(session.TryResolveSelectedCreature(wallet, out _, out var band));
+        Assert.NotEqual(CreatureDifficultyBand.Impossible, band);
+        Assert.True(wallet.Get(ResourceType.Food) > 0);
+        Assert.Equal(WorldCreatureState.Respawning, session.Creatures["forest-wolf"].State);
+
+        var respawnAt = session.Creatures["forest-wolf"].RespawnAtUtc!.Value;
+        _clock.UtcNow = respawnAt;
+        session.Tick();
+        Assert.Equal(WorldCreatureState.Available, session.Creatures["forest-wolf"].State);
+    }
+
+    [Fact]
+    public void Encounter_RequiresMarchAtCreature()
+    {
+        var session = CreateSession();
+        session.Selection.Select(session.GetNode("forest-wolf"));
+        Assert.False(session.TryEngageSelectedCreature(out var error));
+        Assert.Contains("marcha", error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void LockedCreature_CannotEngage()
+    {
+        var session = CreateSession();
+        session.Selection.Select(session.GetNode("desert-scorpion"));
+        Assert.False(session.Encounters.CanEngage("desert-scorpion", session.Energy, out var error));
+        Assert.Contains("bloqueada", error, StringComparison.OrdinalIgnoreCase);
+        Assert.False(session.TryEngageSelectedCreature(out _));
     }
 
     private WorldMapSession CreateSession()
