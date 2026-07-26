@@ -11,9 +11,11 @@ namespace Valgor.WorldMap.Core
         public DateTime SavedAtUtc { get; set; }
         public DateTime LastAdvanceUtc { get; set; }
         public int Energy { get; set; }
+        public string? SelectedNodeId { get; set; }
         public Dictionary<string, WorldNodeInstance> Nodes { get; } = new();
         public Dictionary<string, WorldCreatureInstance> Creatures { get; } = new();
         public MarchOrder? March { get; set; }
+        public MarchOrder? LastCompletedMarch { get; set; }
     }
 
     public interface IWorldMapRepository
@@ -71,7 +73,9 @@ namespace Valgor.WorldMap.Core
                 SavedAtUtc = source.SavedAtUtc,
                 LastAdvanceUtc = source.LastAdvanceUtc,
                 Energy = source.Energy,
-                March = source.March?.Clone()
+                SelectedNodeId = source.SelectedNodeId,
+                March = source.March?.Clone(),
+                LastCompletedMarch = source.LastCompletedMarch?.Clone()
             };
 
             foreach (var pair in source.Nodes)
@@ -117,7 +121,8 @@ namespace Valgor.WorldMap.Core
             {
                 SavedAtUtc = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".meta")),
                 LastAdvanceUtc = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".advance")),
-                Energy = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".energy", 0)
+                Energy = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".energy", 0),
+                SelectedNodeId = NullIfEmpty(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".selected", string.Empty))
             };
 
             foreach (var definition in WorldNodeCatalog.All.Values)
@@ -188,34 +193,52 @@ namespace Valgor.WorldMap.Core
 
             if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".march.id"))
             {
-                DateTime? returnAt = null;
-                if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".march.ret"))
-                {
-                    returnAt = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.ret"));
-                }
+                snapshot.March = ReadMarchFromPrefs(".march");
+            }
 
-                var march = new MarchOrder(
-                    UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.id"),
-                    UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.player"),
-                    UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.origin"),
-                    UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.target"),
-                    UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.team"),
-                    ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.dep")),
-                    ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.arr")),
-                    (MarchState)UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".march.state"),
-                    float.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.speed", "8"), System.Globalization.CultureInfo.InvariantCulture),
-                    long.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.cap", "10000"), System.Globalization.CultureInfo.InvariantCulture),
-                    (WorldNodeKind)UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".march.type"),
-                    returnAt,
-                    long.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.load", "0"), System.Globalization.CultureInfo.InvariantCulture))
-                {
-                    RewardsDelivered = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".march.rewarded", 0) == 1,
-                    OccupyingNodeId = NullIfEmpty(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.occ", string.Empty))
-                };
-                snapshot.March = march;
+            if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".done.id"))
+            {
+                snapshot.LastCompletedMarch = ReadMarchFromPrefs(".done");
             }
 
             return snapshot;
+        }
+
+        private MarchOrder ReadMarchFromPrefs(string suffix)
+        {
+            DateTime? returnAt = null;
+            if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + suffix + ".ret"))
+            {
+                returnAt = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".ret"));
+            }
+
+            DateTime? deliveredAt = null;
+            if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + suffix + ".deliveredAt"))
+            {
+                deliveredAt = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".deliveredAt"));
+            }
+
+            return new MarchOrder(
+                UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".id"),
+                UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".player"),
+                UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".origin"),
+                UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".target"),
+                UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".team"),
+                ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".dep")),
+                ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".arr")),
+                (MarchState)UnityEngine.PlayerPrefs.GetInt(_keyPrefix + suffix + ".state"),
+                float.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".speed", "8"), System.Globalization.CultureInfo.InvariantCulture),
+                long.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".cap", "10000"), System.Globalization.CultureInfo.InvariantCulture),
+                (WorldNodeKind)UnityEngine.PlayerPrefs.GetInt(_keyPrefix + suffix + ".type"),
+                returnAt,
+                long.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".load", "0"), System.Globalization.CultureInfo.InvariantCulture))
+            {
+                RewardsDelivered = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + suffix + ".rewarded", 0) == 1,
+                OccupyingNodeId = NullIfEmpty(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".occ", string.Empty)),
+                RewardDeliveryId = NullIfEmpty(UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix + ".deliveryId", string.Empty)),
+                DeliveredAt = deliveredAt,
+                IsCommitted = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + suffix + ".committed", 0) == 1
+            };
         }
 
         private void SaveToPrefs(WorldMapSnapshot snapshot)
@@ -224,6 +247,7 @@ namespace Valgor.WorldMap.Core
             UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".meta", snapshot.SavedAtUtc.ToString("O", inv));
             UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".advance", snapshot.LastAdvanceUtc.ToString("O", inv));
             UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".energy", snapshot.Energy);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".selected", snapshot.SelectedNodeId ?? string.Empty);
 
             foreach (var pair in snapshot.Nodes)
             {
@@ -268,37 +292,68 @@ namespace Valgor.WorldMap.Core
 
             if (snapshot.March == null)
             {
-                UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + ".march.id");
+                DeleteMarchPrefs(".march");
             }
             else
             {
-                var m = snapshot.March;
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.id", m.MarchId);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.player", m.PlayerId);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.origin", m.OriginNodeId);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.target", m.TargetNodeId);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.team", m.SelectedTeamId);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.dep", m.DepartureAt.ToString("O", inv));
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.arr", m.ArrivalAt.ToString("O", inv));
-                if (m.ReturnAt.HasValue)
-                {
-                    UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.ret", m.ReturnAt.Value.ToString("O", inv));
-                }
-                else
-                {
-                    UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + ".march.ret");
-                }
+                WriteMarchToPrefs(".march", snapshot.March, inv);
+            }
 
-                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".march.state", (int)m.State);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.speed", m.Speed.ToString(inv));
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.cap", m.Capacity.ToString(inv));
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.load", m.ResourceLoad.ToString(inv));
-                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".march.type", (int)m.TargetType);
-                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".march.rewarded", m.RewardsDelivered ? 1 : 0);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.occ", m.OccupyingNodeId ?? string.Empty);
+            if (snapshot.LastCompletedMarch == null)
+            {
+                DeleteMarchPrefs(".done");
+            }
+            else
+            {
+                WriteMarchToPrefs(".done", snapshot.LastCompletedMarch, inv);
             }
 
             UnityEngine.PlayerPrefs.Save();
+        }
+
+        private void WriteMarchToPrefs(string suffix, MarchOrder m, System.Globalization.CultureInfo inv)
+        {
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".id", m.MarchId);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".player", m.PlayerId);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".origin", m.OriginNodeId);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".target", m.TargetNodeId);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".team", m.SelectedTeamId);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".dep", m.DepartureAt.ToString("O", inv));
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".arr", m.ArrivalAt.ToString("O", inv));
+            if (m.ReturnAt.HasValue)
+            {
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".ret", m.ReturnAt.Value.ToString("O", inv));
+            }
+            else
+            {
+                UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".ret");
+            }
+
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + suffix + ".state", (int)m.State);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".speed", m.Speed.ToString(inv));
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".cap", m.Capacity.ToString(inv));
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".load", m.ResourceLoad.ToString(inv));
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + suffix + ".type", (int)m.TargetType);
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + suffix + ".rewarded", m.RewardsDelivered ? 1 : 0);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".occ", m.OccupyingNodeId ?? string.Empty);
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".deliveryId", m.RewardDeliveryId ?? string.Empty);
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + suffix + ".committed", m.IsCommitted ? 1 : 0);
+            if (m.DeliveredAt.HasValue)
+            {
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix + ".deliveredAt", m.DeliveredAt.Value.ToString("O", inv));
+            }
+            else
+            {
+                UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".deliveredAt");
+            }
+        }
+
+        private void DeleteMarchPrefs(string suffix)
+        {
+            UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".id");
+            UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".deliveryId");
+            UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".committed");
+            UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".deliveredAt");
         }
 
         private static string? NullIfEmpty(string value) => string.IsNullOrEmpty(value) ? null : value;

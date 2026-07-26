@@ -29,6 +29,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - Coleta completa no mapa: taxa/`gatherRatePerHour`, carga da marcha, depleção e respawn de nós de recurso (`WorldResourceGatheringService`)
 - Energia do mapa mundial: `PlayerEnergyWallet`, regen por timestamp, custos configuráveis, HUD com ETA e persistência dedicada (`EnergyPersistenceRepository`)
 - Filtros, localizar e visão territorial no World Map: visibilidade combinável, foco de câmera com limites, overlays Neutral/Owned/Allied/Enemy/Contested/Locked
+- Patch de restauração do World Map: câmera/zoom, seleção por ID, tick global de marchas e depósito de carteira atômico (`rewardDeliveryId`/`IsCommitted`)
 - Documentação `docs/architecture/player-city.md` e `docs/architecture/world-map.md`
 
 ## [0.2.0] — 2026-07-26

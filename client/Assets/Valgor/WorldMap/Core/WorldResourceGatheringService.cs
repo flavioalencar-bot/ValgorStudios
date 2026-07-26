@@ -140,23 +140,55 @@ namespace Valgor.WorldMap.Core
         public bool TryDepositLoad(MarchOrder march, WorldResourceNode definition, ResourceWallet wallet, out long deposited)
         {
             deposited = 0;
-            if (march.ResourceLoad <= 0)
+            if (march == null || definition == null || wallet == null)
             {
                 return false;
             }
 
-            if (march.RewardsDelivered)
+            // Já commitado: idempotente.
+            if (march.RewardsDelivered && march.IsCommitted)
             {
+                return false;
+            }
+
+            // Recompensa marcada, falta só garantir persistência da carteira.
+            if (march.RewardsDelivered && !march.IsCommitted)
+            {
+                deposited = 0;
+                return true;
+            }
+
+            if (march.ResourceLoad <= 0)
+            {
+                march.RewardsDelivered = true;
+                march.IsCommitted = true;
+                march.RewardDeliveryId ??= BuildDeliveryId(march);
+                march.DeliveredAt ??= DateTime.UtcNow;
+                Changed?.Invoke();
                 return false;
             }
 
             deposited = march.ResourceLoad;
             wallet.Add(definition.ResourceType, deposited);
             march.ResourceLoad = 0;
+            march.RewardDeliveryId = BuildDeliveryId(march);
+            march.DeliveredAt = DateTime.UtcNow;
             march.RewardsDelivered = true;
+            // IsCommitted fica false até Session persistir marcha + carteira.
             Changed?.Invoke();
             return true;
         }
+
+        public static void MarkDeliveryCommitted(MarchOrder march)
+        {
+            march.IsCommitted = true;
+            march.RewardsDelivered = true;
+            march.RewardDeliveryId ??= BuildDeliveryId(march);
+            march.DeliveredAt ??= DateTime.UtcNow;
+        }
+
+        private static string BuildDeliveryId(MarchOrder march) =>
+            $"delivery:{march.MarchId}:{march.DeliveredAt?.ToString("O") ?? DateTime.UtcNow.ToString("O")}";
 
         private static void BeginRespawn(WorldNodeInstance node, WorldResourceNode definition, DateTime nowUtc)
         {

@@ -315,9 +315,10 @@ namespace Valgor.WorldMap.Marches
             _lastAdvanceUtc = utcNow;
         }
 
-        public void Restore(MarchOrder? march, DateTime lastAdvanceUtc)
+        public void Restore(MarchOrder? march, DateTime lastAdvanceUtc, MarchOrder? lastCompleted = null)
         {
             _active = march?.Clone();
+            _lastCompleted = lastCompleted?.Clone();
             _lastAdvanceUtc = lastAdvanceUtc;
             if (_active != null)
             {

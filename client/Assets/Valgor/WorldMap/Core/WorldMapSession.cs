@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Valgor.City.Data;
 using Valgor.Core.Modules;
+using Valgor.WorldMap.Camera;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 using Valgor.WorldMap.Energy;
@@ -45,6 +46,9 @@ namespace Valgor.WorldMap.Core
             EnergyCosts = new EnergyCostResolver(EnergyWallet.Settings);
             Filters = new WorldMapFilterService(
                 filterRepository ?? new WorldMapFilterPersistenceRepository(settings.FilterPersistenceKey));
+            CameraPersistence = new WorldCameraPersistenceService(
+                new WorldCameraStateRepository(settings.CameraPersistenceKey),
+                defaultZoom: settings.DefaultCameraZoom);
             Selection = new WorldNodeSelectionService();
             RegionSelection = new RegionSelectionService();
             Harvest = new WorldResourceHarvestService();
@@ -88,6 +92,7 @@ namespace Valgor.WorldMap.Core
                 Changed?.Invoke();
             };
             Filters.Changed += () => Changed?.Invoke();
+            Selection.SelectionChanged += _ => Persist();
         }
 
         public WorldMapSettings Settings { get; }
@@ -107,6 +112,8 @@ namespace Valgor.WorldMap.Core
         public WorldMapLocatorService Locator { get; }
         public int Energy => EnergyWallet.CurrentEnergy;
         public ResourceWallet? BoundWallet { get; private set; }
+        private Action? _persistBoundWallet;
+        public WorldCameraPersistenceService CameraPersistence { get; }
         public IReadOnlyDictionary<string, WorldNodeInstance> Nodes => _nodes;
         public IReadOnlyDictionary<string, WorldCreatureInstance> Creatures => _creatures;
         public IReadOnlyDictionary<string, WorldTerritoryRuntime> Territories => _territories;
@@ -119,7 +126,11 @@ namespace Valgor.WorldMap.Core
             return new WorldMapSession(settings, clock, heroes, new LocalWorldMapRepository(settings.PersistenceKey));
         }
 
-        public void BindWallet(ResourceWallet? wallet) => BoundWallet = wallet;
+        public void BindWallet(ResourceWallet? wallet, Action? persistWallet = null)
+        {
+            BoundWallet = wallet;
+            _persistBoundWallet = persistWallet;
+        }
 
         public WorldMapNodeDefinition GetDefinition(string id) => WorldNodeCatalog.Get(id);
 
@@ -165,12 +176,14 @@ namespace Valgor.WorldMap.Core
                     };
                 }
 
-                Marches.Restore(snapshot.March, snapshot.LastAdvanceUtc);
+                Marches.Restore(snapshot.March, snapshot.LastAdvanceUtc, snapshot.LastCompletedMarch);
                 DepositCompletedMarch(Marches.LastCompleted);
+                Selection.RestoreFromId(snapshot.SelectedNodeId, _nodes);
             }
             else
             {
                 Marches.Advance(Clock.UtcNow);
+                Selection.Deselect();
             }
 
             AdvanceCreatures(Clock.UtcNow);
@@ -267,6 +280,7 @@ namespace Valgor.WorldMap.Core
             if (wallet != null)
             {
                 BoundWallet = wallet;
+                // Mantém callback de persistência já vinculado, se houver.
             }
 
             var definition = GetDefinition(Selection.Selected.DefinitionId);
@@ -306,14 +320,30 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
+            // Retry: já entregue na memória, falta commit da carteira.
+            if (march.RewardsDelivered && !march.IsCommitted)
+            {
+                CommitRewardDelivery(march);
+                return true;
+            }
+
             if (!Gathering.TryDepositLoad(march, resource, wallet, out deposited))
             {
                 return false;
             }
 
-            Persist();
+            CommitRewardDelivery(march);
             Changed?.Invoke();
             return true;
+        }
+
+        private void CommitRewardDelivery(MarchOrder march)
+        {
+            WorldResourceGatheringService.MarkDeliveryCommitted(march);
+            Persist();
+            _persistBoundWallet?.Invoke();
+            // Re-persist após carteira para garantir IsCommitted no disco.
+            Persist();
         }
 
         public bool TryEngageSelectedCreature(out string error)
@@ -404,7 +434,9 @@ namespace Valgor.WorldMap.Core
                 SavedAtUtc = Clock.UtcNow,
                 LastAdvanceUtc = Marches.LastAdvanceUtc,
                 Energy = EnergyWallet.CurrentEnergy,
-                March = Marches.Active?.Clone()
+                SelectedNodeId = Selection.SelectedNodeId,
+                March = Marches.Active?.Clone(),
+                LastCompletedMarch = Marches.LastCompleted?.Clone()
             };
 
             foreach (var pair in _nodes)
@@ -512,6 +544,11 @@ namespace Valgor.WorldMap.Core
         private void DepositCompletedMarch(MarchOrder? completed)
         {
             if (completed == null || completed.State != MarchState.Completed)
+            {
+                return;
+            }
+
+            if (completed.RewardsDelivered && completed.IsCommitted)
             {
                 return;
             }

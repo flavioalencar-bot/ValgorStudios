@@ -48,6 +48,15 @@ HUD exibe `current/max` e ETA até energia cheia. Engajar criatura e (se configu
 
 Filtros persistem via `WorldMapFilterPersistenceRepository` (memória + PlayerPrefs) e sobrevivem City↔WorldMap.
 
+## Restauração (patch final)
+
+| Gap | Correção |
+|-----|----------|
+| Câmera/zoom | `WorldCameraState` + `WorldCameraPersistenceService` (default só se não houver estado) |
+| Seleção | `selectedNodeId` no snapshot; `RestoreFromId` após reload |
+| Tick fora do mapa | `GlobalMarchTickService` + `WorldSimulationCoordinator` + host DDOL |
+| Carteira no depósito | `rewardDeliveryId` / `IsCommitted` + `PersistWallet` atômico |
+
 ## Tipos de nó
 
 - `WorldCityNode` — cidades (inclui base do jogador)

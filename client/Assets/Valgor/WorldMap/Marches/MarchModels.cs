@@ -88,6 +88,9 @@ namespace Valgor.WorldMap.Marches
         public WorldNodeKind TargetType { get; }
         public bool RewardsDelivered { get; set; }
         public string? OccupyingNodeId { get; set; }
+        public string? RewardDeliveryId { get; set; }
+        public DateTime? DeliveredAt { get; set; }
+        public bool IsCommitted { get; set; }
 
         /// <summary>Compatibilidade com consumidores existentes.</summary>
         public string Id => MarchId;
@@ -109,7 +112,10 @@ namespace Valgor.WorldMap.Marches
                 ResourceLoad)
             {
                 RewardsDelivered = RewardsDelivered,
-                OccupyingNodeId = OccupyingNodeId
+                OccupyingNodeId = OccupyingNodeId,
+                RewardDeliveryId = RewardDeliveryId,
+                DeliveredAt = DeliveredAt,
+                IsCommitted = IsCommitted
             };
     }
 }

@@ -9,6 +9,7 @@ using Valgor.WorldMap.Energy;
 using Valgor.WorldMap.Filters;
 using Valgor.WorldMap.Locate;
 using Valgor.WorldMap.Marches;
+using Valgor.WorldMap.Simulation;
 using Valgor.WorldMap.Territory;
 using Xunit;
 
@@ -564,4 +565,158 @@ public sealed class WorldMapFilterLocateTerritoryTests
             new ProvisionalHeroesGateway(),
             new LocalWorldMapRepository(settings.PersistenceKey));
     }
+}
+
+public sealed class WorldMapRestorePatchTests
+{
+    private readonly FixedWorldMapClock _clock = new(new DateTime(2026, 7, 26, 18, 0, 0, DateTimeKind.Utc));
+
+    [Fact]
+    public void CameraPersistence_RestoresSavedPose_AndClamps()
+    {
+        var repo = new WorldCameraStateRepository("cam-test-" + Guid.NewGuid().ToString("N"));
+        var service = new WorldCameraPersistenceService(repo, new WorldMapBounds(-22, 22, -18, 22));
+        service.SavePose(100f, 30f, -90f, 16f);
+
+        var restored = service.ResolveForRestore();
+        Assert.True(restored.HasSavedPose);
+        Assert.Equal(22f, restored.X);
+        Assert.Equal(-18f, restored.Z);
+        Assert.Equal(16f, restored.OrthographicSize);
+    }
+
+    [Fact]
+    public void CameraPersistence_UsesDefaultWhenEmpty()
+    {
+        var repo = new WorldCameraStateRepository("cam-empty-" + Guid.NewGuid().ToString("N"));
+        var service = new WorldCameraPersistenceService(repo, defaultZoom: 12f);
+        var restored = service.ResolveForRestore();
+        Assert.False(restored.HasSavedPose);
+        Assert.Equal(12f, restored.OrthographicSize);
+    }
+
+    [Fact]
+    public void Selection_RestoresById_AfterNodeReload()
+    {
+        var heroes = new ProvisionalHeroesGateway();
+        var settings = NewSettings();
+        var repo = new LocalWorldMapRepository(settings.PersistenceKey);
+        var first = new WorldMapSession(settings, _clock, heroes, repo);
+        first.LoadOrInitialize();
+        first.Selection.Select(first.GetNode("forest-wood"));
+        first.Persist();
+
+        var second = new WorldMapSession(settings, _clock, heroes, repo);
+        second.LoadOrInitialize();
+        Assert.Equal("forest-wood", second.Selection.SelectedNodeId);
+        Assert.Same(second.GetNode("forest-wood"), second.Selection.Selected);
+    }
+
+    [Fact]
+    public void Selection_ClearsWhenNodeLocked()
+    {
+        var session = CreateSession();
+        session.Selection.RestoreFromId("desert-stone", session.Nodes);
+        Assert.Null(session.Selection.Selected);
+        Assert.Null(session.Selection.SelectedNodeId);
+    }
+
+    [Fact]
+    public void GlobalCoordinator_AdvancesMarch_WithoutWorldMapScene()
+    {
+        var session = CreateSession();
+        var coordinator = new WorldSimulationCoordinator();
+        coordinator.Bind(session);
+        var tick = new GlobalMarchTickService(coordinator);
+
+        session.Selection.Select(session.GetNode("forest-wood"));
+        Assert.True(session.TryDispatchToSelected(out _));
+        var arrival = session.Marches.Active!.ArrivalAt;
+        _clock.UtcNow = arrival;
+        tick.Tick();
+        Assert.Equal(MarchState.Arrived, session.Marches.Active.State);
+    }
+
+    [Fact]
+    public void RewardDeposit_IsIdempotent_AndCommitsWallet()
+    {
+        var session = CreateSession();
+        var wallet = new ResourceWallet();
+        var walletPersists = 0;
+        session.BindWallet(wallet, () => walletPersists++);
+
+        session.Selection.Select(session.GetNode("forest-wood"));
+        Assert.True(session.TryDispatchToSelected(out _));
+        _clock.UtcNow = session.Marches.Active!.ArrivalAt;
+        session.Tick();
+        Assert.True(session.TryCollectSelected(wallet, out _, out _));
+        _clock.UtcNow = _clock.UtcNow.AddHours(4);
+        session.Tick();
+        Assert.True(session.TryReturnMarch(out _));
+        _clock.UtcNow = session.Marches.Active!.ReturnAt!.Value;
+        session.Tick();
+
+        var wood = wallet.Get(ResourceType.Wood);
+        Assert.True(wood > 0);
+        Assert.True(walletPersists >= 1);
+        Assert.NotNull(session.Marches.LastCompleted);
+        Assert.True(session.Marches.LastCompleted!.RewardsDelivered);
+        Assert.True(session.Marches.LastCompleted.IsCommitted);
+        Assert.False(string.IsNullOrEmpty(session.Marches.LastCompleted.RewardDeliveryId));
+
+        var before = wood;
+        var beforePersists = walletPersists;
+        session.Tick();
+        Assert.Equal(before, wallet.Get(ResourceType.Wood));
+        Assert.Equal(beforePersists, walletPersists);
+    }
+
+    [Fact]
+    public void RewardDeposit_SurvivesReload_WithoutDuplication()
+    {
+        var heroes = new ProvisionalHeroesGateway();
+        var settings = NewSettings();
+        var mapRepo = new LocalWorldMapRepository(settings.PersistenceKey);
+        var wallet = new ResourceWallet();
+        var first = new WorldMapSession(settings, _clock, heroes, mapRepo);
+        first.BindWallet(wallet, () => { });
+        first.LoadOrInitialize();
+        first.Selection.Select(first.GetNode("forest-wood"));
+        Assert.True(first.TryDispatchToSelected(out _));
+        _clock.UtcNow = first.Marches.Active!.ArrivalAt;
+        first.Tick();
+        Assert.True(first.TryCollectSelected(wallet, out _, out _));
+        _clock.UtcNow = _clock.UtcNow.AddHours(4);
+        first.Tick();
+        Assert.True(first.TryReturnMarch(out _));
+        _clock.UtcNow = first.Marches.Active!.ReturnAt!.Value;
+        first.Tick();
+        var wood = wallet.Get(ResourceType.Wood);
+
+        var second = new WorldMapSession(settings, _clock, heroes, mapRepo);
+        second.BindWallet(wallet, () => { });
+        second.LoadOrInitialize();
+        Assert.Equal(wood, wallet.Get(ResourceType.Wood));
+    }
+
+    private WorldMapSession CreateSession()
+    {
+        var settings = NewSettings();
+        return new WorldMapSession(
+            settings,
+            _clock,
+            new ProvisionalHeroesGateway(),
+            new LocalWorldMapRepository(settings.PersistenceKey));
+    }
+
+    private static WorldMapSettings NewSettings() =>
+        new()
+        {
+            PersistenceKey = "valgor.worldmap.tests.restore." + Guid.NewGuid().ToString("N"),
+            FilterPersistenceKey = "valgor.worldmap.tests.restore.filters." + Guid.NewGuid().ToString("N"),
+            EnergyPersistenceKey = "valgor.worldmap.tests.restore.energy." + Guid.NewGuid().ToString("N"),
+            CameraPersistenceKey = "valgor.worldmap.tests.restore.camera." + Guid.NewGuid().ToString("N"),
+            MarchSpeedUnitsPerHour = 10f,
+            MarchTickIntervalSeconds = 0
+        };
 }

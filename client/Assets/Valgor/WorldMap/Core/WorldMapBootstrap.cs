@@ -7,6 +7,7 @@ using Valgor.WorldMap.Camera;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Data;
 using Valgor.WorldMap.Nodes;
+using Valgor.WorldMap.Simulation;
 using Valgor.WorldMap.Territory;
 using Valgor.WorldMap.UI;
 
@@ -31,6 +32,7 @@ namespace Valgor.WorldMap
             CreateHud();
             ConfigureCamera();
             Controller.ApplyNodeVisibility();
+            Controller.RestoreSelectionVisuals();
         }
 
         private void Update() => Controller.Tick();
@@ -54,6 +56,7 @@ namespace Valgor.WorldMap
         {
             if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<WorldMapSession>(out var existing))
             {
+                EnsureSimulation(existing);
                 return existing;
             }
 
@@ -62,14 +65,59 @@ namespace Valgor.WorldMap
                 ? gateway
                 : new ProvisionalHeroesGateway();
 
-            var session = WorldMapSession.Create(heroes);
+            var clock = ResolveSimulationClock();
+            var settings = WorldMapSettings.Default;
+            var session = new WorldMapSession(
+                settings,
+                clock,
+                heroes,
+                new LocalWorldMapRepository(settings.PersistenceKey));
+
             if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<CityEconomy>(out var economy))
             {
-                session.BindWallet(economy.Wallet);
+                session.BindWallet(economy.Wallet, economy.PersistWallet);
             }
 
             GameBootstrap.Services?.Register(session);
+            EnsureSimulation(session);
             return session;
+        }
+
+        private static WorldSimulationClock ResolveSimulationClock()
+        {
+            if (GameBootstrap.Services != null &&
+                GameBootstrap.Services.TryGet<WorldSimulationClock>(out var existing))
+            {
+                return existing;
+            }
+
+            var clock = new WorldSimulationClock();
+            GameBootstrap.Services?.Register(clock);
+            return clock;
+        }
+
+        private static void EnsureSimulation(WorldMapSession session)
+        {
+            if (GameBootstrap.Services == null)
+            {
+                return;
+            }
+
+            if (!GameBootstrap.Services.TryGet<WorldSimulationCoordinator>(out var coordinator))
+            {
+                coordinator = new WorldSimulationCoordinator();
+                GameBootstrap.Services.Register(coordinator);
+            }
+
+            coordinator.Bind(session);
+
+            if (!GameBootstrap.Services.TryGet<GlobalMarchTickService>(out var tickService))
+            {
+                tickService = new GlobalMarchTickService(coordinator);
+                GameBootstrap.Services.Register(tickService);
+            }
+
+            GlobalMarchTickHost.EnsureHost(tickService);
         }
 
         private void CreateTerrain()
@@ -129,7 +177,7 @@ namespace Valgor.WorldMap
             ResourceWalletResolver.TryResolve(out var economy);
             if (economy != null)
             {
-                Session.BindWallet(economy.Wallet);
+                Session.BindWallet(economy.Wallet, economy.PersistWallet);
             }
 
             hud.Initialize(Controller, economy);

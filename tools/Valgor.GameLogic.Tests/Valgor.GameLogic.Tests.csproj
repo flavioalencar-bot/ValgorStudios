@@ -67,6 +67,8 @@
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Locate\WorldMapLocatorService.cs" Link="WorldMap\WorldMapLocatorService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Territory\WorldTerritoryModels.cs" Link="WorldMap\WorldTerritoryModels.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Camera\WorldMapBounds.cs" Link="WorldMap\WorldMapBounds.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Camera\WorldCameraPersistence.cs" Link="WorldMap\WorldCameraPersistence.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Simulation\WorldSimulationServices.cs" Link="WorldMap\WorldSimulationServices.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\IHeroesGateway.cs" Link="GameCore\IHeroesGateway.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\ProvisionalHeroesGateway.cs" Link="GameCore\ProvisionalHeroesGateway.cs" />
   </ItemGroup>

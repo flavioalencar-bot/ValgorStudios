@@ -44,7 +44,11 @@ namespace Valgor.WorldMap.Core
         public IReadOnlyList<RegionInstance> Regions => _regions;
         public event Action? Changed;
 
-        public void BindCamera(WorldMapCameraController camera) => _camera = camera;
+        public void BindCamera(WorldMapCameraController camera)
+        {
+            _camera = camera;
+            _camera.BindPersistence(_session.CameraPersistence);
+        }
 
         public void AddRegion(RegionInstance instance, RegionDefinition definition, RegionNodeView view)
         {
@@ -72,9 +76,22 @@ namespace Valgor.WorldMap.Core
 
         public RegionDefinition GetRegionDefinition(RegionInstance instance) => _regionDefinitions[instance];
 
-        public void Tick() => _session.Tick();
+        public void Tick()
+        {
+            // Tick de simulação é global (GlobalMarchTickService). Aqui só sincroniza a UI.
+            Changed?.Invoke();
+        }
 
-        public void Persist() => _session.Persist();
+        public void Persist()
+        {
+            _camera?.PersistCurrentPose();
+            _session.Persist();
+        }
+
+        public void RestoreSelectionVisuals()
+        {
+            OnNodeSelectionChanged(_session.Selection.Selected);
+        }
 
         public void ApplyNodeVisibility()
         {

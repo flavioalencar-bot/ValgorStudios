@@ -96,6 +96,7 @@ namespace Valgor.City.Core
         public void Tick()
         {
             _economy.Tick.Update();
+            // Marchas avançam via GlobalMarchTickHost (DDOL), não aqui.
             RefreshCollectableIndicators();
         }
 
