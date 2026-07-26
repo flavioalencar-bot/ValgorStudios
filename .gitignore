@@ -1,0 +1,99 @@
+## Valgor Studios — .gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDEs
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# .NET
+bin/
+obj/
+out/
+*.dll
+*.exe
+*.pdb
+*.cache
+project.lock.json
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
+
+# Node / Admin
+node_modules/
+dist/
+build/
+.npm/
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Unity
+client/[Ll]ibrary/
+client/[Tt]emp/
+client/[Oo]bj/
+client/[Bb]uild/
+client/[Bb]uilds/
+client/[Ll]ogs/
+client/[Uu]ser[Ss]ettings/
+client/[Mm]emoryCaptures/
+client/[Rr]ecordings/
+client/*.csproj
+client/*.unityproj
+client/*.sln
+client/*.suo
+client/*.tmp
+client/*.user
+client/*.userprefs
+client/*.pidb
+client/*.booproj
+client/*.svd
+client/*.pdb
+client/*.mdb
+client/*.opendb
+client/*.VC.db
+client/[Aa]ssets/AssetStoreTools*
+client/[Aa]ssets/Plugins/Editor/JetBrains*
+client/.vs/
+client/ExportedObj/
+client/sysinfo.txt
+client/Crashlytics_data/
+client/*.apk
+client/*.aab
+client/*.unitypackage
+client/*.app
+
+# Docker volumes / local data
+*.sql.bak
+data/
+.docker/
+
+# Coverage / tooling
+coverage/
+*.coverage
+*.coveragexml
+BenchmarkDotNet.Artifacts/
+
+# Misc
+*.swp
+*~

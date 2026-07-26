@@ -1,0 +1,46 @@
+name: Test Backend
+
+on:
+  push:
+    branches: [main, master, develop]
+    paths:
+      - "server/**"
+      - ".github/workflows/test-backend.yml"
+  pull_request:
+    branches: [main, master, develop]
+    paths:
+      - "server/**"
+      - ".github/workflows/test-backend.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test .NET 9
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore Valgor.sln
+
+      - name: Test
+        run: dotnet test Valgor.sln --configuration Release --no-restore --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: server/**/TestResults/*.trx
+          if-no-files-found: ignore

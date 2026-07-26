@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
+    <Authors>Valgor Studios</Authors>
+    <Company>Valgor</Company>
+    <Product>Valgor</Product>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>

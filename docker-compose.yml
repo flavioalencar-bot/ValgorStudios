@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: valgor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: valgor
+      POSTGRES_USER: valgor
+      POSTGRES_PASSWORD: valgor
+    ports:
+      - "5437:5432"
+    volumes:
+      - valgor_postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U valgor -d valgor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: valgor-redis
+    restart: unless-stopped
+    ports:
+      - "6383:6379"
+    volumes:
+      - valgor_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: valgor-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@valgor.local
+      PGADMIN_DEFAULT_PASSWORD: valgor
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5051:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - valgor_pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  valgor_postgres_data:
+  valgor_redis_data:
+  valgor_pgadmin_data:

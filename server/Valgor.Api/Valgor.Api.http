@@ -1,0 +1,7 @@
+@Valgor.Api_http
+GET http://localhost:5100/health
+Accept: application/json
+
+###
+GET http://localhost:5100/health/ready
+Accept: application/json

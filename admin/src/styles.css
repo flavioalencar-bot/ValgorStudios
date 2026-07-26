@@ -1,0 +1,49 @@
+:root {
+  --bg: #0f1419;
+  --fg: #e8eef4;
+  --muted: #9aabbc;
+  --accent: #3d8bfd;
+  font-family: "Segoe UI", "IBM Plex Sans", sans-serif;
+  color: var(--fg);
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, #1a2a3d 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, #152018 0%, transparent 45%),
+    var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.shell {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 18vh 1.5rem 4rem;
+}
+
+.brand {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.lede {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+  max-width: 32rem;
+}
