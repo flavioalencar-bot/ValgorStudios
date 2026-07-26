@@ -63,13 +63,29 @@ A Valgor Studios desenvolve experiências interativas com arquitetura escalável
 ├── admin/           # Painel React + Vite
 ├── database/        # Init SQL e seeds documentais
 ├── infra/           # Artefatos de infra
-├── docs/            # Arquitetura e API
+├── docs/            # Arquitetura, API e design references
 ├── assets/          # Branding
 ├── tools/           # Scripts
 ├── docker-compose.yml
 ├── CHANGELOG.md
 └── README.md
 ```
+
+---
+
+## Design References
+
+Referências visuais e sonoras aprovadas ficam em [`docs/design-references/`](docs/design-references/INDEX.md).
+
+Elas orientam identidade (cidade, mundo, construções, dragões, heróis, UI, ícones, VFX, luz, animação e áudio) durante todo o projeto.
+
+Regras:
+
+- Imagens são apenas referências — nenhuma arte pode ser copiada
+- Todo asset final deve ser original
+- Referência aprovada deve ser adicionada na pasta correspondente
+
+Índice completo: [docs/design-references/INDEX.md](docs/design-references/INDEX.md)
 
 ---
 
