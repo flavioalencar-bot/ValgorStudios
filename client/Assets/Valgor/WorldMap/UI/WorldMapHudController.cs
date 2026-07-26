@@ -43,7 +43,11 @@ namespace Valgor.WorldMap.UI
             _map.Changed += Refresh;
             if (_economy != null)
             {
-                _economy.Wallet.Changed += (_, _) => RefreshWallet();
+                _economy.Wallet.Changed += (_, _) =>
+                {
+                    _economy.PersistWallet();
+                    RefreshWallet();
+                };
             }
         }
 
@@ -169,8 +173,9 @@ namespace Valgor.WorldMap.UI
         {
             if (_map.Session.TryCollectSelected(_economy?.Wallet, out var error, out var collected))
             {
-                _economy?.PersistWallet();
-                _feedback.text = $"Coletados {collected} recursos.";
+                _feedback.text = collected > 0
+                    ? $"Coletando... +{collected} na carga."
+                    : "Coleta iniciada.";
             }
             else
             {
@@ -271,8 +276,38 @@ namespace Valgor.WorldMap.UI
                     builder.AppendLine($"População: {village.Population}");
                     break;
                 case WorldResourceNode resource:
-                    builder.AppendLine($"Recurso: {resource.Resource}");
-                    builder.AppendLine($"Acumulado: {selected.RemainingAmount} / {resource.Amount}");
+                    builder.AppendLine($"Recurso: {resource.ResourceType}");
+                    builder.AppendLine($"Nível: {resource.Level}");
+                    builder.AppendLine($"Taxa: {resource.GetGatherRatePerHour():0.#}/h");
+                    builder.AppendLine($"Acumulado: {selected.RemainingAmount} / {resource.MaxAmount}");
+                    builder.AppendLine($"Estado recurso: {selected.ResourceState}");
+                    if (selected.RespawnAt.HasValue)
+                    {
+                        var left = selected.RespawnAt.Value - _map.Session.Clock.UtcNow;
+                        if (left < TimeSpan.Zero)
+                        {
+                            left = TimeSpan.Zero;
+                        }
+
+                        builder.AppendLine($"Respawn em: {FormatDuration(left)}");
+                    }
+
+                    if (_map.Session.Marches.Active != null &&
+                        string.Equals(_map.Session.Marches.Active.TargetNodeId, selected.DefinitionId, StringComparison.Ordinal))
+                    {
+                        var march = _map.Session.Marches.Active;
+                        builder.AppendLine($"Carga da marcha: {march.ResourceLoad} / {march.Capacity}");
+                        var eta = ResourceGatherCalculator.EstimateTimeToFillOrDeplete(
+                            resource.GetGatherRatePerHour(),
+                            selected.RemainingAmount,
+                            march.ResourceLoad,
+                            march.Capacity);
+                        if (eta.HasValue && march.State == MarchState.Gathering)
+                        {
+                            builder.AppendLine($"Tempo p/ encher/esgotar: {FormatDuration(eta.Value)}");
+                        }
+                    }
+
                     break;
                 case WorldCreatureNode creature:
                     builder.AppendLine($"Código do nó: {creature.CreatureCode}");
@@ -311,7 +346,12 @@ namespace Valgor.WorldMap.UI
 
             var canDispatch = selected.Status != WorldNodeStatus.Locked &&
                               definition is not WorldCityNode { IsPlayerHome: true };
-            var canCollect = _map.Session.Harvest.CanCollect(selected, definition, _map.Session.Marches.Active);
+            var canCollect = definition is WorldResourceNode &&
+                             _map.Session.Marches.Active != null &&
+                             _map.Session.Gathering.CanStart(
+                                 selected,
+                                 definition,
+                                 _map.Session.Marches.Active);
             var canEngage = definition is WorldCreatureNode &&
                             _map.Session.Encounters.CanEngage(selected.DefinitionId, _map.Session.Energy, out _);
             var canResolve = definition is WorldCreatureNode &&
@@ -358,7 +398,7 @@ namespace Valgor.WorldMap.UI
                 return;
             }
 
-            var remaining = (_map.Session.Marches.Active!.State == MarchState.Returning
+            var remaining = (march.State == MarchState.Returning
                     ? march.ReturnAt ?? march.ArrivalAt
                     : march.ArrivalAt) - _map.Session.Clock.UtcNow;
             if (remaining < TimeSpan.Zero)

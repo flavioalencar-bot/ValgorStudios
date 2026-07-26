@@ -61,6 +61,11 @@ namespace Valgor.WorldMap
                 : new ProvisionalHeroesGateway();
 
             var session = WorldMapSession.Create(heroes);
+            if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<CityEconomy>(out var economy))
+            {
+                session.BindWallet(economy.Wallet);
+            }
+
             GameBootstrap.Services?.Register(session);
             return session;
         }
@@ -111,6 +116,11 @@ namespace Valgor.WorldMap
         {
             var hud = GetComponent<WorldMapHudController>() ?? gameObject.AddComponent<WorldMapHudController>();
             ResourceWalletResolver.TryResolve(out var economy);
+            if (economy != null)
+            {
+                Session.BindWallet(economy.Wallet);
+            }
+
             hud.Initialize(Controller, economy);
         }
 

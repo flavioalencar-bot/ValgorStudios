@@ -34,6 +34,7 @@ namespace Valgor.WorldMap.Core
             Selection = new WorldNodeSelectionService();
             RegionSelection = new RegionSelectionService();
             Harvest = new WorldResourceHarvestService();
+            Gathering = new WorldResourceGatheringService(clock);
             Marches = new MarchService(
                 clock,
                 settings,
@@ -55,6 +56,11 @@ namespace Valgor.WorldMap.Core
                 Persist();
                 Changed?.Invoke();
             };
+            Gathering.Changed += () =>
+            {
+                Persist();
+                Changed?.Invoke();
+            };
         }
 
         public WorldMapSettings Settings { get; }
@@ -64,9 +70,11 @@ namespace Valgor.WorldMap.Core
         public RegionSelectionService RegionSelection { get; }
         public MarchService Marches { get; }
         public WorldResourceHarvestService Harvest { get; }
+        public WorldResourceGatheringService Gathering { get; }
         public CreatureEncounterService Encounters { get; }
         public WorldNodeOccupationService Occupation => _occupation;
         public int Energy { get; private set; }
+        public ResourceWallet? BoundWallet { get; private set; }
         public IReadOnlyDictionary<string, WorldNodeInstance> Nodes => _nodes;
         public IReadOnlyDictionary<string, WorldCreatureInstance> Creatures => _creatures;
         public event Action? Changed;
@@ -77,6 +85,8 @@ namespace Valgor.WorldMap.Core
             var settings = WorldMapSettings.Default;
             return new WorldMapSession(settings, clock, heroes, new LocalWorldMapRepository(settings.PersistenceKey));
         }
+
+        public void BindWallet(ResourceWallet? wallet) => BoundWallet = wallet;
 
         public WorldMapNodeDefinition GetDefinition(string id) => WorldNodeCatalog.Get(id);
 
@@ -98,7 +108,10 @@ namespace Valgor.WorldMap.Core
                         pair.Value.Status,
                         pair.Value.RemainingAmount)
                     {
-                        OccupiedByMarchId = pair.Value.OccupiedByMarchId
+                        OccupiedByMarchId = pair.Value.OccupiedByMarchId,
+                        RespawnAt = pair.Value.RespawnAt,
+                        LastGatherUpdatedUtc = pair.Value.LastGatherUpdatedUtc,
+                        ResourceState = pair.Value.ResourceState
                     };
                 }
 
@@ -117,6 +130,7 @@ namespace Valgor.WorldMap.Core
                 }
 
                 Marches.Restore(snapshot.March, snapshot.LastAdvanceUtc);
+                DepositCompletedMarch(Marches.LastCompleted);
             }
             else
             {
@@ -124,6 +138,7 @@ namespace Valgor.WorldMap.Core
             }
 
             AdvanceCreatures(Clock.UtcNow);
+            AdvanceResourceRespawns(Clock.UtcNow);
             Persist();
             Changed?.Invoke();
         }
@@ -138,6 +153,9 @@ namespace Valgor.WorldMap.Core
 
             _lastTickUtc = now;
             Marches.Advance(now);
+            ApplyResourceGathering(now);
+            AdvanceResourceRespawns(now);
+            DepositCompletedMarch(Marches.LastCompleted);
             AdvanceCreatures(now);
             Persist();
             Changed?.Invoke();
@@ -197,38 +215,55 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
-            if (wallet == null)
+            if (wallet != null)
             {
-                error = "Carteira da cidade indisponível.";
-                return false;
+                BoundWallet = wallet;
             }
 
             var definition = GetDefinition(Selection.Selected.DefinitionId);
-            if (!Harvest.TryCollect(Selection.Selected, definition, Marches.Active, wallet, out collected))
+            if (definition is not WorldResourceNode resource || Marches.Active == null)
             {
                 error = "Coleta indisponível.";
                 return false;
             }
 
-            if (!Marches.TryDeliverLoad(collected, out error))
+            if (!Gathering.TryStart(
+                    Selection.Selected,
+                    resource,
+                    Marches.Active,
+                    Marches.StateMachine,
+                    out error))
             {
-                // Reverte se a marcha já entregou recompensa.
-                wallet.TrySpend(
-                    definition is WorldResourceNode resource ? resource.Resource : ResourceType.Gold,
-                    collected);
-                Selection.Selected.RemainingAmount += collected;
-                if (Selection.Selected.Status == WorldNodeStatus.Depleted && collected > 0)
-                {
-                    Selection.Selected.Status = WorldNodeStatus.Available;
-                }
+                return false;
+            }
 
-                collected = 0;
+            collected = Gathering.ApplyGathering(Selection.Selected, resource, Marches.Active, Clock.UtcNow);
+            Persist();
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool TryDepositMarchLoad(MarchOrder march, ResourceWallet? wallet, out long deposited)
+        {
+            deposited = 0;
+            wallet ??= BoundWallet;
+            if (wallet == null)
+            {
+                return false;
+            }
+
+            if (GetDefinition(march.TargetNodeId) is not WorldResourceNode resource)
+            {
+                return false;
+            }
+
+            if (!Gathering.TryDepositLoad(march, resource, wallet, out deposited))
+            {
                 return false;
             }
 
             Persist();
             Changed?.Invoke();
-            error = string.Empty;
             return true;
         }
 
@@ -303,7 +338,10 @@ namespace Valgor.WorldMap.Core
                     pair.Value.Status,
                     pair.Value.RemainingAmount)
                 {
-                    OccupiedByMarchId = pair.Value.OccupiedByMarchId
+                    OccupiedByMarchId = pair.Value.OccupiedByMarchId,
+                    RespawnAt = pair.Value.RespawnAt,
+                    LastGatherUpdatedUtc = pair.Value.LastGatherUpdatedUtc,
+                    ResourceState = pair.Value.ResourceState
                 };
             }
 
@@ -322,6 +360,48 @@ namespace Valgor.WorldMap.Core
             }
 
             Repository.Save(snapshot);
+        }
+
+        private void ApplyResourceGathering(DateTime nowUtc)
+        {
+            var march = Marches.Active;
+            if (march == null || march.State != MarchState.Gathering)
+            {
+                return;
+            }
+
+            if (GetDefinition(march.TargetNodeId) is not WorldResourceNode resource)
+            {
+                return;
+            }
+
+            Gathering.ApplyGathering(GetNode(march.TargetNodeId), resource, march, nowUtc);
+        }
+
+        private void AdvanceResourceRespawns(DateTime nowUtc)
+        {
+            foreach (var pair in _nodes)
+            {
+                if (GetDefinition(pair.Key) is WorldResourceNode resource)
+                {
+                    Gathering.AdvanceRespawn(pair.Value, resource, nowUtc);
+                }
+            }
+        }
+
+        private void DepositCompletedMarch(MarchOrder? marchBeforeAdvance)
+        {
+            if (marchBeforeAdvance == null || marchBeforeAdvance.State != MarchState.Completed)
+            {
+                return;
+            }
+
+            if (BoundWallet == null)
+            {
+                return;
+            }
+
+            TryDepositMarchLoad(marchBeforeAdvance, BoundWallet, out _);
         }
 
         private void AdvanceCreatures(DateTime utcNow)

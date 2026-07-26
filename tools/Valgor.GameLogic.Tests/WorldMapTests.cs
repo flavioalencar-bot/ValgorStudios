@@ -89,14 +89,24 @@ public sealed class WorldMapInteractionTests
         var session = CreateSession();
         var wallet = new ResourceWallet();
         wallet.Add(ResourceType.Wood, 10);
+        session.BindWallet(wallet);
 
         ArriveAt("forest-wood", session);
         session.Selection.Select(session.GetNode("forest-wood"));
-        Assert.True(session.TryCollectSelected(wallet, out _, out var collected));
-        Assert.Equal(800, collected);
-        Assert.Equal(810, wallet.Get(ResourceType.Wood));
+        Assert.True(session.TryCollectSelected(wallet, out _, out _));
+        Assert.Equal(MarchState.Gathering, session.Marches.Active!.State);
+
+        // 800 max / 200 per hour at level 1 => 4 hours to deplete
+        _clock.UtcNow = _clock.UtcNow.AddHours(4);
+        session.Tick();
         Assert.Equal(0, session.GetNode("forest-wood").RemainingAmount);
-        Assert.Equal(WorldNodeStatus.Depleted, session.GetNode("forest-wood").Status);
+        Assert.Equal(ResourceNodeState.Respawning, session.GetNode("forest-wood").ResourceState);
+        Assert.Equal(800, session.Marches.Active.ResourceLoad);
+
+        Assert.True(session.TryReturnMarch(out _));
+        _clock.UtcNow = session.Marches.Active!.ReturnAt!.Value;
+        session.Tick();
+        Assert.Equal(810, wallet.Get(ResourceType.Wood));
     }
 
     [Fact]

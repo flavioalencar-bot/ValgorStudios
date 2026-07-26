@@ -21,6 +21,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - World Map Interaction: nós tipados (cidade/vilarejo/recurso/criatura/dragão/marco), marcha provisória com tempo de deslocamento, coleta de recursos, persistência City↔WorldMap e contrato `IHeroesGateway.TryReserveMarchSlot`
 - Criaturas do World Map: `WorldCreatureDefinition`/`Instance`, `CreatureRewardTable`, `CreatureDifficultyResolver`, `CreatureEncounterService` (engajar, resolver provisório, respawn, energia)
 - Marchas completas e ocupação de nós: `MarchStateMachine`, `MarchService`, `MarchRepository`, `MarchTravelCalculator`, `WorldNodeOccupationService`, `MarchChangedEvent`
+- Coleta completa no mapa: taxa/`gatherRatePerHour`, carga da marcha, depleção e respawn de nós de recurso (`WorldResourceGatheringService`)
 - Documentação `docs/architecture/player-city.md` e `docs/architecture/world-map.md`
 
 ## [0.2.0] — 2026-07-26

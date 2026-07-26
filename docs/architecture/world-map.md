@@ -27,7 +27,23 @@ Estado (`WorldMapSession`, marchas, nós) sobrevive City↔WorldMap via `Service
 - `WorldDragonNode` — dragões (inspeção)
 - `WorldLandmarkNode` — marcos
 
+## Coleta, carga e respawn
+
+Nós de recurso (`WorldResourceNode`) possuem: `resourceType`, `maxAmount`, `level`, `gatherRatePerHour`, `respawnDuration`.
+
+Runtime (`WorldNodeInstance`): `remainingAmount`, `respawnAt`, `occupiedByMarchId`, `resourceState`.
+
+Estados do recurso: `Available` → `Occupied` → `Depleted`/`Respawning` → `Available`.
+
+| Tipo | Papel |
+|------|--------|
+| `ResourceGatherCalculator` | Cálculo determinístico por timestamp |
+| `WorldResourceGatheringService` | Inicia coleta, aplica taxa, respawn, depósito da carga |
+
+Fluxo: chegar → Coletar (GATHERING) → carga sobe na marcha → retornar → ao completar, deposita na carteira uma vez.
+
 ## Marcha completa e ocupação
+
 
 Estados: `Preparing` → `Marching` → `Arrived` → `Gathering` → `Returning` → `Completed` (ou `Cancelled`).
 

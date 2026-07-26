@@ -19,6 +19,7 @@ namespace Valgor.WorldMap.Data
         Available,
         Occupied,
         Depleted,
+        Respawning,
         Cleared
     }
 
@@ -102,22 +103,60 @@ namespace Valgor.WorldMap.Data
             WorldNodeStatus status,
             float x,
             float z,
-            ResourceType resource,
-            long amount)
+            ResourceType resourceType,
+            long maxAmount,
+            int level,
+            double gatherRatePerHour,
+            TimeSpan respawnDuration)
             : base(id, regionId, displayName, description, status, x, z)
         {
-            if (amount < 0)
+            if (resourceType == ResourceType.Diamonds)
             {
-                throw new ArgumentOutOfRangeException(nameof(amount));
+                throw new ArgumentException("Diamonds não possuem nó de coleta passiva no mapa.", nameof(resourceType));
             }
 
-            Resource = resource;
-            Amount = amount;
+            if (maxAmount < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxAmount));
+            }
+
+            if (level < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(level));
+            }
+
+            if (gatherRatePerHour < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(gatherRatePerHour));
+            }
+
+            if (respawnDuration < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(respawnDuration));
+            }
+
+            ResourceType = resourceType;
+            MaxAmount = maxAmount;
+            Level = level;
+            GatherRatePerHour = gatherRatePerHour;
+            RespawnDuration = respawnDuration;
         }
 
-        public ResourceType Resource { get; }
-        public long Amount { get; }
+        public ResourceType ResourceType { get; }
+        public long MaxAmount { get; }
+        public int Level { get; }
+        public double GatherRatePerHour { get; }
+        public TimeSpan RespawnDuration { get; }
+
+        /// <summary>Alias legado usado por consumidores existentes.</summary>
+        public ResourceType Resource => ResourceType;
+
+        /// <summary>Alias legado de capacidade máxima.</summary>
+        public long Amount => MaxAmount;
+
         public override WorldNodeKind Kind => WorldNodeKind.Resource;
+
+        public double GetGatherRatePerHour() => GatherRatePerHour * Level;
     }
 
     public sealed class WorldCreatureNode : WorldMapNodeDefinition
@@ -190,11 +229,36 @@ namespace Valgor.WorldMap.Data
             DefinitionId = definitionId ?? throw new ArgumentNullException(nameof(definitionId));
             Status = status;
             RemainingAmount = remainingAmount < 0 ? 0 : remainingAmount;
+            ResourceState = MapResourceState(status);
         }
 
         public string DefinitionId { get; }
         public WorldNodeStatus Status { get; set; }
         public long RemainingAmount { get; set; }
         public string? OccupiedByMarchId { get; set; }
+        public DateTime? RespawnAt { get; set; }
+        public DateTime? LastGatherUpdatedUtc { get; set; }
+        public ResourceNodeState ResourceState { get; set; }
+
+        public void SetResourceState(ResourceNodeState state)
+        {
+            ResourceState = state;
+            Status = state switch
+            {
+                ResourceNodeState.Available => WorldNodeStatus.Available,
+                ResourceNodeState.Occupied => WorldNodeStatus.Occupied,
+                ResourceNodeState.Depleted => WorldNodeStatus.Depleted,
+                ResourceNodeState.Respawning => WorldNodeStatus.Respawning,
+                _ => Status
+            };
+        }
+
+        private static ResourceNodeState MapResourceState(WorldNodeStatus status) => status switch
+        {
+            WorldNodeStatus.Occupied => ResourceNodeState.Occupied,
+            WorldNodeStatus.Depleted => ResourceNodeState.Depleted,
+            WorldNodeStatus.Respawning => ResourceNodeState.Respawning,
+            _ => ResourceNodeState.Available
+        };
     }
 }

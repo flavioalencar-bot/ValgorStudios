@@ -81,7 +81,10 @@ namespace Valgor.WorldMap.Core
                     pair.Value.Status,
                     pair.Value.RemainingAmount)
                 {
-                    OccupiedByMarchId = pair.Value.OccupiedByMarchId
+                    OccupiedByMarchId = pair.Value.OccupiedByMarchId,
+                    RespawnAt = pair.Value.RespawnAt,
+                    LastGatherUpdatedUtc = pair.Value.LastGatherUpdatedUtc,
+                    ResourceState = pair.Value.ResourceState
                 };
             }
 
@@ -130,9 +133,26 @@ namespace Valgor.WorldMap.Core
                     UnityEngine.PlayerPrefs.GetString(key + ".amount", "0"),
                     System.Globalization.CultureInfo.InvariantCulture);
                 var occupied = UnityEngine.PlayerPrefs.GetString(key + ".occ", string.Empty);
+                DateTime? respawnAt = null;
+                if (UnityEngine.PlayerPrefs.HasKey(key + ".respawnAt"))
+                {
+                    respawnAt = ParseTime(UnityEngine.PlayerPrefs.GetString(key + ".respawnAt"));
+                }
+
+                DateTime? lastGather = null;
+                if (UnityEngine.PlayerPrefs.HasKey(key + ".lastGather"))
+                {
+                    lastGather = ParseTime(UnityEngine.PlayerPrefs.GetString(key + ".lastGather"));
+                }
+
                 snapshot.Nodes[definition.Id] = new WorldNodeInstance(definition.Id, status, amount)
                 {
-                    OccupiedByMarchId = string.IsNullOrEmpty(occupied) ? null : occupied
+                    OccupiedByMarchId = string.IsNullOrEmpty(occupied) ? null : occupied,
+                    RespawnAt = respawnAt,
+                    LastGatherUpdatedUtc = lastGather,
+                    ResourceState = UnityEngine.PlayerPrefs.HasKey(key + ".rstate")
+                        ? (ResourceNodeState)UnityEngine.PlayerPrefs.GetInt(key + ".rstate")
+                        : MapResourceState(status)
                 };
             }
 
@@ -211,6 +231,24 @@ namespace Valgor.WorldMap.Core
                 UnityEngine.PlayerPrefs.SetInt(key + ".status", (int)pair.Value.Status);
                 UnityEngine.PlayerPrefs.SetString(key + ".amount", pair.Value.RemainingAmount.ToString(inv));
                 UnityEngine.PlayerPrefs.SetString(key + ".occ", pair.Value.OccupiedByMarchId ?? string.Empty);
+                UnityEngine.PlayerPrefs.SetInt(key + ".rstate", (int)pair.Value.ResourceState);
+                if (pair.Value.RespawnAt.HasValue)
+                {
+                    UnityEngine.PlayerPrefs.SetString(key + ".respawnAt", pair.Value.RespawnAt.Value.ToString("O", inv));
+                }
+                else
+                {
+                    UnityEngine.PlayerPrefs.DeleteKey(key + ".respawnAt");
+                }
+
+                if (pair.Value.LastGatherUpdatedUtc.HasValue)
+                {
+                    UnityEngine.PlayerPrefs.SetString(key + ".lastGather", pair.Value.LastGatherUpdatedUtc.Value.ToString("O", inv));
+                }
+                else
+                {
+                    UnityEngine.PlayerPrefs.DeleteKey(key + ".lastGather");
+                }
             }
 
             foreach (var pair in snapshot.Creatures)
@@ -264,6 +302,14 @@ namespace Valgor.WorldMap.Core
         }
 
         private static string? NullIfEmpty(string value) => string.IsNullOrEmpty(value) ? null : value;
+
+        private static ResourceNodeState MapResourceState(WorldNodeStatus status) => status switch
+        {
+            WorldNodeStatus.Occupied => ResourceNodeState.Occupied,
+            WorldNodeStatus.Depleted => ResourceNodeState.Depleted,
+            WorldNodeStatus.Respawning => ResourceNodeState.Respawning,
+            _ => ResourceNodeState.Available
+        };
 
         private static DateTime ParseTime(string raw) =>
             DateTime.Parse(raw, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind);

@@ -21,6 +21,7 @@ namespace Valgor.WorldMap.Marches
         private readonly WorldNodeOccupationService _occupation;
         private readonly IMarchRepository _repository;
         private MarchOrder? _active;
+        private MarchOrder? _lastCompleted;
         private DateTime _lastAdvanceUtc;
 
         public MarchService(
@@ -44,6 +45,7 @@ namespace Valgor.WorldMap.Marches
         }
 
         public MarchOrder? Active => _active;
+        public MarchOrder? LastCompleted => _lastCompleted;
         public MarchStateMachine StateMachine => _stateMachine;
         public WorldNodeOccupationService Occupation => _occupation;
         public MarchTravelCalculator Travel => _travel;
@@ -301,6 +303,7 @@ namespace Valgor.WorldMap.Marches
                 if (_stateMachine.TryTransition(_active, MarchState.Completed, out _))
                 {
                     ReleaseOccupation(_active);
+                    _lastCompleted = _active;
                     PersistMarch();
                     Raise(previous);
                     _active = null;

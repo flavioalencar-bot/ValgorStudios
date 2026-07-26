@@ -125,16 +125,24 @@ public sealed class MarchOccupationTests
     {
         var session = CreateSession();
         var wallet = new ResourceWallet();
+        session.BindWallet(wallet);
         ArriveAt("forest-wood", session);
         session.Selection.Select(session.GetNode("forest-wood"));
-        Assert.True(session.TryCollectSelected(wallet, out _, out var first));
-        Assert.True(first > 0);
-        Assert.True(session.Marches.Active!.RewardsDelivered);
+        Assert.True(session.TryCollectSelected(wallet, out _, out _));
 
-        Assert.False(session.TryCollectSelected(wallet, out var error, out var second));
+        _clock.UtcNow = _clock.UtcNow.AddHours(4);
+        session.Tick();
+        Assert.True(session.TryReturnMarch(out _));
+        _clock.UtcNow = session.Marches.Active!.ReturnAt!.Value;
+        session.Tick();
+
+        Assert.Equal(800, wallet.Get(ResourceType.Wood));
+        var completed = session.Marches.LastCompleted;
+        Assert.NotNull(completed);
+        Assert.True(completed!.RewardsDelivered);
+        Assert.False(session.TryDepositMarchLoad(completed, wallet, out var second));
         Assert.Equal(0, second);
-        Assert.False(string.IsNullOrEmpty(error));
-        Assert.Equal(first, wallet.Get(ResourceType.Wood));
+        Assert.Equal(800, wallet.Get(ResourceType.Wood));
     }
 
     [Fact]

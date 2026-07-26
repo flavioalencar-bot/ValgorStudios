@@ -30,6 +30,12 @@ namespace Valgor.WorldMap.Marches
 
             node.OccupiedByMarchId = march.MarchId;
             march.OccupyingNodeId = node.DefinitionId;
+            if (node.RemainingAmount > 0 &&
+                node.ResourceState is not (ResourceNodeState.Depleted or ResourceNodeState.Respawning))
+            {
+                node.SetResourceState(ResourceNodeState.Occupied);
+            }
+
             error = string.Empty;
             return true;
         }
@@ -66,6 +72,11 @@ namespace Valgor.WorldMap.Marches
             if (string.Equals(march.OccupyingNodeId, node.DefinitionId, StringComparison.Ordinal))
             {
                 march.OccupyingNodeId = null;
+            }
+
+            if (node.ResourceState == ResourceNodeState.Occupied && node.RemainingAmount > 0)
+            {
+                node.SetResourceState(ResourceNodeState.Available);
             }
         }
 
