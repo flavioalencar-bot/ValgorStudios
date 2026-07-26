@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using Valgor.Bootstrap;
+using Valgor.City.Core;
 using Valgor.Core.Modules;
 using Valgor.WorldMap.Camera;
 using Valgor.WorldMap.Core;
@@ -14,17 +15,23 @@ namespace Valgor.WorldMap
     public sealed class WorldMapBootstrap : MonoBehaviour, IWorldMapModule
     {
         public bool IsLoaded { get; private set; }
+        public WorldMapSession Session { get; private set; } = null!;
         public WorldMapController Controller { get; private set; } = null!;
 
         private void Awake()
         {
-            Controller = new WorldMapController(new RegionSelectionService());
+            Session = ResolveSession();
+            Session.LoadOrInitialize();
+            Controller = new WorldMapController(Session);
             GameBootstrap.Services?.Register<IWorldMapModule>(this);
             CreateTerrain();
             CreateRegions();
+            CreateNodes();
             CreateHud();
             ConfigureCamera();
         }
+
+        private void Update() => Controller.Tick();
 
         private void OnEnable() => Enter();
 
@@ -32,12 +39,31 @@ namespace Valgor.WorldMap
         {
             if (IsLoaded)
             {
+                Controller.Persist();
                 Exit();
             }
         }
 
         public void Enter() => IsLoaded = true;
+
         public void Exit() => IsLoaded = false;
+
+        private static WorldMapSession ResolveSession()
+        {
+            if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<WorldMapSession>(out var existing))
+            {
+                return existing;
+            }
+
+            IHeroesGateway heroes = GameBootstrap.Services != null &&
+                                    GameBootstrap.Services.TryGet<IHeroesGateway>(out var gateway)
+                ? gateway
+                : new ProvisionalHeroesGateway();
+
+            var session = WorldMapSession.Create(heroes);
+            GameBootstrap.Services?.Register(session);
+            return session;
+        }
 
         private void CreateTerrain()
         {
@@ -54,20 +80,38 @@ namespace Valgor.WorldMap
             {
                 var definition = pair.Value;
                 var instance = new RegionInstance(definition.Id, definition.DefaultStatus);
-                var node = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                node.transform.SetParent(root);
-                node.transform.position = new Vector3(definition.X, 0.6f, definition.Z);
-                node.transform.localScale = new Vector3(2.2f, 0.6f, 2.2f);
-                var view = node.AddComponent<RegionNodeView>();
+                var marker = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                marker.transform.SetParent(root);
+                marker.transform.position = new Vector3(definition.X, 0.15f, definition.Z);
+                marker.transform.localScale = new Vector3(5.5f, 0.12f, 5.5f);
+                var view = marker.AddComponent<RegionNodeView>();
                 view.Initialize(instance, definition);
-                Controller.Add(instance, definition, view);
+                Controller.AddRegion(instance, definition, view);
+            }
+        }
+
+        private void CreateNodes()
+        {
+            var root = new GameObject("WorldNodes").transform;
+            foreach (var pair in Session.Nodes)
+            {
+                var instance = pair.Value;
+                var definition = Session.GetDefinition(instance.DefinitionId);
+                var primitive = GameObject.CreatePrimitive(PrimitiveFor(definition.Kind));
+                primitive.transform.SetParent(root);
+                primitive.transform.position = new Vector3(definition.X, 0.7f, definition.Z);
+                primitive.transform.localScale = ScaleFor(definition.Kind);
+                var view = primitive.AddComponent<WorldNodeView>();
+                view.Initialize(instance, definition);
+                Controller.AddNode(instance, definition, view);
             }
         }
 
         private void CreateHud()
         {
             var hud = GetComponent<WorldMapHudController>() ?? gameObject.AddComponent<WorldMapHudController>();
-            hud.Initialize(Controller);
+            ResourceWalletResolver.TryResolve(out var economy);
+            hud.Initialize(Controller, economy);
         }
 
         private static void ConfigureCamera()
@@ -82,6 +126,40 @@ namespace Valgor.WorldMap
             {
                 camera.gameObject.AddComponent<WorldMapCameraController>();
             }
+        }
+
+        private static PrimitiveType PrimitiveFor(WorldNodeKind kind) => kind switch
+        {
+            WorldNodeKind.City => PrimitiveType.Cube,
+            WorldNodeKind.Village => PrimitiveType.Capsule,
+            WorldNodeKind.Resource => PrimitiveType.Cylinder,
+            WorldNodeKind.Creature => PrimitiveType.Sphere,
+            WorldNodeKind.Dragon => PrimitiveType.Cube,
+            WorldNodeKind.Landmark => PrimitiveType.Cylinder,
+            _ => PrimitiveType.Cube
+        };
+
+        private static Vector3 ScaleFor(WorldNodeKind kind) => kind switch
+        {
+            WorldNodeKind.City => new Vector3(2.4f, 2.2f, 2.4f),
+            WorldNodeKind.Dragon => new Vector3(2.6f, 1.8f, 2.6f),
+            WorldNodeKind.Landmark => new Vector3(1.4f, 2.4f, 1.4f),
+            _ => new Vector3(1.8f, 1.2f, 1.8f)
+        };
+    }
+
+    internal static class ResourceWalletResolver
+    {
+        public static bool TryResolve(out CityEconomy? economy)
+        {
+            economy = null;
+            if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<CityEconomy>(out var existing))
+            {
+                economy = existing;
+                return true;
+            }
+
+            return false;
         }
     }
 }

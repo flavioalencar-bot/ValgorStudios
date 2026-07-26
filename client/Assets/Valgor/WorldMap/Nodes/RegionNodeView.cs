@@ -8,8 +8,8 @@ namespace Valgor.WorldMap.Nodes
     public sealed class RegionNodeView : MonoBehaviour
     {
         private Renderer _renderer = null!;
-        private TextMesh _label = null!;
         private Color _baseColor;
+        private Vector3 _baseScale;
 
         public event Action<RegionNodeView>? Clicked;
         public RegionInstance Instance { get; private set; } = null!;
@@ -17,17 +17,19 @@ namespace Valgor.WorldMap.Nodes
         public void Initialize(RegionInstance instance, RegionDefinition definition)
         {
             Instance = instance;
-            name = definition.DisplayName;
+            name = "Region_" + definition.DisplayName;
             _renderer = GetComponent<Renderer>();
             _baseColor = ColorFor(instance.Status);
+            _baseColor.a = 0.35f;
             _renderer.material.color = _baseColor;
-            _label = CreateLabel(definition.DisplayName);
+            _baseScale = transform.localScale;
+            CreateLabel(definition.DisplayName);
         }
 
         public void SetSelected(bool selected)
         {
-            _renderer.material.color = selected ? Color.Lerp(_baseColor, Color.white, 0.4f) : _baseColor;
-            transform.localScale = selected ? Vector3.one * 1.35f : Vector3.one;
+            _renderer.material.color = selected ? Color.Lerp(_baseColor, Color.white, 0.35f) : _baseColor;
+            transform.localScale = selected ? _baseScale * 1.08f : _baseScale;
         }
 
         private void OnMouseUpAsButton() => Clicked?.Invoke(this);

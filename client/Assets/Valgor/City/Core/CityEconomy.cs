@@ -93,6 +93,21 @@ namespace Valgor.City.Core
             Repository.Save(snapshot);
         }
 
+        /// <summary>
+        /// Atualiza apenas a carteira no snapshot (ex.: coleta no World Map sem a cena da City carregada).
+        /// </summary>
+        public void PersistWallet()
+        {
+            var snapshot = Repository.Load() ?? new ProductionSnapshot();
+            snapshot.SavedAtUtc = Clock.UtcNow;
+            foreach (ResourceType resource in Enum.GetValues(typeof(ResourceType)))
+            {
+                snapshot.Wallet[resource] = Wallet.Get(resource);
+            }
+
+            Repository.Save(snapshot);
+        }
+
         private void SeedStarterWallet()
         {
             if (Wallet.Get(ResourceType.Gold) > 0)

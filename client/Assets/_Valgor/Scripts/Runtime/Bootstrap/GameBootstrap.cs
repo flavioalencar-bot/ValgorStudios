@@ -1,6 +1,7 @@
 using Valgor.Addressables;
 using Valgor.Audio;
 using Valgor.Core;
+using Valgor.Core.Modules;
 using Valgor.Localization;
 using Valgor.Navigation;
 using Valgor.Scenes;
@@ -55,6 +56,7 @@ namespace Valgor.Bootstrap
 
             var navigator = new GameNavigator(registry);
             registry.Register(navigator);
+            registry.Register<IHeroesGateway>(new ProvisionalHeroesGateway());
 
             return registry;
         }

@@ -1,7 +1,7 @@
 # World Map Tests
 
-Testes de lógica em `tools/Valgor.GameLogic.Tests/WorldMapTests.cs`.
-
 ```bash
 dotnet test tools/Valgor.GameLogic.Tests
 ```
+
+Cobertura: tipos de nó, tempo de viagem, marcha por timestamp, coleta, bloqueio, retorno, persistência e anti-duplicação.

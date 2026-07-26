@@ -32,6 +32,19 @@
     <Compile Include="..\..\client\Assets\Valgor\City\Production\ProductionTickService.cs" Link="City\ProductionTickService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Production\ProductionRepository.cs" Link="City\ProductionRepository.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\WorldMapModels.cs" Link="WorldMap\WorldMapModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\WorldMapSettings.cs" Link="WorldMap\WorldMapSettings.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\WorldNodeModels.cs" Link="WorldMap\WorldNodeModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\WorldNodeCatalog.cs" Link="WorldMap\WorldNodeCatalog.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\MarchModels.cs" Link="WorldMap\MarchModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\IWorldMapClock.cs" Link="WorldMap\IWorldMapClock.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\RegionSelectionService.cs" Link="WorldMap\RegionSelectionService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\WorldNodeSelectionService.cs" Link="WorldMap\WorldNodeSelectionService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\TravelTimeCalculator.cs" Link="WorldMap\TravelTimeCalculator.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\MarchService.cs" Link="WorldMap\MarchService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\WorldResourceHarvestService.cs" Link="WorldMap\WorldResourceHarvestService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\WorldMapRepository.cs" Link="WorldMap\WorldMapRepository.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\WorldMapSession.cs" Link="WorldMap\WorldMapSession.cs" />
+    <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\IHeroesGateway.cs" Link="GameCore\IHeroesGateway.cs" />
+    <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\ProvisionalHeroesGateway.cs" Link="GameCore\ProvisionalHeroesGateway.cs" />
   </ItemGroup>
 </Project>

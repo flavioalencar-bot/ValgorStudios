@@ -7,5 +7,10 @@ namespace Valgor.Core.Modules
     public interface IHeroesGateway
     {
         bool IsAvailable { get; }
+
+        /// <summary>
+        /// Reserva um slot de marcha provisório sem expor roster, combate ou progressão.
+        /// </summary>
+        bool TryReserveMarchSlot(string targetNodeId, out string reservationId);
     }
 }

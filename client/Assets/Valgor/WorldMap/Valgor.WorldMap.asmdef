@@ -3,6 +3,7 @@
   "rootNamespace": "Valgor.WorldMap",
   "references": [
     "Valgor.Runtime",
+    "Valgor.City",
     "Unity.InputSystem",
     "UnityEngine.UIElementsModule"
   ],
