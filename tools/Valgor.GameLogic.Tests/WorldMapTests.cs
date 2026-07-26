@@ -4,6 +4,7 @@ using Valgor.Core.Modules;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Marches;
 using Xunit;
 
 namespace Valgor.GameLogic.Tests;
@@ -72,14 +73,14 @@ public sealed class WorldMapInteractionTests
         session.Selection.Select(session.GetNode("forest-wood"));
         Assert.True(session.TryDispatchToSelected(out _));
 
-        var arrives = session.Marches.Active!.ArrivesAtUtc;
+        var arrives = session.Marches.Active!.ArrivalAt;
         _clock.UtcNow = arrives.AddSeconds(-1);
         session.Marches.Advance(_clock.UtcNow);
-        Assert.Equal(MarchPhase.TravelingOutbound, session.Marches.Active.Phase);
+        Assert.Equal(MarchState.Marching, session.Marches.Active.State);
 
         _clock.UtcNow = arrives;
         session.Marches.Advance(_clock.UtcNow);
-        Assert.Equal(MarchPhase.Arrived, session.Marches.Active.Phase);
+        Assert.Equal(MarchState.Arrived, session.Marches.Active.State);
     }
 
     [Fact]
@@ -132,9 +133,9 @@ public sealed class WorldMapInteractionTests
         var session = CreateSession();
         ArriveAt("forest-wood", session);
         Assert.True(session.TryReturnMarch(out _));
-        Assert.Equal(MarchPhase.Returning, session.Marches.Active!.Phase);
+        Assert.Equal(MarchState.Returning, session.Marches.Active!.State);
 
-        _clock.UtcNow = session.Marches.Active.ArrivesAtUtc;
+        _clock.UtcNow = session.Marches.Active.ReturnAt!.Value;
         session.Marches.Advance(_clock.UtcNow);
         Assert.Null(session.Marches.Active);
     }
@@ -156,11 +157,11 @@ public sealed class WorldMapInteractionTests
         ArriveAt("coast-gold", first);
         first.Persist();
 
-        Assert.Equal(MarchPhase.Arrived, first.Marches.Active!.Phase);
+        Assert.Equal(MarchState.Arrived, first.Marches.Active!.State);
 
         var second = new WorldMapSession(settings, _clock, heroes, repository);
         second.LoadOrInitialize();
-        Assert.Equal(MarchPhase.Arrived, second.Marches.Active!.Phase);
+        Assert.Equal(MarchState.Arrived, second.Marches.Active!.State);
         Assert.Equal(first.Marches.Active.Id, second.Marches.Active.Id);
     }
 
@@ -170,9 +171,9 @@ public sealed class WorldMapInteractionTests
         var session = CreateSession();
         ArriveAt("forest-wood", session);
 
-        _clock.UtcNow = session.Marches.Active!.ArrivesAtUtc.AddHours(-2);
+        _clock.UtcNow = session.Marches.Active!.ArrivalAt.AddHours(-2);
         session.Marches.Advance(_clock.UtcNow);
-        Assert.Equal(MarchPhase.Arrived, session.Marches.Active.Phase);
+        Assert.Equal(MarchState.Arrived, session.Marches.Active.State);
     }
 
     [Fact]
@@ -266,8 +267,8 @@ public sealed class WorldMapInteractionTests
     {
         session.Selection.Select(session.GetNode(nodeId));
         Assert.True(session.TryDispatchToSelected(out _));
-        _clock.UtcNow = session.Marches.Active!.ArrivesAtUtc;
+        _clock.UtcNow = session.Marches.Active!.ArrivalAt;
         session.Marches.Advance(_clock.UtcNow);
-        Assert.Equal(MarchPhase.Arrived, session.Marches.Active.Phase);
+        Assert.Equal(MarchState.Arrived, session.Marches.Active.State);
     }
 }

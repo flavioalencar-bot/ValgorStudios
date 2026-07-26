@@ -195,5 +195,6 @@ namespace Valgor.WorldMap.Data
         public string DefinitionId { get; }
         public WorldNodeStatus Status { get; set; }
         public long RemainingAmount { get; set; }
+        public string? OccupiedByMarchId { get; set; }
     }
 }

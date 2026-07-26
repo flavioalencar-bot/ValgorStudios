@@ -4,6 +4,7 @@ using Valgor.City.Data;
 using Valgor.Core.Modules;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Marches;
 
 namespace Valgor.WorldMap.Core
 {
@@ -15,6 +16,7 @@ namespace Valgor.WorldMap.Core
         private readonly Dictionary<string, WorldNodeInstance> _nodes = new();
         private readonly Dictionary<string, WorldCreatureInstance> _creatures = new();
         private readonly IHeroesGateway _heroes;
+        private readonly WorldNodeOccupationService _occupation = new();
         private DateTime _lastTickUtc;
         private readonly double _tickIntervalSeconds;
 
@@ -32,7 +34,13 @@ namespace Valgor.WorldMap.Core
             Selection = new WorldNodeSelectionService();
             RegionSelection = new RegionSelectionService();
             Harvest = new WorldResourceHarvestService();
-            Marches = new MarchService(clock, settings, heroes, id => WorldNodeCatalog.Get(id));
+            Marches = new MarchService(
+                clock,
+                settings,
+                heroes,
+                id => WorldNodeCatalog.Get(id),
+                id => _nodes[id],
+                _occupation);
             Encounters = new CreatureEncounterService(
                 id => WorldCreatureCatalog.TryGet(id, out var def) ? def : null,
                 id => _creatures.TryGetValue(id, out var inst) ? inst : null,
@@ -57,6 +65,7 @@ namespace Valgor.WorldMap.Core
         public MarchService Marches { get; }
         public WorldResourceHarvestService Harvest { get; }
         public CreatureEncounterService Encounters { get; }
+        public WorldNodeOccupationService Occupation => _occupation;
         public int Energy { get; private set; }
         public IReadOnlyDictionary<string, WorldNodeInstance> Nodes => _nodes;
         public IReadOnlyDictionary<string, WorldCreatureInstance> Creatures => _creatures;
@@ -87,7 +96,10 @@ namespace Valgor.WorldMap.Core
                     _nodes[pair.Key] = new WorldNodeInstance(
                         pair.Value.DefinitionId,
                         pair.Value.Status,
-                        pair.Value.RemainingAmount);
+                        pair.Value.RemainingAmount)
+                    {
+                        OccupiedByMarchId = pair.Value.OccupiedByMarchId
+                    };
                 }
 
                 foreach (var pair in snapshot.Creatures)
@@ -145,7 +157,7 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
-            if (!Marches.TryDispatch(Selection.Selected.DefinitionId, out error))
+            if (!Marches.TryDispatch(Selection.Selected.DefinitionId, Settings.DefaultPlayerId, out error))
             {
                 return false;
             }
@@ -157,6 +169,17 @@ namespace Valgor.WorldMap.Core
         public bool TryReturnMarch(out string error)
         {
             if (!Marches.TryReturn(out error))
+            {
+                return false;
+            }
+
+            Changed?.Invoke();
+            return true;
+        }
+
+        public bool TryCancelMarch(out string error)
+        {
+            if (!Marches.TryCancel(out error))
             {
                 return false;
             }
@@ -184,6 +207,22 @@ namespace Valgor.WorldMap.Core
             if (!Harvest.TryCollect(Selection.Selected, definition, Marches.Active, wallet, out collected))
             {
                 error = "Coleta indisponível.";
+                return false;
+            }
+
+            if (!Marches.TryDeliverLoad(collected, out error))
+            {
+                // Reverte se a marcha já entregou recompensa.
+                wallet.TrySpend(
+                    definition is WorldResourceNode resource ? resource.Resource : ResourceType.Gold,
+                    collected);
+                Selection.Selected.RemainingAmount += collected;
+                if (Selection.Selected.Status == WorldNodeStatus.Depleted && collected > 0)
+                {
+                    Selection.Selected.Status = WorldNodeStatus.Available;
+                }
+
+                collected = 0;
                 return false;
             }
 
@@ -248,12 +287,13 @@ namespace Valgor.WorldMap.Core
 
         public void Persist()
         {
+            Marches.PersistMarch();
             var snapshot = new WorldMapSnapshot
             {
                 SavedAtUtc = Clock.UtcNow,
-                LastAdvanceUtc = Clock.UtcNow,
+                LastAdvanceUtc = Marches.LastAdvanceUtc,
                 Energy = Energy,
-                March = Marches.Active
+                March = Marches.Active?.Clone()
             };
 
             foreach (var pair in _nodes)
@@ -261,7 +301,10 @@ namespace Valgor.WorldMap.Core
                 snapshot.Nodes[pair.Key] = new WorldNodeInstance(
                     pair.Value.DefinitionId,
                     pair.Value.Status,
-                    pair.Value.RemainingAmount);
+                    pair.Value.RemainingAmount)
+                {
+                    OccupiedByMarchId = pair.Value.OccupiedByMarchId
+                };
             }
 
             foreach (var pair in _creatures)

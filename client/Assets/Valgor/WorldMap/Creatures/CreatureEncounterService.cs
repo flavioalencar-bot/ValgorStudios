@@ -1,6 +1,7 @@
 using System;
 using Valgor.City.Data;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Marches;
 
 namespace Valgor.WorldMap.Creatures
 {
@@ -47,7 +48,7 @@ namespace Valgor.WorldMap.Creatures
 
             var march = _activeMarch();
             if (march == null ||
-                march.Phase != MarchPhase.Arrived ||
+                march.State != MarchState.Arrived ||
                 !string.Equals(march.TargetNodeId, creatureId, StringComparison.Ordinal))
             {
                 error = "A marcha precisa estar no nó da criatura.";

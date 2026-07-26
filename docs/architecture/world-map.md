@@ -27,13 +27,20 @@ Estado (`WorldMapSession`, marchas, nós) sobrevive City↔WorldMap via `Service
 - `WorldDragonNode` — dragões (inspeção)
 - `WorldLandmarkNode` — marcos
 
-## Marcha provisória
+## Marcha completa e ocupação
 
-1. Selecionar nó disponível  
-2. Estimar tempo (`distância / MarchSpeedUnitsPerHour`)  
-3. `IHeroesGateway.TryReserveMarchSlot` (stub `ProvisionalHeroesGateway` até o módulo de heróis)  
-4. Avanço por timestamp (`MarchService.Advance`) — independente de FPS  
-5. No destino: coletar (recursos), engajar criatura e/ou retornar  
+Estados: `Preparing` → `Marching` → `Arrived` → `Gathering` → `Returning` → `Completed` (ou `Cancelled`).
+
+| Tipo | Papel |
+|------|--------|
+| `MarchStateMachine` | Transições válidas/inválidas |
+| `MarchService` | Despacho, avanço por timestamp, cancelamento, carga |
+| `MarchRepository` | Persistência da marcha ativa |
+| `MarchTravelCalculator` | Tempo de deslocamento |
+| `WorldNodeOccupationService` | `occupiedByMarchId` exclusivo |
+| `MarchChangedEvent` | Notificação de mudança |
+
+Regras: um nó de recurso ocupado rejeita outra marcha; liberação no retorno/cancelamento/conclusão; recompensa entregue uma única vez (`RewardsDelivered`).
 
 ## Criaturas
 

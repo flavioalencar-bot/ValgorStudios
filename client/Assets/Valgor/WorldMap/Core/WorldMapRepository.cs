@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Marches;
 
 namespace Valgor.WorldMap.Core
 {
@@ -70,19 +71,7 @@ namespace Valgor.WorldMap.Core
                 SavedAtUtc = source.SavedAtUtc,
                 LastAdvanceUtc = source.LastAdvanceUtc,
                 Energy = source.Energy,
-                March = source.March == null
-                    ? null
-                    : new MarchOrder(
-                        source.March.Id,
-                        source.March.ReservationId,
-                        source.March.OriginNodeId,
-                        source.March.TargetNodeId,
-                        source.March.DepartedAtUtc,
-                        source.March.ArrivesAtUtc,
-                        source.March.Phase)
-                    {
-                        CurrentNodeId = source.March.CurrentNodeId
-                    }
+                March = source.March?.Clone()
             };
 
             foreach (var pair in source.Nodes)
@@ -90,7 +79,10 @@ namespace Valgor.WorldMap.Core
                 clone.Nodes[pair.Key] = new WorldNodeInstance(
                     pair.Value.DefinitionId,
                     pair.Value.Status,
-                    pair.Value.RemainingAmount);
+                    pair.Value.RemainingAmount)
+                {
+                    OccupiedByMarchId = pair.Value.OccupiedByMarchId
+                };
             }
 
             foreach (var pair in source.Creatures)
@@ -137,7 +129,11 @@ namespace Valgor.WorldMap.Core
                 var amount = long.Parse(
                     UnityEngine.PlayerPrefs.GetString(key + ".amount", "0"),
                     System.Globalization.CultureInfo.InvariantCulture);
-                snapshot.Nodes[definition.Id] = new WorldNodeInstance(definition.Id, status, amount);
+                var occupied = UnityEngine.PlayerPrefs.GetString(key + ".occ", string.Empty);
+                snapshot.Nodes[definition.Id] = new WorldNodeInstance(definition.Id, status, amount)
+                {
+                    OccupiedByMarchId = string.IsNullOrEmpty(occupied) ? null : occupied
+                };
             }
 
             foreach (var definition in WorldCreatureCatalog.All.Values)
@@ -172,17 +168,31 @@ namespace Valgor.WorldMap.Core
 
             if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".march.id"))
             {
-                snapshot.March = new MarchOrder(
+                DateTime? returnAt = null;
+                if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".march.ret"))
+                {
+                    returnAt = ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.ret"));
+                }
+
+                var march = new MarchOrder(
                     UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.id"),
-                    UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.res"),
+                    UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.player"),
                     UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.origin"),
                     UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.target"),
+                    UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.team"),
                     ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.dep")),
                     ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.arr")),
-                    (MarchPhase)UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".march.phase"))
+                    (MarchState)UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".march.state"),
+                    float.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.speed", "8"), System.Globalization.CultureInfo.InvariantCulture),
+                    long.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.cap", "10000"), System.Globalization.CultureInfo.InvariantCulture),
+                    (WorldNodeKind)UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".march.type"),
+                    returnAt,
+                    long.Parse(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.load", "0"), System.Globalization.CultureInfo.InvariantCulture))
                 {
-                    CurrentNodeId = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.current", null)
+                    RewardsDelivered = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".march.rewarded", 0) == 1,
+                    OccupyingNodeId = NullIfEmpty(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".march.occ", string.Empty))
                 };
+                snapshot.March = march;
             }
 
             return snapshot;
@@ -200,6 +210,7 @@ namespace Valgor.WorldMap.Core
                 var key = _keyPrefix + ".n." + pair.Key;
                 UnityEngine.PlayerPrefs.SetInt(key + ".status", (int)pair.Value.Status);
                 UnityEngine.PlayerPrefs.SetString(key + ".amount", pair.Value.RemainingAmount.ToString(inv));
+                UnityEngine.PlayerPrefs.SetString(key + ".occ", pair.Value.OccupiedByMarchId ?? string.Empty);
             }
 
             foreach (var pair in snapshot.Creatures)
@@ -224,18 +235,35 @@ namespace Valgor.WorldMap.Core
             else
             {
                 var m = snapshot.March;
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.id", m.Id);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.res", m.ReservationId);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.id", m.MarchId);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.player", m.PlayerId);
                 UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.origin", m.OriginNodeId);
                 UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.target", m.TargetNodeId);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.dep", m.DepartedAtUtc.ToString("O", inv));
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.arr", m.ArrivesAtUtc.ToString("O", inv));
-                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".march.phase", (int)m.Phase);
-                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.current", m.CurrentNodeId ?? string.Empty);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.team", m.SelectedTeamId);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.dep", m.DepartureAt.ToString("O", inv));
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.arr", m.ArrivalAt.ToString("O", inv));
+                if (m.ReturnAt.HasValue)
+                {
+                    UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.ret", m.ReturnAt.Value.ToString("O", inv));
+                }
+                else
+                {
+                    UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + ".march.ret");
+                }
+
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".march.state", (int)m.State);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.speed", m.Speed.ToString(inv));
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.cap", m.Capacity.ToString(inv));
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.load", m.ResourceLoad.ToString(inv));
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".march.type", (int)m.TargetType);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".march.rewarded", m.RewardsDelivered ? 1 : 0);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".march.occ", m.OccupyingNodeId ?? string.Empty);
             }
 
             UnityEngine.PlayerPrefs.Save();
         }
+
+        private static string? NullIfEmpty(string value) => string.IsNullOrEmpty(value) ? null : value;
 
         private static DateTime ParseTime(string raw) =>
             DateTime.Parse(raw, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind);

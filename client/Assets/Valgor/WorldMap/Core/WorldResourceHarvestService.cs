@@ -1,6 +1,7 @@
 using System;
 using Valgor.City.Data;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Marches;
 
 namespace Valgor.WorldMap.Core
 {
@@ -23,9 +24,19 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
-            return march != null &&
-                   march.Phase == MarchPhase.Arrived &&
-                   string.Equals(march.TargetNodeId, node.DefinitionId, StringComparison.Ordinal);
+            if (march == null ||
+                march.State is not (MarchState.Arrived or MarchState.Gathering) ||
+                !string.Equals(march.TargetNodeId, node.DefinitionId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            if (march.RewardsDelivered)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool TryCollect(WorldNodeInstance node, WorldMapNodeDefinition definition, MarchOrder? march, ResourceWallet wallet, out long collected)

@@ -35,15 +35,19 @@
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\WorldMapSettings.cs" Link="WorldMap\WorldMapSettings.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\WorldNodeModels.cs" Link="WorldMap\WorldNodeModels.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\WorldNodeCatalog.cs" Link="WorldMap\WorldNodeCatalog.cs" />
-    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\MarchModels.cs" Link="WorldMap\MarchModels.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\IWorldMapClock.cs" Link="WorldMap\IWorldMapClock.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\RegionSelectionService.cs" Link="WorldMap\RegionSelectionService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\WorldNodeSelectionService.cs" Link="WorldMap\WorldNodeSelectionService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\TravelTimeCalculator.cs" Link="WorldMap\TravelTimeCalculator.cs" />
-    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\MarchService.cs" Link="WorldMap\MarchService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\WorldResourceHarvestService.cs" Link="WorldMap\WorldResourceHarvestService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\WorldMapRepository.cs" Link="WorldMap\WorldMapRepository.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\WorldMapSession.cs" Link="WorldMap\WorldMapSession.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Marches\MarchModels.cs" Link="WorldMap\MarchModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Marches\MarchStateMachine.cs" Link="WorldMap\MarchStateMachine.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Marches\MarchTravelCalculator.cs" Link="WorldMap\MarchTravelCalculator.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Marches\WorldNodeOccupationService.cs" Link="WorldMap\WorldNodeOccupationService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Marches\MarchRepository.cs" Link="WorldMap\MarchRepository.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Marches\MarchService.cs" Link="WorldMap\MarchService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\WorldCreatureModels.cs" Link="WorldMap\WorldCreatureModels.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\WorldCreatureCatalog.cs" Link="WorldMap\WorldCreatureCatalog.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\CreatureDifficultyResolver.cs" Link="WorldMap\CreatureDifficultyResolver.cs" />

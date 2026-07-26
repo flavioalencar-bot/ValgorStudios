@@ -8,6 +8,7 @@ using Valgor.City.Data;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Marches;
 
 namespace Valgor.WorldMap.UI
 {
@@ -27,6 +28,7 @@ namespace Valgor.WorldMap.UI
         private Button _engageButton = null!;
         private Button _resolveButton = null!;
         private Button _returnButton = null!;
+        private Button _cancelButton = null!;
         private Label _feedback = null!;
 
         public void Initialize(WorldMapController map, CityEconomy? economy)
@@ -119,11 +121,13 @@ namespace Valgor.WorldMap.UI
             _engageButton = CreateButton("Engajar criatura", OnEngage);
             _resolveButton = CreateButton("Resolver encontro", OnResolve);
             _returnButton = CreateButton("Retornar à cidade", OnReturn);
+            _cancelButton = CreateButton("Cancelar marcha", OnCancel);
             _panel.Add(_dispatchButton);
             _panel.Add(_collectButton);
             _panel.Add(_engageButton);
             _panel.Add(_resolveButton);
             _panel.Add(_returnButton);
+            _panel.Add(_cancelButton);
             _panel.Add(CreateButton("Fechar", () => _map.Session.Selection.Deselect()));
 
             _feedback = new Label();
@@ -181,6 +185,20 @@ namespace Valgor.WorldMap.UI
             if (_map.Session.TryReturnMarch(out var error))
             {
                 _feedback.text = "Retorno iniciado.";
+            }
+            else
+            {
+                _feedback.text = error;
+            }
+
+            Refresh();
+        }
+
+        private void OnCancel()
+        {
+            if (_map.Session.TryCancelMarch(out var error))
+            {
+                _feedback.text = "Marcha cancelada.";
             }
             else
             {
@@ -299,13 +317,16 @@ namespace Valgor.WorldMap.UI
             var canResolve = definition is WorldCreatureNode &&
                              _map.Session.TryGetCreature(selected.DefinitionId, out var creatureState) &&
                              creatureState.State == WorldCreatureState.Engaged;
-            var canReturn = _map.Session.Marches.Active?.Phase == MarchPhase.Arrived;
+            var canReturn = _map.Session.Marches.Active?.State is MarchState.Arrived or MarchState.Gathering;
+            var canCancel = _map.Session.Marches.Active != null &&
+                            _map.Session.Marches.StateMachine.CanCancel(_map.Session.Marches.Active.State);
 
             _dispatchButton.SetEnabled(canDispatch);
             _collectButton.SetEnabled(canCollect);
             _engageButton.SetEnabled(canEngage);
             _resolveButton.SetEnabled(canResolve);
             _returnButton.SetEnabled(canReturn);
+            _cancelButton.SetEnabled(canCancel);
             _collectButton.style.backgroundColor = canCollect
                 ? new Color(0.25f, 0.55f, 0.3f)
                 : new Color(0.2f, 0.2f, 0.2f);
@@ -337,14 +358,16 @@ namespace Valgor.WorldMap.UI
                 return;
             }
 
-            var remaining = march.ArrivesAtUtc - _map.Session.Clock.UtcNow;
+            var remaining = (_map.Session.Marches.Active!.State == MarchState.Returning
+                    ? march.ReturnAt ?? march.ArrivalAt
+                    : march.ArrivalAt) - _map.Session.Clock.UtcNow;
             if (remaining < TimeSpan.Zero)
             {
                 remaining = TimeSpan.Zero;
             }
 
             _march.text =
-                $"Marcha: {march.Phase} → {march.TargetNodeId} · resta {FormatDuration(remaining)}";
+                $"Marcha: {march.State} → {march.TargetNodeId} · carga {march.ResourceLoad}/{march.Capacity} · resta {FormatDuration(remaining)}";
         }
 
         private static string FormatDuration(TimeSpan span)
