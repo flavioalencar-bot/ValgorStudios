@@ -15,7 +15,11 @@ namespace Valgor.WorldMap.Data
         public double MarchTickIntervalSeconds { get; set; } = 1.0;
         public int StartingEnergy { get; set; } = 100;
         public int MaxEnergy { get; set; } = 100;
+        public double EnergyRegenIntervalSec { get; set; } = 60;
+        public int EnergyRegenAmount { get; set; } = 1;
+        public int MarchDispatchEnergyCost { get; set; }
         public string DefaultPlayerId { get; set; } = "local-player";
         public long DefaultMarchCapacity { get; set; } = 10_000;
+        public string EnergyPersistenceKey { get; set; } = "valgor.worldmap.energy.v1";
     }
 }

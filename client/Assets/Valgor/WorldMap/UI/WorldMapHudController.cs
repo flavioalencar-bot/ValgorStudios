@@ -41,6 +41,7 @@ namespace Valgor.WorldMap.UI
             _map.Session.Selection.SelectionChanged += _ => Refresh();
             _map.Session.RegionSelection.SelectionChanged += _ => Refresh();
             _map.Changed += Refresh;
+            _map.Session.EnergyWallet.Changed += (_, _) => RefreshWallet();
             if (_economy != null)
             {
                 _economy.Wallet.Changed += (_, _) =>
@@ -318,7 +319,7 @@ namespace Valgor.WorldMap.UI
                         builder.AppendLine($"Tipo: {creatureDef.Type}");
                         builder.AppendLine($"Nível: {creatureDef.Level}");
                         builder.AppendLine($"Poder recomendado: {creatureDef.RecommendedPower}");
-                        builder.AppendLine($"Custo de energia: {creatureDef.EnergyCost}");
+                        builder.AppendLine($"Custo de energia: {_map.Session.EnergyCosts.ResolveCreature(creature.Id)}");
                         builder.AppendLine($"Respawn: {creatureDef.RespawnDuration.TotalHours:0.#} h");
                         builder.AppendLine($"Posição: ({creatureDef.X:0.#}, {creatureDef.Z:0.#})");
                         if (instance.RespawnAtUtc.HasValue)
@@ -353,7 +354,10 @@ namespace Valgor.WorldMap.UI
                                  definition,
                                  _map.Session.Marches.Active);
             var canEngage = definition is WorldCreatureNode &&
-                            _map.Session.Encounters.CanEngage(selected.DefinitionId, _map.Session.Energy, out _);
+                            _map.Session.Encounters.CanEngage(
+                                selected.DefinitionId,
+                                _map.Session.EnergyWallet.CurrentEnergy,
+                                out _);
             var canResolve = definition is WorldCreatureNode &&
                              _map.Session.TryGetCreature(selected.DefinitionId, out var creatureState) &&
                              creatureState.State == WorldCreatureState.Engaged;
@@ -377,7 +381,14 @@ namespace Valgor.WorldMap.UI
 
         private void RefreshWallet()
         {
-            var energy = $"Energia {_map.Session.Energy}/{_map.Session.Settings.MaxEnergy}";
+            var energyWallet = _map.Session.EnergyWallet;
+            var energy = $"Energia {energyWallet.CurrentEnergy}/{energyWallet.MaxEnergy}";
+            var toFull = _map.Session.EnergyRegen.EstimateTimeToFull();
+            if (toFull.HasValue && toFull.Value > TimeSpan.Zero && energyWallet.CurrentEnergy < energyWallet.MaxEnergy)
+            {
+                energy += $" (regen {energyWallet.RegenAmount}/{energyWallet.RegenIntervalSec:0}s · cheia em {FormatDuration(toFull.Value)})";
+            }
+
             if (_economy == null)
             {
                 _wallet.text = $"{energy} · Carteira: visite a Cidade primeiro para sincronizar recursos.";

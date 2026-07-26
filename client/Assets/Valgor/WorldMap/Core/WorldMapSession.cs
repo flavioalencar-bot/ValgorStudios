@@ -4,6 +4,7 @@ using Valgor.City.Data;
 using Valgor.Core.Modules;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Energy;
 using Valgor.WorldMap.Marches;
 
 namespace Valgor.WorldMap.Core
@@ -17,6 +18,7 @@ namespace Valgor.WorldMap.Core
         private readonly Dictionary<string, WorldCreatureInstance> _creatures = new();
         private readonly IHeroesGateway _heroes;
         private readonly WorldNodeOccupationService _occupation = new();
+        private readonly IEnergyPersistenceRepository _energyRepository;
         private DateTime _lastTickUtc;
         private readonly double _tickIntervalSeconds;
 
@@ -24,13 +26,18 @@ namespace Valgor.WorldMap.Core
             WorldMapSettings settings,
             IWorldMapClock clock,
             IHeroesGateway heroes,
-            IWorldMapRepository repository)
+            IWorldMapRepository repository,
+            PlayerEnergyWallet? energyWallet = null,
+            IEnergyPersistenceRepository? energyRepository = null)
         {
             Settings = settings;
             Clock = clock;
             _heroes = heroes;
             Repository = repository;
-            Energy = settings.StartingEnergy;
+            _energyRepository = energyRepository ?? new EnergyPersistenceRepository(settings.EnergyPersistenceKey);
+            EnergyWallet = energyWallet ?? CreateEnergyWallet(settings, clock);
+            EnergyRegen = new EnergyRegenerationService(EnergyWallet, clock);
+            EnergyCosts = new EnergyCostResolver(EnergyWallet.Settings);
             Selection = new WorldNodeSelectionService();
             RegionSelection = new RegionSelectionService();
             Harvest = new WorldResourceHarvestService();
@@ -61,6 +68,11 @@ namespace Valgor.WorldMap.Core
                 Persist();
                 Changed?.Invoke();
             };
+            EnergyWallet.Changed += (_, _) =>
+            {
+                PersistEnergy();
+                Changed?.Invoke();
+            };
         }
 
         public WorldMapSettings Settings { get; }
@@ -73,7 +85,10 @@ namespace Valgor.WorldMap.Core
         public WorldResourceGatheringService Gathering { get; }
         public CreatureEncounterService Encounters { get; }
         public WorldNodeOccupationService Occupation => _occupation;
-        public int Energy { get; private set; }
+        public PlayerEnergyWallet EnergyWallet { get; }
+        public EnergyRegenerationService EnergyRegen { get; }
+        public EnergyCostResolver EnergyCosts { get; }
+        public int Energy => EnergyWallet.CurrentEnergy;
         public ResourceWallet? BoundWallet { get; private set; }
         public IReadOnlyDictionary<string, WorldNodeInstance> Nodes => _nodes;
         public IReadOnlyDictionary<string, WorldCreatureInstance> Creatures => _creatures;
@@ -98,9 +113,11 @@ namespace Valgor.WorldMap.Core
         public void LoadOrInitialize()
         {
             var snapshot = Repository.Load();
+            LoadEnergy(snapshot);
+            EnergyRegen.ApplyUntil(Clock.UtcNow);
+
             if (snapshot != null)
             {
-                Energy = Math.Clamp(snapshot.Energy, 0, Settings.MaxEnergy);
                 foreach (var pair in snapshot.Nodes)
                 {
                     _nodes[pair.Key] = new WorldNodeInstance(
@@ -152,6 +169,7 @@ namespace Valgor.WorldMap.Core
             }
 
             _lastTickUtc = now;
+            EnergyRegen.ApplyUntil(now);
             Marches.Advance(now);
             ApplyResourceGathering(now);
             AdvanceResourceRespawns(now);
@@ -175,8 +193,20 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
+            EnergyRegen.ApplyUntil(Clock.UtcNow);
+            var dispatchCost = EnergyCosts.ResolveMarchDispatch();
+            if (dispatchCost > 0 && !EnergyWallet.TrySpend(dispatchCost, out error))
+            {
+                return false;
+            }
+
             if (!Marches.TryDispatch(Selection.Selected.DefinitionId, Settings.DefaultPlayerId, out error))
             {
+                if (dispatchCost > 0)
+                {
+                    EnergyWallet.Add(dispatchCost);
+                }
+
                 return false;
             }
 
@@ -275,13 +305,14 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
-            var energy = Energy;
-            if (!Encounters.TryEngage(Selection.Selected.DefinitionId, ref energy, out error))
+            EnergyRegen.ApplyUntil(Clock.UtcNow);
+            var available = EnergyWallet.CurrentEnergy;
+            if (!Encounters.TryEngage(Selection.Selected.DefinitionId, ref available, out error))
             {
                 return false;
             }
 
-            Energy = energy;
+            EnergyWallet.SyncFromExternal(available, EnergyWallet.LastUpdatedAt);
             Persist();
             Changed?.Invoke();
             return true;
@@ -323,11 +354,12 @@ namespace Valgor.WorldMap.Core
         public void Persist()
         {
             Marches.PersistMarch();
+            PersistEnergy();
             var snapshot = new WorldMapSnapshot
             {
                 SavedAtUtc = Clock.UtcNow,
                 LastAdvanceUtc = Marches.LastAdvanceUtc,
-                Energy = Energy,
+                Energy = EnergyWallet.CurrentEnergy,
                 March = Marches.Active?.Clone()
             };
 
@@ -362,6 +394,50 @@ namespace Valgor.WorldMap.Core
             Repository.Save(snapshot);
         }
 
+        private void LoadEnergy(WorldMapSnapshot? mapSnapshot)
+        {
+            var snapshot = _energyRepository.Load();
+            if (snapshot != null)
+            {
+                EnergyWallet.Configure(snapshot.MaxEnergy, snapshot.RegenIntervalSec, snapshot.RegenAmount);
+                EnergyWallet.SyncFromExternal(snapshot.CurrentEnergy, snapshot.LastUpdatedAt);
+                return;
+            }
+
+            // Fallback legado: snapshot do mapa só tinha currentEnergy.
+            if (mapSnapshot != null)
+            {
+                EnergyWallet.SyncFromExternal(mapSnapshot.Energy, Clock.UtcNow);
+            }
+        }
+
+        private void PersistEnergy()
+        {
+            _energyRepository.Save(new EnergySnapshot
+            {
+                CurrentEnergy = EnergyWallet.CurrentEnergy,
+                MaxEnergy = EnergyWallet.MaxEnergy,
+                LastUpdatedAt = EnergyWallet.LastUpdatedAt,
+                RegenIntervalSec = EnergyWallet.RegenIntervalSec,
+                RegenAmount = EnergyWallet.RegenAmount
+            });
+        }
+
+        private static PlayerEnergyWallet CreateEnergyWallet(WorldMapSettings settings, IWorldMapClock clock)
+        {
+            var energySettings = new EnergySettings
+            {
+                CurrentEnergy = settings.StartingEnergy,
+                MaxEnergy = settings.MaxEnergy,
+                LastUpdatedAt = clock.UtcNow,
+                RegenIntervalSec = settings.EnergyRegenIntervalSec,
+                RegenAmount = settings.EnergyRegenAmount,
+                MarchDispatchCost = settings.MarchDispatchEnergyCost,
+                PersistenceKey = settings.EnergyPersistenceKey
+            };
+            return new PlayerEnergyWallet(energySettings);
+        }
+
         private void ApplyResourceGathering(DateTime nowUtc)
         {
             var march = Marches.Active;
@@ -389,9 +465,9 @@ namespace Valgor.WorldMap.Core
             }
         }
 
-        private void DepositCompletedMarch(MarchOrder? marchBeforeAdvance)
+        private void DepositCompletedMarch(MarchOrder? completed)
         {
-            if (marchBeforeAdvance == null || marchBeforeAdvance.State != MarchState.Completed)
+            if (completed == null || completed.State != MarchState.Completed)
             {
                 return;
             }
@@ -401,7 +477,7 @@ namespace Valgor.WorldMap.Core
                 return;
             }
 
-            TryDepositMarchLoad(marchBeforeAdvance, BoundWallet, out _);
+            TryDepositMarchLoad(completed, BoundWallet, out _);
         }
 
         private void AdvanceCreatures(DateTime utcNow)

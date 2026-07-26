@@ -55,6 +55,10 @@
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\WorldCreatureCatalog.cs" Link="WorldMap\WorldCreatureCatalog.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\CreatureDifficultyResolver.cs" Link="WorldMap\CreatureDifficultyResolver.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\CreatureEncounterService.cs" Link="WorldMap\CreatureEncounterService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\PlayerEnergyWallet.cs" Link="WorldMap\PlayerEnergyWallet.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\EnergyRegenerationService.cs" Link="WorldMap\EnergyRegenerationService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\EnergyCostResolver.cs" Link="WorldMap\EnergyCostResolver.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\EnergyPersistenceRepository.cs" Link="WorldMap\EnergyPersistenceRepository.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\IHeroesGateway.cs" Link="GameCore\IHeroesGateway.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\ProvisionalHeroesGateway.cs" Link="GameCore\ProvisionalHeroesGateway.cs" />
   </ItemGroup>

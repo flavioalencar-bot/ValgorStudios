@@ -4,6 +4,7 @@ using Valgor.Core.Modules;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Energy;
 using Valgor.WorldMap.Marches;
 using Xunit;
 
@@ -157,22 +158,25 @@ public sealed class WorldMapInteractionTests
         var settings = new WorldMapSettings
         {
             PersistenceKey = "valgor.worldmap.tests.persist",
+            EnergyPersistenceKey = "valgor.worldmap.tests.persist.energy",
             MarchSpeedUnitsPerHour = 10f,
             MarchTickIntervalSeconds = 0
         };
         var repository = new LocalWorldMapRepository(settings.PersistenceKey);
+        var energyRepo = new EnergyPersistenceRepository(settings.EnergyPersistenceKey);
 
-        var first = new WorldMapSession(settings, _clock, heroes, repository);
+        var first = new WorldMapSession(settings, _clock, heroes, repository, energyRepository: energyRepo);
         first.LoadOrInitialize();
         ArriveAt("coast-gold", first);
         first.Persist();
 
         Assert.Equal(MarchState.Arrived, first.Marches.Active!.State);
 
-        var second = new WorldMapSession(settings, _clock, heroes, repository);
+        var second = new WorldMapSession(settings, _clock, heroes, repository, energyRepository: energyRepo);
         second.LoadOrInitialize();
         Assert.Equal(MarchState.Arrived, second.Marches.Active!.State);
         Assert.Equal(first.Marches.Active.Id, second.Marches.Active.Id);
+        Assert.Equal(first.Energy, second.Energy);
     }
 
     [Fact]
@@ -267,10 +271,15 @@ public sealed class WorldMapInteractionTests
         var settings = new WorldMapSettings
         {
             PersistenceKey = "valgor.worldmap.tests." + Guid.NewGuid().ToString("N"),
+            EnergyPersistenceKey = "valgor.worldmap.energy.tests." + Guid.NewGuid().ToString("N"),
             MarchSpeedUnitsPerHour = 10f,
             MarchTickIntervalSeconds = 0
         };
-        return new WorldMapSession(settings, _clock, new ProvisionalHeroesGateway(), new LocalWorldMapRepository(settings.PersistenceKey));
+        return new WorldMapSession(
+            settings,
+            _clock,
+            new ProvisionalHeroesGateway(),
+            new LocalWorldMapRepository(settings.PersistenceKey));
     }
 
     private void ArriveAt(string nodeId, WorldMapSession session)
@@ -280,5 +289,131 @@ public sealed class WorldMapInteractionTests
         _clock.UtcNow = session.Marches.Active!.ArrivalAt;
         session.Marches.Advance(_clock.UtcNow);
         Assert.Equal(MarchState.Arrived, session.Marches.Active.State);
+    }
+}
+
+public sealed class WorldMapEnergyTests
+{
+    private readonly FixedWorldMapClock _clock = new(new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc));
+
+    [Fact]
+    public void EnergyRegen_IsProportionalToElapsedTime()
+    {
+        var session = CreateSession(startingEnergy: 50, maxEnergy: 100, intervalSec: 60, regenAmount: 1);
+        _clock.UtcNow = _clock.UtcNow.AddSeconds(180);
+        session.EnergyRegen.ApplyUntil(_clock.UtcNow);
+        Assert.Equal(53, session.Energy);
+    }
+
+    [Fact]
+    public void EnergyRegen_ClampsAtMax()
+    {
+        var session = CreateSession(startingEnergy: 98, maxEnergy: 100, intervalSec: 60, regenAmount: 5);
+        _clock.UtcNow = _clock.UtcNow.AddSeconds(120);
+        session.EnergyRegen.ApplyUntil(_clock.UtcNow);
+        Assert.Equal(100, session.Energy);
+    }
+
+    [Fact]
+    public void EnergySpend_RejectsWhenInsufficient()
+    {
+        var session = CreateSession(startingEnergy: 5, maxEnergy: 100, intervalSec: 60, regenAmount: 1);
+        Assert.False(session.EnergyWallet.TrySpend(8, out var error));
+        Assert.Contains("insuficiente", error, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(5, session.Energy);
+    }
+
+    [Fact]
+    public void Reconnection_DoesNotDuplicateEnergyRegen()
+    {
+        var session = CreateSession(startingEnergy: 40, maxEnergy: 100, intervalSec: 60, regenAmount: 1);
+        _clock.UtcNow = _clock.UtcNow.AddSeconds(120);
+        session.EnergyRegen.ApplyUntil(_clock.UtcNow);
+        Assert.Equal(42, session.Energy);
+
+        session.EnergyRegen.ApplyUntil(_clock.UtcNow);
+        Assert.Equal(42, session.Energy);
+    }
+
+    [Fact]
+    public void EnergyPersistence_SurvivesReload_AndAppliesOfflineRegen()
+    {
+        var heroes = new ProvisionalHeroesGateway();
+        var settings = new WorldMapSettings
+        {
+            PersistenceKey = "valgor.worldmap.tests.energy." + Guid.NewGuid().ToString("N"),
+            EnergyPersistenceKey = "valgor.worldmap.tests.energy.repo." + Guid.NewGuid().ToString("N"),
+            StartingEnergy = 50,
+            MaxEnergy = 100,
+            EnergyRegenIntervalSec = 60,
+            EnergyRegenAmount = 1,
+            MarchTickIntervalSeconds = 0
+        };
+        var mapRepo = new LocalWorldMapRepository(settings.PersistenceKey);
+        var energyRepo = new EnergyPersistenceRepository(settings.EnergyPersistenceKey);
+
+        var first = new WorldMapSession(settings, _clock, heroes, mapRepo, energyRepository: energyRepo);
+        first.LoadOrInitialize();
+        Assert.True(first.EnergyWallet.TrySpend(20, out _));
+        Assert.Equal(30, first.Energy);
+        first.Persist();
+
+        _clock.UtcNow = _clock.UtcNow.AddSeconds(180);
+        var second = new WorldMapSession(settings, _clock, heroes, mapRepo, energyRepository: energyRepo);
+        second.LoadOrInitialize();
+        Assert.Equal(33, second.Energy);
+    }
+
+    [Fact]
+    public void EnergyCostResolver_UsesCreatureDefinition()
+    {
+        var settings = new EnergySettings { MarchDispatchCost = 3 };
+        var resolver = new EnergyCostResolver(settings);
+        var creature = WorldCreatureCatalog.Get("forest-wolf");
+        Assert.Equal(creature.EnergyCost, resolver.ResolveCreature(creature.Id));
+        Assert.Equal(creature.EnergyCost, resolver.Resolve(EnergyActionKind.EngageCreature, creature.Id));
+        Assert.Equal(3, resolver.ResolveMarchDispatch());
+    }
+
+    [Fact]
+    public void MarchDispatch_SpendsConfiguredEnergyCost()
+    {
+        var settings = new WorldMapSettings
+        {
+            PersistenceKey = "valgor.worldmap.tests.dispatch." + Guid.NewGuid().ToString("N"),
+            EnergyPersistenceKey = "valgor.worldmap.tests.dispatch.energy." + Guid.NewGuid().ToString("N"),
+            StartingEnergy = 20,
+            MaxEnergy = 100,
+            MarchDispatchEnergyCost = 5,
+            MarchSpeedUnitsPerHour = 10f,
+            MarchTickIntervalSeconds = 0
+        };
+        var session = new WorldMapSession(
+            settings,
+            _clock,
+            new ProvisionalHeroesGateway(),
+            new LocalWorldMapRepository(settings.PersistenceKey));
+        session.Selection.Select(session.GetNode("forest-wood"));
+        Assert.True(session.TryDispatchToSelected(out _));
+        Assert.Equal(15, session.Energy);
+    }
+
+    private WorldMapSession CreateSession(int startingEnergy, int maxEnergy, double intervalSec, int regenAmount)
+    {
+        var settings = new WorldMapSettings
+        {
+            PersistenceKey = "valgor.worldmap.tests.energy." + Guid.NewGuid().ToString("N"),
+            EnergyPersistenceKey = "valgor.worldmap.tests.energy.key." + Guid.NewGuid().ToString("N"),
+            StartingEnergy = startingEnergy,
+            MaxEnergy = maxEnergy,
+            EnergyRegenIntervalSec = intervalSec,
+            EnergyRegenAmount = regenAmount,
+            MarchTickIntervalSeconds = 0
+        };
+        return new WorldMapSession(
+            settings,
+            _clock,
+            new ProvisionalHeroesGateway(),
+            new LocalWorldMapRepository(settings.PersistenceKey));
     }
 }

@@ -6,17 +6,31 @@ Mapa mundial em `Assets/Valgor/WorldMap`.
 
 City → `GameNavigator.GoToWorldMap()` → `WorldMapBootstrap` → retorno à City.
 
-Estado (`WorldMapSession`, marchas, nós) sobrevive City↔WorldMap via `ServiceRegistry`.
+Estado (`WorldMapSession`, marchas, nós, energia) sobrevive City↔WorldMap via `ServiceRegistry`.
 
 ## Sistemas
 
 | Área | Tipos |
 |------|--------|
 | Core | `WorldMapBootstrap`, `WorldMapController`, `WorldMapSession`, `MarchService`, `TravelTimeCalculator`, `WorldResourceHarvestService` |
+| Energy | `PlayerEnergyWallet`, `EnergyRegenerationService`, `EnergyCostResolver`, `EnergyChangedEvent`, `EnergyPersistenceRepository` |
 | Data | Regiões, `WorldNodeCatalog`, tipos `WorldCityNode`…`WorldLandmarkNode`, `WorldMapSettings` |
 | Nodes | `RegionNodeView`, `WorldNodeView` |
 | Camera | `WorldMapCameraController`, `WorldMapBounds` |
-| UI | `WorldMapHudController` (inspeção, marcha, coleta, HUD de recursos) |
+| UI | `WorldMapHudController` (inspeção, marcha, coleta, energia/regen, HUD de recursos) |
+
+## Energia
+
+Campos: `currentEnergy`, `maxEnergy`, `lastUpdatedAt`, `regenIntervalSec`, `regenAmount`.
+
+| Tipo | Papel |
+|------|--------|
+| `PlayerEnergyWallet` | Saldo, spend/add, clamp e `EnergyChangedEvent` |
+| `EnergyRegenerationService` | Regen determinístico por timestamp (anti-duplicação na reconexão) |
+| `EnergyCostResolver` | Custos configuráveis (`DispatchMarch`, `EngageCreature`) |
+| `EnergyPersistenceRepository` | Memória (City↔WorldMap) + PlayerPrefs (restart); contrato pronto para backend |
+
+HUD exibe `current/max` e ETA até energia cheia. Engajar criatura e (se configurado) despachar marcha consomem energia.
 
 ## Tipos de nó
 
