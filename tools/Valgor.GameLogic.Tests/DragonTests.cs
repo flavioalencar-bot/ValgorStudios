@@ -83,6 +83,82 @@ public sealed class DragonFoundationTests
     }
 
     [Fact]
+    public void GrowthStages_AreAllRepresented()
+    {
+        var values = Enum.GetValues<DragonGrowthStage>();
+        Assert.Contains(DragonGrowthStage.Egg, values);
+        Assert.Contains(DragonGrowthStage.Hatchling, values);
+        Assert.Contains(DragonGrowthStage.Juvenile, values);
+        Assert.Contains(DragonGrowthStage.Adult, values);
+        Assert.Contains(DragonGrowthStage.Elder, values);
+        Assert.Contains(DragonGrowthStage.Ancient, values);
+        Assert.Equal(6, values.Length);
+    }
+
+    [Fact]
+    public void Hatch_SetsHatchlingGrowthStage()
+    {
+        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
+        var current = now;
+        var settings = new DragonSettings { HatchDurationHours = 1, JuvenileDurationHours = 1 };
+        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
+        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
+        service.LoadOrInitialize();
+
+        Assert.True(service.TryUnlockAndHatch("ash-drake", out _));
+        current = now.AddHours(1.1);
+        service.Tick();
+        Assert.True(service.TryGet("dragon-ash-1", out var ash));
+        Assert.Equal(DragonState.Juvenile, ash.State);
+        Assert.Equal(DragonGrowthStage.Hatchling, ash.GrowthStage);
+    }
+
+    [Fact]
+    public void Feed_IncreasesBondAndGrowth()
+    {
+        var service = CreateService(new FakeWallet { Food = 1000, Essence = 100 });
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        var bondBefore = ember.BondPoints;
+        var growthBefore = ember.GrowthPoints;
+        Assert.True(service.TryFeed(ember.InstanceId, out _));
+        Assert.True(ember.BondPoints > bondBefore || ember.BondLevel > 0);
+        Assert.True(ember.GrowthPoints > growthBefore || ember.GrowthStage > DragonGrowthStage.Adult);
+    }
+
+    [Fact]
+    public void Growth_AdvancesAdultToElder()
+    {
+        var settings = new DragonSettings { AdultToElderPoints = 10, GrowthPointsPerFeed = 10 };
+        var service = CreateService(
+            new FakeWallet { Food = 2000, Essence = 200 },
+            settings: settings);
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        Assert.Equal(DragonGrowthStage.Adult, ember.GrowthStage);
+        Assert.True(service.TryFeed(ember.InstanceId, out _));
+        Assert.Equal(DragonGrowthStage.Elder, ember.GrowthStage);
+    }
+
+    [Fact]
+    public void Evolution_RequiresAdultAndBond()
+    {
+        var settings = new DragonSettings
+        {
+            EvolutionMinBondLevel = 1,
+            BondPointsPerFeed = 25,
+            BondPointsPerLevel = 25
+        };
+        var service = CreateService(
+            new FakeWallet { Food = 2000, Essence = 200 },
+            settings: settings);
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        Assert.False(service.TryEvolve(ember.InstanceId, out _));
+        Assert.True(service.TryFeed(ember.InstanceId, out _));
+        Assert.True(ember.BondLevel >= 1);
+        Assert.True(service.TryEvolve(ember.InstanceId, out var error), error);
+        Assert.Equal("ash-drake", ember.DefinitionId);
+    }
+
+    [Fact]
     public void OfficialStates_AreAllRepresented()
     {
         var values = Enum.GetValues<DragonState>();

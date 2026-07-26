@@ -18,6 +18,19 @@ namespace Valgor.Dragons.Data
         Resting = 10
     }
 
+    /// <summary>
+    /// Estágio de crescimento (eixo separado do DragonState operacional).
+    /// </summary>
+    public enum DragonGrowthStage
+    {
+        Egg = 0,
+        Hatchling = 1,
+        Juvenile = 2,
+        Adult = 3,
+        Elder = 4,
+        Ancient = 5
+    }
+
     public sealed class DragonChangedEvent : EventArgs
     {
         public DragonChangedEvent(string dragonId, DragonState previousState, DragonState currentState)
@@ -34,7 +47,7 @@ namespace Valgor.Dragons.Data
 
     public sealed class DragonSettings
     {
-        public string PersistenceKey { get; set; } = "valgor.dragons.v2";
+        public string PersistenceKey { get; set; } = "valgor.dragons.v3";
         public string DefaultRoostId { get; set; } = "dragon-tower";
         public int DefaultRoostCapacity { get; set; } = 3;
         public double HatchDurationHours { get; set; } = 1;
@@ -48,6 +61,18 @@ namespace Valgor.Dragons.Data
         public long FeedFoodCost { get; set; } = 200;
         public long FeedEssenceCost { get; set; } = 10;
         public int FeedHungerRestore { get; set; } = 40;
+        public int GrowthPointsPerFeed { get; set; } = 8;
+        public int GrowthPointsPerMission { get; set; } = 12;
+        public int HatchlingToJuvenilePoints { get; set; } = 20;
+        public int JuvenileToAdultPoints { get; set; } = 40;
+        public int AdultToElderPoints { get; set; } = 100;
+        public int ElderToAncientPoints { get; set; } = 200;
+        public int BondPointsPerFeed { get; set; } = 5;
+        public int BondPointsPerMission { get; set; } = 8;
+        public int BondPointsPerLevel { get; set; } = 25;
+        public int MaxBondLevel { get; set; } = 5;
+        public int EvolutionMinBondLevel { get; set; } = 2;
+        public DragonGrowthStage EvolutionMinGrowthStage { get; set; } = DragonGrowthStage.Adult;
     }
 
     public sealed class DragonDefinition
@@ -100,18 +125,26 @@ namespace Valgor.Dragons.Data
         }
 
         public string InstanceId { get; }
-        public string DefinitionId { get; }
+        public string DefinitionId { get; set; }
         public DragonState State { get; set; }
         public int Hunger { get; set; }
         public DateTime? StateEndsAtUtc { get; set; }
         public string? AssignedMarchId { get; set; }
         public string? RoostId { get; set; }
         public DateTime LastUpdatedUtc { get; set; } = DateTime.UtcNow;
+        public DragonGrowthStage GrowthStage { get; set; } = DragonGrowthStage.Egg;
+        public int GrowthPoints { get; set; }
+        public int BondLevel { get; set; }
+        public int BondPoints { get; set; }
 
         public DragonInstance Clone() =>
             new(InstanceId, DefinitionId, State, Hunger, StateEndsAtUtc, AssignedMarchId, RoostId)
             {
-                LastUpdatedUtc = LastUpdatedUtc
+                LastUpdatedUtc = LastUpdatedUtc,
+                GrowthStage = GrowthStage,
+                GrowthPoints = GrowthPoints,
+                BondLevel = BondLevel,
+                BondPoints = BondPoints
             };
     }
 

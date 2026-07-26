@@ -23,6 +23,7 @@ namespace Valgor.City.UI
         private Button _collectButton = null!;
         private Button _feedButton = null!;
         private Button _hatchButton = null!;
+        private Button _evolveButton = null!;
         private Label _feedback = null!;
 
         public void Initialize(CityController city, IDragonGateway? dragons = null)
@@ -130,6 +131,8 @@ namespace Valgor.City.UI
             _selectedPanel.Add(_feedButton);
             _hatchButton = CreateButton("Chocar ovo", OnHatch);
             _selectedPanel.Add(_hatchButton);
+            _evolveButton = CreateButton("Evoluir dragão", OnEvolve);
+            _selectedPanel.Add(_evolveButton);
             _feedback = new Label();
             _feedback.style.color = new Color(1f, 0.85f, 0.45f);
             _feedback.style.marginTop = 6;
@@ -194,6 +197,33 @@ namespace Valgor.City.UI
             RefreshSelection();
         }
 
+        private void OnEvolve()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (_dragons.TryEvolve(status.DragonId, out var error))
+                {
+                    _feedback.text = $"{status.DisplayName} evoluiu!";
+                    RefreshSelection();
+                    return;
+                }
+
+                if (!string.Equals(error, "Esta espécie não possui evolução.", StringComparison.Ordinal) &&
+                    !string.Equals(error, "Evolução indisponível neste estado.", StringComparison.Ordinal))
+                {
+                    _feedback.text = error;
+                    return;
+                }
+            }
+
+            _feedback.text = "Nenhum dragão elegível para evoluir.";
+        }
+
         private void OnResourceChanged(object? sender, ResourceChangedEvent args) => RefreshResources();
 
         private void RefreshResources()
@@ -228,7 +258,9 @@ namespace Valgor.City.UI
                 builder.AppendLine($"Ninho: {_dragons.RoostOccupantCount}/{_dragons.RoostCapacity}");
                 foreach (var status in _dragons.GetDragonStatuses())
                 {
-                    builder.AppendLine($"• {status.DisplayName}: {status.StateLabel} (fome {status.Hunger}/{status.MaxHunger})");
+                    builder.AppendLine(
+                        $"• {status.DisplayName}: {status.StateLabel} | {status.GrowthStageLabel} | " +
+                        $"vínculo {status.BondLevel} | fome {status.Hunger}/{status.MaxHunger}");
                 }
             }
 
@@ -241,6 +273,7 @@ namespace Valgor.City.UI
                 : DisplayStyle.None;
             _feedButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
             _hatchButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
+            _evolveButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private string BuildProductionBlock(BuildingInstance building)

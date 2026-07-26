@@ -24,6 +24,7 @@ Não altera o módulo interno de heróis (`Assets/Valgor/Heroes/**`). Integraç�
 | `DragonFeedingService` | Alimentação (Food + DragonEssence) |
 | `DragonHungerService` | Decaimento de fome → HUNGRY |
 | `DragonRecoveryService` | Hatch, juvenile, recovering, resting |
+| `DragonGrowthService` / `DragonBondService` / `DragonEvolutionService` | Crescimento, vínculo e evolução |
 | `DragonDeploymentService` | READY → DEPLOYED / recall |
 
 ## Estados oficiais
@@ -35,6 +36,23 @@ READY|RESTING|JUVENILE → HUNGRY → RESTING|READY
 ```
 
 Timers (configuráveis em `DragonSettings`): hatch, juvenile, rest, recovery, intervalo de fome.
+
+## Crescimento, evolução e vínculo
+
+Eixo separado do estado operacional:
+
+```text
+EGG → HATCHLING → JUVENILE → ADULT → ELDER → ANCIENT
+```
+
+| Tipo | Papel |
+|------|--------|
+| `DragonGrowthService` | Sync com ciclo de vida + pontos → avanço de estágio |
+| `DragonBondService` | Pontos/nível de vínculo (alimentação e missões) |
+| `DragonEvolutionService` | Cadeia `ember-whelp → ash-drake → portal-wyrm` |
+
+Poder provisório = `BasePower × multiplicador de crescimento × (1 + 0.05 × BondLevel)`.
+Persistência: `valgor.dragons.v3`.
 
 ## Seed
 

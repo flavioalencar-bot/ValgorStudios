@@ -29,13 +29,24 @@ namespace Valgor.Core.Modules
     /// </summary>
     public readonly struct DragonStatusInfo
     {
-        public DragonStatusInfo(string dragonId, string displayName, string stateLabel, int hunger, int maxHunger)
+        public DragonStatusInfo(
+            string dragonId,
+            string displayName,
+            string stateLabel,
+            int hunger,
+            int maxHunger,
+            string growthStageLabel = "",
+            int bondLevel = 0,
+            int growthPoints = 0)
         {
             DragonId = dragonId;
             DisplayName = displayName;
             StateLabel = stateLabel;
             Hunger = hunger;
             MaxHunger = maxHunger;
+            GrowthStageLabel = growthStageLabel;
+            BondLevel = bondLevel;
+            GrowthPoints = growthPoints;
         }
 
         public string DragonId { get; }
@@ -43,6 +54,9 @@ namespace Valgor.Core.Modules
         public string StateLabel { get; }
         public int Hunger { get; }
         public int MaxHunger { get; }
+        public string GrowthStageLabel { get; }
+        public int BondLevel { get; }
+        public int GrowthPoints { get; }
     }
 
     /// <summary>
@@ -65,6 +79,8 @@ namespace Valgor.Core.Modules
         bool TryStartRecovery(string dragonId, out string error);
 
         bool TryUnlockAndHatch(string definitionId, out string error);
+
+        bool TryEvolve(string dragonId, out string error);
 
         bool TryDeployToMarch(string dragonId, string marchId, out string error);
 

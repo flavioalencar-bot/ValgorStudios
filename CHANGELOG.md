@@ -9,10 +9,16 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- Vortex jogável: rig Humanoid no Blender, 16 clips mínimos, `Vortex_DragonSword.fbx`, Avatar Humanoid no Unity, espada em `Socket_RightHand`, VFX Domínio do Rei (~10s) e preview HeroesDemo sem dummy
+- Script de produção `production/Vortex/rig_animate_weapon_vortex.py` (skinning + animações + export FBX)
+
+### Added
+
 - Dragon Foundation em `Assets/Valgor/Dragons`: definição/instância, state machine, ninho, alimentação, recuperação, deployment em marchas e `IDragonGateway`
 - Integração City (Torre dos Dragões) + World Map (destaque/recall/poder provisório) + recursos (Food/Essence)
 - Documentação `docs/architecture/dragons.md`
 - Complemento 02 de dragões: estados oficiais (EGG/JUVENILE/DEPLOYED/…), `DragonHungerService`, descanso e recuperação com timers
+- Complemento 03 de dragões: estágios de crescimento (HATCHLING…ANCIENT), vínculo e evolução de espécie
 
 ### Added
 

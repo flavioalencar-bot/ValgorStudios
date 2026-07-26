@@ -35,6 +35,12 @@ namespace Valgor.Core.Modules
             return false;
         }
 
+        public bool TryEvolve(string dragonId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
         public bool TryDeployToMarch(string dragonId, string marchId, out string error)
         {
             error = "Sistema de dragões indisponível.";

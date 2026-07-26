@@ -5,6 +5,7 @@ using Valgor.Core.Modules;
 using Valgor.Dragons.Data;
 using Valgor.Dragons.Deployment;
 using Valgor.Dragons.Feeding;
+using Valgor.Dragons.Growth;
 using Valgor.Dragons.Recovery;
 
 namespace Valgor.Dragons.Core
@@ -34,6 +35,9 @@ namespace Valgor.Dragons.Core
             Feeding = new DragonFeedingService(_settings, _stateMachine, Hunger);
             Recovery = new DragonRecoveryService(_settings, _stateMachine);
             Deployment = new DragonDeploymentService(_stateMachine);
+            Growth = new DragonGrowthService(_settings);
+            Bond = new DragonBondService(_settings);
+            Evolution = new DragonEvolutionService(_settings);
             Roost = new DragonRoost(
                 _settings.DefaultRoostId,
                 "dragon-tower",
@@ -48,6 +52,9 @@ namespace Valgor.Dragons.Core
         public DragonFeedingService Feeding { get; }
         public DragonRecoveryService Recovery { get; }
         public DragonDeploymentService Deployment { get; }
+        public DragonGrowthService Growth { get; }
+        public DragonBondService Bond { get; }
+        public DragonEvolutionService Evolution { get; }
         public DragonStateMachine StateMachine => _stateMachine;
         public IReadOnlyDictionary<string, DragonInstance> Dragons => _dragons;
         public event EventHandler<DragonChangedEvent>? Changed;
@@ -84,6 +91,11 @@ namespace Valgor.Dragons.Core
                 SeedStarterDragons();
             }
 
+            foreach (var dragon in _dragons.Values)
+            {
+                Growth.EnsureSeedDefaults(dragon);
+            }
+
             Tick();
             Persist();
         }
@@ -104,6 +116,9 @@ namespace Valgor.Dragons.Core
                     Hunger.ApplyDecay(dragon, definition, now);
                 }
 
+                Growth.SyncWithLifecycle(dragon, previous, dragon.State);
+                Growth.TryAdvance(dragon);
+
                 if (previous != dragon.State)
                 {
                     Raise(dragon.InstanceId, previous, dragon.State);
@@ -119,7 +134,7 @@ namespace Valgor.Dragons.Core
         public int GetProvisionalDragonPower() =>
             _dragons.Values
                 .Where(d => d.State == DragonState.Deployed)
-                .Sum(d => DragonCatalog.TryGet(d.DefinitionId, out var def) ? def.BasePower : 0);
+                .Sum(ResolveCombatPower);
 
         public IReadOnlyList<DragonStatusInfo> GetDragonStatuses()
         {
@@ -136,7 +151,10 @@ namespace Valgor.Dragons.Core
                     definition.DisplayName,
                     pair.Value.State.ToString().ToUpperInvariant(),
                     pair.Value.Hunger,
-                    definition.MaxHunger));
+                    definition.MaxHunger,
+                    pair.Value.GrowthStage.ToString().ToUpperInvariant(),
+                    pair.Value.BondLevel,
+                    pair.Value.GrowthPoints));
             }
 
             return list;
@@ -162,6 +180,8 @@ namespace Valgor.Dragons.Core
                 return false;
             }
 
+            Bond.AddBondPoints(dragon, _settings.BondPointsPerFeed);
+            Growth.AddGrowthPoints(dragon, _settings.GrowthPointsPerFeed);
             _persistWallet?.Invoke();
             Persist();
             Raise(dragonId, previous, dragon.State);
@@ -253,7 +273,28 @@ namespace Valgor.Dragons.Core
                 return false;
             }
 
+            Bond.AddBondPoints(dragon, _settings.BondPointsPerMission);
+            Growth.AddGrowthPoints(dragon, _settings.GrowthPointsPerMission);
             Recovery.TryStartRecovery(dragon, _utcNow(), out _);
+            Persist();
+            Raise(dragonId, previous, dragon.State);
+            return true;
+        }
+
+        public bool TryEvolve(string dragonId, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            if (!Evolution.TryEvolve(dragon, out error))
+            {
+                return false;
+            }
+
             Persist();
             Raise(dragonId, previous, dragon.State);
             return true;
@@ -368,18 +409,37 @@ namespace Valgor.Dragons.Core
                 "ember-whelp",
                 DragonState.Ready,
                 hunger: 80,
-                roostId: Roost.RoostId);
+                roostId: Roost.RoostId)
+            {
+                GrowthStage = DragonGrowthStage.Adult
+            };
             var ash = new DragonInstance(
                 "dragon-ash-1",
                 "ash-drake",
                 DragonState.Locked,
                 hunger: 0,
-                roostId: Roost.RoostId);
+                roostId: Roost.RoostId)
+            {
+                GrowthStage = DragonGrowthStage.Egg
+            };
             _dragons[ember.InstanceId] = ember;
             _dragons[ash.InstanceId] = ash;
             Roost.OccupantIds.Clear();
             Roost.OccupantIds.Add(ember.InstanceId);
             Roost.OccupantIds.Add(ash.InstanceId);
+        }
+
+        private int ResolveCombatPower(DragonInstance dragon)
+        {
+            if (!DragonCatalog.TryGet(dragon.DefinitionId, out var definition))
+            {
+                return 0;
+            }
+
+            var power = definition.BasePower *
+                        DragonGrowthService.PowerMultiplier(dragon.GrowthStage) *
+                        DragonBondService.PowerMultiplier(dragon.BondLevel);
+            return (int)Math.Round(power);
         }
 
         private void Raise(string dragonId, DragonState previous, DragonState current) =>

@@ -133,7 +133,13 @@ namespace Valgor.Dragons.Core
                         LastUpdatedUtc = DateTime.Parse(
                             UnityEngine.PlayerPrefs.GetString(key + ".updated"),
                             inv,
-                            System.Globalization.DateTimeStyles.RoundtripKind)
+                            System.Globalization.DateTimeStyles.RoundtripKind),
+                        GrowthStage = (DragonGrowthStage)UnityEngine.PlayerPrefs.GetInt(
+                            key + ".growth",
+                            (int)DragonGrowthStage.Egg),
+                        GrowthPoints = UnityEngine.PlayerPrefs.GetInt(key + ".gpts", 0),
+                        BondLevel = UnityEngine.PlayerPrefs.GetInt(key + ".bond", 0),
+                        BondPoints = UnityEngine.PlayerPrefs.GetInt(key + ".bpts", 0)
                     };
                 }
             }
@@ -171,6 +177,10 @@ namespace Valgor.Dragons.Core
                 UnityEngine.PlayerPrefs.SetString(key + ".updated", d.LastUpdatedUtc.ToString("O", inv));
                 UnityEngine.PlayerPrefs.SetString(key + ".march", d.AssignedMarchId ?? string.Empty);
                 UnityEngine.PlayerPrefs.SetString(key + ".roost", d.RoostId ?? string.Empty);
+                UnityEngine.PlayerPrefs.SetInt(key + ".growth", (int)d.GrowthStage);
+                UnityEngine.PlayerPrefs.SetInt(key + ".gpts", d.GrowthPoints);
+                UnityEngine.PlayerPrefs.SetInt(key + ".bond", d.BondLevel);
+                UnityEngine.PlayerPrefs.SetInt(key + ".bpts", d.BondPoints);
                 if (d.StateEndsAtUtc.HasValue)
                 {
                     UnityEngine.PlayerPrefs.SetString(key + ".ends", d.StateEndsAtUtc.Value.ToString("O", inv));
