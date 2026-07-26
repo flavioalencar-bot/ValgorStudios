@@ -20,5 +20,9 @@
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\GameSession.cs" Link="GameCore\GameSession.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\ServiceRegistry.cs" Link="GameCore\ServiceRegistry.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\SceneIds.cs" Link="GameCore\SceneIds.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Data\ResourceWallet.cs" Link="City\ResourceWallet.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Data\BuildingModels.cs" Link="City\BuildingModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Core\BuildingSelectionService.cs" Link="City\BuildingSelectionService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Camera\CityBounds.cs" Link="City\CityBounds.cs" />
   </ItemGroup>
 </Project>

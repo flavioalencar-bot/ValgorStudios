@@ -22,13 +22,18 @@
 
 Bootstrap → LoadingFlow → MainMenu, com URP, Addressables, Input System, Localization, pooling e áudio.
 
-Detalhes: [game-core.md](game-core.md)
+Detalhes: [game-core.md](game-core.md) · [player-city.md](player-city.md)
 
 ### Game Core
 
 - `ServiceRegistry`, `GameSession`, `GameStateMachine`
 - `SceneLoader`, `LoadingFlow`, `GameNavigator`
 - Contratos de módulo: cidade, world map, buildings, resources, dragons, `IHeroesGateway`
+
+### Player City
+
+- 14 edifícios provisórios, recursos, seleção, upgrade, câmera isométrica, HUD
+- Controles: clique seleciona · direito/meio pan · scroll/pinça zoom
 
 ## Admin
 

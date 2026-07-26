@@ -1,6 +1,6 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Valgor.City;
 
 namespace Valgor.UI
 {
@@ -13,9 +13,15 @@ namespace Valgor.UI
                 gameObject.AddComponent<UIDocument>();
             }
 
-            if (gameObject.GetComponent<ProvisionalCityBootstrap>() == null)
+            var cityBootstrapType = Type.GetType("Valgor.City.CityBootstrap, Valgor.City");
+            if (cityBootstrapType == null)
             {
-                gameObject.AddComponent<ProvisionalCityBootstrap>();
+                throw new InvalidOperationException("Valgor.City.CityBootstrap não foi encontrado.");
+            }
+
+            if (gameObject.GetComponent(cityBootstrapType) == null)
+            {
+                gameObject.AddComponent(cityBootstrapType);
             }
         }
     }

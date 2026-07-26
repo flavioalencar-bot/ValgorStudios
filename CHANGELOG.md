@@ -15,6 +15,8 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - Contratos de integração de módulos (`IPlayerCityModule`, `IWorldMapModule`, `IBuildingModule`, `IResourceModule`, `IDragonModule`, `IHeroesGateway`)
 - Testes de lógica em `tools/Valgor.GameLogic.Tests`
 - Documentação `docs/architecture/game-core.md`
+- Valgor Player City Foundation em `Assets/Valgor/City`: catálogo e slots de 14 edifícios, carteira de recursos, seleção, melhorias, câmera isométrica e HUD
+- Documentação `docs/architecture/player-city.md`
 
 ## [0.2.0] — 2026-07-26
 

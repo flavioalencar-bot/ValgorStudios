@@ -26,7 +26,7 @@ GameBootstrap
 | `LoadingFlow` | Orquestra boot + loading screen |
 | `GameNavigator` | `GoToCity`, `GoToWorldMap`, `GoToMainMenu` |
 | `MainMenuSceneHost` | UI do menu + entrada na cidade |
-| `CitySceneHost` / `ProvisionalCityBootstrap` | Cidade provisória (navegação) |
+| `CitySceneHost` / `CityBootstrap` | Fundação da cidade: módulos, recursos, construções, câmera e HUD |
 | `WorldMapSceneHost` / `WorldMapBootstrap` | Mapa mundial provisório |
 
 ## Cenas (Build Settings)
@@ -49,6 +49,10 @@ Contratos em `Valgor.Core.Modules`:
 - `IResourceModule`
 - `IDragonModule`
 - `IHeroesGateway` — implementação pelo agente de heróis
+
+## City Foundation
+
+`Assets/Valgor/City/` contém a cidade do jogador em uma assembly própria. `CityBootstrap` registra `IPlayerCityModule` e um adaptador de `IResourceModule`, cria o catálogo provisório de edifícios e a HUD de UI Toolkit. A cidade preserva a sessão ao navegar entre `PlayerCity` e `WorldMap`.
 
 ## Testes
 
