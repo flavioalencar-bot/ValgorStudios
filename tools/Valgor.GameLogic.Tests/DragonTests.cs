@@ -52,9 +52,18 @@ public sealed class DragonFoundationTests
     private static DragonService CreateService(
         FakeWallet? wallet = null,
         DateTime? now = null,
-        IDragonRepository? repository = null)
+        IDragonRepository? repository = null,
+        DragonSettings? settings = null)
     {
         var clock = now ?? new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
+        if (settings != null)
+        {
+            var service = new DragonService(settings, repository ?? new MemoryDragonRepository(), () => clock);
+            service.BindWallet(wallet ?? new FakeWallet { Food = 1000, Essence = 100 });
+            service.LoadOrInitialize();
+            return service;
+        }
+
         return DragonService.Create(
             wallet ?? new FakeWallet { Food = 1000, Essence = 100 },
             repository: repository ?? new MemoryDragonRepository(),
@@ -71,6 +80,24 @@ public sealed class DragonFoundationTests
         Assert.True(service.TryGet("dragon-ash-1", out var ash));
         Assert.Equal(DragonState.Locked, ash.State);
         Assert.Equal(2, service.RoostOccupantCount);
+    }
+
+    [Fact]
+    public void OfficialStates_AreAllRepresented()
+    {
+        var values = Enum.GetValues<DragonState>();
+        Assert.Contains(DragonState.Locked, values);
+        Assert.Contains(DragonState.Egg, values);
+        Assert.Contains(DragonState.Hatching, values);
+        Assert.Contains(DragonState.Juvenile, values);
+        Assert.Contains(DragonState.Ready, values);
+        Assert.Contains(DragonState.Deployed, values);
+        Assert.Contains(DragonState.Hungry, values);
+        Assert.Contains(DragonState.Exhausted, values);
+        Assert.Contains(DragonState.Injured, values);
+        Assert.Contains(DragonState.Recovering, values);
+        Assert.Contains(DragonState.Resting, values);
+        Assert.Equal(11, values.Length);
     }
 
     [Fact]
@@ -104,11 +131,16 @@ public sealed class DragonFoundationTests
     }
 
     [Fact]
-    public void Hatch_StartsHatchingAndCompletesToResting()
+    public void Hatch_GoesEggHatchingJuvenileThenResting()
     {
         var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
         var current = now;
-        var settings = new DragonSettings { HatchDurationHours = 1 };
+        var settings = new DragonSettings
+        {
+            HatchDurationHours = 1,
+            JuvenileDurationHours = 1,
+            RestDurationHours = 1
+        };
         var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
         service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
         service.LoadOrInitialize();
@@ -119,20 +151,88 @@ public sealed class DragonFoundationTests
 
         current = now.AddHours(1.1);
         service.Tick();
+        Assert.Equal(DragonState.Juvenile, ash.State);
+
+        current = now.AddHours(2.2);
+        service.Tick();
         Assert.Equal(DragonState.Resting, ash.State);
     }
 
     [Fact]
-    public void Deployment_DeployRecall_AndCombat()
+    public void Hunger_DecaysReadyIntoHungry()
+    {
+        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
+        var current = now;
+        var settings = new DragonSettings
+        {
+            HungerIntervalHours = 1,
+            HungerDecayPerTick = 30,
+            HungryThresholdRatio = 0.25
+        };
+        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
+        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
+        service.LoadOrInitialize();
+
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.Hunger = 40;
+        ember.LastUpdatedUtc = now;
+
+        current = now.AddHours(2.1);
+        service.Tick();
+        Assert.Equal(DragonState.Hungry, ember.State);
+        Assert.True(ember.Hunger <= 25);
+    }
+
+    [Fact]
+    public void Rest_CompletesToReadyWhenHungerSufficient()
+    {
+        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
+        var current = now;
+        var settings = new DragonSettings { RestDurationHours = 1 };
+        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
+        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
+        service.LoadOrInitialize();
+
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        Assert.True(service.Recovery.TryBeginRest(ember, now, out _));
+        Assert.Equal(DragonState.Resting, ember.State);
+
+        current = now.AddHours(1.1);
+        service.Tick();
+        Assert.Equal(DragonState.Ready, ember.State);
+    }
+
+    [Fact]
+    public void Recovery_ExhaustedToResting()
+    {
+        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
+        var current = now;
+        var settings = new DragonSettings { RecoveryDurationHours = 1, RestDurationHours = 1 };
+        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
+        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
+        service.LoadOrInitialize();
+
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.State = DragonState.Exhausted;
+        Assert.True(service.TryStartRecovery(ember.InstanceId, out _));
+        Assert.Equal(DragonState.Recovering, ember.State);
+
+        current = now.AddHours(1.1);
+        service.Tick();
+        Assert.Equal(DragonState.Resting, ember.State);
+    }
+
+    [Fact]
+    public void Deployment_DeployRecall_AndCombatStayDeployed()
     {
         var service = CreateService();
         Assert.True(service.TryDeployFirstReadyToMarch("march-1", out _));
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
-        Assert.Equal(DragonState.Flying, ember.State);
+        Assert.Equal(DragonState.Deployed, ember.State);
         Assert.Equal(80, service.GetProvisionalDragonPower());
 
         Assert.True(service.TryEnterCombatForMarch("march-1", out _));
-        Assert.Equal(DragonState.Combat, ember.State);
+        Assert.Equal(DragonState.Deployed, ember.State);
 
         Assert.True(service.TryRecallFromMarch("march-1", out _));
         Assert.Equal(DragonState.Recovering, ember.State);
@@ -152,7 +252,7 @@ public sealed class DragonFoundationTests
             repository: repo,
             utcNow: () => new DateTime(2026, 7, 26, 13, 0, 0, DateTimeKind.Utc));
         Assert.True(second.TryGet("dragon-ember-1", out var ember));
-        Assert.Equal(DragonState.Flying, ember.State);
+        Assert.Equal(DragonState.Deployed, ember.State);
         Assert.Equal("m1", ember.AssignedMarchId);
     }
 
@@ -192,7 +292,7 @@ public sealed class DragonFoundationTests
         Assert.True(session.TryDispatchToSelected(out var error), error);
         Assert.NotNull(session.Marches.Active);
         Assert.True(dragons.TryGet("dragon-ember-1", out var ember));
-        Assert.Equal(DragonState.Flying, ember.State);
+        Assert.Equal(DragonState.Deployed, ember.State);
         Assert.Equal(session.Marches.Active!.Id, ember.AssignedMarchId);
     }
 

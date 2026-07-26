@@ -4,6 +4,9 @@ using Valgor.Dragons.Data;
 
 namespace Valgor.Dragons.Recovery
 {
+    /// <summary>
+    /// Hatch, maturação juvenil, recuperação e descanso com timers determinísticos.
+    /// </summary>
     public sealed class DragonRecoveryService
     {
         private readonly DragonSettings _settings;
@@ -32,26 +35,83 @@ namespace Valgor.Dragons.Recovery
             return true;
         }
 
-        public void Advance(DragonInstance dragon, DateTime nowUtc)
+        public bool TryBeginRest(DragonInstance dragon, DateTime nowUtc, out string error)
         {
-            if (dragon.State == DragonState.Recovering &&
-                dragon.StateEndsAtUtc.HasValue &&
-                nowUtc >= dragon.StateEndsAtUtc.Value)
+            if (dragon.State is not (DragonState.Ready or DragonState.Hungry))
             {
-                if (_stateMachine.TryTransition(dragon, DragonState.Resting, out _))
-                {
-                    dragon.StateEndsAtUtc = null;
-                }
+                error = "Descanso indisponível neste estado.";
+                return false;
             }
 
-            if (dragon.State == DragonState.Hatching &&
-                dragon.StateEndsAtUtc.HasValue &&
-                nowUtc >= dragon.StateEndsAtUtc.Value)
+            if (!_stateMachine.TryTransition(dragon, DragonState.Resting, out error))
             {
-                if (_stateMachine.TryTransition(dragon, DragonState.Resting, out _))
+                return false;
+            }
+
+            dragon.StateEndsAtUtc = nowUtc.AddHours(_settings.RestDurationHours);
+            return true;
+        }
+
+        public void BeginTimedState(DragonInstance dragon, DateTime nowUtc, double durationHours) =>
+            dragon.StateEndsAtUtc = nowUtc.AddHours(durationHours);
+
+        public void Advance(DragonInstance dragon, DateTime nowUtc, Func<DragonInstance, bool>? isReadyHunger = null)
+        {
+            if (!dragon.StateEndsAtUtc.HasValue || nowUtc < dragon.StateEndsAtUtc.Value)
+            {
+                // Descanso sem timer explícito ainda pode completar por fome suficiente.
+                if (dragon.State == DragonState.Resting &&
+                    isReadyHunger != null &&
+                    isReadyHunger(dragon) &&
+                    !dragon.StateEndsAtUtc.HasValue)
                 {
-                    dragon.StateEndsAtUtc = null;
+                    _stateMachine.TryTransition(dragon, DragonState.Ready, out _);
                 }
+
+                return;
+            }
+
+            switch (dragon.State)
+            {
+                case DragonState.Hatching:
+                    if (_stateMachine.TryTransition(dragon, DragonState.Juvenile, out _))
+                    {
+                        dragon.StateEndsAtUtc = nowUtc.AddHours(_settings.JuvenileDurationHours);
+                    }
+
+                    break;
+
+                case DragonState.Juvenile:
+                    if (_stateMachine.TryTransition(dragon, DragonState.Resting, out _))
+                    {
+                        dragon.StateEndsAtUtc = nowUtc.AddHours(_settings.RestDurationHours);
+                    }
+
+                    break;
+
+                case DragonState.Recovering:
+                    if (_stateMachine.TryTransition(dragon, DragonState.Resting, out _))
+                    {
+                        dragon.StateEndsAtUtc = nowUtc.AddHours(_settings.RestDurationHours);
+                    }
+
+                    break;
+
+                case DragonState.Resting:
+                    if (isReadyHunger == null || isReadyHunger(dragon))
+                    {
+                        if (_stateMachine.TryTransition(dragon, DragonState.Ready, out _))
+                        {
+                            dragon.StateEndsAtUtc = null;
+                        }
+                    }
+                    else
+                    {
+                        // Sem fome suficiente: permanece descansando até alimentar.
+                        dragon.StateEndsAtUtc = null;
+                    }
+
+                    break;
             }
         }
     }

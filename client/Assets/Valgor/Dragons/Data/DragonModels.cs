@@ -5,16 +5,17 @@ namespace Valgor.Dragons.Data
 {
     public enum DragonState
     {
-        Locked,
-        Hatching,
-        Resting,
-        Hungry,
-        Ready,
-        Flying,
-        Combat,
-        Exhausted,
-        Injured,
-        Recovering
+        Locked = 0,
+        Egg = 1,
+        Hatching = 2,
+        Juvenile = 3,
+        Ready = 4,
+        Deployed = 5,
+        Hungry = 6,
+        Exhausted = 7,
+        Injured = 8,
+        Recovering = 9,
+        Resting = 10
     }
 
     public sealed class DragonChangedEvent : EventArgs
@@ -33,11 +34,16 @@ namespace Valgor.Dragons.Data
 
     public sealed class DragonSettings
     {
-        public string PersistenceKey { get; set; } = "valgor.dragons.v1";
+        public string PersistenceKey { get; set; } = "valgor.dragons.v2";
         public string DefaultRoostId { get; set; } = "dragon-tower";
         public int DefaultRoostCapacity { get; set; } = 3;
         public double HatchDurationHours { get; set; } = 1;
+        public double JuvenileDurationHours { get; set; } = 2;
+        public double RestDurationHours { get; set; } = 1;
         public double HungerIntervalHours { get; set; } = 6;
+        public int HungerDecayPerTick { get; set; } = 10;
+        public double HungryThresholdRatio { get; set; } = 0.25;
+        public double ReadyHungerRatio { get; set; } = 0.5;
         public double RecoveryDurationHours { get; set; } = 2;
         public long FeedFoodCost { get; set; } = 200;
         public long FeedEssenceCost { get; set; } = 10;

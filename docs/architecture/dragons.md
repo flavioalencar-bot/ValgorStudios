@@ -16,27 +16,30 @@ Não altera o módulo interno de heróis (`Assets/Valgor/Heroes/**`). Integraç�
 |------|--------|
 | `DragonDefinition` / `DragonCatalog` | Catálogo estático (espécie, poder, fome) |
 | `DragonInstance` | Instância do jogador |
-| `DragonStateMachine` | Grafo de transições |
-| `DragonRepository` | Memória (City↔WorldMap) + PlayerPrefs |
+| `DragonStateMachine` | Grafo de transições oficiais |
+| `DragonRepository` | Memória (City↔WorldMap) + PlayerPrefs (`valgor.dragons.v2`) |
 | `DragonService` | Fachada `IDragonGateway` |
 | `DragonChangedEvent` | Notificação de mudança de estado |
 | `DragonRoost` | Ninho vinculado à `dragon-tower` |
 | `DragonFeedingService` | Alimentação (Food + DragonEssence) |
-| `DragonRecoveryService` | Exhausted/Injured → Recovering → Resting; hatch |
-| `DragonDeploymentService` | READY → FLYING → COMBAT / recall |
+| `DragonHungerService` | Decaimento de fome → HUNGRY |
+| `DragonRecoveryService` | Hatch, juvenile, recovering, resting |
+| `DragonDeploymentService` | READY → DEPLOYED / recall |
 
-## Estados
+## Estados oficiais
 
 ```text
-LOCKED → HATCHING → RESTING ⇄ HUNGRY ⇄ READY
-READY → FLYING → COMBAT
-FLYING|COMBAT → EXHAUSTED|INJURED → RECOVERING → RESTING
+LOCKED → EGG → HATCHING → JUVENILE → RESTING ⇄ READY
+READY → DEPLOYED → EXHAUSTED|INJURED → RECOVERING → RESTING
+READY|RESTING|JUVENILE → HUNGRY → RESTING|READY
 ```
+
+Timers (configuráveis em `DragonSettings`): hatch, juvenile, rest, recovery, intervalo de fome.
 
 ## Seed
 
 - `dragon-ember-1` (`ember-whelp`) — READY
-- `dragon-ash-1` (`ash-drake`) — LOCKED (chocável na torre)
+- `dragon-ash-1` (`ash-drake`) — LOCKED (desbloqueia ovo e choca na torre)
 
 ## Integração
 
@@ -44,8 +47,8 @@ FLYING|COMBAT → EXHAUSTED|INJURED → RECOVERING → RESTING
 |------|----------------|
 | City | `CityBootstrap` cria/registra `DragonService`; HUD da torre lista, alimenta e choca |
 | Recursos | `IDragonResourceWallet` / `CityDragonResourceWallet` (Food + Essence) |
-| World Map | Despacho tenta destacar 1 dragão READY; engajar entra em COMBAT; conclusão/cancel recall + recovery |
-| Poder | `GetProvisionalDragonPower()` soma poder de dragões FLYING/COMBAT ao resolver criaturas |
+| World Map | Despacho destaca 1 dragão READY (DEPLOYED); combate permanece DEPLOYED; conclusão/cancel recall + recovery |
+| Poder | `GetProvisionalDragonPower()` soma poder de dragões DEPLOYED |
 
 ## Contratos Runtime
 

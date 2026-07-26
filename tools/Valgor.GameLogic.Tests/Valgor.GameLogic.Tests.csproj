@@ -79,6 +79,7 @@
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Core\DragonRepository.cs" Link="Dragons\DragonRepository.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Core\DragonService.cs" Link="Dragons\DragonService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Feeding\DragonFeedingService.cs" Link="Dragons\DragonFeedingService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\Dragons\Feeding\DragonHungerService.cs" Link="Dragons\DragonHungerService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Recovery\DragonRecoveryService.cs" Link="Dragons\DragonRecoveryService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Deployment\DragonDeploymentService.cs" Link="Dragons\DragonDeploymentService.cs" />
   </ItemGroup>

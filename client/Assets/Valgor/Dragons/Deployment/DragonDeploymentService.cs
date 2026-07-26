@@ -40,7 +40,7 @@ namespace Valgor.Dragons.Deployment
                 return false;
             }
 
-            if (!_stateMachine.TryTransition(dragon, DragonState.Flying, out error))
+            if (!_stateMachine.TryTransition(dragon, DragonState.Deployed, out error))
             {
                 return false;
             }
@@ -50,20 +50,24 @@ namespace Valgor.Dragons.Deployment
             return true;
         }
 
+        /// <summary>
+        /// Combate ocorre sob DEPLOYED (sem estado separado). Mantém o contrato do World Map.
+        /// </summary>
         public bool TryEnterCombat(DragonInstance dragon, out string error)
         {
-            if (dragon.State != DragonState.Flying)
+            if (dragon.State != DragonState.Deployed)
             {
-                error = "Dragão precisa estar em voo.";
+                error = "Dragão precisa estar destacado (DEPLOYED).";
                 return false;
             }
 
-            return _stateMachine.TryTransition(dragon, DragonState.Combat, out error);
+            error = string.Empty;
+            return true;
         }
 
         public bool TryRecall(DragonInstance dragon, bool injured, out string error)
         {
-            if (dragon.State is not (DragonState.Flying or DragonState.Combat))
+            if (dragon.State != DragonState.Deployed)
             {
                 error = "Dragão não está em missão.";
                 return false;

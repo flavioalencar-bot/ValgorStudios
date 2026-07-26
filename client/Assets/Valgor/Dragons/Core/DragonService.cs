@@ -30,7 +30,8 @@ namespace Valgor.Dragons.Core
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _utcNow = utcNow ?? (() => DateTime.UtcNow);
-            Feeding = new DragonFeedingService(_settings, _stateMachine);
+            Hunger = new DragonHungerService(_settings, _stateMachine);
+            Feeding = new DragonFeedingService(_settings, _stateMachine, Hunger);
             Recovery = new DragonRecoveryService(_settings, _stateMachine);
             Deployment = new DragonDeploymentService(_stateMachine);
             Roost = new DragonRoost(
@@ -43,6 +44,7 @@ namespace Valgor.Dragons.Core
         public DragonRoost Roost { get; private set; }
         public int RoostOccupantCount => Roost.OccupantIds.Count;
         public int RoostCapacity => Roost.Capacity;
+        public DragonHungerService Hunger { get; }
         public DragonFeedingService Feeding { get; }
         public DragonRecoveryService Recovery { get; }
         public DragonDeploymentService Deployment { get; }
@@ -92,8 +94,16 @@ namespace Valgor.Dragons.Core
             foreach (var dragon in _dragons.Values.ToList())
             {
                 var previous = dragon.State;
-                Recovery.Advance(dragon, now);
-                ApplyHungerDecay(dragon, now);
+                DragonCatalog.TryGet(dragon.DefinitionId, out var definition);
+                Recovery.Advance(
+                    dragon,
+                    now,
+                    d => definition != null && Hunger.IsReadyHunger(d, definition));
+                if (definition != null)
+                {
+                    Hunger.ApplyDecay(dragon, definition, now);
+                }
+
                 if (previous != dragon.State)
                 {
                     Raise(dragon.InstanceId, previous, dragon.State);
@@ -108,7 +118,7 @@ namespace Valgor.Dragons.Core
 
         public int GetProvisionalDragonPower() =>
             _dragons.Values
-                .Where(d => d.State is DragonState.Flying or DragonState.Combat)
+                .Where(d => d.State == DragonState.Deployed)
                 .Sum(d => DragonCatalog.TryGet(d.DefinitionId, out var def) ? def.BasePower : 0);
 
         public IReadOnlyList<DragonStatusInfo> GetDragonStatuses()
@@ -300,23 +310,36 @@ namespace Valgor.Dragons.Core
                 return false;
             }
 
-            var locked = _dragons.Values.FirstOrDefault(d =>
-                d.DefinitionId == definitionId && d.State == DragonState.Locked);
-            if (locked == null)
+            var candidate = _dragons.Values.FirstOrDefault(d =>
+                d.DefinitionId == definitionId &&
+                d.State is DragonState.Locked or DragonState.Egg);
+            if (candidate == null)
             {
-                error = "Nenhum ovo bloqueado para esta espécie.";
+                error = "Nenhum ovo disponível para esta espécie.";
                 return false;
             }
 
-            var previous = locked.State;
-            if (!_stateMachine.TryTransition(locked, DragonState.Hatching, out error))
+            var previous = candidate.State;
+            if (candidate.State == DragonState.Locked)
             {
-                return false;
+                if (!_stateMachine.TryTransition(candidate, DragonState.Egg, out error))
+                {
+                    return false;
+                }
             }
 
-            locked.StateEndsAtUtc = _utcNow().AddHours(_settings.HatchDurationHours);
+            if (candidate.State == DragonState.Egg)
+            {
+                if (!_stateMachine.TryTransition(candidate, DragonState.Hatching, out error))
+                {
+                    return false;
+                }
+            }
+
+            Recovery.BeginTimedState(candidate, _utcNow(), _settings.HatchDurationHours);
             Persist();
-            Raise(locked.InstanceId, previous, locked.State);
+            Raise(candidate.InstanceId, previous, candidate.State);
+            error = string.Empty;
             return true;
         }
 
@@ -357,38 +380,6 @@ namespace Valgor.Dragons.Core
             Roost.OccupantIds.Clear();
             Roost.OccupantIds.Add(ember.InstanceId);
             Roost.OccupantIds.Add(ash.InstanceId);
-        }
-
-        private void ApplyHungerDecay(DragonInstance dragon, DateTime nowUtc)
-        {
-            if (dragon.State is not (DragonState.Ready or DragonState.Resting))
-            {
-                return;
-            }
-
-            if (!DragonCatalog.TryGet(dragon.DefinitionId, out var definition))
-            {
-                return;
-            }
-
-            var elapsed = nowUtc - dragon.LastUpdatedUtc;
-            if (elapsed.TotalHours < _settings.HungerIntervalHours)
-            {
-                return;
-            }
-
-            var ticks = (int)Math.Floor(elapsed.TotalHours / _settings.HungerIntervalHours);
-            if (ticks <= 0)
-            {
-                return;
-            }
-
-            dragon.Hunger = Math.Max(0, dragon.Hunger - ticks * 10);
-            dragon.LastUpdatedUtc = dragon.LastUpdatedUtc.AddHours(ticks * _settings.HungerIntervalHours);
-            if (dragon.Hunger <= definition.MaxHunger / 4 && dragon.State == DragonState.Ready)
-            {
-                _stateMachine.TryTransition(dragon, DragonState.Hungry, out _);
-            }
         }
 
         private void Raise(string dragonId, DragonState previous, DragonState current) =>

@@ -167,7 +167,7 @@ namespace Valgor.City.UI
 
             foreach (var status in _dragons.GetDragonStatuses())
             {
-                if (status.StateLabel is "HUNGRY" or "RESTING" or "READY")
+                if (status.StateLabel is "HUNGRY" or "RESTING" or "READY" or "JUVENILE")
                 {
                     _feedback.text = _dragons.TryFeed(status.DragonId, out var error)
                         ? "Dragão alimentado."

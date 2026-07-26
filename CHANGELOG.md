@@ -12,6 +12,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - Dragon Foundation em `Assets/Valgor/Dragons`: definição/instância, state machine, ninho, alimentação, recuperação, deployment em marchas e `IDragonGateway`
 - Integração City (Torre dos Dragões) + World Map (destaque/recall/poder provisório) + recursos (Food/Essence)
 - Documentação `docs/architecture/dragons.md`
+- Complemento 02 de dragões: estados oficiais (EGG/JUVENILE/DEPLOYED/…), `DragonHungerService`, descanso e recuperação com timers
 
 ### Added
 

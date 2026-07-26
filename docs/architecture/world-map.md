@@ -68,7 +68,7 @@ Filtros persistem via `WorldMapFilterPersistenceRepository` (memória + PlayerPr
 
 ## Dragões em marchas
 
-Despacho tenta destacar o primeiro dragão READY (`TryDeployFirstReadyToMarch`). Engajar criatura move o dragão para COMBAT; conclusão ou cancelamento faz recall + recovery. Poder provisório do dragão soma ao dos heróis na resolução. Ver [dragons.md](dragons.md).
+Despacho tenta destacar o primeiro dragão READY (`TryDeployFirstReadyToMarch` → `DEPLOYED`). Engajar criatura mantém `DEPLOYED`; conclusão ou cancelamento faz recall + recovery. Poder provisório do dragão soma ao dos heróis na resolução. Ver [dragons.md](dragons.md).
 
 ## Coleta, carga e respawn
 
