@@ -20,7 +20,15 @@
 
 ## Client Unity
 
-Bootstrap → Loading → MainMenu, com URP, Addressables, Input System, Localization, pooling e áudio.
+Bootstrap → LoadingFlow → MainMenu, com URP, Addressables, Input System, Localization, pooling e áudio.
+
+Detalhes: [game-core.md](game-core.md)
+
+### Game Core
+
+- `ServiceRegistry`, `GameSession`, `GameStateMachine`
+- `SceneLoader`, `LoadingFlow`, `GameNavigator`
+- Contratos de módulo: cidade, world map, buildings, resources, dragons, `IHeroesGateway`
 
 ## Admin
 

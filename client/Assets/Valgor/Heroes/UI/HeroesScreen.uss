@@ -1,0 +1,87 @@
+.heroes-root {
+  flex-grow: 1;
+  padding: 24px;
+  background-color: rgb(18, 22, 30);
+}
+
+.heroes-title {
+  font-size: 28px;
+  color: rgb(232, 238, 244);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.heroes-filters {
+  flex-direction: row;
+  margin-bottom: 8px;
+}
+
+.heroes-filters Button {
+  margin-right: 8px;
+}
+
+.heroes-hint {
+  color: rgb(154, 171, 188);
+  margin-bottom: 12px;
+}
+
+.hero-cards {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.hero-card {
+  width: 220px;
+  margin: 0 12px 12px 0;
+  padding: 12px;
+  background-color: rgb(28, 34, 46);
+  border-left-width: 3px;
+  border-left-color: rgb(61, 139, 253);
+}
+
+.hero-card__name {
+  font-size: 16px;
+  color: rgb(232, 238, 244);
+}
+
+.hero-card__rarity {
+  color: rgb(212, 175, 55);
+  margin-top: 4px;
+}
+
+.hero-card__meta {
+  color: rgb(154, 171, 188);
+  margin-top: 6px;
+  white-space: normal;
+}
+
+.special-power-button {
+  width: 72px;
+  height: 72px;
+}
+
+.special-cooldown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.special-cooldown__fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+.special-cooldown__timer {
+  color: rgb(255, 255, 255);
+}
+
+.special-cooldown--blocked {
+  opacity: 0.85;
+}

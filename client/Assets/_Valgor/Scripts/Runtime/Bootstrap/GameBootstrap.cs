@@ -1,40 +1,76 @@
-using System.Collections;
-using UnityEngine;
 using Valgor.Addressables;
 using Valgor.Audio;
 using Valgor.Core;
 using Valgor.Localization;
+using Valgor.Navigation;
 using Valgor.Scenes;
 
 namespace Valgor.Bootstrap
 {
-    public sealed class GameBootstrap : MonoBehaviour
+    /// <summary>
+    /// Entrada do cliente. Registra serviços, inicia sessão e executa o LoadingFlow.
+    /// </summary>
+    public sealed class GameBootstrap : UnityEngine.MonoBehaviour
     {
         public static ValgorGame Game { get; private set; }
+        public static ServiceRegistry Services { get; private set; }
 
-        private IEnumerator Start()
+        private void Awake()
         {
+            if (Services != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             DontDestroyOnLoad(gameObject);
-
-            var sceneLoader = new SceneLoader();
-            var audio = GetOrCreate<AudioManager>();
-            var localization = GetOrCreate<LocalizationBootstrap>();
-            var addressables = new AddressablesService();
-            Game = new ValgorGame(sceneLoader, audio, addressables, localization);
-
-            yield return localization.Initialize();
-            yield return sceneLoader.LoadAsync("Loading");
-            yield return sceneLoader.LoadAsync("MainMenu");
+            Services = BuildRegistry();
+            Game = new ValgorGame(Services);
         }
 
-        private static T GetOrCreate<T>() where T : MonoBehaviour
+        private System.Collections.IEnumerator Start()
         {
-            var service = FindFirstObjectByType<T>();
-            if (service != null)
-                return service;
+            var loadingFlow = new LoadingFlow(Services);
+            yield return loadingFlow.Run();
+        }
 
-            var serviceObject = new GameObject(typeof(T).Name);
-            return serviceObject.AddComponent<T>();
+        private static ServiceRegistry BuildRegistry()
+        {
+            var registry = new ServiceRegistry();
+
+            var session = new GameSession();
+            var stateMachine = new GameStateMachine();
+            var sceneLoader = new SceneLoader();
+            var addressables = new AddressablesService();
+            var audio = GetOrCreatePersistent<AudioManager>();
+            var localization = GetOrCreatePersistent<LocalizationBootstrap>();
+
+            registry.Register(session);
+            registry.Register(stateMachine);
+            registry.Register(sceneLoader);
+            registry.Register(addressables);
+            registry.Register(audio);
+            registry.Register(localization);
+            registry.Register(registry);
+
+            var navigator = new GameNavigator(registry);
+            registry.Register(navigator);
+
+            return registry;
+        }
+
+        private static T GetOrCreatePersistent<T>() where T : UnityEngine.MonoBehaviour
+        {
+            var existing = FindFirstObjectByType<T>();
+            if (existing != null)
+            {
+                DontDestroyOnLoad(existing.gameObject);
+                return existing;
+            }
+
+            var host = new UnityEngine.GameObject(typeof(T).Name);
+            DontDestroyOnLoad(host);
+            return host.AddComponent<T>();
         }
     }
 }

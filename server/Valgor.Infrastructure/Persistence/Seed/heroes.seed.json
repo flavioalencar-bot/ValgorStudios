@@ -1,0 +1,333 @@
+{
+  "version": "1.0.0",
+  "factions": {
+    "ROSA_DE_SANGUE": {
+      "color": "Vermelho",
+      "archetype": "Agressão, explosão, assassinas e duelistas",
+      "beats": "GUARDA_DA_ORDEM",
+      "losesTo": "ASAS_DO_AMANHECER"
+    },
+    "ASAS_DO_AMANHECER": {
+      "color": "Azul",
+      "archetype": "Velocidade, precisão, magia e controle",
+      "beats": "ROSA_DE_SANGUE",
+      "losesTo": "GUARDA_DA_ORDEM"
+    },
+    "GUARDA_DA_ORDEM": {
+      "color": "Dourado",
+      "archetype": "Defesa, liderança, proteção e suporte",
+      "beats": "ASAS_DO_AMANHECER",
+      "losesTo": "ROSA_DE_SANGUE"
+    }
+  },
+  "teamBonuses": [
+    {
+      "sameFaction": 3,
+      "otherFaction": 0,
+      "totalTroopAttackMultiplier": 1.05
+    },
+    {
+      "sameFaction": 3,
+      "otherFaction": 2,
+      "totalTroopAttackMultiplier": 1.07
+    },
+    {
+      "sameFaction": 4,
+      "otherFaction": 0,
+      "totalTroopAttackMultiplier": 1.1
+    },
+    {
+      "sameFaction": 5,
+      "otherFaction": 0,
+      "totalTroopAttackMultiplier": 1.15
+    }
+  ],
+  "heroes": [
+    {
+      "id": "HERO_VORTEX_000",
+      "name": "Vortex",
+      "title": "O Rei dos Dragões",
+      "gender": "Masculino",
+      "rarity": "Mítica",
+      "faction": "GUARDA_DA_ORDEM",
+      "class": "Comandante Dracônico",
+      "role": "Liderança / Dano / Controle",
+      "position": "Linha de frente",
+      "weapon": "Espada dracônica e vínculo com dragão",
+      "element": "Chama Dracônica",
+      "power": {
+        "name": "Domínio do Rei",
+        "durationSec": 10,
+        "cooldownSec": 60,
+        "effects": [
+          "Aumenta ATQ e DEF dos aliados",
+          "Invoca presença dracônica",
+          "Reduz resistência inimiga",
+          "Concede imunidade breve a controle"
+        ]
+      },
+      "status": "APROVADO_CONCEITUAL",
+      "notes": "Personagem masculino central e mais poderoso da franquia."
+    },
+    {
+      "id": "HERO_ELYRA_001",
+      "name": "Elyra",
+      "title": "A Caçadora Esmeralda",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "ASAS_DO_AMANHECER",
+      "class": "Arqueira",
+      "role": "Dano de longo alcance",
+      "position": "Retaguarda",
+      "weapon": "Arco longo recurvo esmeralda",
+      "element": "Natureza",
+      "power": {
+        "name": "Olho da Caçadora",
+        "durationSec": 10,
+        "cooldownSec": 35,
+        "effects": [
+          "Aumenta alcance",
+          "Aumenta chance crítica",
+          "Marca inimigos",
+          "Dano adicional contra criaturas"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 01. Sem capa; aljava e flechas nas costas."
+    },
+    {
+      "id": "HERO_CONSORTE_002",
+      "name": "A definir",
+      "title": "A Consorte de Valgor",
+      "gender": "Feminino",
+      "rarity": "Mítica",
+      "faction": "GUARDA_DA_ORDEM",
+      "class": "Lanceira Real",
+      "role": "Suporte / Liderança / Dano",
+      "position": "Linha intermediária",
+      "weapon": "Lança-cajado celestial branca e dourada",
+      "element": "Luz Sagrada",
+      "power": {
+        "name": "Voto Eterno",
+        "durationSec": 10,
+        "cooldownSec": 45,
+        "effects": [
+          "Aumenta ATQ e DEF dos aliados",
+          "Restaura vida continuamente",
+          "Concede imunidade a controle",
+          "Fortalece tropas próximas"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 02, noiva de Vortex e mais forte depois dele. Skin real aprovada com capa curta estruturada até a cintura, sem véu e sem cauda nupcial."
+    },
+    {
+      "id": "HERO_SOMBRA_003",
+      "name": "A definir",
+      "title": "A Arqueira da Sombra",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "ROSA_DE_SANGUE",
+      "class": "Atiradora Élfica",
+      "role": "Dano / Controle",
+      "position": "Retaguarda",
+      "weapon": "Besta élfica ornamentada",
+      "element": "Sombra",
+      "power": {
+        "name": "Domínio Sombrio",
+        "durationSec": 8,
+        "cooldownSec": 42,
+        "effects": [
+          "Aumenta precisão",
+          "Dispara projéteis sombrios adicionais",
+          "Marca alvos",
+          "Reduz defesa dos inimigos marcados"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 03. Body medieval de couro preto, tranças, detalhes roxos e dourados, sem capa."
+    },
+    {
+      "id": "HERO_LYRIANNE_004",
+      "name": "Lyrianne",
+      "title": "A Sentinela de Prata",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "GUARDA_DA_ORDEM",
+      "class": "Sentinela",
+      "role": "Precisão / Proteção",
+      "position": "Linha intermediária",
+      "weapon": "Arco lunar de haste longa",
+      "element": "Luz Lunar",
+      "power": {
+        "name": "Julgamento Prateado",
+        "durationSec": 9,
+        "cooldownSec": 44,
+        "effects": [
+          "Amplia alcance",
+          "Cria escudo nos aliados",
+          "Dispara flechas lunares em linha",
+          "Purifica efeitos negativos"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 04. Pele morena, cabelo platinado, roupa branca justa de inspiração atlética-medieval."
+    },
+    {
+      "id": "HERO_AKEMI_005",
+      "name": "Akemi",
+      "title": "A Lâmina Celeste",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "ASAS_DO_AMANHECER",
+      "class": "Duelista",
+      "role": "Assassina de curto alcance",
+      "position": "Linha de frente móvel",
+      "weapon": "Lâminas gêmeas celestes",
+      "element": "Gelo Celeste",
+      "power": {
+        "name": "Dança das Lâminas",
+        "durationSec": 8,
+        "cooldownSec": 40,
+        "effects": [
+          "Aumenta velocidade",
+          "Ataques atingem múltiplos alvos",
+          "Permite investidas consecutivas",
+          "Eleva esquiva"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 05. Linhagem nipo-brasileira, macacão azul profundo, duas lâminas curvas luminosas."
+    },
+    {
+      "id": "HERO_SERENA_006",
+      "name": "Serena Rubra",
+      "title": "A Caçadora Carmesim",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "ROSA_DE_SANGUE",
+      "class": "Atiradora",
+      "role": "Longa distância / Dano crítico",
+      "position": "Retaguarda",
+      "weapon": "Lançador rúnico carmesim de longo alcance",
+      "element": "Fogo",
+      "power": {
+        "name": "Coração Carmesim",
+        "durationSec": 9,
+        "cooldownSec": 42,
+        "effects": [
+          "Aumenta dano crítico",
+          "Dispara projéteis acelerados",
+          "Ignora parte da defesa",
+          "Prioriza alvos enfraquecidos"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 06. Ruiva ondulada, pele clara com sardas discretas, top medieval, micro shorts e tiras rosa-escuro."
+    },
+    {
+      "id": "HERO_ABISMO_007",
+      "name": "A definir",
+      "title": "A Maga do Abismo",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "ASAS_DO_AMANHECER",
+      "class": "Maga",
+      "role": "Dano em área / Controle / Enfraquecimento",
+      "position": "Retaguarda",
+      "weapon": "Cajado do Abismo com orbe violeta",
+      "element": "Abismo",
+      "power": {
+        "name": "Domínio do Vazio",
+        "durationSec": 7,
+        "cooldownSec": 50,
+        "effects": [
+          "Cria zona sombria",
+          "Reduz velocidade inimiga",
+          "Causa dano contínuo",
+          "Bloqueia habilidades de mobilidade"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 07. Loira, capa preta curta com capuz até a cintura, roupa preta e prata."
+    },
+    {
+      "id": "HERO_ZAHARA_008",
+      "name": "Zahara",
+      "title": "A Guardiã dos Círculos",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "GUARDA_DA_ORDEM",
+      "class": "Mística",
+      "role": "Controle arcano de médio alcance",
+      "position": "Linha intermediária",
+      "weapon": "Anéis rúnicos gêmeos",
+      "element": "Éter Safira",
+      "power": {
+        "name": "Órbita Real",
+        "durationSec": 10,
+        "cooldownSec": 46,
+        "effects": [
+          "Cria órbitas defensivas",
+          "Aprisiona inimigos",
+          "Desvia projéteis",
+          "Rompe formações"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 08. Pele negra, cabelo branco cacheado, turquesa e ouro."
+    },
+    {
+      "id": "HERO_NYXARA_009",
+      "name": "Nyxara",
+      "title": "A Guardiã das Sombras",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "ROSA_DE_SANGUE",
+      "class": "Executora",
+      "role": "Assassina de controle",
+      "position": "Flanco",
+      "weapon": "Correntes-lâmina gêmeas",
+      "element": "Sombra Rubra",
+      "power": {
+        "name": "Juízo Noturno",
+        "durationSec": 8,
+        "cooldownSec": 43,
+        "effects": [
+          "Prende alvos",
+          "Causa sangramento",
+          "Salta para a retaguarda",
+          "Executa inimigos com pouca vida"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 09. Preto, prata e rubi; cabelo trançado; visual frio e implacável."
+    },
+    {
+      "id": "HERO_VESPERA_010",
+      "name": "Vespera",
+      "title": "A Dama do Leque",
+      "gender": "Feminino",
+      "rarity": "Lendária",
+      "faction": "ASAS_DO_AMANHECER",
+      "class": "Estrategista",
+      "role": "Atiradora de médio e longo alcance",
+      "position": "Retaguarda",
+      "weapon": "Leque de lâminas e dardos ocultos",
+      "element": "Crepúsculo Violeta",
+      "power": {
+        "name": "Suspiro Final",
+        "durationSec": 11,
+        "cooldownSec": 47,
+        "effects": [
+          "Dispara chuva de dardos",
+          "Reduz precisão inimiga",
+          "Aumenta velocidade de ataque aliada",
+          "Finaliza alvos marcados"
+        ]
+      },
+      "status": "APROVADA",
+      "notes": "Heroína 10. Roxo profundo e ouro; leque armado; perfil refinado e calculista."
+    }
+  ]
+}

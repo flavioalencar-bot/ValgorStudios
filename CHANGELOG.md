@@ -5,6 +5,25 @@ Todas as mudanças relevantes deste repositório são documentadas neste arquivo
 O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
+## [Unreleased]
+
+### Added
+
+- Game Core Foundation no cliente Unity: `ServiceRegistry`, `GameSession`, `GameStateMachine`, `LoadingFlow`, `GameNavigator`
+- Contratos de integração de módulos (`IPlayerCityModule`, `IWorldMapModule`, `IBuildingModule`, `IResourceModule`, `IDragonModule`, `IHeroesGateway`)
+- Documentação `docs/architecture/game-core.md`
+
+## [0.2.0] — 2026-07-26
+
+### Added
+
+- Sistema de heróis (Vortex + 10 heroínas) orientado a `docs/game-design/heroes/heroes.seed.json`
+- Backend: catálogo, facções, vantagem circular (+15%), bônus 3/3+2/4/5, poderes READY/ACTIVE/COOLDOWN, roster do jogador, validação de equipe
+- Endpoints `/api/heroes/*`, `/api/players/me/heroes`, `/api/teams/validate`, `/api/battle/.../special/activate`
+- Migration EF `AddHeroesSystem` e seed automático do catálogo
+- Unity: `Assets/Valgor/Heroes/` (Data, Factions, SpecialPowers, Magic, Skins, UI, Preview360, placeholders Addressables)
+- Testes de domínio/aplicação para vantagem, bônus, cooldown, idempotência e nomes “A definir”
+
 ## [0.1.0] — 2026-07-25
 
 ### Added

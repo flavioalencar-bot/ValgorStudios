@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="heroes-root" class="heroes-root">
+    <ui:Label text="VALGOR — HERÓIS" class="heroes-title" />
+    <ui:VisualElement name="filters" class="heroes-filters">
+      <ui:Button name="filter-all" text="Todos" />
+      <ui:Button name="filter-rosa" text="Rosa de Sangue" />
+      <ui:Button name="filter-asas" text="Asas do Amanhecer" />
+      <ui:Button name="filter-guarda" text="Guarda da Ordem" />
+    </ui:VisualElement>
+    <ui:Label name="faction-hint" text="Todas as facções" class="heroes-hint" />
+    <ui:ScrollView>
+      <ui:VisualElement name="hero-cards" class="hero-cards" />
+    </ui:ScrollView>
+  </ui:VisualElement>
+</ui:UXML>

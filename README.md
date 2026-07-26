@@ -2,7 +2,7 @@
 
 Plataforma oficial do ecossistema **Valgor** — fundação de produção para cliente Unity, backend .NET, painel administrativo e infraestrutura containerizada.
 
-> Versão: `0.1.0` · Sprint 001 — Foundation  
+> Versão: `0.2.0` · Sprint Heroes Foundation  
 > Repositório: [flavioalencar-bot/ValgorStudios](https://github.com/flavioalencar-bot/ValgorStudios)
 
 ---
@@ -140,7 +140,14 @@ Endpoints:
 | GET | `/version` | Versão e ambiente |
 | GET | `/health/ready` | Readiness (Postgres, Redis, EF) |
 | POST | `/api/auth/login` | Autenticação JWT |
+| GET | `/api/heroes/catalog` | Catálogo Vortex + 10 heroínas |
+| GET | `/api/heroes/factions` | Facções e vantagem circular |
+| GET | `/api/heroes/team-bonuses` | Bônus de composição |
+| POST | `/api/teams/validate` | Validação de equipe |
+| POST | `/api/battle/{id}/heroes/{heroId}/special/activate` | Poder especial (servidor) |
 | GET | `/swagger` | OpenAPI |
+
+Game design de heróis: [`docs/game-design/heroes/`](docs/game-design/heroes/README.md). API detalhada: [`docs/api/heroes.md`](docs/api/heroes.md). |
 
 ### 3. Testes
 
@@ -164,7 +171,8 @@ Abra http://localhost:5173 e autentique com o admin seed.
 1. Instale **Unity 6 LTS** via Hub  
 2. Abra a pasta `client/`  
 3. Cenas: `Bootstrap` → `Loading` → `MainMenu`  
-4. Pacotes: URP, Addressables, Input System, Localization, UI Toolkit
+4. Pacotes: URP, Addressables, Input System, Localization, UI Toolkit  
+5. Sistema de heróis em `Assets/Valgor/Heroes/` — menu **Valgor → Heroes → Rebuild Catalog From Seed**
 
 ---
 

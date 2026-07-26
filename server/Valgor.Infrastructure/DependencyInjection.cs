@@ -5,7 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Valgor.Application.Common.Interfaces;
+using Valgor.Application.Common.Interfaces.Heroes;
 using Valgor.Infrastructure.Auth;
+using Valgor.Infrastructure.Heroes;
 using Valgor.Infrastructure.Persistence;
 using Valgor.Infrastructure.Time;
 
@@ -33,6 +35,9 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUserStore, UserStore>();
+        services.AddScoped<IHeroCatalogStore, HeroCatalogStore>();
+        services.AddScoped<IPlayerHeroStore, PlayerHeroStore>();
+        services.AddScoped<IBattleSpecialStore, BattleSpecialStore>();
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();

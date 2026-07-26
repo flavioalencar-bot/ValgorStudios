@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Valgor.Application.Common.Interfaces;
 using Valgor.Domain.Users;
+using Valgor.Infrastructure.Persistence.Seed;
 
 namespace Valgor.Infrastructure.Persistence;
 
@@ -26,20 +27,42 @@ public static class DatabaseInitializer
             return;
         }
 
-        if (await dbContext.Users.AnyAsync(cancellationToken))
+        if (!await dbContext.Users.AnyAsync(cancellationToken))
         {
-            return;
+            logger.LogInformation("Seeding initial admin user");
+
+            var admin = User.Create(
+                email: "admin@valgor.local",
+                displayName: "Valgor Admin",
+                passwordHash: passwordHasher.Hash("Valgor@Admin1"),
+                role: UserRole.Admin);
+
+            await dbContext.Users.AddAsync(admin, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        logger.LogInformation("Seeding initial admin user");
+        if (!await dbContext.HeroFactions.AnyAsync(cancellationToken))
+        {
+            logger.LogInformation("Seeding heroes catalog from heroes.seed.json");
+            await SeedHeroesAsync(dbContext, cancellationToken);
+        }
+    }
 
-        var admin = User.Create(
-            email: "admin@valgor.local",
-            displayName: "Valgor Admin",
-            passwordHash: passwordHasher.Hash("Valgor@Admin1"),
-            role: UserRole.Admin);
+    private static async Task SeedHeroesAsync(ValgorDbContext dbContext, CancellationToken cancellationToken)
+    {
+        var bundle = HeroesSeedLoader.LoadFromEmbeddedOrFile();
 
-        await dbContext.Users.AddAsync(admin, cancellationToken);
+        await dbContext.HeroFactions.AddRangeAsync(bundle.Factions, cancellationToken);
+        await dbContext.FactionAdvantages.AddRangeAsync(bundle.Advantages, cancellationToken);
+        await dbContext.FactionTeamBonuses.AddRangeAsync(bundle.TeamBonuses, cancellationToken);
+
+        foreach (var hero in bundle.Heroes)
+        {
+            await dbContext.HeroDefinitions.AddAsync(hero, cancellationToken);
+            await dbContext.HeroSpecialEffects.AddRangeAsync(hero.Effects, cancellationToken);
+            await dbContext.HeroSkins.AddRangeAsync(hero.Skins, cancellationToken);
+        }
+
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

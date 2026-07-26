@@ -1,0 +1,18 @@
+{
+  "name": "Valgor.Heroes",
+  "rootNamespace": "Valgor.Heroes",
+  "references": [
+    "Unity.Addressables",
+    "Unity.ResourceManager",
+    "UnityEngine.UIElementsModule"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
