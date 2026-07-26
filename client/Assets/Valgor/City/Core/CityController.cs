@@ -1,25 +1,35 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using Valgor.City.Buildings;
 using Valgor.City.Data;
+using Valgor.City.Production;
 
 namespace Valgor.City.Core
 {
     public sealed class CityController
     {
         private readonly ResourceWallet _wallet;
+        private readonly CityEconomy _economy;
         private readonly Dictionary<BuildingInstance, BuildingDefinition> _definitions = new();
         private readonly Dictionary<BuildingInstance, BuildingView> _views = new();
+        private readonly List<BuildingInstance> _buildings = new();
 
-        public CityController(ResourceWallet wallet, BuildingSelectionService selection)
+        public CityController(CityEconomy economy, BuildingSelectionService selection)
         {
-            _wallet = wallet;
+            _economy = economy ?? throw new ArgumentNullException(nameof(economy));
+            _wallet = economy.Wallet;
             Selection = selection;
             Selection.SelectionChanged += OnSelectionChanged;
+            _economy.Production.Changed += (_, __) =>
+            {
+                RefreshCollectableIndicators();
+                BuildingChanged?.Invoke();
+            };
         }
 
         public BuildingSelectionService Selection { get; }
+        public CityEconomy Economy => _economy;
+        public IReadOnlyList<BuildingInstance> Buildings => _buildings;
         public event Action? BuildingChanged;
 
         public void Add(BuildingSlot slot, BuildingInstance instance, BuildingDefinition definition, BuildingView view)
@@ -27,6 +37,8 @@ namespace Valgor.City.Core
             slot.Initialize(slot.SlotId, definition.Id, instance);
             _definitions.Add(instance, definition);
             _views.Add(instance, view);
+            _buildings.Add(instance);
+            _economy.Production.RegisterBuilding(instance);
             view.Clicked += _ => Selection.Select(instance);
         }
 
@@ -55,8 +67,47 @@ namespace Valgor.City.Core
             }
 
             building.CompleteUpgrade();
+            _economy.Production.OnBuildingUpgraded(building);
+            _economy.Persist(_buildings);
             BuildingChanged?.Invoke();
             return true;
+        }
+
+        public long CollectSelected()
+        {
+            var building = Selection.Selected;
+            if (building == null)
+            {
+                return 0;
+            }
+
+            _economy.Tick.ForceApply();
+            var amount = _economy.Collection.Collect(building);
+            if (amount > 0)
+            {
+                _economy.Persist(_buildings);
+                BuildingChanged?.Invoke();
+                RefreshCollectableIndicators();
+            }
+
+            return amount;
+        }
+
+        public void Tick()
+        {
+            _economy.Tick.Update();
+            RefreshCollectableIndicators();
+        }
+
+        public void Persist() => _economy.Persist(_buildings);
+
+        private void RefreshCollectableIndicators()
+        {
+            foreach (var pair in _views)
+            {
+                var has = _economy.Production.TryGetState(pair.Key.DefinitionId, out var state) && state.HasCollectable;
+                pair.Value.SetCollectable(has);
+            }
         }
 
         private void OnSelectionChanged(BuildingInstance? selected)

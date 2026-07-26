@@ -63,6 +63,16 @@ namespace Valgor.City.Data
             return true;
         }
 
+        public void SetAmount(ResourceType resource, long amount)
+        {
+            if (amount < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount));
+            }
+
+            Set(resource, amount);
+        }
+
         private void Set(ResourceType resource, long amount)
         {
             var previous = Get(resource);

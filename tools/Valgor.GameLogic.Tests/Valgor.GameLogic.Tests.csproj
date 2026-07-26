@@ -22,7 +22,14 @@
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\SceneIds.cs" Link="GameCore\SceneIds.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Data\ResourceWallet.cs" Link="City\ResourceWallet.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Data\BuildingModels.cs" Link="City\BuildingModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Data\ProductionModels.cs" Link="City\ProductionModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Data\IGameClock.cs" Link="City\IGameClock.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Core\BuildingSelectionService.cs" Link="City\BuildingSelectionService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Camera\CityBounds.cs" Link="City\CityBounds.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Production\OfflineProductionCalculator.cs" Link="City\OfflineProductionCalculator.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Production\ResourceProductionService.cs" Link="City\ResourceProductionService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Production\ResourceCollectionService.cs" Link="City\ResourceCollectionService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Production\ProductionTickService.cs" Link="City\ProductionTickService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Production\ProductionRepository.cs" Link="City\ProductionRepository.cs" />
   </ItemGroup>
 </Project>

@@ -4,26 +4,31 @@ Cidade do jogador em `Assets/Valgor/City`.
 
 ## Fluxo
 
-MainMenu → `GameNavigator.GoToCity()` → `CityBootstrap` → HUD / câmera / edifícios.
+MainMenu → `GameNavigator.GoToCity()` → `CityBootstrap` → HUD / câmera / edifícios / produção.
 
 ## Sistemas
 
 | Área | Tipos |
 |------|--------|
-| Core | `CityBootstrap`, `CityController`, `BuildingSelectionService` |
-| Data | `ResourceWallet`, `ResourceType`, `BuildingDefinition`, `BuildingInstance`, `BuildingState` |
+| Core | `CityBootstrap`, `CityController`, `CityEconomy`, `BuildingSelectionService` |
+| Data | `ResourceWallet`, `BuildingDefinition`, `ProductionCatalog`, `IGameClock` |
+| Production | `ResourceProductionService`, `OfflineProductionCalculator`, `ResourceCollectionService`, `ProductionTickService`, `LocalProductionRepository` |
 | Buildings | `BuildingCatalog`, `BuildingSlot`, `BuildingView` |
 | Camera | `CityCameraController`, `CityBounds` |
 | UI | `CityHudController` |
 
+## Produção passiva
+
+Produtores: Fazenda (Food), Serraria (Wood), Pedreira (Stone), Mina (Iron), Mercado (Gold), Torre dos Dragões (DragonEssence).
+
+- Taxa e capacidade por nível via `ProductionCatalog` (configurável)
+- Acúmulo com capacidade máxima; coleta manual
+- Offline até 12h; tick por timestamp (não por FPS)
+- Persistência local + `CityEconomy` no `ServiceRegistry` (City ↔ WorldMap)
+- Diamonds sem produção passiva
+
 ## Controles
 
-- Seleção de edifício: clique/toque esquerdo
-- Pan: botão direito/meio (desktop) · arraste com um dedo (mobile)
+- Seleção: clique/toque esquerdo
+- Pan: botão direito/meio · arraste
 - Zoom: scroll · pinça
-
-## Integração
-
-- `IPlayerCityModule` / `IResourceModule` registrados no `ServiceRegistry`
-- Mapa mundial e debug menu via `GameNavigator`
-- Botão Heróis apenas se `IHeroesGateway.IsAvailable`

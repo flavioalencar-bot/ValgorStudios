@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Valgor.Bootstrap;
@@ -12,38 +13,42 @@ namespace Valgor.City
     [RequireComponent(typeof(UIDocument))]
     public sealed class CityBootstrap : MonoBehaviour, IPlayerCityModule
     {
-        private static readonly (string Id, BuildingState State)[] BuildingLayout =
+        private static readonly (string Id, BuildingState State, int Level)[] BuildingLayout =
         {
-            ("castle", BuildingState.Ready),
-            ("farm", BuildingState.Available),
-            ("lumbermill", BuildingState.Ready),
-            ("quarry", BuildingState.Available),
-            ("mine", BuildingState.Locked),
-            ("warehouse", BuildingState.Ready),
-            ("academy", BuildingState.Available),
-            ("institute", BuildingState.Locked),
-            ("hospital", BuildingState.Available),
-            ("market", BuildingState.Ready),
-            ("temple", BuildingState.Locked),
-            ("dragon-tower", BuildingState.Locked),
-            ("arena", BuildingState.Available),
-            ("laboratory", BuildingState.Locked)
+            ("castle", BuildingState.Ready, 1),
+            ("farm", BuildingState.Ready, 1),
+            ("lumbermill", BuildingState.Ready, 1),
+            ("quarry", BuildingState.Ready, 1),
+            ("mine", BuildingState.Available, 0),
+            ("warehouse", BuildingState.Ready, 1),
+            ("academy", BuildingState.Available, 0),
+            ("institute", BuildingState.Locked, 0),
+            ("hospital", BuildingState.Available, 0),
+            ("market", BuildingState.Ready, 1),
+            ("temple", BuildingState.Locked, 0),
+            ("dragon-tower", BuildingState.Ready, 1),
+            ("arena", BuildingState.Available, 0),
+            ("laboratory", BuildingState.Locked, 0)
         };
 
         public bool IsLoaded { get; private set; }
-        public ResourceWallet Wallet { get; private set; } = null!;
+        public CityEconomy Economy { get; private set; } = null!;
         public CityController Controller { get; private set; } = null!;
+        public ResourceWallet Wallet => Economy.Wallet;
 
         private void Awake()
         {
-            Wallet = CreateWallet();
-            Controller = new CityController(Wallet, new BuildingSelectionService());
+            Economy = ResolveEconomy();
+            Controller = new CityController(Economy, new BuildingSelectionService());
             GameBootstrap.Services?.Register<IPlayerCityModule>(this);
-            GameBootstrap.Services?.Register<IResourceModule>(new CityResourceModule(Wallet));
+            GameBootstrap.Services?.Register<IResourceModule>(new CityResourceModule(Economy.Wallet));
             CreateBuildings();
+            Economy.ApplyOfflineAndPersist(Controller.Buildings);
             CreateHud();
             ConfigureCamera();
         }
+
+        private void Update() => Controller.Tick();
 
         private void OnEnable() => Enter();
 
@@ -51,24 +56,25 @@ namespace Valgor.City
         {
             if (IsLoaded)
             {
+                Controller.Persist();
                 Exit();
             }
         }
 
         public void Enter() => IsLoaded = true;
+
         public void Exit() => IsLoaded = false;
 
-        private static ResourceWallet CreateWallet()
+        private static CityEconomy ResolveEconomy()
         {
-            var wallet = new ResourceWallet();
-            wallet.Add(ResourceType.Gold, 5000);
-            wallet.Add(ResourceType.Food, 3000);
-            wallet.Add(ResourceType.Wood, 3000);
-            wallet.Add(ResourceType.Stone, 2000);
-            wallet.Add(ResourceType.Iron, 1000);
-            wallet.Add(ResourceType.DragonEssence, 100);
-            wallet.Add(ResourceType.Diamonds, 50);
-            return wallet;
+            if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<CityEconomy>(out var existing))
+            {
+                return existing;
+            }
+
+            var economy = CityEconomy.Create();
+            GameBootstrap.Services?.Register(economy);
+            return economy;
         }
 
         private void CreateBuildings()
@@ -80,8 +86,7 @@ namespace Valgor.City
             {
                 var layout = BuildingLayout[index];
                 var definition = BuildingCatalog.Get(layout.Id);
-                var level = layout.Id == "castle" ? 1 : 0;
-                var instance = new BuildingInstance(layout.Id, level, layout.State);
+                var instance = new BuildingInstance(layout.Id, layout.Level, layout.State);
                 var row = index / columns;
                 var column = index % columns;
                 var position = new Vector3((column - 1.5f) * spacing, 0.7f, (row - 1.5f) * spacing);
@@ -94,7 +99,9 @@ namespace Valgor.City
 
                 var primitive = GameObject.CreatePrimitive(index % 3 == 0 ? PrimitiveType.Cylinder : PrimitiveType.Cube);
                 primitive.transform.SetParent(slotObject.transform, false);
-                primitive.transform.localScale = layout.Id == "castle" ? new Vector3(2.3f, 3.5f, 2.3f) : new Vector3(2.3f, 1.5f, 2.3f);
+                primitive.transform.localScale = layout.Id == "castle"
+                    ? new Vector3(2.3f, 3.5f, 2.3f)
+                    : new Vector3(2.3f, 1.5f, 2.3f);
                 var view = primitive.AddComponent<BuildingView>();
                 view.Initialize(instance, definition);
                 Controller.Add(slot, instance, definition, view);
@@ -104,7 +111,7 @@ namespace Valgor.City
         private void CreateHud()
         {
             var hud = GetComponent<CityHudController>() ?? gameObject.AddComponent<CityHudController>();
-            hud.Initialize(Wallet, Controller);
+            hud.Initialize(Controller);
         }
 
         private static void ConfigureCamera()

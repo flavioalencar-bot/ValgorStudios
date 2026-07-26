@@ -9,7 +9,9 @@ namespace Valgor.City.Buildings
     {
         private Renderer _renderer = null!;
         private TextMesh _label = null!;
+        private GameObject? _collectableMarker;
         private Color _baseColor;
+        private bool _selected;
 
         public event Action<BuildingView>? Clicked;
         public BuildingInstance Instance { get; private set; } = null!;
@@ -22,12 +24,34 @@ namespace Valgor.City.Buildings
             _baseColor = ColorFor(instance.State);
             _renderer.material.color = _baseColor;
             _label = CreateLabel(definition.DisplayName);
+            _collectableMarker = CreateCollectableMarker();
+            SetCollectable(false);
         }
 
         public void SetSelected(bool selected)
         {
-            _renderer.material.color = selected ? Color.Lerp(_baseColor, Color.white, 0.45f) : _baseColor;
-            transform.localScale = selected ? new Vector3(1.15f, 1.15f, 1.15f) : Vector3.one;
+            _selected = selected;
+            ApplyColor();
+            transform.localScale = selected ? Vector3.one * 1.12f : Vector3.one;
+        }
+
+        public void SetCollectable(bool collectable)
+        {
+            if (_collectableMarker != null)
+            {
+                _collectableMarker.SetActive(collectable);
+            }
+        }
+
+        public void RefreshStateColor()
+        {
+            _baseColor = ColorFor(Instance.State);
+            ApplyColor();
+        }
+
+        private void ApplyColor()
+        {
+            _renderer.material.color = _selected ? Color.Lerp(_baseColor, Color.white, 0.45f) : _baseColor;
         }
 
         private void OnMouseUpAsButton() => Clicked?.Invoke(this);
@@ -46,6 +70,18 @@ namespace Valgor.City.Buildings
             label.fontSize = 48;
             label.color = Color.white;
             return label;
+        }
+
+        private GameObject CreateCollectableMarker()
+        {
+            var marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            marker.name = "CollectableMarker";
+            marker.transform.SetParent(transform, false);
+            marker.transform.localPosition = Vector3.up * 2.1f;
+            marker.transform.localScale = Vector3.one * 0.35f;
+            marker.GetComponent<Collider>().enabled = false;
+            marker.GetComponent<Renderer>().material.color = new Color(0.2f, 0.95f, 0.35f);
+            return marker;
         }
 
         private static Color ColorFor(BuildingState state) => state switch
