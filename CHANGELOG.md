@@ -17,7 +17,8 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - Documentação `docs/architecture/game-core.md`
 - Valgor Player City Foundation em `Assets/Valgor/City`: catálogo e slots de 14 edifícios, carteira de recursos, seleção, melhorias, câmera isométrica e HUD
 - Produção passiva online/offline (12h), coleta, capacidade por nível, persistência local e tick determinístico
-- Documentação `docs/architecture/player-city.md`
+- World Map Foundation em `Assets/Valgor/WorldMap`: regiões selecionáveis, câmera, HUD e retorno à cidade
+- Documentação `docs/architecture/player-city.md` e `docs/architecture/world-map.md`
 
 ## [0.2.0] — 2026-07-26
 

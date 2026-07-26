@@ -22,7 +22,7 @@
 
 Bootstrap → LoadingFlow → MainMenu, com URP, Addressables, Input System, Localization, pooling e áudio.
 
-Detalhes: [game-core.md](game-core.md) · [player-city.md](player-city.md)
+Detalhes: [game-core.md](game-core.md) · [player-city.md](player-city.md) · [world-map.md](world-map.md)
 
 ### Game Core
 

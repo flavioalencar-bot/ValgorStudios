@@ -31,5 +31,7 @@
     <Compile Include="..\..\client\Assets\Valgor\City\Production\ResourceCollectionService.cs" Link="City\ResourceCollectionService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Production\ProductionTickService.cs" Link="City\ProductionTickService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Production\ProductionRepository.cs" Link="City\ProductionRepository.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Data\WorldMapModels.cs" Link="WorldMap\WorldMapModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Core\RegionSelectionService.cs" Link="WorldMap\RegionSelectionService.cs" />
   </ItemGroup>
 </Project>

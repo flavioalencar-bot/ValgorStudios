@@ -1,6 +1,6 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Valgor.World;
 
 namespace Valgor.UI
 {
@@ -13,9 +13,15 @@ namespace Valgor.UI
                 gameObject.AddComponent<UIDocument>();
             }
 
-            if (gameObject.GetComponent<WorldMapBootstrap>() == null)
+            var bootstrapType = Type.GetType("Valgor.WorldMap.WorldMapBootstrap, Valgor.WorldMap");
+            if (bootstrapType == null)
             {
-                gameObject.AddComponent<WorldMapBootstrap>();
+                throw new InvalidOperationException("Valgor.WorldMap.WorldMapBootstrap não foi encontrado.");
+            }
+
+            if (gameObject.GetComponent(bootstrapType) == null)
+            {
+                gameObject.AddComponent(bootstrapType);
             }
         }
     }
