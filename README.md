@@ -58,18 +58,20 @@ A Valgor Studios desenvolve experiências interativas com arquitetura escalável
 
 ```
 /
-├── client/          # Unity 6 LTS
+├── client/          # Unity 6 LTS (Game Core + City + Heroes)
 ├── server/          # Solução .NET 9 (Valgor.sln)
 ├── admin/           # Painel React + Vite
 ├── database/        # Init SQL e seeds documentais
 ├── infra/           # Artefatos de infra
 ├── docs/            # Arquitetura, API e design references
 ├── assets/          # Branding
-├── tools/           # Scripts
+├── tools/           # Scripts e testes de lógica do cliente
 ├── docker-compose.yml
 ├── CHANGELOG.md
 └── README.md
 ```
+
+Fluxo do cliente: **Bootstrap → Loading → MainMenu → City ⇄ WorldMap** (ver [docs/architecture/game-core.md](docs/architecture/game-core.md)).
 
 ---
 

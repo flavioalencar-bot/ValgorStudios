@@ -24,6 +24,8 @@ namespace Valgor.Navigation
             _sceneLoader = services.Get<SceneLoader>();
         }
 
+        public GameState CurrentState => _stateMachine.Current;
+
         public IEnumerator GoToMainMenu()
         {
             ExitOptionalModules();
@@ -31,9 +33,14 @@ namespace Valgor.Navigation
             _stateMachine.TransitionTo(GameState.MainMenu);
         }
 
-        public IEnumerator GoToPlayerCity()
+        public IEnumerator GoToCity()
         {
-            yield return _sceneLoader.LoadAsync(SceneIds.PlayerCity, LoadSceneMode.Single);
+            if (_services.TryGet<IWorldMapModule>(out var world) && world.IsLoaded)
+            {
+                world.Exit();
+            }
+
+            yield return _sceneLoader.LoadAsync(SceneIds.City, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.PlayerCity);
 
             if (_services.TryGet<IPlayerCityModule>(out var city))
@@ -42,8 +49,16 @@ namespace Valgor.Navigation
             }
         }
 
+        /// <summary>Alias de <see cref="GoToCity"/>.</summary>
+        public IEnumerator GoToPlayerCity() => GoToCity();
+
         public IEnumerator GoToWorldMap()
         {
+            if (_services.TryGet<IPlayerCityModule>(out var city) && city.IsLoaded)
+            {
+                city.Exit();
+            }
+
             yield return _sceneLoader.LoadAsync(SceneIds.WorldMap, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.WorldMap);
 

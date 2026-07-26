@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="root" class="root">
+    <ui:Label text="VALGOR" class="brand" />
+    <ui:Label text="World Map" class="title" />
+    <ui:Label text="Mapa mundial provisório" class="lede" />
+    <ui:Button name="btn-return-city" text="Voltar para a Cidade" class="primary" />
+  </ui:VisualElement>
+</ui:UXML>

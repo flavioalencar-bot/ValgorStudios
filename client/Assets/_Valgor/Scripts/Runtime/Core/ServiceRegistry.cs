@@ -28,7 +28,7 @@ namespace Valgor.Core
                 return true;
             }
 
-            service = null;
+            service = null!;
             return false;
         }
 

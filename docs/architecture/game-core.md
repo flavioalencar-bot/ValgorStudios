@@ -1,55 +1,59 @@
 # Game Core Foundation
 
-Fundação jogável do cliente Unity (Sprint Game Core).
+Fundação jogável do cliente Unity.
 
-## Fluxo inicial
+## Fluxo validado
 
 ```
-Bootstrap
-  → ServiceRegistry
-  → GameSession.Begin()
+GameBootstrap
+  → ServiceRegistry + GameSession
   → LoadingFlow
-       → Loading scene
-       → MainMenu
-  → GameState.MainMenu
+  → MainMenu
+  → City
+  → WorldMap
+  → City (sessão preservada via DDOL)
 ```
 
 ## Componentes
 
 | Tipo | Responsabilidade |
 |------|------------------|
-| `GameBootstrap` | Entrada DDOL, registro de serviços, dispara LoadingFlow |
+| `GameBootstrap` | Entrada DDOL, registry, LoadingFlow |
 | `ServiceRegistry` | Composition root tipado |
-| `GameSession` | Sessão do jogador (auth token opcional) |
-| `GameStateMachine` | Estados: Bootstrapping → Loading → MainMenu ↔ PlayerCity ↔ WorldMap |
+| `GameSession` | Sessão do jogador (preservada entre cenas) |
+| `GameStateMachine` | Bootstrapping → Loading → MainMenu ↔ PlayerCity ↔ WorldMap |
 | `SceneLoader` | Load/Unload assíncrono com progresso |
 | `LoadingFlow` | Orquestra boot + loading screen |
-| `GameNavigator` | Transições de cena/estado entre módulos |
-| `ValgorGame` | Fachada estática via `GameBootstrap.Game` |
+| `GameNavigator` | `GoToCity`, `GoToWorldMap`, `GoToMainMenu` |
+| `MainMenuSceneHost` | UI do menu + entrada na cidade |
+| `CitySceneHost` / `ProvisionalCityBootstrap` | Cidade provisória (navegação) |
+| `WorldMapSceneHost` / `WorldMapBootstrap` | Mapa mundial provisório |
+
+## Cenas (Build Settings)
+
+| Cena | Path |
+|------|------|
+| Bootstrap | `Assets/_Valgor/Scenes/Bootstrap.unity` |
+| Loading | `Assets/_Valgor/Scenes/Loading.unity` |
+| MainMenu | `Assets/_Valgor/Scenes/MainMenu.unity` |
+| City | `Assets/Valgor/City/Scenes/City.unity` |
+| WorldMap | `Assets/_Valgor/Scenes/WorldMap.unity` |
 
 ## Integração de módulos
 
-Contratos em `Valgor.Core.Modules` (sem implementação de gameplay nesta sprint):
+Contratos em `Valgor.Core.Modules`:
 
 - `IPlayerCityModule`
 - `IWorldMapModule`
 - `IBuildingModule`
 - `IResourceModule`
 - `IDragonModule`
-- `IHeroesGateway` — apenas gateway; implementação pelo agente de heróis
+- `IHeroesGateway` — implementação pelo agente de heróis
 
-Módulos concretos devem se registrar no `ServiceRegistry` quando estiverem prontos. O `GameNavigator` os consome se disponíveis.
+## Testes
 
-## Cenas
-
-| Id | Status |
-|----|--------|
-| `Bootstrap` | Existe |
-| `Loading` | Existe |
-| `MainMenu` | Existe |
-| `PlayerCity` | Reservada (próxima sprint) |
-| `WorldMap` | Reservada (próxima sprint) |
+Lógica pura coberta em `tools/Valgor.GameLogic.Tests` (máquina de estados, sessão, registry, SceneIds).
 
 ## Limite
 
-Não inclui catálogo, facções, poderes, magia, progressão ou skins de heróis.
+Não inclui catálogo/facções/poderes/skins de heróis.

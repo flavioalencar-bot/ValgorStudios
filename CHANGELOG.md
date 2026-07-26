@@ -10,7 +10,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 ### Added
 
 - Game Core Foundation no cliente Unity: `ServiceRegistry`, `GameSession`, `GameStateMachine`, `LoadingFlow`, `GameNavigator`
+- Fluxo de cenas: Bootstrap → Loading → MainMenu → City → WorldMap → City
+- Cenas provisórias `City` e `WorldMap` com hosts de UI Toolkit
 - Contratos de integração de módulos (`IPlayerCityModule`, `IWorldMapModule`, `IBuildingModule`, `IResourceModule`, `IDragonModule`, `IHeroesGateway`)
+- Testes de lógica em `tools/Valgor.GameLogic.Tests`
 - Documentação `docs/architecture/game-core.md`
 
 ## [0.2.0] — 2026-07-26

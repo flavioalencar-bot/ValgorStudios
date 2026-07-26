@@ -6,7 +6,7 @@ namespace Valgor.Core
     {
         public GameState Current { get; private set; } = GameState.None;
 
-        public event Action<GameState, GameState> StateChanged;
+        public event Action<GameState, GameState>? StateChanged;
 
         public void TransitionTo(GameState next)
         {

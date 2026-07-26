@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+  <ui:VisualElement name="root" class="root">
+    <ui:Label name="brand" text="VALGOR" class="brand" />
+    <ui:Label name="title" text="Main Menu" class="title" />
+    <ui:Label name="session-label" text="" class="session" />
+    <ui:Button name="btn-enter-city" text="Entrar na Cidade" class="primary" />
+  </ui:VisualElement>
+</ui:UXML>
