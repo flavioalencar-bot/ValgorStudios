@@ -37,7 +37,7 @@ services:
     container_name: valgor-pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@valgor.local
+      PGADMIN_DEFAULT_EMAIL: admin@valgor.com
       PGADMIN_DEFAULT_PASSWORD: valgor
       PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:

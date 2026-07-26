@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c02db7bb1b47e34c8c8f67c0424b5e3, type: 3}
+  m_Name: UniversalRenderer
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalRendererData
+  m_RendererFeatures: []
+  m_RendererFeatureMap: 
+  m_UseNativeRenderPass: 0
+  m_PostProcessData: {fileID: 11400000, guid: 78c0f3c0e9b2c9d43a17c576e9a1b7d8, type: 2}
+  m_Shaders:
+    blitPS: {fileID: 0}
+    copyDepthPS: {fileID: 0}
+    screenSpaceShadowPS: {fileID: 0}
+    samplingPS: {fileID: 0}
+    stencilDeferredPS: {fileID: 0}
+    fallbackErrorPS: {fileID: 0}
+    materialErrorPS: {fileID: 0}
+    coreBlitPS: {fileID: 0}
+  m_RenderingMode: 0
+  m_DepthPrimingMode: 0
+  m_CopyDepthMode: 1
+  m_DepthAttachmentFormat: 0
+  m_DepthTexture: 0
+  m_OpaqueTexture: 0
+  m_TransparentReceiveShadows: 1

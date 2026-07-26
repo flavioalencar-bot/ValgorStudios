@@ -2,24 +2,14 @@
 
 Plataforma oficial do ecossistema **Valgor** — fundação de produção para cliente Unity, backend .NET, painel administrativo e infraestrutura containerizada.
 
-> Versão da fundação: `0.1.0`  
+> Versão: `0.1.0` · Sprint 001 — Foundation  
 > Repositório: [flavioalencar-bot/ValgorStudios](https://github.com/flavioalencar-bot/ValgorStudios)
 
 ---
 
-## Visão do projeto
+## Visão
 
-A Valgor Studios desenvolve experiências interativas e serviços digitais com arquitetura escalável, observável e preparada para produção desde o primeiro commit.
-
-Este repositório é o **monorepo oficial**: concentra o cliente de jogo, a API, workers, contratos, painel admin, banco, infraestrutura e documentação — sem protótipos descartáveis.
-
-Objetivos da fundação:
-
-- Separação clara de responsabilidades (Clean Architecture no backend)
-- Ambiente local reproduzível via Docker
-- CI para build e testes do backend
-- Contratos estáveis entre camadas e clientes
-- Evolução incremental sem reescrever a base
+A Valgor Studios desenvolve experiências interativas com arquitetura escalável e preparada para produção desde o primeiro commit. Este monorepo é a base definitiva do produto — sem protótipos descartáveis.
 
 ---
 
@@ -41,14 +31,12 @@ Objetivos da fundação:
 
 | Projeto | Responsabilidade |
 |---------|------------------|
-| `Valgor.Api` | HTTP, Swagger, HealthChecks, Serilog |
-| `Valgor.Application` | Casos de uso, MediatR, FluentValidation |
-| `Valgor.Domain` | Entidades e regras de domínio |
-| `Valgor.Infrastructure` | EF Core, Npgsql, Redis |
-| `Valgor.Contracts` | DTOs e contratos compartilhados |
-| `Valgor.Workers` | Processamento em background |
-
-Fluxo de dependências: **Api / Workers → Application → Domain** · **Infrastructure → Application** · contratos em `Valgor.Contracts`.
+| `Valgor.Api` | HTTP, JWT, Swagger, HealthChecks, Serilog, exceptions |
+| `Valgor.Application` | Casos de uso, MediatR, FluentValidation, Result |
+| `Valgor.Domain` | BaseEntity, Domain Events, Aggregates |
+| `Valgor.Infrastructure` | EF Core, PostgreSQL, Redis, JWT, seed |
+| `Valgor.Contracts` | DTOs compartilhados |
+| `Valgor.Workers` | Host de background jobs |
 
 ---
 
@@ -56,15 +44,13 @@ Fluxo de dependências: **Api / Workers → Application → Domain** · **Infras
 
 | Camada | Tecnologia |
 |--------|------------|
-| Client | Unity 6 LTS |
-| Backend | .NET 9 |
+| Client | Unity 6 LTS · URP · Addressables · UI Toolkit · Input System · Localization |
+| Backend | .NET 9 · EF Core · MediatR · FluentValidation · Serilog · Swagger · JWT |
 | Banco | PostgreSQL 16 |
 | Cache | Redis 7 |
-| Admin | React + Vite |
-| Containers | Docker / Docker Compose |
+| Admin | React · Vite · TypeScript |
+| Containers | Docker Compose |
 | CI | GitHub Actions |
-
-Pacotes backend já integrados: **EF Core**, **Npgsql**, **Redis**, **Swagger**, **HealthChecks**, **Serilog**, **FluentValidation**, **MediatR**.
 
 ---
 
@@ -75,12 +61,13 @@ Pacotes backend já integrados: **EF Core**, **Npgsql**, **Redis**, **Swagger**,
 ├── client/          # Unity 6 LTS
 ├── server/          # Solução .NET 9 (Valgor.sln)
 ├── admin/           # Painel React + Vite
-├── database/        # Init SQL, migrations, seeds
-├── infra/           # Nginx e artefatos de infra
+├── database/        # Init SQL e seeds documentais
+├── infra/           # Artefatos de infra
 ├── docs/            # Arquitetura e API
-├── assets/          # Branding e assets compartilhados
-├── tools/           # Scripts utilitários
+├── assets/          # Branding
+├── tools/           # Scripts
 ├── docker-compose.yml
+├── CHANGELOG.md
 └── README.md
 ```
 
@@ -90,29 +77,30 @@ Pacotes backend já integrados: **EF Core**, **Npgsql**, **Redis**, **Swagger**,
 
 ### Pré-requisitos
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Node.js 20+](https://nodejs.org/) (admin)
-- Unity 6 LTS (client)
+- .NET 9 SDK
+- Docker Desktop
+- Node.js 20+
+- Unity 6 LTS (Hub)
 
-### 1. Infraestrutura local
+### Portas reservadas
 
-Portas reservadas para o Valgor (evitam conflito com outros projetos no host):
-
-| Serviço | Porta host |
-|---------|------------|
+| Serviço | Porta |
+|---------|-------|
 | PostgreSQL | `5437` |
 | Redis | `6383` |
 | pgAdmin | `5051` |
-| API (dev) | `5100` |
+| API | `5100` |
+| Admin | `5173` |
+
+### 1. Infraestrutura
 
 ```bash
 docker compose up -d
 ```
 
-- PostgreSQL: `localhost:5437` · db/user/pass: `valgor`
+- Postgres: `localhost:5437` · `valgor` / `valgor` / `valgor`
 - Redis: `localhost:6383`
-- pgAdmin: http://localhost:5051 · `admin@valgor.local` / `valgor`
+- pgAdmin: http://localhost:5051 · `admin@valgor.com` / `valgor`
 
 ### 2. Backend
 
@@ -123,11 +111,20 @@ dotnet build
 dotnet run --project Valgor.Api
 ```
 
+Em Development a API aplica migrations e cria o admin inicial:
+
+- email: `admin@valgor.local`
+- senha: `Valgor@Admin1`
+
 Endpoints:
 
-- `GET /health` → `{ "status": "ok", "version": "0.1.0" }`
-- `GET /health/ready` → health checks (Postgres, Redis, EF)
-- Swagger (Development): http://localhost:5100/swagger
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/health` | Liveness |
+| GET | `/version` | Versão e ambiente |
+| GET | `/health/ready` | Readiness (Postgres, Redis, EF) |
+| POST | `/api/auth/login` | Autenticação JWT |
+| GET | `/swagger` | OpenAPI |
 
 ### 3. Testes
 
@@ -144,21 +141,24 @@ npm install
 npm run dev
 ```
 
+Abra http://localhost:5173 e autentique com o admin seed.
+
 ### 5. Client (Unity)
 
-Abra a pasta `client/` no Unity Hub com **Unity 6 LTS**.
+1. Instale **Unity 6 LTS** via Hub  
+2. Abra a pasta `client/`  
+3. Cenas: `Bootstrap` → `Loading` → `MainMenu`  
+4. Pacotes: URP, Addressables, Input System, Localization, UI Toolkit
 
 ---
 
 ## CI
 
-Workflows em `.github/workflows/`:
-
-- **Build Backend** — restore + build + publish da API
-- **Test Backend** — execução da suíte de testes
+- **Build Backend** — restore, build, publish  
+- **Test Backend** — suíte automatizada
 
 ---
 
 ## Licença
 
-Distribuído sob a licença [MIT](LICENSE).
+[MIT](LICENSE)

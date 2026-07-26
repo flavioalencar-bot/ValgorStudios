@@ -1,13 +1,16 @@
+using Valgor.Application;
+using Valgor.Infrastructure;
+
 namespace Valgor.Workers;
 
 /// <summary>
-/// Placeholder background worker. Domain jobs will be registered here in future iterations.
+/// Host de processamento assíncrono do Valgor. Jobs de domínio serão registrados como IHostedService adicionais.
 /// </summary>
 public sealed class Worker(ILogger<Worker> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Valgor worker host is running");
+        logger.LogInformation("Valgor worker host online");
 
         while (!stoppingToken.IsCancellationRequested)
         {

@@ -1,0 +1,5 @@
+-- Seed documental de referência.
+-- Em Development o seed é aplicado automaticamente pela API (DatabaseInitializer).
+-- Credenciais iniciais:
+--   email: admin@valgor.local
+--   senha: Valgor@Admin1

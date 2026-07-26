@@ -1,0 +1,20 @@
+{
+  "name": "Valgor.Runtime",
+  "rootNamespace": "Valgor",
+  "references": [
+    "Unity.Addressables",
+    "Unity.ResourceManager",
+    "Unity.InputSystem",
+    "Unity.Localization",
+    "UnityEngine.UIElementsModule"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

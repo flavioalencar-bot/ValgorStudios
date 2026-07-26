@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9334593da40f26f4d96c55c3ff27b6a9, type: 3}
+  m_Name: UniversalRenderPipelineAsset
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset
+  k_AssetVersion: 12
+  m_RendererType: 1
+  m_RendererDataList:
+  - {fileID: 11400000, guid: 5d6e7f8091a2b3c4d5e6f708192a3b4c, type: 2}
+  m_DefaultRendererIndex: 0
+  m_SupportsHDR: 1
+  m_MSAA: 1
+  m_RenderScale: 1
+  m_MainLightRenderingMode: 1
+  m_MainLightShadowsSupported: 1
+  m_AdditionalLightsRenderingMode: 0
+  m_AdditionalLightShadowsSupported: 0
+  m_ShadowDistance: 35
+  m_ShadowCascadeCount: 2
+  m_SoftShadowsSupported: 0
+  m_UseSRPBatcher: 1
+  m_SupportsDynamicBatching: 1
+  m_UseAdaptivePerformance: 1

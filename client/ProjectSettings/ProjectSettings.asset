@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!129 &1
+PlayerSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 27
+  productGUID: 57ba1d9d1f3b4a5e8d7c6b5a4f3e2d1c
+  m_CompanyName: Valgor Studios
+  m_ProductName: Valgor
+  companyName: Valgor Studios
+  productName: Valgor
+  defaultScreenWidth: 1920
+  defaultScreenHeight: 1080
+  useOSAutorotation: 1
+  m_AllowedAutorotateToPortrait: 1
+  m_AllowedAutorotateToPortraitUpsideDown: 1
+  m_AllowedAutorotateToLandscapeRight: 1
+  m_AllowedAutorotateToLandscapeLeft: 1
+  targetDevice: 2
+  bundleVersion: 0.1.0
+  AndroidBundleVersionCode: 1
+  AndroidMinSdkVersion: 23
+  AndroidTargetSdkVersion: 0
+  AndroidTargetArchitectures: 1
+  AndroidBuildApkPerCpuArchitecture: 0
+  AndroidIsGame: 1
+  iOSBuildNumber: 1
+  iOSUseLaunchScreenStoryboard: 1
+  iOSShowActivityIndicatorOnLoading: -1
+  scriptingBackend:
+    Standalone: 1
+  managedStrippingLevel:
+    Android: 1
+    iPhone: 1
+    Standalone: 4
+  gcIncremental: 1
+  useDeterministicCompilation: 1
+  m_RenderingPath: 1
+  m_MobileRenderingPath: 1
+  vulkanNumSwapchainBuffers: 3
+  vulkanEnableCommandBufferRecycling: 1
+  bundleIdentifier:
+    Android: com.valgorstudios.valgor
+    iPhone: com.valgorstudios.valgor
+  usePlayerLog: 1

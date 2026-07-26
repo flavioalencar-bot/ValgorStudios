@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="loading-root" class="loading-root">
+        <ui:Label text="VALGOR" class="loading-title" />
+        <ui:ProgressBar name="loading-progress" title="Carregando" value="0" class="loading-progress" />
+    </ui:VisualElement>
+</ui:UXML>
