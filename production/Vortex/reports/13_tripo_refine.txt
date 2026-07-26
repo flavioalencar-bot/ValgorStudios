@@ -1,0 +1,24 @@
+# Vortex — Tripo Post-Import Refine
+Generated: 2026-07-26 22:27:36 UTC
+
+Summary: PASS=13 FAIL=0 WARN=0
+
+[PASS] Vortex base mesh found — tripo_node_318c20b2-7325-4475-a812-8532d0e10a22
+[PASS] Organized Vortex_Base (single Tripo mesh) — linked MODEL/LOD0/ARMOR/CAPE — body/hair/beard not separable yet (one mesh)
+[PASS] Height/pivot after fit — h=2.0500 min_z=0.0000
+[PASS] Heroic Z silhouette warp applied — legs+/head-band soft compress
+[PASS] Height/pivot after fit — h=2.0500 min_z=0.0000
+[PASS] Height/pivot after fit — h=2.0500 min_z=0.0000
+[PASS] Oriented for Unity +Z forward (Blender face -Y heuristic) — rot_z=0 width_x=1.288 depth_y=0.798
+[PASS] Technical guides hidden from preview — moved=10
+[PASS] Preview `front` — C:\Valgor_Studio\production\Vortex\previews\proportion_fix\Vortex_proportion_front.png
+[PASS] Preview `three_quarter` — C:\Valgor_Studio\production\Vortex\previews\proportion_fix\Vortex_proportion_three_quarter.png
+[PASS] Preview `side` — C:\Valgor_Studio\production\Vortex\previews\proportion_fix\Vortex_proportion_side.png
+[PASS] Preview `back` — C:\Valgor_Studio\production\Vortex\previews\proportion_fix\Vortex_proportion_back.png
+[PASS] Final height 2.05 m / feet pivot — h=2.0500 min_z=0.0000
+
+## Notes
+- Unity export BLOCKED (VALGOR_VISUAL_APPROVED=False).
+- Tripo delivered a single fused mesh — split body/hair/beard/armor/cape/weapon requires manual separation or new export with parts.
+- No Humanoid armature in GLB — rig still pending.
+- Previews: C:\Valgor_Studio\production\Vortex\previews\proportion_fix

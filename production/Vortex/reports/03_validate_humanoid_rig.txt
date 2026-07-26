@@ -1,0 +1,10 @@
+# Vortex — Validate Humanoid Rig
+Generated: 2026-07-26 21:10:22 UTC
+
+Summary: PASS=4 FAIL=0 WARN=1
+
+[PASS] Armature object `Vortex_Rig`
+[PASS] Armature has at least one bone (provisional OK) — bone_count=1 bones=['Osso(s)']
+[WARN] Full Unity Humanoid bone set — missing 22: Hips, Spine, Chest, UpperChest, Neck, Head, LeftShoulder, LeftUpperArm, LeftLowerArm, LeftHand, RightShoulder, RightUpperArm…
+[PASS] Scene metadata VALGOR_RIG_TYPE=Humanoid — Humanoid
+[PASS] Armature at world origin (feet pivot) — location=(0.0, 0.0, 0.0)

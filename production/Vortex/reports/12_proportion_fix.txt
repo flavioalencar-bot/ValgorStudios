@@ -1,0 +1,30 @@
+# Vortex — Proportion Fix
+Generated: 2026-07-26 22:27:30 UTC
+
+Summary: PASS=16 FAIL=0 WARN=1
+
+[PASS] Hero mesh present — count=1
+[WARN] Hero armature present — count=0
+[PASS] Global scale to 2.05 m — pre_h=2.050 factor=1.0000
+[PASS] Global scale to 2.05 m — pre_h=2.050 factor=1.0000
+[PASS] Apply transforms (Loc/Rot/Scale) — n=1
+[PASS] Standing height ~2.05 m — h=2.050 min_z=0.000
+[PASS] Feet near Z=0 — min_z=0.000
+[PASS] Height reference 2.05 m refreshed
+[PASS] Apply transforms (Loc/Rot/Scale) — n=9
+[PASS] Heroic proportion guide rebuilt — parts=9 head_units=8.25
+[PASS] Sockets repositioned to heroic landmarks — updated=9
+[PASS] Standing height ~2.05 m — h=2.080 min_z=0.020
+[PASS] Feet near Z=0 — min_z=0.020
+[PASS] Preview `front` — C:\Valgor_Studio\production\Vortex\previews\proportion_fix\Vortex_proportion_front.png
+[PASS] Preview `three_quarter` — C:\Valgor_Studio\production\Vortex\previews\proportion_fix\Vortex_proportion_three_quarter.png
+[PASS] Preview `side` — C:\Valgor_Studio\production\Vortex\previews\proportion_fix\Vortex_proportion_side.png
+[PASS] Preview `back` — C:\Valgor_Studio\production\Vortex\previews\proportion_fix\Vortex_proportion_back.png
+
+## Notes
+- Target head-units=8.25. Guide/mannnequin uses heroic landmarks; imported mesh correction uses armature rest-pose edits when bones exist.
+- Target head-units=8.25. Guide/mannnequin uses heroic landmarks; imported mesh correction uses armature rest-pose edits when bones exist.
+- Identidade visual (armadura/capa/barba/cabelo) preservada quando malha real existir.
+- Guia Vortex_HeroicProportionGuide_* é técnico — NÃO é arte final.
+- Unity export permanece bloqueado até mark_visual_approved.py.
+- Previews: C:\Valgor_Studio\production\Vortex\previews\proportion_fix

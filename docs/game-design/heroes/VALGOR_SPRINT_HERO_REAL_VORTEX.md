@@ -1,5 +1,11 @@
 # VALGOR — SPRINT HERO REAL: VORTEX
 
+## Status (2026-07-26)
+
+**Concluído para MVP jogável no preview:** modelo real aprovado, rig Humanoid, 16 animações mínimas, espada `Vortex_DragonSword`, Avatar Humanoid no Unity, Domínio do Rei (VFX ~10s), HeroesDemo sem dummy.
+
+Pendências de arte (não bloqueiam preview): LOD1/2, texturas PBR canônicas separadas, refino manual de skinning/mocap.
+
 ## Objetivo
 
 Substituir o `HumanoidDummy.prefab` pelo primeiro personagem 3D real do jogo: **Vortex, o Rei dos Dragões**.

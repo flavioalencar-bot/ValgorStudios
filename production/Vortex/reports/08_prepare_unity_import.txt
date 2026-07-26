@@ -1,0 +1,12 @@
+# Vortex — Prepare Unity Import
+Generated: 2026-07-26 22:35:18 UTC
+
+Summary: PASS=6 FAIL=0 WARN=1
+
+[PASS] Visual approval required before Unity handoff — VALGOR_VISUAL_APPROVED=True VALGOR_UNITY_EXPORT_ALLOWED=True
+[PASS] FBX ready in export/ — Vortex_LOD0.fbx
+[PASS] Staged model `Vortex_LOD0.fbx` — C:\Valgor_Studio\production\Vortex\unity_staging\Models\Vortex_LOD0.fbx
+[WARN] Staged textures — copied=0
+[PASS] Wrote unity_import_manifest.json — C:\Valgor_Studio\production\Vortex\unity_staging\unity_import_manifest.json
+[PASS] Wrote HOW_TO_IMPORT_UNITY.md
+[PASS] Copied into Unity Models `Vortex_LOD0.fbx` — C:\Valgor_Studio\client\Assets\Valgor\Heroes\Characters\Vortex\Models\Vortex_LOD0.fbx

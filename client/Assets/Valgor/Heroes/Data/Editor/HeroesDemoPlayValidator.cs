@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Valgor.Heroes.Characters.Vortex;
 using Valgor.Heroes.Data;
 using Valgor.Heroes.Preview360;
 
@@ -43,7 +44,15 @@ namespace Valgor.Heroes.EditorTools
             HeroesDemoSceneBuilder.BuildDemoScene();
             EditorSceneManager.OpenScene(HeroesDemoSceneBuilder.ScenePath, OpenSceneMode.Single);
             WriteValidationReport();
-            BeginPlayCapture(quitAfter: true);
+            // Edit-mode capture first (batch-friendly), then optional play-mode pass.
+            Directory.CreateDirectory("Assets/Valgor/Heroes/Scenes");
+            CapturePreviewRig(Path.GetFullPath(PreviewShotPath));
+            CaptureToFile(Path.GetFullPath(ScreenshotPath));
+            AppendPreviewChecklist();
+            AssetDatabase.Refresh();
+            var ok = File.Exists(Path.GetFullPath(PreviewShotPath));
+            Debug.Log($"Batch preview capture ok={ok} path={PreviewShotPath}");
+            EditorApplication.Exit(ok ? 0 : 1);
         }
 
         private static void BeginPlayCapture(bool quitAfter)
@@ -240,7 +249,9 @@ namespace Valgor.Heroes.EditorTools
             writer.WriteLine("- [x] Framing: focusHeight + distance tuned for full body");
             writer.WriteLine($"- [{(vortexReport.HasSourceModel ? "x" : " ")}] Vortex FBX fonte presente");
             writer.WriteLine($"- [{(vortexReport.PrefabReady ? "x" : " ")}] Vortex_Hero.prefab");
-            writer.WriteLine($"- [{(vortexReport.UsingFallbackPrefab ? "x" : " ")}] Fallback técnico ativo (esperado sem FBX)");
+            writer.WriteLine($"- [{(vortexReport.AvatarOk ? "x" : " ")}] Avatar Humanoid");
+            writer.WriteLine($"- [{(!vortexReport.UsingFallbackPrefab ? "x" : " ")}] Modelo real (sem fallback técnico)");
+            writer.WriteLine($"- [{(File.Exists(Path.GetFullPath(VortexAssetPaths.DragonSword)) ? "x" : " ")}] Espada Vortex_DragonSword");
 
             Debug.Log($"Validation report written to {reportPath} ({heroes.Count} heroes)");
             if (heroes.Count != 11)

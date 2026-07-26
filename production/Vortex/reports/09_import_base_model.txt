@@ -1,0 +1,19 @@
+# Vortex — Import Base Model
+Generated: 2026-07-26 22:27:26 UTC
+
+Summary: PASS=11 FAIL=0 WARN=0
+
+[PASS] Source model present — C:\Valgor_Studio\production\Vortex\source\Vortex_Base.glb
+[PASS] Removed previous base import objects — count=1
+[PASS] Imported `Vortex_Base.glb` — new_objects=1 types=['MESH']
+[PASS] Measured import height (pre-fit) — height=0.9980 m min_z=0.0000 max_z=0.9980
+[PASS] Scaled to target height 2.05 m — scale_factor=2.054012
+[PASS] Post-fit height ≈ 2.05 m — height=2.0500 min_z=0.0000
+[PASS] Feet near Z=0 / centered XZ — min_z=0.0000 center_x=0.0000
+[PASS] Apply transforms — objects=1
+[PASS] Character upright on Z (Blender up) — extents=(1.288, 0.798, 2.050)
+[PASS] Organized into collections — {'MODEL': 1, 'LOD0': 1, 'RIG': 0, 'ARMOR': 0, 'CAPE': 0, 'WEAPON': 0}
+[PASS] Unity export gated until visual approval — VALGOR_UNITY_EXPORT_ALLOWED=False
+
+## Notes
+- Convenção Valgor/Unity: Up=+Y, Forward=+Z na exportação FBX (-Z Forward, Y Up). Na cena Blender o eixo vertical é Z.

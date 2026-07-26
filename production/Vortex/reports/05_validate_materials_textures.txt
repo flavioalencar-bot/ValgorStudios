@@ -1,0 +1,31 @@
+# Vortex — Validate Materials & Textures
+Generated: 2026-07-26 21:10:22 UTC
+
+Summary: PASS=8 FAIL=0 WARN=15
+
+[PASS] Material `MAT_Vortex_Skin` — in blend
+[PASS] Material `MAT_Vortex_Hair` — in blend
+[PASS] Material `MAT_Vortex_ArmorBlack` — in blend
+[PASS] Material `MAT_Vortex_ArmorGold` — in blend
+[PASS] Material `MAT_Vortex_Cloth` — in blend
+[PASS] Material `MAT_Vortex_Eyes` — in blend
+[PASS] Material `MAT_Vortex_Sword` — in blend
+[WARN] Texture file `Vortex_Body_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Body_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Body_Mask.png` — not on disk yet
+[WARN] Texture file `Vortex_Armor_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Armor_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Armor_Mask.png` — not on disk yet
+[WARN] Texture file `Vortex_Cape_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Cape_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Cape_Mask.png` — not on disk yet
+[WARN] Texture file `Vortex_Weapon_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Weapon_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Weapon_Mask.png` — not on disk yet
+[WARN] Texture file `Vortex_Hair_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Hair_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Eyes_Emission.png` — not on disk yet
+[PASS] Blend has painted/imported image datablocks (art) — images=['Render Result', 'Viewer Node']
+
+## Notes
+- Nenhuma textura final encontrada. Produzir PNGs listados no brief e colocar em production/Vortex/textures/.

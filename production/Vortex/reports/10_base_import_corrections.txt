@@ -1,0 +1,93 @@
+# Vortex — Base Import Correction Report
+Generated: 2026-07-26 22:27:26 UTC
+
+Summary: PASS=40 FAIL=8 WARN=26
+
+[PASS] Source model present — C:\Valgor_Studio\production\Vortex\source\Vortex_Base.glb
+[PASS] Removed previous base import objects — count=1
+[PASS] Imported `Vortex_Base.glb` — new_objects=1 types=['MESH']
+[PASS] Measured import height (pre-fit) — height=0.9980 m min_z=0.0000 max_z=0.9980
+[PASS] Scaled to target height 2.05 m — scale_factor=2.054012
+[PASS] Post-fit height ≈ 2.05 m — height=2.0500 min_z=0.0000
+[PASS] Feet near Z=0 / centered XZ — min_z=0.0000 center_x=0.0000
+[PASS] Apply transforms — objects=1
+[PASS] Character upright on Z (Blender up) — extents=(1.288, 0.798, 2.050)
+[PASS] Organized into collections — {'MODEL': 1, 'LOD0': 1, 'RIG': 0, 'ARMOR': 0, 'CAPE': 0, 'WEAPON': 0}
+[PASS] Unity export gated until visual approval — VALGOR_UNITY_EXPORT_ALLOWED=False
+[PASS] Height reference object `Vortex_HeightReference_2_05m`
+[FAIL] Reference height ≈ 2.05 m — measured=2.1538 m (tol ±0.05)
+[WARN] Height reference base near Z=0 — feet/base near ground
+[PASS] Ground reference `GroundReference`
+[PASS] Scene unit system METRIC / meters — system=METRIC scale_length=1.0
+[PASS] Pivot/feet for `tripo_node_318c20b2-7325-4475-a812-8532d0e10a22` — min_z=0.0000 height=2.0500
+[PASS] Height of `tripo_node_318c20b2-7325-4475-a812-8532d0e10a22` ≈ 2.05 m — height=2.0500
+[FAIL] Pivot/feet for `Vortex_HeroicProportionGuide_Arm_L` — min_z=0.9728 height=0.7703
+[WARN] Height of `Vortex_HeroicProportionGuide_Arm_L` ≈ 2.05 m — height=0.7703
+[FAIL] Pivot/feet for `Vortex_HeroicProportionGuide_Arm_R` — min_z=0.9728 height=0.7703
+[WARN] Height of `Vortex_HeroicProportionGuide_Arm_R` ≈ 2.05 m — height=0.7703
+[FAIL] Pivot/feet for `Vortex_HeroicProportionGuide_Head` — min_z=1.8512 height=0.2485
+[WARN] Height of `Vortex_HeroicProportionGuide_Head` ≈ 2.05 m — height=0.2485
+[FAIL] Pivot/feet for `Vortex_HeroicProportionGuide_Hips` — min_z=0.9364 height=0.1400
+[WARN] Height of `Vortex_HeroicProportionGuide_Hips` ≈ 2.05 m — height=0.1400
+[PASS] Pivot/feet for `Vortex_HeroicProportionGuide_Shin_L` — min_z=0.0200 height=0.4894
+[WARN] Height of `Vortex_HeroicProportionGuide_Shin_L` ≈ 2.05 m — height=0.4894
+[PASS] Pivot/feet for `Vortex_HeroicProportionGuide_Shin_R` — min_z=0.0200 height=0.4894
+[WARN] Height of `Vortex_HeroicProportionGuide_Shin_R` ≈ 2.05 m — height=0.4894
+[FAIL] Pivot/feet for `Vortex_HeroicProportionGuide_Thigh_L` — min_z=0.5094 height=0.4970
+[WARN] Height of `Vortex_HeroicProportionGuide_Thigh_L` ≈ 2.05 m — height=0.4970
+[FAIL] Pivot/feet for `Vortex_HeroicProportionGuide_Thigh_R` — min_z=0.5094 height=0.4970
+[WARN] Height of `Vortex_HeroicProportionGuide_Thigh_R` ≈ 2.05 m — height=0.4970
+[FAIL] Pivot/feet for `Vortex_HeroicProportionGuide_Torso` — min_z=1.0064 height=0.8448
+[WARN] Height of `Vortex_HeroicProportionGuide_Torso` ≈ 2.05 m — height=0.8448
+[PASS] Armature object `Vortex_Rig`
+[PASS] Armature has at least one bone (provisional OK) — bone_count=1 bones=['Osso(s)']
+[WARN] Full Unity Humanoid bone set — missing 22: Hips, Spine, Chest, UpperChest, Neck, Head, LeftShoulder, LeftUpperArm, LeftLowerArm, LeftHand, RightShoulder, RightUpperArm…
+[PASS] Scene metadata VALGOR_RIG_TYPE=Humanoid — Humanoid
+[PASS] Armature at world origin (feet pivot) — location=(0.0, 0.0, 0.0)
+[PASS] Material `MAT_Vortex_Skin` — in blend
+[PASS] Material `MAT_Vortex_Hair` — in blend
+[PASS] Material `MAT_Vortex_ArmorBlack` — in blend
+[PASS] Material `MAT_Vortex_ArmorGold` — in blend
+[PASS] Material `MAT_Vortex_Cloth` — in blend
+[PASS] Material `MAT_Vortex_Eyes` — in blend
+[PASS] Material `MAT_Vortex_Sword` — in blend
+[WARN] Texture file `Vortex_Body_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Body_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Body_Mask.png` — not on disk yet
+[WARN] Texture file `Vortex_Armor_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Armor_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Armor_Mask.png` — not on disk yet
+[WARN] Texture file `Vortex_Cape_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Cape_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Cape_Mask.png` — not on disk yet
+[WARN] Texture file `Vortex_Weapon_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Weapon_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Weapon_Mask.png` — not on disk yet
+[WARN] Texture file `Vortex_Hair_BaseColor.png` — not on disk yet
+[WARN] Texture file `Vortex_Hair_Normal.png` — not on disk yet
+[WARN] Texture file `Vortex_Eyes_Emission.png` — not on disk yet
+[PASS] Blend has painted/imported image datablocks (art) — images=['Render Result', 'Viewer Node', 'fantasy+armor+3d+model_basecolor.jpg', 'fantasy+armor+3d+model_basecolor.jpg.001']
+[PASS] Socket `Socket_RightHand` — type=EMPTY loc=(0.480, 0.050, 1.278)
+[PASS] Socket `Socket_LeftHand` — type=EMPTY loc=(-0.480, 0.050, 1.278)
+[PASS] Socket `Socket_BackWeapon` — type=EMPTY loc=(0.000, -0.200, 1.503)
+[PASS] Socket `Socket_HipWeapon` — type=EMPTY loc=(0.280, 0.050, 1.056)
+[PASS] Socket `Socket_HeadVFX` — type=EMPTY loc=(0.000, 0.000, 2.050)
+[PASS] Socket `Socket_ChestVFX` — type=EMPTY loc=(0.000, 0.120, 1.503)
+[PASS] Socket `Socket_FootLeftVFX` — type=EMPTY loc=(-0.120, 0.050, 0.040)
+[PASS] Socket `Socket_FootRightVFX` — type=EMPTY loc=(0.120, 0.050, 0.040)
+[PASS] Socket `Socket_DragonLink` — type=EMPTY loc=(0.000, -0.280, 1.628)
+[PASS] Collection VORTEX_SOCKETS exists
+
+## Notes
+- Import summary:
+- Convenção Valgor/Unity: Up=+Y, Forward=+Z na exportação FBX (-Z Forward, Y Up). Na cena Blender o eixo vertical é Z.
+- CORRIGIR: sem armature no arquivo base — criar/substituir Vortex_Rig Humanoid completo.
+- Materiais placeholder presentes; mapear texturas reais PBR nos slots MAT_Vortex_*.
+- CORRIGIR / completar após import do base:
+- - Conferir silhueta vs prancha aprovada (rosto, armadura, capa, espada).
+- - Garantir A-pose/T-pose e skinning limpo.
+- - Separar submeshes em VORTEX_ARMOR / CAPE / WEAPON se ainda estiverem juntos.
+- - Gerar LOD1/LOD2 (coleções ainda podem estar vazias).
+- - Produzir texturas listadas no brief.
+- - Marcar aprovação visual somente após review (não exportar Unity antes).
+- Gate atual: VALGOR_VISUAL_APPROVED=False, VALGOR_UNITY_EXPORT_ALLOWED=False.

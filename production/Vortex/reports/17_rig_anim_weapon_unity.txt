@@ -1,0 +1,26 @@
+# Vortex — Rig / Animations / Weapon Integration
+Generated: 2026-07-26
+
+## Blender
+- Script: production/Vortex/rig_animate_weapon_vortex.py
+- Humanoid bones: 37 (Unity set + cape/hair)
+- Skinning: ARMATURE_AUTO (37 vertex groups)
+- Animations: 16 actions exported in Vortex_LOD0.fbx
+- Sword: Vortex_DragonSword.fbx (~701 tris)
+- Visual identity of Vortex_Base mesh preserved (no remesh)
+
+## Unity
+- AvatarOk=True (Humanoid)
+- UsingFallback=False
+- 16/16 Animator clips bound
+- Sword on Socket_RightHand
+- VFX_DragonAura + VFX_GoldenRunes (~10s Domínio do Rei)
+- Prefab: Assets/Valgor/Heroes/Characters/Vortex/Prefabs/Vortex_Hero.prefab
+- Scene: Assets/Valgor/Heroes/Scenes/HeroesDemo.unity
+
+## Tests
+- EditMode Valgor.Heroes.EditModeTests: 16 passed / 0 failed
+- Batch preview capture: HeroesDemo_Preview3D.png + HeroesDemo_PlayMode.png
+
+## View
+Open client project → HeroesDemo.unity → Play Mode

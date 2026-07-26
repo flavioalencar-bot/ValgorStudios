@@ -24,6 +24,7 @@ namespace Valgor.Heroes.Characters.Vortex
         public const string Lod0 = Models + "/Vortex_LOD0.fbx";
         public const string Lod1 = Models + "/Vortex_LOD1.fbx";
         public const string Lod2 = Models + "/Vortex_LOD2.fbx";
+        public const string DragonSword = Models + "/Vortex_DragonSword.fbx";
 
         public const string HeroPrefab = Prefabs + "/Vortex_Hero.prefab";
         public const string AnimatorController = Animations + "/Vortex_Animator.controller";

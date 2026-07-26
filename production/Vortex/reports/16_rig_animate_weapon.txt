@@ -1,0 +1,21 @@
+# Vortex — Rig / Animations / Weapon
+Generated: 2026-07-26 22:42:14 UTC
+
+Summary: PASS=11 FAIL=0 WARN=0
+
+[PASS] Mesh `Vortex_Base` present
+[PASS] Removed placeholder armature
+[PASS] Humanoid bone set complete — bones=37 missing=[]
+[PASS] Aux cape/hair bones
+[PASS] Automatic skinning (ARMATURE_AUTO) — vertex_groups=37
+[PASS] Sockets parented to bones — created=0
+[PASS] Animation actions created — 16: Idle, Idle_Combat, Walk, Run, Turn_Left, Turn_Right, Attack_01, Attack_02, Heavy_Attack, Special_Power, Hit_Front, Hit_Back, Stun, Victory, Defeat, Death
+[PASS] Dragon sword mesh created — tris≈701
+[PASS] Exported Vortex_LOD0.fbx (rig+anims) — C:\Valgor_Studio\production\Vortex\export\Vortex_LOD0.fbx
+[PASS] Exported Vortex_DragonSword.fbx — C:\Valgor_Studio\production\Vortex\export\Vortex_DragonSword.fbx
+[PASS] Saved Vortex_Production.blend — C:\Valgor_Studio\production\Vortex\Vortex_Production.blend
+
+## Notes
+- Mesh identity preserved (no remesh). Procedural Humanoid rig + minimal gameplay clips + separate sword.
+- Character FBX: C:\Valgor_Studio\production\Vortex\export\Vortex_LOD0.fbx
+- Sword FBX: C:\Valgor_Studio\production\Vortex\export\Vortex_DragonSword.fbx

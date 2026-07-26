@@ -1,0 +1,20 @@
+# Vortex — Full Automatic Validation
+Generated: 2026-07-26 21:10:22 UTC
+
+Summary: PASS=8 FAIL=0 WARN=0
+
+[PASS] Vortex — Validate Scene — FAIL=0 WARN=0 → 01_validate_scene.txt
+[PASS] Vortex — Validate Scale & Pivot — FAIL=0 WARN=1 → 02_validate_scale_pivot.txt
+[PASS] Vortex — Validate Humanoid Rig — FAIL=0 WARN=1 → 03_validate_humanoid_rig.txt
+[PASS] Vortex — Validate Sockets — FAIL=0 WARN=0 → 04_validate_sockets.txt
+[PASS] Vortex — Validate Materials & Textures — FAIL=0 WARN=15 → 05_validate_materials_textures.txt
+[PASS] Vortex — Export FBX — FAIL=0 WARN=1 → 06_export_fbx.txt
+[PASS] Vortex — Pending Production Report — FAIL=0 WARN=7 → 07_pending_report.txt
+[PASS] Vortex — Prepare Unity Import — FAIL=0 WARN=2 → 08_prepare_unity_import.txt
+
+## Notes
+- Blend: C:\Valgor_Studio\production\Vortex\Vortex_Production.blend
+- CONFIRM collections: OK
+- CONFIRM height metadata: 2.05 / character=HERO_VORTEX_000
+- CONFIRM armature: True
+- CONFIRM LOD collections empty of art until modeled — expected.

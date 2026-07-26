@@ -4,10 +4,25 @@ Fonte de verdade: [`docs/game-design/heroes/VALGOR_SPRINT_HERO_REAL_VORTEX.md`](
 
 ## Estado atual
 
-A pipeline de importação/validação/prefab está pronta.
+**Modelo real integrado** com rig Humanoid, 16 clips mínimos, espada dracônica e VFX do Domínio do Rei.
 
-**O arquivo 3D final de Vortex ainda não está no repositório.**  
-Enquanto isso, `Prefabs/Vortex_Hero.prefab` usa fallback técnico (`HumanoidDummy`) e o preview continua funcionando.
+| Item | Status |
+|------|--------|
+| `Models/Vortex_LOD0.fbx` | Presente (malha aprovada + armature + animações) |
+| `Models/Vortex_DragonSword.fbx` | Presente |
+| `Prefabs/Vortex_Hero.prefab` | Modelo real (`usingTechnicalFallback=false`) |
+| Avatar | Humanoid (Create From This Model) |
+| Animator | `Vortex_Animator.controller` com Idle…Death |
+| Preview | `Scenes/HeroesDemo.unity` |
+
+Produção Blender: `production/Vortex/` (`rig_animate_weapon_vortex.py`).
+
+## Onde visualizar
+
+1. Abrir `C:\Valgor_Studio\client` no Unity 6000.0.58f2
+2. Cena: `Assets/Valgor/Heroes/Scenes/HeroesDemo.unity`
+3. Play Mode — Idle automático, drag/zoom, botão de poder → `Special_Power` + aura 10s
+4. Prefab: `Assets/Valgor/Heroes/Characters/Vortex/Prefabs/Vortex_Hero.prefab`
 
 ## Menus Unity
 
@@ -16,40 +31,35 @@ Valgor → Heroes → Vortex → Create Folder Scaffold
 Valgor → Heroes → Vortex → Validate Source Assets
 Valgor → Heroes → Vortex → Build Vortex Prefab
 Valgor → Heroes → Vortex → Open Vortex Preview
+Valgor → Heroes → Validate Demo In Play Mode
 ```
 
-Ao importar `Vortex_LOD0.fbx` (ou `Vortex.fbx` / `Vortex.glb`) em `Models/`, o postprocessor reconstrói o prefab automaticamente.
+## Assets
 
-## O que colocar (arte externa)
-
-| Item | Caminho / nome |
-|------|----------------|
-| Modelo LOD0 | `Models/Vortex_LOD0.fbx` (ou `Vortex.fbx` / `Vortex.glb`) |
-| LOD1 / LOD2 | `Models/Vortex_LOD1.fbx`, `Vortex_LOD2.fbx` |
-| Texturas | ver `Textures/PLACE_TEXTURES_HERE.md` |
-| Animações | ver `Animations/PLACE_ANIMATIONS_HERE.md` |
-| Prefab gerado | `Prefabs/Vortex_Hero.prefab` |
+| Item | Caminho |
+|------|---------|
+| LOD0 (corpo + rig + clips) | `Models/Vortex_LOD0.fbx` |
+| Espada | `Models/Vortex_DragonSword.fbx` |
+| Animator | `Animations/Vortex_Animator.controller` |
+| Prefab | `Prefabs/Vortex_Hero.prefab` |
 | Addressable | `heroes/HERO_VORTEX_000/prefab` |
 
-### Requisitos do modelo
+### Requisitos atendidos
 
-- Humanoid Avatar válido
-- Altura ~2,05 m, scale 1, pivô nos pés, olhar +Z
-- T-pose ou A-pose
-- Produzido fora do Cursor (Blender / Maya / Character Creator / etc.)
+- Humanoid Avatar, altura ~2,05 m, scale 1, pivô nos pés, olhar +Z
+- Sockets (mão/costas/quadril/DragonLink/VFX) no prefab
+- Espada em `Socket_RightHand` (troca para Back/Hip via `HeroVisualController.AttachWeaponTo`)
+- Clips: Idle, Idle_Combat, Walk, Run, Turn_*, Attack_*, Heavy_Attack, Special_Power, Hit_*, Stun, Victory, Defeat, Death
+- Domínio do Rei: animação + aura/runas douradas ~10s (dados de gameplay do seed **inalterados**)
+
+### Pendências de arte (não bloqueantes do MVP)
+
+- LOD1/LOD2
+- Conjunto canônico de texturas PBR separadas (hoje usa embutida do Tripo)
+- Refino manual de pesos / mocap de qualidade final
 
 ## Integração
 
-- Catálogo: somente `HERO_VORTEX_000.PrefabAddress` → `heroes/HERO_VORTEX_000/prefab`
+- Catálogo: `HERO_VORTEX_000.PrefabAddress` → `heroes/HERO_VORTEX_000/prefab`
 - Dados de gameplay (nome, facção, poder, cooldowns) **não** são alterados
-- HeroesDemo: preview 360°, drag/zoom, Idle, botão de poder especial dispara `Special_Power` quando houver clip
-
-## Addressables (passo no Unity Editor)
-
-O projeto ainda não tem `AddressableAssetSettings` criado. Depois de abrir o client no Editor:
-
-1. `Window → Asset Management → Addressables → Groups`
-2. Criar settings se pedido
-3. Marcar `Prefabs/Vortex_Hero.prefab` com address `heroes/HERO_VORTEX_000/prefab`
-
-Até lá, o preview Editor resolve o prefab via `AssetDatabase` / shell local.
+- Fallback técnico só se o FBX for removido

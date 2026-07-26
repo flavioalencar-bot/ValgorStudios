@@ -10,6 +10,35 @@ namespace Valgor.Heroes.EditorTools
     /// </summary>
     public sealed class VortexModelPostprocessor : AssetPostprocessor
     {
+        private void OnPreprocessModel()
+        {
+            if (!IsVortexModelPath(assetPath)) return;
+            var importer = assetImporter as ModelImporter;
+            if (importer == null) return;
+
+            importer.globalScale = 1f;
+            importer.useFileScale = true;
+            importer.isReadable = true;
+            importer.optimizeMeshPolygons = true;
+            importer.optimizeMeshVertices = true;
+            importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
+            importer.materialLocation = ModelImporterMaterialLocation.External;
+
+            var fileName = System.IO.Path.GetFileName(assetPath);
+            if (fileName.StartsWith("Vortex_DragonSword"))
+            {
+                importer.animationType = ModelImporterAnimationType.None;
+                importer.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
+                return;
+            }
+
+            // Character: Humanoid avatar from this model.
+            importer.animationType = ModelImporterAnimationType.Human;
+            importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+            importer.animationCompression = ModelImporterAnimationCompression.Optimal;
+            importer.importAnimation = true;
+        }
+
         private static void OnPostprocessAllAssets(
             string[] imported,
             string[] deleted,
@@ -19,12 +48,12 @@ namespace Valgor.Heroes.EditorTools
             var touch = false;
             foreach (var path in imported)
             {
-                if (IsVortexModelPath(path)) touch = true;
+                if (IsVortexCharacterModelPath(path)) touch = true;
             }
 
             foreach (var path in movedTo)
             {
-                if (IsVortexModelPath(path)) touch = true;
+                if (IsVortexCharacterModelPath(path)) touch = true;
             }
 
             if (!touch) return;
@@ -34,6 +63,7 @@ namespace Valgor.Heroes.EditorTools
                 VortexPipelineMenus.EnsureFolders();
                 VortexPrefabBuilder.BuildOrUpdate();
                 var report = VortexAssetImportValidator.ValidateAll();
+                VortexPipelineMenus.RefreshStatusFromReport(report);
                 Debug.Log("Vortex: source model detectado — prefab reconstruído.\n" + report);
             };
         }
@@ -45,6 +75,13 @@ namespace Valgor.Heroes.EditorTools
             var name = System.IO.Path.GetFileName(path);
             return name.StartsWith("Vortex") &&
                    (name.EndsWith(".fbx") || name.EndsWith(".glb") || name.EndsWith(".gltf"));
+        }
+
+        private static bool IsVortexCharacterModelPath(string path)
+        {
+            if (!IsVortexModelPath(path)) return false;
+            var name = System.IO.Path.GetFileName(path);
+            return !name.StartsWith("Vortex_DragonSword");
         }
     }
 }

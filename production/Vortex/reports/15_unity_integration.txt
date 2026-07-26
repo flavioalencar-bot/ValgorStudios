@@ -1,0 +1,33 @@
+# Vortex — Unity Integration
+Generated: 2026-07-26
+
+## Status
+- Visual gate: APPROVED (VALGOR_VISUAL_APPROVED=True, VALGOR_UNITY_EXPORT_ALLOWED=True)
+- Pre-integration polish: rear rim light + boots XZ −10%
+- FBX export: PASS → production/Vortex/export/Vortex_LOD0.fbx (~17k tris)
+- Copied to Unity: Assets/Valgor/Heroes/Characters/Vortex/Models/Vortex_LOD0.fbx
+- Prefab: Assets/Valgor/Heroes/Characters/Vortex/Prefabs/Vortex_Hero.prefab
+- usingTechnicalFallback: False (modelo real, não HumanoidDummy)
+- Demo scene rebuilt: Assets/Valgor/Heroes/Scenes/HeroesDemo.unity
+
+## Where to view in Unity
+1. Open project: C:\Valgor_Studio\client
+2. Open scene: Assets/Valgor/Heroes/Scenes/HeroesDemo.unity
+3. Enter Play Mode — preview 360° mostra Vortex (HERO_VORTEX_000)
+4. Prefab direto: Assets/Valgor/Heroes/Characters/Vortex/Prefabs/Vortex_Hero.prefab
+5. Modelo fonte: Assets/Valgor/Heroes/Characters/Vortex/Models/Vortex_LOD0.fbx
+6. Menu: Valgor → Heroes → Vortex → Open Heroes Demo / Validate Source Assets
+
+## Validation notes
+- Scale Factor=1; altura alvo ~2.05 m (NormalizeModelTransform no prefab)
+- Orientation: +Z forward (export Blender → Unity)
+- Pivot: feet at origin (normalized on prefab build)
+- Materials: textura embutida no FBX (.fbm/fantasy_armor_3d_model_basecolor_jpg_001)
+- Animation Type: Generic (sem armature Humanoid no Tripo)
+- Animator: Vortex_Animator.controller com states Idle/Special_Power etc. — SEM clips de animação ainda
+- LOD1/LOD2: não exportados (só LOD0)
+- Conjunto canônico de 8 texturas PBR: ainda pendente (WARN, não bloqueante)
+
+## Not changed
+- heroes.seed.json / gameplay de Vortex
+- Identidade visual do personagem (só polish de luz traseira + leve redução dos pés)

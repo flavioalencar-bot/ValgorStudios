@@ -21,16 +21,16 @@ namespace Valgor.Heroes.Preview360
         [SerializeField] private GameObject dummyPrefab;
         [SerializeField] private float autoRotateSpeed = 28f;
         [SerializeField] private bool autoRotate = true;
-        [SerializeField] private float minDistance = 4.5f;
-        [SerializeField] private float maxDistance = 8f;
-        [SerializeField] private float defaultDistance = 5.8f;
+        [SerializeField] private float minDistance = 4.8f;
+        [SerializeField] private float maxDistance = 8.5f;
+        [SerializeField] private float defaultDistance = 6.4f;
         [SerializeField] private float dragSensitivity = 0.35f;
         [SerializeField] private float zoomSensitivity = 0.35f;
-        [SerializeField] private float focusHeight = 1.05f;
-        [SerializeField] private float cameraFov = 46f;
-        [SerializeField] private float lookAtBiasY = 0.2f;
-        [SerializeField] private float dummyScale = 0.88f;
-        [SerializeField] private float dummyAnchorY = 0.12f;
+        [SerializeField] private float focusHeight = 1.02f;
+        [SerializeField] private float cameraFov = 38f;
+        [SerializeField] private float lookAtBiasY = 0.05f;
+        [SerializeField] private float dummyScale = 1f;
+        [SerializeField] private float dummyAnchorY = 0f;
 
         private GameObject _currentDummy;
         private HeroVisualController _currentVisual;

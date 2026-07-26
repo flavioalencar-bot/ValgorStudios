@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa8f84819070cab45870e75716d1d761, type: 3}
   m_Name: Vortex_PipelineStatus
   m_EditorClassIdentifier: 
-  Phase: 0
-  UsingTechnicalFallback: 1
-  LastValidationReport: "=== Vortex Asset Validation ===\r\nAGUARDANDO FBX em Assets/Valgor/Heroes/Characters/Vortex/Models/.
-    Pipeline/shell prontos. Erros=0. Avisos=2.\r\nHasSourceModel=False\r\nPrefabReady=True
-    UsingFallback=True\r\nAvatarOk=False SocketsOk=True MaterialsOk=True\r\nAnimationsOk=True
-    TexturesOk=False LodOk=True CatalogOk=True\r\nWARN: Modelo 3D ausente. Esperado:
-    Assets/Valgor/Heroes/Characters/Vortex/Models/Vortex_LOD0.fbx (ou Vortex.fbx
-    / Vortex.glb).\r\nWARN: Texturas ainda n\xE3o fornecidas (8 faltando).\r\n"
+  Phase: 2
+  UsingTechnicalFallback: 0
+  LastValidationReport: "=== Vortex Asset Validation ===\r\nFonte: Assets/Valgor/Heroes/Characters/Vortex/Models/Vortex_LOD0.fbx.
+    Prefab=True. Erros=0. Avisos=3.\r\nHasSourceModel=True\r\nPrefabReady=True UsingFallback=False\r\nAvatarOk=True
+    SocketsOk=True MaterialsOk=True\r\nAnimationsOk=True TexturesOk=True LodOk=True
+    CatalogOk=True\r\nWARN: Clips Humanoid presentes no FBX: 32.\r\nWARN: Espada
+    Vortex_DragonSword.fbx presente.\r\nWARN: Conjunto can\xF4nico de texturas incompleto
+    (8 faltando); usando textura embutida do FBX (.fbm) por enquanto.\r\n"
   PrefabPath: Assets/Valgor/Heroes/Characters/Vortex/Prefabs/Vortex_Hero.prefab
   AddressableKey: heroes/HERO_VORTEX_000/prefab
-  SourceModelPath: 
+  SourceModelPath: Assets/Valgor/Heroes/Characters/Vortex/Models/Vortex_LOD0.fbx

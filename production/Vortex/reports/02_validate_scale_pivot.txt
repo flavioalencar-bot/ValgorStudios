@@ -1,0 +1,11 @@
+# Vortex — Validate Scale & Pivot
+Generated: 2026-07-26 21:10:22 UTC
+
+Summary: PASS=5 FAIL=0 WARN=1
+
+[PASS] Height reference object `Vortex_HeightReference_2_05m`
+[PASS] Reference height ≈ 2.05 m — measured=2.0500 m (tol ±0.05)
+[PASS] Height reference base near Z=0 — feet/base near ground
+[PASS] Ground reference `GroundReference`
+[PASS] Scene unit system METRIC / meters — system=METRIC scale_length=1.0
+[WARN] Final hero mesh present for pivot check — no artistic mesh yet (only technical refs) — expected until art is delivered

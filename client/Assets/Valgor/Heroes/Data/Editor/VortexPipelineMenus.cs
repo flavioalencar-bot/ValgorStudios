@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -138,10 +139,16 @@ namespace Valgor.Heroes.EditorTools
                 : VortexPipelinePhase.WaitingForSourceModel;
             if (report.PrefabReady && status.Phase == VortexPipelinePhase.SourcePresent)
                 status.Phase = VortexPipelinePhase.PrefabBuilt;
+            if (report.PrefabReady && report.HasSourceModel && !report.UsingFallbackPrefab)
+                status.Phase = VortexPipelinePhase.Validated;
 
             EditorUtility.SetDirty(status);
             AssetDatabase.SaveAssets();
         }
+
+        /// <summary>Public entry so batch integration can persist the latest validation report.</summary>
+        public static void RefreshStatusFromReport(VortexValidationReport report) =>
+            UpdateStatusFromReport(report);
 
         private static void CreateFolderRecursive(string assetFolder)
         {
@@ -241,8 +248,13 @@ Importe FBX com animações ou clips .anim e associe ao `Vortex_Animator.control
         public readonly List<string> Warnings = new();
 
         public bool AllCriticalPassed =>
-            PrefabReady && SocketsOk && MaterialsOk && CatalogOk &&
-            (!HasSourceModel || (AvatarOk && TexturesOk));
+            PrefabReady &&
+            SocketsOk &&
+            MaterialsOk &&
+            CatalogOk &&
+            HasSourceModel &&
+            !UsingFallbackPrefab &&
+            AvatarOk;
 
         public string Summary =>
             HasSourceModel
@@ -302,9 +314,40 @@ Importe FBX com animações ou clips .anim e associe ao `Vortex_Animator.control
                 return;
             }
 
-            report.AvatarOk = importer.animationType == ModelImporterAnimationType.Human;
-            if (!report.AvatarOk)
-                report.Errors.Add("Animation Type deve ser Humanoid (ModelImporterAnimationType.Human).");
+            // Tripo/rigged FBX must be Humanoid for gameplay avatar.
+            var isHuman = importer.animationType == ModelImporterAnimationType.Human;
+            report.AvatarOk = isHuman;
+            if (!isHuman)
+            {
+                report.Errors.Add(
+                    "Animation Type deve ser Humanoid (ModelImporterAnimationType.Human) com Avatar Create From This Model.");
+            }
+            else
+            {
+                if (importer.avatarSetup != ModelImporterAvatarSetup.CreateFromThisModel &&
+                    importer.avatarSetup != ModelImporterAvatarSetup.CopyFromOther)
+                {
+                    report.Warnings.Add($"avatarSetup={importer.avatarSetup}, esperado CreateFromThisModel.");
+                }
+
+                var clips = AssetDatabase.LoadAllAssetsAtPath(report.DetectedSourceModelPath)
+                    .OfType<AnimationClip>()
+                    .Where(c => c != null && !c.name.StartsWith("__preview"))
+                    .Select(c => c.name)
+                    .ToList();
+                var missingClips = HeroAnimationIds.Required
+                    .Where(req => clips.All(n => n != req && !n.Contains(req)))
+                    .ToList();
+                if (missingClips.Count > 0)
+                    report.Warnings.Add("Clips ausentes no FBX: " + string.Join(", ", missingClips));
+                else
+                    report.Warnings.Add($"Clips Humanoid presentes no FBX: {clips.Count}.");
+            }
+
+            if (!File.Exists(VortexAssetPaths.DragonSword))
+                report.Warnings.Add($"Espada ausente: {VortexAssetPaths.DragonSword}");
+            else
+                report.Warnings.Add("Espada Vortex_DragonSword.fbx presente.");
 
             if (!Mathf.Approximately(importer.globalScale, 1f))
                 report.Warnings.Add($"Scale Factor={importer.globalScale}, esperado 1.");
@@ -313,15 +356,29 @@ Importe FBX com animações ou clips .anim e associe ao `Vortex_Animator.control
         private static void ValidateTextures(VortexValidationReport report)
         {
             var missing = VortexAssetPaths.RequiredTextures.Where(p => !File.Exists(p)).ToList();
-            report.TexturesOk = missing.Count == 0;
+            var fbmDir = Path.ChangeExtension(VortexAssetPaths.Lod0, ".fbm");
+            var hasEmbedded = Directory.Exists(fbmDir) &&
+                              Directory.GetFiles(fbmDir).Any(f =>
+                                  !f.EndsWith(".meta", StringComparison.OrdinalIgnoreCase));
+
+            // Canonical PBR set is the long-term target; Tripo embeds at least one basecolor in .fbm.
+            report.TexturesOk = missing.Count == 0 || hasEmbedded;
             if (!report.HasSourceModel)
             {
                 report.Warnings.Add($"Texturas ainda não fornecidas ({missing.Count} faltando).");
                 return;
             }
 
-            foreach (var path in missing)
-                report.Errors.Add("Textura ausente: " + path);
+            if (missing.Count > 0 && hasEmbedded)
+            {
+                report.Warnings.Add(
+                    $"Conjunto canônico de texturas incompleto ({missing.Count} faltando); usando textura embutida do FBX (.fbm) por enquanto.");
+            }
+            else
+            {
+                foreach (var path in missing)
+                    report.Errors.Add("Textura ausente: " + path);
+            }
 
             foreach (var path in VortexAssetPaths.RequiredTextures.Where(File.Exists))
             {

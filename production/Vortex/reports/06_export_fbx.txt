@@ -1,0 +1,10 @@
+# Vortex — Export FBX
+Generated: 2026-07-26 22:35:16 UTC
+
+Summary: PASS=3 FAIL=0 WARN=2
+
+[PASS] Visual approval gate — approved
+[PASS] Artistic hero mesh available for export — 1 mesh(es): Vortex_Base
+[PASS] Exported `Vortex_LOD0.fbx` — meshes=1 tris≈17187 path=C:\Valgor_Studio\production\Vortex\export\Vortex_LOD0.fbx
+[WARN] Export Vortex_LOD1.fbx — no meshes in collection VORTEX_LOD1
+[WARN] Export Vortex_LOD2.fbx — no meshes in collection VORTEX_LOD2

@@ -1,0 +1,675 @@
+fileFormatVersion: 2
+guid: f777a5c4a9441f34bbcb860d86e874be
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects: {}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: "\nClip 'Idle' has import animation warnings that might
+      lower retargeting quality:\nNote: Activate translation DOF on avatar to improve
+      retargeting quality.\n\t'Hair_01' is inbetween humanoid transforms and has
+      rotation animation that will be discarded.\n\nClip 'Vortex_Rig|Attack_01' has
+      import animation warnings that might lower retargeting quality:\nNote: Activate
+      translation DOF on avatar to improve retargeting quality.\n\t'Hair_01' is inbetween
+      humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Attack_02' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Death' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Defeat' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Heavy_Attack' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Hit_Back' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Hit_Front' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Idle' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Idle_Combat' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Run' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Special_Power' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Stun' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Turn_Left' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Turn_Right' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Victory' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\nClip
+      'Vortex_Rig|Walk' has import animation warnings that might lower retargeting
+      quality:\nNote: Activate translation DOF on avatar to improve retargeting quality.\n\t'Hair_01'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n"
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human:
+    - boneName: Hips
+      humanName: Hips
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftUpperLeg
+      humanName: LeftUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightUpperLeg
+      humanName: RightUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftLowerLeg
+      humanName: LeftLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightLowerLeg
+      humanName: RightLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftFoot
+      humanName: LeftFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightFoot
+      humanName: RightFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Spine
+      humanName: Spine
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Chest
+      humanName: Chest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Neck
+      humanName: Neck
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Head
+      humanName: Head
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftShoulder
+      humanName: LeftShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightShoulder
+      humanName: RightShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftUpperArm
+      humanName: LeftUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightUpperArm
+      humanName: RightUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftLowerArm
+      humanName: LeftLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightLowerArm
+      humanName: RightLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftHand
+      humanName: LeftHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightHand
+      humanName: RightHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftToes
+      humanName: LeftToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightToes
+      humanName: RightToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Socket_HeadVFX
+      humanName: LeftEye
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Hair_02
+      humanName: RightEye
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftThumb
+      humanName: Left Thumb Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftIndex
+      humanName: Left Index Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftMiddle
+      humanName: Left Middle Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftRing
+      humanName: Left Ring Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LeftLittle
+      humanName: Left Little Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightThumb
+      humanName: Right Thumb Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightIndex
+      humanName: Right Index Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightMiddle
+      humanName: Right Middle Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightRing
+      humanName: Right Ring Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RightLittle
+      humanName: Right Little Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: UpperChest
+      humanName: UpperChest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    skeleton:
+    - name: Vortex_LOD0(Clone)
+      parentName: 
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Vortex_Base
+      parentName: Vortex_LOD0(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Vortex_Rig
+      parentName: Vortex_LOD0(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Hips
+      parentName: Vortex_Rig
+      position: {x: -0, y: -0.0040117353, z: 0.9840001}
+      rotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+      scale: {x: 1, y: 0.9999999, z: 0.9999999}
+    - name: Socket_HipWeapon
+      parentName: Hips
+      position: {x: -0, y: 0.14349997, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Spine
+      parentName: Hips
+      position: {x: -0, y: 0.14349997, z: 0}
+      rotation: {x: -0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Chest
+      parentName: Spine
+      position: {x: -0, y: 0.14350009, z: 0}
+      rotation: {x: -0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Socket_ChestVFX
+      parentName: Chest
+      position: {x: -0, y: 0.16400003, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: UpperChest
+      parentName: Chest
+      position: {x: -0, y: 0.16400003, z: 0}
+      rotation: {x: -0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Socket_BackWeapon
+      parentName: UpperChest
+      position: {x: -0, y: 0.16399992, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Socket_DragonLink
+      parentName: UpperChest
+      position: {x: -0, y: 0.16399992, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Neck
+      parentName: UpperChest
+      position: {x: -0, y: 0.16399992, z: 0}
+      rotation: {x: -0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 0.99999994, z: 1}
+    - name: Head
+      parentName: Neck
+      position: {x: -0, y: 0.123000145, z: 0}
+      rotation: {x: -0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 0.99999994, z: 1}
+    - name: Socket_HeadVFX
+      parentName: Head
+      position: {x: -0, y: 0.2870002, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Hair_01
+      parentName: Head
+      position: {x: -0, y: 0.16400015, z: 0.02}
+      rotation: {x: 0.9505342, y: -0, z: -0, w: 0.31062007}
+      scale: {x: 1, y: 0.9999999, z: 0.99999917}
+    - name: Hair_02
+      parentName: Hair_01
+      position: {x: -0, y: 0.10160722, z: 0.00000008195639}
+      rotation: {x: 0.17261119, y: -0, z: -0, w: 0.98499}
+      scale: {x: 1, y: 0.9999999, z: 1}
+    - name: LeftShoulder
+      parentName: UpperChest
+      position: {x: -0.07726614, y: 0.12299991, z: 0}
+      rotation: {x: 0.49999997, y: -0.50000006, z: -0.50000006, w: -0.50000006}
+      scale: {x: 0.9999999, y: 0.9999998, z: 0.9999999}
+    - name: LeftUpperArm
+      parentName: LeftShoulder
+      position: {x: -1.1579715e-10, y: 0.07147118, z: -1.7535862e-10}
+      rotation: {x: -0.012535828, y: 0.51859874, z: -0.008852777, w: 0.85488015}
+      scale: {x: 1.0000001, y: 1.0000005, z: 1.0000006}
+    - name: LeftLowerArm
+      parentName: LeftUpperArm
+      position: {x: 0.000000049360096, y: 0.3178874, z: 0.000000008381903}
+      rotation: {x: -0.005010022, y: 0.10367626, z: -0.021336874, w: 0.99436957}
+      scale: {x: 0.99999994, y: 1.0000007, z: 1.0000007}
+    - name: LeftHand
+      parentName: LeftLowerArm
+      position: {x: 0.0000000069849193, y: 0.25266856, z: 0}
+      rotation: {x: 0.08814884, y: -0.081045665, z: 0.04757886, w: 0.9916641}
+      scale: {x: 1, y: 0.99999994, z: 0.9999998}
+    - name: Socket_LeftHand
+      parentName: LeftHand
+      position: {x: -0.000000059604645, y: 0.091432735, z: 0.000000014901161}
+      rotation: {x: 0.000000007450581, y: -0.000000011175871, z: 0.000000007450581, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: LeftThumb
+      parentName: LeftHand
+      position: {x: 0.029674776, y: 0.09209855, z: 0.020566113}
+      rotation: {x: -0.513791, y: 0.25689554, z: -0.12882584, w: -0.80834854}
+      scale: {x: 1.0000001, y: 0.99999994, z: 0.99999994}
+    - name: LeftIndex
+      parentName: LeftHand
+      position: {x: 0.020604886, y: 0.0950467, z: 0.023735568}
+      rotation: {x: -0.51379114, y: 0.25689542, z: -0.12882565, w: -0.80834854}
+      scale: {x: 0.9999998, y: 1, z: 0.9999997}
+    - name: LeftMiddle
+      parentName: LeftHand
+      position: {x: 0.011534996, y: 0.09799491, z: 0.026905037}
+      rotation: {x: -0.51379114, y: 0.2568956, z: -0.12882562, w: -0.8083485}
+      scale: {x: 0.9999999, y: 1, z: 0.9999998}
+    - name: LeftRing
+      parentName: LeftHand
+      position: {x: 0.0030310228, y: 0.10273673, z: 0.029394425}
+      rotation: {x: -0.513791, y: 0.2568956, z: -0.12882583, w: -0.80834854}
+      scale: {x: 1, y: 0.9999998, z: 0.99999994}
+    - name: LeftLittle
+      parentName: LeftHand
+      position: {x: -0.0054729767, y: 0.10747862, z: 0.03188386}
+      rotation: {x: -0.513791, y: 0.25689554, z: -0.12882572, w: -0.80834854}
+      scale: {x: 0.9999999, y: 1, z: 1.0000001}
+    - name: RightShoulder
+      parentName: UpperChest
+      position: {x: 0.07726614, y: 0.12299991, z: 0}
+      rotation: {x: 0.49999997, y: 0.50000006, z: 0.50000006, w: -0.50000006}
+      scale: {x: 0.9999999, y: 0.9999998, z: 0.9999999}
+    - name: RightUpperArm
+      parentName: RightShoulder
+      position: {x: 1.1579715e-10, y: 0.07147118, z: -1.7535862e-10}
+      rotation: {x: -0.012535828, y: -0.51859874, z: 0.008852777, w: 0.85488015}
+      scale: {x: 1, y: 0.9999999, z: 1}
+    - name: RightLowerArm
+      parentName: RightUpperArm
+      position: {x: -0.000000020489097, y: 0.31788728, z: -0.000000017695129}
+      rotation: {x: -0.0050100866, y: -0.10367633, z: 0.021336773, w: 0.99436957}
+      scale: {x: 0.99999976, y: 0.9999994, z: 0.9999995}
+    - name: RightHand
+      parentName: RightLowerArm
+      position: {x: -0.000000004656613, y: 0.25266835, z: -0.0000000037252903}
+      rotation: {x: 0.08814882, y: 0.081045605, z: -0.04757894, w: 0.99166405}
+      scale: {x: 0.99999994, y: 1.0000004, z: 1.0000001}
+    - name: Socket_RightHand
+      parentName: RightHand
+      position: {x: -0.000000014901161, y: 0.09143275, z: -0.000000014901161}
+      rotation: {x: 0.0000000037252899, y: 0.000000009313225, z: 5.189876e-25, w: 1}
+      scale: {x: 1.0000001, y: 1.0000001, z: 1.0000001}
+    - name: RightThumb
+      parentName: RightHand
+      position: {x: -0.02967478, y: 0.09209853, z: 0.020566016}
+      rotation: {x: -0.513791, y: -0.25689554, z: 0.12882584, w: -0.80834854}
+      scale: {x: 0.99999994, y: 1, z: 1.0000002}
+    - name: RightIndex
+      parentName: RightHand
+      position: {x: -0.020604918, y: 0.09504677, z: 0.023735508}
+      rotation: {x: -0.51379114, y: -0.25689542, z: 0.12882565, w: -0.80834854}
+      scale: {x: 1, y: 0.99999994, z: 0.99999994}
+    - name: RightMiddle
+      parentName: RightHand
+      position: {x: -0.011535056, y: 0.09799497, z: 0.026904978}
+      rotation: {x: -0.51379114, y: -0.2568956, z: 0.12882562, w: -0.8083485}
+      scale: {x: 1, y: 1.0000001, z: 1.0000001}
+    - name: RightRing
+      parentName: RightHand
+      position: {x: -0.0030310415, y: 0.10273672, z: 0.029394366}
+      rotation: {x: -0.513791, y: -0.2568956, z: 0.12882583, w: -0.80834854}
+      scale: {x: 1, y: 0.9999999, z: 1.0000001}
+    - name: RightLittle
+      parentName: RightHand
+      position: {x: 0.0054729395, y: 0.10747865, z: 0.03188376}
+      rotation: {x: -0.513791, y: -0.25689554, z: 0.12882572, w: -0.80834854}
+      scale: {x: 1, y: 0.99999964, z: 0.9999998}
+    - name: Cape_01
+      parentName: UpperChest
+      position: {x: -0, y: 0.04100001, z: 0.05}
+      rotation: {x: 0.99509245, y: -0, z: -0, w: 0.09894936}
+      scale: {x: 1, y: 1.0000005, z: 1.0000036}
+    - name: Cape_02
+      parentName: Cape_01
+      position: {x: -0, y: 0.35546067, z: 0.000000007450581}
+      rotation: {x: 0.026453406, y: -0, z: -0, w: 0.9996501}
+      scale: {x: 1, y: 1.0000004, z: 1.0000002}
+    - name: Cape_03
+      parentName: Cape_02
+      position: {x: -0, y: 0.4143669, z: -0.000000022351742}
+      rotation: {x: 0.015515687, y: -0, z: -0, w: 0.99987966}
+      scale: {x: 1, y: 1.0000002, z: 1.0000002}
+    - name: LeftUpperLeg
+      parentName: Hips
+      position: {x: -0.11589922, y: 0, z: 0}
+      rotation: {x: 0.9997307, y: -0, z: -0, w: -0.023210019}
+      scale: {x: 1, y: 1, z: 1.0000012}
+    - name: LeftLowerLeg
+      parentName: LeftUpperLeg
+      position: {x: 0.000000007450581, y: 0.43096432, z: 0}
+      rotation: {x: 0.0024393627, y: -0, z: -0, w: 0.999997}
+      scale: {x: 1, y: 1.0000002, z: 1.0000002}
+    - name: LeftFoot
+      parentName: LeftLowerLeg
+      position: {x: -0, y: 0.39001322, z: 9.313226e-10}
+      rotation: {x: 0.03165809, y: -0.9440164, z: 0.30654395, w: 0.11773537}
+      scale: {x: 1, y: 0.99999994, z: 1}
+    - name: Socket_FootLeftVFX
+      parentName: LeftFoot
+      position: {x: -0.000000007450581, y: 0.14672759, z: 0.000000007450581}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 0.99999994, z: 0.99999994}
+    - name: LeftToes
+      parentName: LeftFoot
+      position: {x: -0.000000007450581, y: 0.14672759, z: 0.000000007450581}
+      rotation: {x: -0.3263615, y: -0, z: -0, w: -0.945245}
+      scale: {x: 1, y: 0.99999946, z: 1.0000004}
+    - name: RightUpperLeg
+      parentName: Hips
+      position: {x: 0.11589922, y: 0, z: 0}
+      rotation: {x: 0.9997307, y: -0, z: -0, w: -0.023210019}
+      scale: {x: 1, y: 1, z: 1.0000012}
+    - name: RightLowerLeg
+      parentName: RightUpperLeg
+      position: {x: -0.000000007450581, y: 0.43096432, z: 0}
+      rotation: {x: 0.0024393627, y: -0, z: -0, w: 0.999997}
+      scale: {x: 1, y: 1.0000002, z: 1.0000002}
+    - name: RightFoot
+      parentName: RightLowerLeg
+      position: {x: -0, y: 0.39001322, z: 9.313226e-10}
+      rotation: {x: 0.03165809, y: 0.9440164, z: -0.30654395, w: 0.11773537}
+      scale: {x: 1, y: 0.99999994, z: 1}
+    - name: Socket_FootRightVFX
+      parentName: RightFoot
+      position: {x: 0.000000007450581, y: 0.14672759, z: 0.000000007450581}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 0.99999994, z: 0.99999994}
+    - name: RightToes
+      parentName: RightFoot
+      position: {x: 0.000000007450581, y: 0.14672759, z: 0.000000007450581}
+      rotation: {x: -0.3263615, y: -0, z: -0, w: -0.945245}
+      scale: {x: 1, y: 0.99999946, z: 1.0000004}
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 3
+  humanoidOversampling: 1
+  avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

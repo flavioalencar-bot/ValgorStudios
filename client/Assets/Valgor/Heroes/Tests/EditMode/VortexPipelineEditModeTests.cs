@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using Valgor.Heroes.Characters;
@@ -65,5 +66,48 @@ namespace Valgor.Heroes.Tests
             Assert.AreEqual(60f, vortex.SpecialPower.CooldownSec);
 #endif
         }
+
+#if UNITY_EDITOR
+        [Test]
+        public void Rigged_Vortex_Source_And_Sword_Exist()
+        {
+            Assert.IsTrue(System.IO.File.Exists(VortexAssetPaths.Lod0), "Vortex_LOD0.fbx missing");
+            Assert.IsTrue(System.IO.File.Exists(VortexAssetPaths.DragonSword), "Vortex_DragonSword.fbx missing");
+
+            var importer = UnityEditor.AssetImporter.GetAtPath(VortexAssetPaths.Lod0) as UnityEditor.ModelImporter;
+            Assert.IsNotNull(importer);
+            Assert.AreEqual(UnityEditor.ModelImporterAnimationType.Human, importer.animationType);
+
+            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(VortexAssetPaths.HeroPrefab);
+            Assert.IsNotNull(prefab);
+            var visual = prefab.GetComponent<HeroVisualController>();
+            Assert.IsNotNull(visual);
+            Assert.IsFalse(visual.UsingTechnicalFallback);
+
+            var animator = prefab.GetComponent<Animator>();
+            Assert.IsNotNull(animator);
+            Assert.IsNotNull(animator.avatar);
+            Assert.IsTrue(animator.avatar.isValid);
+
+            var sword = prefab.GetComponentsInChildren<Transform>(true)
+                .FirstOrDefault(t => t.name == "Vortex_DragonSword");
+            Assert.IsNotNull(sword, "Espada deve estar no prefab");
+        }
+
+        [Test]
+        public void Animator_Has_Required_States_With_Motions()
+        {
+            var controller = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(
+                VortexAssetPaths.AnimatorController);
+            Assert.IsNotNull(controller);
+            var states = controller.layers[0].stateMachine.states;
+            foreach (var required in HeroAnimationIds.Required)
+            {
+                var match = states.FirstOrDefault(s => s.state.name == required);
+                Assert.IsNotNull(match.state, "Missing state " + required);
+                Assert.IsNotNull(match.state.motion, "Missing motion for " + required);
+            }
+        }
+#endif
     }
 }

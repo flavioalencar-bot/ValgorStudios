@@ -1,0 +1,15 @@
+# Vortex — Validate Sockets
+Generated: 2026-07-26 21:10:22 UTC
+
+Summary: PASS=10 FAIL=0 WARN=0
+
+[PASS] Socket `Socket_RightHand` — type=EMPTY loc=(0.450, 0.000, 1.250)
+[PASS] Socket `Socket_LeftHand` — type=EMPTY loc=(-0.450, 0.000, 1.250)
+[PASS] Socket `Socket_BackWeapon` — type=EMPTY loc=(0.000, -0.180, 1.450)
+[PASS] Socket `Socket_HipWeapon` — type=EMPTY loc=(0.350, 0.000, 0.950)
+[PASS] Socket `Socket_HeadVFX` — type=EMPTY loc=(0.000, 0.000, 1.950)
+[PASS] Socket `Socket_ChestVFX` — type=EMPTY loc=(0.000, 0.000, 1.450)
+[PASS] Socket `Socket_FootLeftVFX` — type=EMPTY loc=(-0.160, 0.000, 0.050)
+[PASS] Socket `Socket_FootRightVFX` — type=EMPTY loc=(0.160, 0.000, 0.050)
+[PASS] Socket `Socket_DragonLink` — type=EMPTY loc=(0.000, -0.250, 1.550)
+[PASS] Collection VORTEX_SOCKETS exists

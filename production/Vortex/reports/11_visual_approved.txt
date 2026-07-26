@@ -1,0 +1,11 @@
+# Vortex — Mark Visual Approved
+Generated: 2026-07-26 22:34:36 UTC
+
+Summary: PASS=3 FAIL=0 WARN=0
+
+[PASS] VALGOR_VISUAL_APPROVED — True
+[PASS] VALGOR_UNITY_EXPORT_ALLOWED — True
+[PASS] Tagged imported base objects as approved art — count=1
+
+## Notes
+- Aprovação registrada. Agora export_fbx.py / prepare_unity_import.py podem gerar handoff Unity.

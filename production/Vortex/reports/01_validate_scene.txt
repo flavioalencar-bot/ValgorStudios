@@ -1,0 +1,23 @@
+# Vortex — Validate Scene
+Generated: 2026-07-26 21:10:22 UTC
+
+Summary: PASS=18 FAIL=0 WARN=0
+
+[PASS] Collection `VORTEX_MODEL` — present
+[PASS] Collection `VORTEX_ARMOR` — present
+[PASS] Collection `VORTEX_CAPE` — present
+[PASS] Collection `VORTEX_WEAPON` — present
+[PASS] Collection `VORTEX_RIG` — present
+[PASS] Collection `VORTEX_SOCKETS` — present
+[PASS] Collection `VORTEX_LOD0` — present
+[PASS] Collection `VORTEX_LOD1` — present
+[PASS] Collection `VORTEX_LOD2` — present
+[PASS] Metadata `VALGOR_CHARACTER_ID` — value='HERO_VORTEX_000' expected='HERO_VORTEX_000'
+[PASS] Metadata `VALGOR_CHARACTER_NAME` — value='Vortex' expected='Vortex'
+[PASS] Metadata `VALGOR_HEIGHT_M` — value=2.05 expected=2.05
+[PASS] Metadata `VALGOR_FORWARD_AXIS` — value='+Z' expected='+Z'
+[PASS] Metadata `VALGOR_UP_AXIS` — value='+Y' expected='+Y'
+[PASS] Metadata `VALGOR_TARGET_ENGINE` — value='Unity 6' expected='Unity 6'
+[PASS] Metadata `VALGOR_RIG_TYPE` — value='Humanoid' expected='Humanoid'
+[PASS] Character id is HERO_VORTEX_000 — HERO_VORTEX_000
+[PASS] Text datablock VORTEX_EXPORT_CHECKLIST — present

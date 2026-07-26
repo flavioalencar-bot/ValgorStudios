@@ -1,0 +1,31 @@
+# Vortex — Pending Production Report
+Generated: 2026-07-26 21:10:22 UTC
+
+Summary: PASS=5 FAIL=0 WARN=7
+
+[PASS] Scene scaffold hard failures — PASS=18 FAIL=0 WARN=0
+[PASS] Scale / pivot hard failures — PASS=5 FAIL=0 WARN=1
+[PASS] Rig hard failures — PASS=4 FAIL=0 WARN=1
+[PASS] Sockets hard failures — PASS=10 FAIL=0 WARN=0
+[PASS] Materials / textures hard failures — PASS=8 FAIL=0 WARN=15
+[WARN] Final artistic mesh (not primitives) — MISSING — produce sculpted/modeled Vortex body+armor+cape+weapon
+[WARN] VORTEX_LOD0 has real mesh in budget 55000–85000 tris — meshes=0 tris≈0
+[WARN] VORTEX_LOD1 has real mesh in budget 25000–40000 tris — meshes=0 tris≈0
+[WARN] VORTEX_LOD2 has real mesh in budget 8000–15000 tris — meshes=0 tris≈0
+[WARN] Humanoid rig complete — missing 22 bones
+[WARN] All brief textures on disk — missing 15/15
+[WARN] Animation actions present — none — need Idle…Death + Special_Power
+
+## Notes
+- PRODUZIR ARTISTICAMENTE (fora de primitivas técnicas):
+- 1) Corpo/rosto masculino adulto de Vortex (semi-realista, ~2,05 m) conforme prancha aprovada.
+- 2) Cabelo longo escuro + barba definida.
+- 3) Armadura medieval-fantástica preta/dourada com motivos dracônicos e ombreiras.
+- 4) Capa preta com bordados dourados.
+- 5) Espada dracônica com gema vermelha / brasa alaranjada.
+- 6) Texturas PBR listadas no brief (Body/Armor/Cape/Weapon/Hair/Eyes).
+- 7) Rig Humanoid completo (ossos mínimos Unity) + skinning.
+- 8) LODs 0/1/2 dentro do orçamento de triângulos.
+- 9) 16 animações (Idle…Death) incluindo Special_Power (Domínio do Rei).
+- 10) Retrato/portrait e VFX/SFX ficam para etapas posteriores no Unity.
+- NÃO usar o cubo Vortex_HeightReference_2_05m nem o GroundReference como arte final.

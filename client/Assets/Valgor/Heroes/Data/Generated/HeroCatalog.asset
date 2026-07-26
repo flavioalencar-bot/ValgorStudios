@@ -1,116 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8998009721431198669
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
-  m_Name: HERO_SOMBRA_003
-  m_EditorClassIdentifier: 
-  Id: HERO_SOMBRA_003
-  DisplayName: A definir
-  Title: A Arqueira da Sombra
-  PendingNamePlaceholder: A definir
-  Rarity: 3
-  Faction: 0
-  ClassName: "Atiradora \xC9lfica"
-  Role: Dano / Controle
-  Position: Retaguarda
-  ElementId: Sombra
-  WeaponId: "Besta \xE9lfica ornamentada"
-  BaseStats:
-    Attack: 0
-    Defense: 0
-    Health: 0
-    MagicAttack: 0
-    MagicDefense: 0
-    Mana: 0
-    ManaRegen: 0
-    ControlResistance: 0
-    CooldownReduction: 0
-    ElementalResistance: 0
-  SpecialPower: {fileID: 5630239006989883560}
-  DefaultSkinId: SKIN_HERO_SOMBRA_003_DEFAULT
-  PrefabAddress: heroes/HERO_SOMBRA_003/prefab
-  PortraitAddress: heroes/HERO_SOMBRA_003/portrait
---- !u!114 &-7590365667653515158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_CONSORTE_002
-  m_EditorClassIdentifier: 
-  Id: POWER_HERO_CONSORTE_002
-  HeroId: HERO_CONSORTE_002
-  DisplayName: Voto Eterno
-  ActiveDurationSec: 10
-  CooldownSec: 45
-  TargetType: 1
-  Interruptible: 1
-  CanActivateWhileControlled: 0
-  Effects: []
-  AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_CONSORTE_002
-  SfxAddress: sfx/special/POWER_HERO_CONSORTE_002
---- !u!114 &-7548699142137089076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_AKEMI_005
-  m_EditorClassIdentifier: 
-  Id: POWER_HERO_AKEMI_005
-  HeroId: HERO_AKEMI_005
-  DisplayName: "Dan\xE7a das L\xE2minas"
-  ActiveDurationSec: 8
-  CooldownSec: 40
-  TargetType: 1
-  Interruptible: 1
-  CanActivateWhileControlled: 0
-  Effects: []
-  AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_AKEMI_005
-  SfxAddress: sfx/special/POWER_HERO_AKEMI_005
---- !u!114 &-5421884620164288306
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_ABISMO_007
-  m_EditorClassIdentifier: 
-  Id: POWER_HERO_ABISMO_007
-  HeroId: HERO_ABISMO_007
-  DisplayName: "Dom\xEDnio do Vazio"
-  ActiveDurationSec: 7
-  CooldownSec: 50
-  TargetType: 1
-  Interruptible: 1
-  CanActivateWhileControlled: 0
-  Effects: []
-  AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_ABISMO_007
-  SfxAddress: sfx/special/POWER_HERO_ABISMO_007
---- !u!114 &-5029813318875139908
+--- !u!114 &-8963738070376830513
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -134,83 +24,7 @@ MonoBehaviour:
   AnimationState: Special
   VfxAddress: vfx/special/POWER_HERO_VORTEX_000
   SfxAddress: sfx/special/POWER_HERO_VORTEX_000
---- !u!114 &-4933928904027784992
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
-  m_Name: HERO_NYXARA_009
-  m_EditorClassIdentifier: 
-  Id: HERO_NYXARA_009
-  DisplayName: Nyxara
-  Title: "A Guardi\xE3 das Sombras"
-  PendingNamePlaceholder: A definir
-  Rarity: 3
-  Faction: 0
-  ClassName: Executora
-  Role: Assassina de controle
-  Position: Flanco
-  ElementId: Sombra Rubra
-  WeaponId: "Correntes-l\xE2mina g\xEAmeas"
-  BaseStats:
-    Attack: 0
-    Defense: 0
-    Health: 0
-    MagicAttack: 0
-    MagicDefense: 0
-    Mana: 0
-    ManaRegen: 0
-    ControlResistance: 0
-    CooldownReduction: 0
-    ElementalResistance: 0
-  SpecialPower: {fileID: 5214570842565485233}
-  DefaultSkinId: SKIN_HERO_NYXARA_009_DEFAULT
-  PrefabAddress: heroes/HERO_NYXARA_009/prefab
-  PortraitAddress: heroes/HERO_NYXARA_009/portrait
---- !u!114 &-4097387380888756515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
-  m_Name: HERO_ABISMO_007
-  m_EditorClassIdentifier: 
-  Id: HERO_ABISMO_007
-  DisplayName: A definir
-  Title: A Maga do Abismo
-  PendingNamePlaceholder: A definir
-  Rarity: 3
-  Faction: 1
-  ClassName: Maga
-  Role: "Dano em \xE1rea / Controle / Enfraquecimento"
-  Position: Retaguarda
-  ElementId: Abismo
-  WeaponId: Cajado do Abismo com orbe violeta
-  BaseStats:
-    Attack: 0
-    Defense: 0
-    Health: 0
-    MagicAttack: 0
-    MagicDefense: 0
-    Mana: 0
-    ManaRegen: 0
-    ControlResistance: 0
-    CooldownReduction: 0
-    ElementalResistance: 0
-  SpecialPower: {fileID: -5421884620164288306}
-  DefaultSkinId: SKIN_HERO_ABISMO_007_DEFAULT
-  PrefabAddress: heroes/HERO_ABISMO_007/prefab
-  PortraitAddress: heroes/HERO_ABISMO_007/portrait
---- !u!114 &-315219836733686245
+--- !u!114 &-7440130398088235996
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -244,11 +58,11 @@ MonoBehaviour:
     ControlResistance: 0
     CooldownReduction: 0
     ElementalResistance: 0
-  SpecialPower: {fileID: 630377398045117421}
+  SpecialPower: {fileID: -2978242845962828265}
   DefaultSkinId: SKIN_HERO_LYRIANNE_004_DEFAULT
   PrefabAddress: heroes/HERO_LYRIANNE_004/prefab
   PortraitAddress: heroes/HERO_LYRIANNE_004/portrait
---- !u!114 &-29853271472524894
+--- !u!114 &-7380278861120234391
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -282,36 +96,11 @@ MonoBehaviour:
     ControlResistance: 0
     CooldownReduction: 0
     ElementalResistance: 0
-  SpecialPower: {fileID: -7548699142137089076}
+  SpecialPower: {fileID: -3234661136157927813}
   DefaultSkinId: SKIN_HERO_AKEMI_005_DEFAULT
   PrefabAddress: heroes/HERO_AKEMI_005/prefab
   PortraitAddress: heroes/HERO_AKEMI_005/portrait
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 973566e00b4dfab49bbec4338279fce3, type: 3}
-  m_Name: HeroCatalog
-  m_EditorClassIdentifier: 
-  Version: 1.0.0
-  Heroes:
-  - {fileID: 2666359699934163272}
-  - {fileID: 2600888429490916927}
-  - {fileID: 4930064432478382669}
-  - {fileID: -8998009721431198669}
-  - {fileID: -315219836733686245}
-  - {fileID: -29853271472524894}
-  - {fileID: 4111935564326065106}
-  - {fileID: -4097387380888756515}
-  - {fileID: 3080908860711003708}
-  - {fileID: -4933928904027784992}
-  - {fileID: 1142822573210683590}
---- !u!114 &630377398045117421
+--- !u!114 &-6826536402642641287
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -321,59 +110,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_LYRIANNE_004
+  m_Name: POWER_HERO_NYXARA_009
   m_EditorClassIdentifier: 
-  Id: POWER_HERO_LYRIANNE_004
-  HeroId: HERO_LYRIANNE_004
-  DisplayName: Julgamento Prateado
-  ActiveDurationSec: 9
-  CooldownSec: 44
+  Id: POWER_HERO_NYXARA_009
+  HeroId: HERO_NYXARA_009
+  DisplayName: "Ju\xEDzo Noturno"
+  ActiveDurationSec: 8
+  CooldownSec: 43
   TargetType: 1
   Interruptible: 1
   CanActivateWhileControlled: 0
   Effects: []
   AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_LYRIANNE_004
-  SfxAddress: sfx/special/POWER_HERO_LYRIANNE_004
---- !u!114 &1142822573210683590
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
-  m_Name: HERO_VESPERA_010
-  m_EditorClassIdentifier: 
-  Id: HERO_VESPERA_010
-  DisplayName: Vespera
-  Title: A Dama do Leque
-  PendingNamePlaceholder: A definir
-  Rarity: 3
-  Faction: 1
-  ClassName: Estrategista
-  Role: "Atiradora de m\xE9dio e longo alcance"
-  Position: Retaguarda
-  ElementId: "Crep\xFAsculo Violeta"
-  WeaponId: "Leque de l\xE2minas e dardos ocultos"
-  BaseStats:
-    Attack: 0
-    Defense: 0
-    Health: 0
-    MagicAttack: 0
-    MagicDefense: 0
-    Mana: 0
-    ManaRegen: 0
-    ControlResistance: 0
-    CooldownReduction: 0
-    ElementalResistance: 0
-  SpecialPower: {fileID: 7206676798652109878}
-  DefaultSkinId: SKIN_HERO_VESPERA_010_DEFAULT
-  PrefabAddress: heroes/HERO_VESPERA_010/prefab
-  PortraitAddress: heroes/HERO_VESPERA_010/portrait
---- !u!114 &2060495572852651518
+  VfxAddress: vfx/special/POWER_HERO_NYXARA_009
+  SfxAddress: sfx/special/POWER_HERO_NYXARA_009
+--- !u!114 &-5362122163833028453
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -383,59 +134,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_ZAHARA_008
+  m_Name: POWER_HERO_VESPERA_010
   m_EditorClassIdentifier: 
-  Id: POWER_HERO_ZAHARA_008
-  HeroId: HERO_ZAHARA_008
-  DisplayName: "\xD3rbita Real"
-  ActiveDurationSec: 10
-  CooldownSec: 46
+  Id: POWER_HERO_VESPERA_010
+  HeroId: HERO_VESPERA_010
+  DisplayName: Suspiro Final
+  ActiveDurationSec: 11
+  CooldownSec: 47
   TargetType: 1
   Interruptible: 1
   CanActivateWhileControlled: 0
   Effects: []
   AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_ZAHARA_008
-  SfxAddress: sfx/special/POWER_HERO_ZAHARA_008
---- !u!114 &2600888429490916927
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
-  m_Name: HERO_ELYRA_001
-  m_EditorClassIdentifier: 
-  Id: HERO_ELYRA_001
-  DisplayName: Elyra
-  Title: "A Ca\xE7adora Esmeralda"
-  PendingNamePlaceholder: A definir
-  Rarity: 3
-  Faction: 1
-  ClassName: Arqueira
-  Role: Dano de longo alcance
-  Position: Retaguarda
-  ElementId: Natureza
-  WeaponId: Arco longo recurvo esmeralda
-  BaseStats:
-    Attack: 0
-    Defense: 0
-    Health: 0
-    MagicAttack: 0
-    MagicDefense: 0
-    Mana: 0
-    ManaRegen: 0
-    ControlResistance: 0
-    CooldownReduction: 0
-    ElementalResistance: 0
-  SpecialPower: {fileID: 2627242047623595709}
-  DefaultSkinId: SKIN_HERO_ELYRA_001_DEFAULT
-  PrefabAddress: heroes/HERO_ELYRA_001/prefab
-  PortraitAddress: heroes/HERO_ELYRA_001/portrait
---- !u!114 &2627242047623595709
+  VfxAddress: vfx/special/POWER_HERO_VESPERA_010
+  SfxAddress: sfx/special/POWER_HERO_VESPERA_010
+--- !u!114 &-4527011540112551356
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -445,21 +158,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_ELYRA_001
+  m_Name: POWER_HERO_SOMBRA_003
   m_EditorClassIdentifier: 
-  Id: POWER_HERO_ELYRA_001
-  HeroId: HERO_ELYRA_001
-  DisplayName: "Olho da Ca\xE7adora"
-  ActiveDurationSec: 10
-  CooldownSec: 35
+  Id: POWER_HERO_SOMBRA_003
+  HeroId: HERO_SOMBRA_003
+  DisplayName: "Dom\xEDnio Sombrio"
+  ActiveDurationSec: 8
+  CooldownSec: 42
   TargetType: 1
   Interruptible: 1
   CanActivateWhileControlled: 0
   Effects: []
   AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_ELYRA_001
-  SfxAddress: sfx/special/POWER_HERO_ELYRA_001
---- !u!114 &2666359699934163272
+  VfxAddress: vfx/special/POWER_HERO_SOMBRA_003
+  SfxAddress: sfx/special/POWER_HERO_SOMBRA_003
+--- !u!114 &-4275694088578237824
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -468,36 +181,46 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
-  m_Name: HERO_VORTEX_000
+  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
+  m_Name: POWER_HERO_ABISMO_007
   m_EditorClassIdentifier: 
-  Id: HERO_VORTEX_000
-  DisplayName: Vortex
-  Title: "O Rei dos Drag\xF5es"
-  PendingNamePlaceholder: A definir
-  Rarity: 4
-  Faction: 2
-  ClassName: "Comandante Drac\xF4nico"
-  Role: "Lideran\xE7a / Dano / Controle"
-  Position: Linha de frente
-  ElementId: "Chama Drac\xF4nica"
-  WeaponId: "Espada drac\xF4nica e v\xEDnculo com drag\xE3o"
-  BaseStats:
-    Attack: 0
-    Defense: 0
-    Health: 0
-    MagicAttack: 0
-    MagicDefense: 0
-    Mana: 0
-    ManaRegen: 0
-    ControlResistance: 0
-    CooldownReduction: 0
-    ElementalResistance: 0
-  SpecialPower: {fileID: -5029813318875139908}
-  DefaultSkinId: SKIN_HERO_VORTEX_000_DEFAULT
-  PrefabAddress: heroes/HERO_VORTEX_000/prefab
-  PortraitAddress: heroes/HERO_VORTEX_000/portrait
---- !u!114 &3080908860711003708
+  Id: POWER_HERO_ABISMO_007
+  HeroId: HERO_ABISMO_007
+  DisplayName: "Dom\xEDnio do Vazio"
+  ActiveDurationSec: 7
+  CooldownSec: 50
+  TargetType: 1
+  Interruptible: 1
+  CanActivateWhileControlled: 0
+  Effects: []
+  AnimationState: Special
+  VfxAddress: vfx/special/POWER_HERO_ABISMO_007
+  SfxAddress: sfx/special/POWER_HERO_ABISMO_007
+--- !u!114 &-3234661136157927813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
+  m_Name: POWER_HERO_AKEMI_005
+  m_EditorClassIdentifier: 
+  Id: POWER_HERO_AKEMI_005
+  HeroId: HERO_AKEMI_005
+  DisplayName: "Dan\xE7a das L\xE2minas"
+  ActiveDurationSec: 8
+  CooldownSec: 40
+  TargetType: 1
+  Interruptible: 1
+  CanActivateWhileControlled: 0
+  Effects: []
+  AnimationState: Special
+  VfxAddress: vfx/special/POWER_HERO_AKEMI_005
+  SfxAddress: sfx/special/POWER_HERO_AKEMI_005
+--- !u!114 &-3118330201493939200
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -531,11 +254,11 @@ MonoBehaviour:
     ControlResistance: 0
     CooldownReduction: 0
     ElementalResistance: 0
-  SpecialPower: {fileID: 2060495572852651518}
+  SpecialPower: {fileID: -2756465802716745179}
   DefaultSkinId: SKIN_HERO_ZAHARA_008_DEFAULT
   PrefabAddress: heroes/HERO_ZAHARA_008/prefab
   PortraitAddress: heroes/HERO_ZAHARA_008/portrait
---- !u!114 &4111935564326065106
+--- !u!114 &-2978242845962828265
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -544,36 +267,70 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
-  m_Name: HERO_SERENA_006
+  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
+  m_Name: POWER_HERO_LYRIANNE_004
   m_EditorClassIdentifier: 
-  Id: HERO_SERENA_006
-  DisplayName: Serena Rubra
-  Title: "A Ca\xE7adora Carmesim"
-  PendingNamePlaceholder: A definir
-  Rarity: 3
-  Faction: 0
-  ClassName: Atiradora
-  Role: "Longa dist\xE2ncia / Dano cr\xEDtico"
-  Position: Retaguarda
-  ElementId: Fogo
-  WeaponId: "Lan\xE7ador r\xFAnico carmesim de longo alcance"
-  BaseStats:
-    Attack: 0
-    Defense: 0
-    Health: 0
-    MagicAttack: 0
-    MagicDefense: 0
-    Mana: 0
-    ManaRegen: 0
-    ControlResistance: 0
-    CooldownReduction: 0
-    ElementalResistance: 0
-  SpecialPower: {fileID: 7154800527570506112}
-  DefaultSkinId: SKIN_HERO_SERENA_006_DEFAULT
-  PrefabAddress: heroes/HERO_SERENA_006/prefab
-  PortraitAddress: heroes/HERO_SERENA_006/portrait
---- !u!114 &4930064432478382669
+  Id: POWER_HERO_LYRIANNE_004
+  HeroId: HERO_LYRIANNE_004
+  DisplayName: Julgamento Prateado
+  ActiveDurationSec: 9
+  CooldownSec: 44
+  TargetType: 1
+  Interruptible: 1
+  CanActivateWhileControlled: 0
+  Effects: []
+  AnimationState: Special
+  VfxAddress: vfx/special/POWER_HERO_LYRIANNE_004
+  SfxAddress: sfx/special/POWER_HERO_LYRIANNE_004
+--- !u!114 &-2756465802716745179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
+  m_Name: POWER_HERO_ZAHARA_008
+  m_EditorClassIdentifier: 
+  Id: POWER_HERO_ZAHARA_008
+  HeroId: HERO_ZAHARA_008
+  DisplayName: "\xD3rbita Real"
+  ActiveDurationSec: 10
+  CooldownSec: 46
+  TargetType: 1
+  Interruptible: 1
+  CanActivateWhileControlled: 0
+  Effects: []
+  AnimationState: Special
+  VfxAddress: vfx/special/POWER_HERO_ZAHARA_008
+  SfxAddress: sfx/special/POWER_HERO_ZAHARA_008
+--- !u!114 &-2236918258537891541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
+  m_Name: POWER_HERO_CONSORTE_002
+  m_EditorClassIdentifier: 
+  Id: POWER_HERO_CONSORTE_002
+  HeroId: HERO_CONSORTE_002
+  DisplayName: Voto Eterno
+  ActiveDurationSec: 10
+  CooldownSec: 45
+  TargetType: 1
+  Interruptible: 1
+  CanActivateWhileControlled: 0
+  Effects: []
+  AnimationState: Special
+  VfxAddress: vfx/special/POWER_HERO_CONSORTE_002
+  SfxAddress: sfx/special/POWER_HERO_CONSORTE_002
+--- !u!114 &-1105749015147690593
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -607,11 +364,36 @@ MonoBehaviour:
     ControlResistance: 0
     CooldownReduction: 0
     ElementalResistance: 0
-  SpecialPower: {fileID: -7590365667653515158}
+  SpecialPower: {fileID: -2236918258537891541}
   DefaultSkinId: SKIN_HERO_CONSORTE_002_DEFAULT
   PrefabAddress: heroes/HERO_CONSORTE_002/prefab
   PortraitAddress: heroes/HERO_CONSORTE_002/portrait
---- !u!114 &5214570842565485233
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 973566e00b4dfab49bbec4338279fce3, type: 3}
+  m_Name: HeroCatalog
+  m_EditorClassIdentifier: 
+  Version: 1.0.0
+  Heroes:
+  - {fileID: 3691107177315486549}
+  - {fileID: 4635564743314020034}
+  - {fileID: -1105749015147690593}
+  - {fileID: 7502655089118100296}
+  - {fileID: -7440130398088235996}
+  - {fileID: -7380278861120234391}
+  - {fileID: 4911057005134099440}
+  - {fileID: 5113791647179398486}
+  - {fileID: -3118330201493939200}
+  - {fileID: 8124695868446494758}
+  - {fileID: 2265502298686721745}
+--- !u!114 &1373648914752333924
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -621,21 +403,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_NYXARA_009
+  m_Name: POWER_HERO_ELYRA_001
   m_EditorClassIdentifier: 
-  Id: POWER_HERO_NYXARA_009
-  HeroId: HERO_NYXARA_009
-  DisplayName: "Ju\xEDzo Noturno"
-  ActiveDurationSec: 8
-  CooldownSec: 43
+  Id: POWER_HERO_ELYRA_001
+  HeroId: HERO_ELYRA_001
+  DisplayName: "Olho da Ca\xE7adora"
+  ActiveDurationSec: 10
+  CooldownSec: 35
   TargetType: 1
   Interruptible: 1
   CanActivateWhileControlled: 0
   Effects: []
   AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_NYXARA_009
-  SfxAddress: sfx/special/POWER_HERO_NYXARA_009
---- !u!114 &5630239006989883560
+  VfxAddress: vfx/special/POWER_HERO_ELYRA_001
+  SfxAddress: sfx/special/POWER_HERO_ELYRA_001
+--- !u!114 &2265502298686721745
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -644,22 +426,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_SOMBRA_003
+  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
+  m_Name: HERO_VESPERA_010
   m_EditorClassIdentifier: 
-  Id: POWER_HERO_SOMBRA_003
-  HeroId: HERO_SOMBRA_003
-  DisplayName: "Dom\xEDnio Sombrio"
-  ActiveDurationSec: 8
-  CooldownSec: 42
-  TargetType: 1
-  Interruptible: 1
-  CanActivateWhileControlled: 0
-  Effects: []
-  AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_SOMBRA_003
-  SfxAddress: sfx/special/POWER_HERO_SOMBRA_003
---- !u!114 &7154800527570506112
+  Id: HERO_VESPERA_010
+  DisplayName: Vespera
+  Title: A Dama do Leque
+  PendingNamePlaceholder: A definir
+  Rarity: 3
+  Faction: 1
+  ClassName: Estrategista
+  Role: "Atiradora de m\xE9dio e longo alcance"
+  Position: Retaguarda
+  ElementId: "Crep\xFAsculo Violeta"
+  WeaponId: "Leque de l\xE2minas e dardos ocultos"
+  BaseStats:
+    Attack: 0
+    Defense: 0
+    Health: 0
+    MagicAttack: 0
+    MagicDefense: 0
+    Mana: 0
+    ManaRegen: 0
+    ControlResistance: 0
+    CooldownReduction: 0
+    ElementalResistance: 0
+  SpecialPower: {fileID: -5362122163833028453}
+  DefaultSkinId: SKIN_HERO_VESPERA_010_DEFAULT
+  PrefabAddress: heroes/HERO_VESPERA_010/prefab
+  PortraitAddress: heroes/HERO_VESPERA_010/portrait
+--- !u!114 &2784302689043351042
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -683,7 +479,7 @@ MonoBehaviour:
   AnimationState: Special
   VfxAddress: vfx/special/POWER_HERO_SERENA_006
   SfxAddress: sfx/special/POWER_HERO_SERENA_006
---- !u!114 &7206676798652109878
+--- !u!114 &3691107177315486549
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -692,18 +488,222 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e8422cec9d6ac542b38201681feecc2, type: 3}
-  m_Name: POWER_HERO_VESPERA_010
+  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
+  m_Name: HERO_VORTEX_000
   m_EditorClassIdentifier: 
-  Id: POWER_HERO_VESPERA_010
-  HeroId: HERO_VESPERA_010
-  DisplayName: Suspiro Final
-  ActiveDurationSec: 11
-  CooldownSec: 47
-  TargetType: 1
-  Interruptible: 1
-  CanActivateWhileControlled: 0
-  Effects: []
-  AnimationState: Special
-  VfxAddress: vfx/special/POWER_HERO_VESPERA_010
-  SfxAddress: sfx/special/POWER_HERO_VESPERA_010
+  Id: HERO_VORTEX_000
+  DisplayName: Vortex
+  Title: "O Rei dos Drag\xF5es"
+  PendingNamePlaceholder: A definir
+  Rarity: 4
+  Faction: 2
+  ClassName: "Comandante Drac\xF4nico"
+  Role: "Lideran\xE7a / Dano / Controle"
+  Position: Linha de frente
+  ElementId: "Chama Drac\xF4nica"
+  WeaponId: "Espada drac\xF4nica e v\xEDnculo com drag\xE3o"
+  BaseStats:
+    Attack: 0
+    Defense: 0
+    Health: 0
+    MagicAttack: 0
+    MagicDefense: 0
+    Mana: 0
+    ManaRegen: 0
+    ControlResistance: 0
+    CooldownReduction: 0
+    ElementalResistance: 0
+  SpecialPower: {fileID: -8963738070376830513}
+  DefaultSkinId: SKIN_HERO_VORTEX_000_DEFAULT
+  PrefabAddress: heroes/HERO_VORTEX_000/prefab
+  PortraitAddress: heroes/HERO_VORTEX_000/portrait
+--- !u!114 &4635564743314020034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
+  m_Name: HERO_ELYRA_001
+  m_EditorClassIdentifier: 
+  Id: HERO_ELYRA_001
+  DisplayName: Elyra
+  Title: "A Ca\xE7adora Esmeralda"
+  PendingNamePlaceholder: A definir
+  Rarity: 3
+  Faction: 1
+  ClassName: Arqueira
+  Role: Dano de longo alcance
+  Position: Retaguarda
+  ElementId: Natureza
+  WeaponId: Arco longo recurvo esmeralda
+  BaseStats:
+    Attack: 0
+    Defense: 0
+    Health: 0
+    MagicAttack: 0
+    MagicDefense: 0
+    Mana: 0
+    ManaRegen: 0
+    ControlResistance: 0
+    CooldownReduction: 0
+    ElementalResistance: 0
+  SpecialPower: {fileID: 1373648914752333924}
+  DefaultSkinId: SKIN_HERO_ELYRA_001_DEFAULT
+  PrefabAddress: heroes/HERO_ELYRA_001/prefab
+  PortraitAddress: heroes/HERO_ELYRA_001/portrait
+--- !u!114 &4911057005134099440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
+  m_Name: HERO_SERENA_006
+  m_EditorClassIdentifier: 
+  Id: HERO_SERENA_006
+  DisplayName: Serena Rubra
+  Title: "A Ca\xE7adora Carmesim"
+  PendingNamePlaceholder: A definir
+  Rarity: 3
+  Faction: 0
+  ClassName: Atiradora
+  Role: "Longa dist\xE2ncia / Dano cr\xEDtico"
+  Position: Retaguarda
+  ElementId: Fogo
+  WeaponId: "Lan\xE7ador r\xFAnico carmesim de longo alcance"
+  BaseStats:
+    Attack: 0
+    Defense: 0
+    Health: 0
+    MagicAttack: 0
+    MagicDefense: 0
+    Mana: 0
+    ManaRegen: 0
+    ControlResistance: 0
+    CooldownReduction: 0
+    ElementalResistance: 0
+  SpecialPower: {fileID: 2784302689043351042}
+  DefaultSkinId: SKIN_HERO_SERENA_006_DEFAULT
+  PrefabAddress: heroes/HERO_SERENA_006/prefab
+  PortraitAddress: heroes/HERO_SERENA_006/portrait
+--- !u!114 &5113791647179398486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
+  m_Name: HERO_ABISMO_007
+  m_EditorClassIdentifier: 
+  Id: HERO_ABISMO_007
+  DisplayName: A definir
+  Title: A Maga do Abismo
+  PendingNamePlaceholder: A definir
+  Rarity: 3
+  Faction: 1
+  ClassName: Maga
+  Role: "Dano em \xE1rea / Controle / Enfraquecimento"
+  Position: Retaguarda
+  ElementId: Abismo
+  WeaponId: Cajado do Abismo com orbe violeta
+  BaseStats:
+    Attack: 0
+    Defense: 0
+    Health: 0
+    MagicAttack: 0
+    MagicDefense: 0
+    Mana: 0
+    ManaRegen: 0
+    ControlResistance: 0
+    CooldownReduction: 0
+    ElementalResistance: 0
+  SpecialPower: {fileID: -4275694088578237824}
+  DefaultSkinId: SKIN_HERO_ABISMO_007_DEFAULT
+  PrefabAddress: heroes/HERO_ABISMO_007/prefab
+  PortraitAddress: heroes/HERO_ABISMO_007/portrait
+--- !u!114 &7502655089118100296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
+  m_Name: HERO_SOMBRA_003
+  m_EditorClassIdentifier: 
+  Id: HERO_SOMBRA_003
+  DisplayName: A definir
+  Title: A Arqueira da Sombra
+  PendingNamePlaceholder: A definir
+  Rarity: 3
+  Faction: 0
+  ClassName: "Atiradora \xC9lfica"
+  Role: Dano / Controle
+  Position: Retaguarda
+  ElementId: Sombra
+  WeaponId: "Besta \xE9lfica ornamentada"
+  BaseStats:
+    Attack: 0
+    Defense: 0
+    Health: 0
+    MagicAttack: 0
+    MagicDefense: 0
+    Mana: 0
+    ManaRegen: 0
+    ControlResistance: 0
+    CooldownReduction: 0
+    ElementalResistance: 0
+  SpecialPower: {fileID: -4527011540112551356}
+  DefaultSkinId: SKIN_HERO_SOMBRA_003_DEFAULT
+  PrefabAddress: heroes/HERO_SOMBRA_003/prefab
+  PortraitAddress: heroes/HERO_SOMBRA_003/portrait
+--- !u!114 &8124695868446494758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c21035b20df0904ca899c02f95daa61, type: 3}
+  m_Name: HERO_NYXARA_009
+  m_EditorClassIdentifier: 
+  Id: HERO_NYXARA_009
+  DisplayName: Nyxara
+  Title: "A Guardi\xE3 das Sombras"
+  PendingNamePlaceholder: A definir
+  Rarity: 3
+  Faction: 0
+  ClassName: Executora
+  Role: Assassina de controle
+  Position: Flanco
+  ElementId: Sombra Rubra
+  WeaponId: "Correntes-l\xE2mina g\xEAmeas"
+  BaseStats:
+    Attack: 0
+    Defense: 0
+    Health: 0
+    MagicAttack: 0
+    MagicDefense: 0
+    Mana: 0
+    ManaRegen: 0
+    ControlResistance: 0
+    CooldownReduction: 0
+    ElementalResistance: 0
+  SpecialPower: {fileID: -6826536402642641287}
+  DefaultSkinId: SKIN_HERO_NYXARA_009_DEFAULT
+  PrefabAddress: heroes/HERO_NYXARA_009/prefab
+  PortraitAddress: heroes/HERO_NYXARA_009/portrait

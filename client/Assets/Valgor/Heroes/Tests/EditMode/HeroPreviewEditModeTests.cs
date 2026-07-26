@@ -16,6 +16,38 @@ namespace Valgor.Heroes.Tests
         }
 
         [Test]
+        public void Humanoid_Dummy_Uses_Heroic_Adult_Proportions()
+        {
+            var material = HumanoidDummyFactory.CreateUrpCompatibleMaterial(Color.white);
+            Assume.That(material, Is.Not.Null);
+
+            var dummy = HumanoidDummyFactory.Create(null, material);
+            var renderers = dummy.GetComponentsInChildren<MeshRenderer>();
+            Assert.GreaterOrEqual(renderers.Length, 7);
+
+            float minY = float.MaxValue;
+            float maxY = float.MinValue;
+            foreach (var r in renderers)
+            {
+                var b = r.bounds;
+                minY = Mathf.Min(minY, b.min.y);
+                maxY = Mathf.Max(maxY, b.max.y);
+            }
+
+            var height = maxY - minY;
+            Assert.That(height, Is.EqualTo(HumanoidDummyFactory.TargetHeightMeters).Within(0.12f));
+            Assert.That(minY, Is.EqualTo(0f).Within(0.08f));
+
+            // Longer-leg read: crotch/hips should sit near ~half body (not high dwarf crotch)
+            var hips = dummy.transform.Find("Hips");
+            Assert.IsNotNull(hips);
+            Assert.That(hips.localPosition.y / HumanoidDummyFactory.TargetHeightMeters, Is.EqualTo(0.49f).Within(0.08f));
+
+            Object.DestroyImmediate(dummy);
+            Object.DestroyImmediate(material);
+        }
+
+        [Test]
         public void Humanoid_Dummy_Has_Visible_Scale_And_Renderers()
         {
             var material = HumanoidDummyFactory.CreateUrpCompatibleMaterial(Color.white);
