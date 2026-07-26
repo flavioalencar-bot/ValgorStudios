@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6efdc7797827c03469c73fa263faac96, type: 3}
+  m_Name: Vortex_ImportProfile
+  m_EditorClassIdentifier: 
+  HeroId: HERO_VORTEX_000
+  ExpectedHeightMeters: 2.05
+  ImportScale: 1
+  AnimationType: 3
+  MaxBodyTextureSize: 2048
+  MaxWeaponTextureSize: 2048
+  Lod0MaxTris: 85000
+  Lod1MaxTris: 40000
+  Lod2MaxTris: 15000
+  RequiredSockets:
+  - Socket_RightHand
+  - Socket_LeftHand
+  - Socket_BackWeapon
+  - Socket_HipWeapon
+  - Socket_HeadVFX
+  - Socket_ChestVFX
+  - Socket_FootLeftVFX
+  - Socket_FootRightVFX
+  - Socket_DragonLink
+  RequiredAnimations:
+  - Idle
+  - Idle_Combat
+  - Walk
+  - Run
+  - Turn_Left
+  - Turn_Right
+  - Attack_01
+  - Attack_02
+  - Heavy_Attack
+  - Special_Power
+  - Hit_Front
+  - Hit_Back
+  - Stun
+  - Victory
+  - Defeat
+  - Death
+  PrefabOutputPath: Assets/Valgor/Heroes/Characters/Vortex/Prefabs/Vortex_Hero.prefab
+  AddressableKey: heroes/HERO_VORTEX_000/prefab

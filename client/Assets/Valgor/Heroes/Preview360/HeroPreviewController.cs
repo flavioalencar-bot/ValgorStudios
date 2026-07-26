@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using Valgor.Heroes.Characters;
 using Valgor.Heroes.Data;
 
 namespace Valgor.Heroes.Preview360
 {
     /// <summary>
-    /// Isolated 360° preview rig: dedicated camera, light, RenderTexture and humanoid dummy.
+    /// Isolated 360° preview rig: dedicated camera, light, RenderTexture and hero visual / fallback.
     /// </summary>
     public sealed class HeroPreviewController : MonoBehaviour
     {
@@ -32,6 +33,7 @@ namespace Valgor.Heroes.Preview360
         [SerializeField] private float dummyAnchorY = 0.12f;
 
         private GameObject _currentDummy;
+        private HeroVisualController _currentVisual;
         private Material _dummyMaterial;
         private VisualElement _previewHost;
         private float _yaw;
@@ -41,11 +43,14 @@ namespace Valgor.Heroes.Preview360
         private Vector2 _lastPointer;
         private string _currentHeroId;
         private bool _rigReady;
+        private bool _usingFallback;
 
         public Camera PreviewCamera => previewCamera;
         public RenderTexture PreviewTexture => previewTexture;
         public Transform DummyAnchor => dummyAnchor;
         public GameObject CurrentDummy => _currentDummy;
+        public HeroVisualController CurrentVisual => _currentVisual;
+        public bool UsingTechnicalFallback => _usingFallback;
 
         public void BindUi(VisualElement previewHost)
         {
@@ -65,24 +70,28 @@ namespace Valgor.Heroes.Preview360
         public void ShowHero(string heroId, HeroFaction faction)
         {
             EnsureRig();
-            EnsureMaterial();
-            HumanoidDummyFactory.ApplyColor(_dummyMaterial, HeroPreviewFactionColors.ForFaction(faction));
 
             if (_currentDummy == null || _currentHeroId != heroId)
             {
-                ReplaceDummy(heroId);
+                ReplaceVisual(heroId, faction);
             }
-            else
+            else if (_usingFallback)
             {
-                HumanoidDummyFactory.ApplyMaterial(_currentDummy, _dummyMaterial);
+                ApplyFallbackTint(faction);
             }
 
             _currentHeroId = heroId;
+            _currentVisual?.PlayIdle();
             FrameCamera();
             if (previewCamera != null)
             {
                 previewCamera.Render();
             }
+        }
+
+        public void PlaySpecialPower()
+        {
+            _currentVisual?.PlaySpecialPower();
         }
 
         private void Awake()
@@ -120,6 +129,70 @@ namespace Valgor.Heroes.Preview360
 
             dummyAnchor.localRotation = Quaternion.Euler(0f, _yaw, 0f);
             FrameCamera();
+        }
+
+        private void ReplaceVisual(string heroId, HeroFaction faction)
+        {
+            if (_currentDummy != null)
+            {
+                Destroy(_currentDummy);
+                _currentDummy = null;
+                _currentVisual = null;
+            }
+
+            var resolved = HeroVisualResolver.Resolve(heroId, dummyPrefab);
+            _usingFallback = resolved.IsTechnicalFallback;
+            if (!string.IsNullOrEmpty(resolved.Message))
+                Debug.Log($"[HeroPreview] {resolved.Message}");
+
+            var prefab = resolved.Prefab;
+            if (prefab == null)
+            {
+                EnsureMaterial();
+                _currentDummy = HumanoidDummyFactory.Create(dummyAnchor, _dummyMaterial);
+                _currentDummy.name = $"Fallback_{heroId}";
+                _currentDummy.transform.localScale = Vector3.one * dummyScale;
+                _usingFallback = true;
+            }
+            else
+            {
+                _currentDummy = Instantiate(prefab, dummyAnchor, false);
+                _currentDummy.name = $"Visual_{heroId}";
+                _currentDummy.transform.localPosition = Vector3.zero;
+                _currentDummy.transform.localRotation = Quaternion.identity;
+                _currentDummy.transform.localScale = Vector3.one * dummyScale;
+                _currentVisual = _currentDummy.GetComponent<HeroVisualController>();
+            }
+
+            HumanoidDummyFactory.SetLayerRecursive(_currentDummy, HumanoidDummyFactory.ResolveLayer());
+
+            if (_usingFallback)
+                ApplyFallbackTint(faction);
+
+            if (_currentDummy.transform.localScale.sqrMagnitude < 0.0001f)
+                _currentDummy.transform.localScale = Vector3.one * dummyScale;
+        }
+
+        private void ApplyFallbackTint(HeroFaction faction)
+        {
+            EnsureMaterial();
+            HumanoidDummyFactory.ApplyColor(_dummyMaterial, HeroPreviewFactionColors.ForFaction(faction));
+            if (_currentDummy == null) return;
+            foreach (var renderer in _currentDummy.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (renderer == null) continue;
+                // Don't retint named final materials if somehow present.
+                if (renderer.sharedMaterial != null &&
+                    renderer.sharedMaterial.name.StartsWith("MAT_Vortex_"))
+                    continue;
+                renderer.sharedMaterial = _dummyMaterial;
+            }
+        }
+
+        private void EnsureMaterial()
+        {
+            if (_dummyMaterial != null) return;
+            _dummyMaterial = HumanoidDummyFactory.CreateUrpCompatibleMaterial(HeroPreviewFactionColors.GuardaDaOrdem);
         }
 
         private void EnsureRig()
@@ -226,45 +299,6 @@ namespace Valgor.Heroes.Preview360
             if (_distance < minDistance || _distance > maxDistance || _distance < defaultDistance * 0.95f)
             {
                 _distance = defaultDistance;
-            }
-        }
-
-        private void EnsureMaterial()
-        {
-            if (_dummyMaterial != null) return;
-            _dummyMaterial = HumanoidDummyFactory.CreateUrpCompatibleMaterial(HeroPreviewFactionColors.GuardaDaOrdem);
-        }
-
-        private void ReplaceDummy(string heroId)
-        {
-            if (_currentDummy != null)
-            {
-                Destroy(_currentDummy);
-                _currentDummy = null;
-            }
-
-            EnsureMaterial();
-
-            if (dummyPrefab != null)
-            {
-                _currentDummy = Instantiate(dummyPrefab, dummyAnchor, false);
-                _currentDummy.name = $"Dummy_{heroId}";
-                _currentDummy.transform.localPosition = Vector3.zero;
-                _currentDummy.transform.localRotation = Quaternion.identity;
-                _currentDummy.transform.localScale = Vector3.one * dummyScale;
-                HumanoidDummyFactory.SetLayerRecursive(_currentDummy, HumanoidDummyFactory.ResolveLayer());
-                HumanoidDummyFactory.ApplyMaterial(_currentDummy, _dummyMaterial);
-            }
-            else
-            {
-                _currentDummy = HumanoidDummyFactory.Create(dummyAnchor, _dummyMaterial);
-                _currentDummy.name = $"Dummy_{heroId}";
-                _currentDummy.transform.localScale = Vector3.one * dummyScale;
-            }
-
-            if (_currentDummy.transform.localScale.sqrMagnitude < 0.0001f)
-            {
-                _currentDummy.transform.localScale = Vector3.one * dummyScale;
             }
         }
 

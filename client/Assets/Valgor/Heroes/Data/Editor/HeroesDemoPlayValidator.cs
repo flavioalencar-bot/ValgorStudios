@@ -219,21 +219,28 @@ namespace Valgor.Heroes.EditorTools
             writer.WriteLine($"Hero count: {heroes.Count}");
             writer.WriteLine($"HeroPreview layer: {LayerMask.NameToLayer(HumanoidDummyFactory.LayerName)}");
             writer.WriteLine($"Dummy prefab: {File.Exists(Path.GetFullPath(HumanoidDummyFactory.PrefabPath))}");
+            var vortexReport = VortexAssetImportValidator.ValidateAll();
+            writer.WriteLine();
+            writer.WriteLine(vortexReport.ToString());
             foreach (var hero in heroes)
             {
                 writer.WriteLine(
-                    $"- {hero.Id} | {hero.DisplayName} | {hero.Title} | {hero.Faction} | {hero.SpecialPower?.DisplayName}");
+                    $"- {hero.Id} | {hero.DisplayName} | {hero.Title} | {hero.Faction} | {hero.SpecialPower?.DisplayName} | prefab={hero.PrefabAddress}");
             }
 
             writer.WriteLine();
             writer.WriteLine("Preview checklist (scene build):");
-            writer.WriteLine("- [x] Humanoid dummy prefab");
+            writer.WriteLine("- [x] Humanoid dummy prefab (fallback)");
+            writer.WriteLine("- [x] Vortex_Hero shell + Addressable key");
             writer.WriteLine("- [x] Dedicated preview camera + light");
             writer.WriteLine("- [x] RenderTexture bound to UI panel (Contain / full-body)");
             writer.WriteLine("- [x] Faction colors (vermelho / azul / dourado)");
             writer.WriteLine("- [x] Drag rotate + scroll zoom");
             writer.WriteLine("- [x] Layout: power button above preview, no overlap");
             writer.WriteLine("- [x] Framing: focusHeight + distance tuned for full body");
+            writer.WriteLine($"- [{(vortexReport.HasSourceModel ? "x" : " ")}] Vortex FBX fonte presente");
+            writer.WriteLine($"- [{(vortexReport.PrefabReady ? "x" : " ")}] Vortex_Hero.prefab");
+            writer.WriteLine($"- [{(vortexReport.UsingFallbackPrefab ? "x" : " ")}] Fallback técnico ativo (esperado sem FBX)");
 
             Debug.Log($"Validation report written to {reportPath} ({heroes.Count} heroes)");
             if (heroes.Count != 11)
@@ -253,6 +260,8 @@ namespace Valgor.Heroes.EditorTools
             writer.WriteLine($"- camera: {preview?.PreviewCamera != null}");
             writer.WriteLine($"- renderTexture: {preview?.PreviewTexture != null}");
             writer.WriteLine($"- dummy: {preview?.CurrentDummy != null}");
+            writer.WriteLine($"- visual: {preview?.CurrentVisual != null}");
+            writer.WriteLine($"- usingTechnicalFallback: {preview?.UsingTechnicalFallback}");
             writer.WriteLine($"- camera targetTexture bound: {preview?.PreviewCamera != null && preview.PreviewCamera.targetTexture == preview.PreviewTexture}");
             writer.WriteLine($"- cullingMask: {preview?.PreviewCamera?.cullingMask}");
             writer.WriteLine($"- dummy scale: {preview?.CurrentDummy?.transform.localScale}");

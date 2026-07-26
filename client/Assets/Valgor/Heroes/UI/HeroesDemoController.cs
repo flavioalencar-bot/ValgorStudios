@@ -314,6 +314,7 @@ namespace Valgor.Heroes.UI
             if (!_machine.CanActivate(state)) return;
 
             _machine.PredictLocalActivation(runtime, _selected.SpecialPower, _demoTime);
+            previewController?.PlaySpecialPower();
             RefreshPowerUi();
         }
     }

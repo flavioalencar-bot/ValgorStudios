@@ -4,33 +4,37 @@ Scene exists: True
 Hero count: 11
 HeroPreview layer: 8
 Dummy prefab: True
-- HERO_VORTEX_000 | Vortex | O Rei dos Dragões | GuardaDaOrdem | Domínio do Rei
-- HERO_ELYRA_001 | Elyra | A Caçadora Esmeralda | AsasDoAmanhecer | Olho da Caçadora
-- HERO_CONSORTE_002 | A definir | A Consorte de Valgor | GuardaDaOrdem | Voto Eterno
-- HERO_SOMBRA_003 | A definir | A Arqueira da Sombra | RosaDeSangue | Domínio Sombrio
-- HERO_LYRIANNE_004 | Lyrianne | A Sentinela de Prata | GuardaDaOrdem | Julgamento Prateado
-- HERO_AKEMI_005 | Akemi | A Lâmina Celeste | AsasDoAmanhecer | Dança das Lâminas
-- HERO_SERENA_006 | Serena Rubra | A Caçadora Carmesim | RosaDeSangue | Coração Carmesim
-- HERO_ABISMO_007 | A definir | A Maga do Abismo | AsasDoAmanhecer | Domínio do Vazio
-- HERO_ZAHARA_008 | Zahara | A Guardiã dos Círculos | GuardaDaOrdem | Órbita Real
-- HERO_NYXARA_009 | Nyxara | A Guardiã das Sombras | RosaDeSangue | Juízo Noturno
-- HERO_VESPERA_010 | Vespera | A Dama do Leque | AsasDoAmanhecer | Suspiro Final
+
+=== Vortex Asset Validation ===
+AGUARDANDO FBX em Assets/Valgor/Heroes/Characters/Vortex/Models/. Pipeline/shell prontos. Erros=0. Avisos=2.
+HasSourceModel=False
+PrefabReady=True UsingFallback=True
+AvatarOk=False SocketsOk=True MaterialsOk=True
+AnimationsOk=True TexturesOk=False LodOk=True CatalogOk=True
+WARN: Modelo 3D ausente. Esperado: Assets/Valgor/Heroes/Characters/Vortex/Models/Vortex_LOD0.fbx (ou Vortex.fbx / Vortex.glb).
+WARN: Texturas ainda não fornecidas (8 faltando).
+
+- HERO_VORTEX_000 | Vortex | O Rei dos Dragões | GuardaDaOrdem | Domínio do Rei | prefab=heroes/HERO_VORTEX_000/prefab
+- HERO_ELYRA_001 | Elyra | A Caçadora Esmeralda | AsasDoAmanhecer | Olho da Caçadora | prefab=heroes/HERO_ELYRA_001/prefab
+- HERO_CONSORTE_002 | A definir | A Consorte de Valgor | GuardaDaOrdem | Voto Eterno | prefab=heroes/HERO_CONSORTE_002/prefab
+- HERO_SOMBRA_003 | A definir | A Arqueira da Sombra | RosaDeSangue | Domínio Sombrio | prefab=heroes/HERO_SOMBRA_003/prefab
+- HERO_LYRIANNE_004 | Lyrianne | A Sentinela de Prata | GuardaDaOrdem | Julgamento Prateado | prefab=heroes/HERO_LYRIANNE_004/prefab
+- HERO_AKEMI_005 | Akemi | A Lâmina Celeste | AsasDoAmanhecer | Dança das Lâminas | prefab=heroes/HERO_AKEMI_005/prefab
+- HERO_SERENA_006 | Serena Rubra | A Caçadora Carmesim | RosaDeSangue | Coração Carmesim | prefab=heroes/HERO_SERENA_006/prefab
+- HERO_ABISMO_007 | A definir | A Maga do Abismo | AsasDoAmanhecer | Domínio do Vazio | prefab=heroes/HERO_ABISMO_007/prefab
+- HERO_ZAHARA_008 | Zahara | A Guardiã dos Círculos | GuardaDaOrdem | Órbita Real | prefab=heroes/HERO_ZAHARA_008/prefab
+- HERO_NYXARA_009 | Nyxara | A Guardiã das Sombras | RosaDeSangue | Juízo Noturno | prefab=heroes/HERO_NYXARA_009/prefab
+- HERO_VESPERA_010 | Vespera | A Dama do Leque | AsasDoAmanhecer | Suspiro Final | prefab=heroes/HERO_VESPERA_010/prefab
 
 Preview checklist (scene build):
-- [x] Humanoid dummy prefab
+- [x] Humanoid dummy prefab (fallback)
+- [x] Vortex_Hero shell + Addressable key
 - [x] Dedicated preview camera + light
 - [x] RenderTexture bound to UI panel (Contain / full-body)
 - [x] Faction colors (vermelho / azul / dourado)
 - [x] Drag rotate + scroll zoom
 - [x] Layout: power button above preview, no overlap
 - [x] Framing: focusHeight + distance tuned for full body
-
-Play Mode preview checks:
-- preview controller: True
-- camera: True
-- renderTexture: True
-- dummy: True
-- camera targetTexture bound: True
-- cullingMask: 256
-- dummy scale: (0.88, 0.88, 0.88)
-- shot: Assets/Valgor/Heroes/Scenes/HeroesDemo_Preview3D.png
+- [ ] Vortex FBX fonte presente
+- [x] Vortex_Hero.prefab
+- [x] Fallback técnico ativo (esperado sem FBX)

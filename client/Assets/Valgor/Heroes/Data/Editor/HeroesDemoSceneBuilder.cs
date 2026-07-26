@@ -49,6 +49,9 @@ namespace Valgor.Heroes.EditorTools
             Directory.CreateDirectory("Assets/Valgor/Heroes/Scenes");
             EnsurePanelSettings();
             HumanoidDummyPrefabBuilder.EnsureHeroPreviewLayer();
+            VortexPipelineMenus.EnsureFolders();
+            VortexPrefabBuilder.BuildOrUpdate();
+
             var dummyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(HumanoidDummyPrefabBuilder.PrefabPath);
             if (dummyPrefab == null)
             {

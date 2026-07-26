@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa8f84819070cab45870e75716d1d761, type: 3}
+  m_Name: Vortex_PipelineStatus
+  m_EditorClassIdentifier: 
+  Phase: 0
+  UsingTechnicalFallback: 1
+  LastValidationReport: "=== Vortex Asset Validation ===\r\nAGUARDANDO FBX em Assets/Valgor/Heroes/Characters/Vortex/Models/.
+    Pipeline/shell prontos. Erros=0. Avisos=2.\r\nHasSourceModel=False\r\nPrefabReady=True
+    UsingFallback=True\r\nAvatarOk=False SocketsOk=True MaterialsOk=True\r\nAnimationsOk=True
+    TexturesOk=False LodOk=True CatalogOk=True\r\nWARN: Modelo 3D ausente. Esperado:
+    Assets/Valgor/Heroes/Characters/Vortex/Models/Vortex_LOD0.fbx (ou Vortex.fbx
+    / Vortex.glb).\r\nWARN: Texturas ainda n\xE3o fornecidas (8 faltando).\r\n"
+  PrefabPath: Assets/Valgor/Heroes/Characters/Vortex/Prefabs/Vortex_Hero.prefab
+  AddressableKey: heroes/HERO_VORTEX_000/prefab
+  SourceModelPath: 

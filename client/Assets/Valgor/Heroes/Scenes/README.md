@@ -29,33 +29,37 @@ Atalhos:
 - Filtros: Todos / Rosa de Sangue / Asas do Amanhecer / Guarda da Ordem
 - Cards: nome, título, raridade, facção, poder
 - Painel de detalhe
-- Preview 360° com cubo dummy colorido por facção
+- Preview 360° de corpo inteiro (Vortex via `Vortex_Hero` ou fallback técnico)
+- Drag para girar, scroll para zoom
 - Troca de personagem ao clicar no card
 - Indicador READY / ACTIVE / COOLDOWN
-- Botão para simular ativação do poder especial (cliente)
+- Botão de poder especial (dispara `Special_Power` / VFX no preview)
+
+## Preview 3D
+
+- Prefab técnico: `Assets/Valgor/Heroes/Prefabs/HumanoidDummy.prefab`
+- Prefab Vortex: `Assets/Valgor/Heroes/Characters/Vortex/Prefabs/Vortex_Hero.prefab`
+- Layer: `HeroPreview`
+- Câmera dedicada + luz + RenderTexture no painel `hero-preview-image`
+- RT com `Contain` (corpo inteiro, sem crop de pés)
+- Layout: detalhe/poder no scroll superior; preview flexível abaixo
+
+## Vortex (herói real)
+
+Pipeline: `Assets/Valgor/Heroes/Characters/Vortex/`  
+Menus: **Valgor → Heroes → Vortex → …**  
+Enquanto o FBX não existir, o preview usa fallback técnico dentro de `Vortex_Hero.prefab`.
 
 ## Placeholders
 
-- Prefabs 3D Addressables (`heroes/{id}/prefab`)
+- Prefabs 3D Addressables (`heroes/{id}/prefab`) — Vortex aponta para shell real
 - Retratos (`heroes/{id}/portrait`)
 - VFX/SFX de especial
-- Cubo técnico no preview (não é arte final)
 - Skin real da Consorte (só chave Addressable)
 
 ## Capturas
 
 - UI (roster/filtros/detalhe/READY): `HeroesDemo_Preview.png`
-- Play Mode preview 3D (RT do dummy humanoide): `HeroesDemo_Preview3D.png`
+- Play Mode preview 3D: `HeroesDemo_Preview3D.png`
 - Play Mode camera: `HeroesDemo_PlayMode.png`
 - Relatório batch: `HeroesDemo_Validation.txt`
-
-## Preview 3D
-
-- Prefab: `Assets/Valgor/Heroes/Prefabs/HumanoidDummy.prefab`
-- Layer: `HeroPreview`
-- Câmera dedicada + luz + RenderTexture no painel `hero-preview-image`
-- RT com `Contain` (corpo inteiro, sem crop de pés)
-- Drag no painel para girar, scroll para zoom
-- Layout: detalhe/poder no scroll superior; preview flexível abaixo (sem sobrepor o botão)
-- Cores: Rosa de Sangue vermelho escuro · Asas azul · Guarda dourado
-- Responsivo: coluna única abaixo de 900px / mobile
