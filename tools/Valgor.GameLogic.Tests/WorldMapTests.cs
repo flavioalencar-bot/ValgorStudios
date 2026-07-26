@@ -1,11 +1,15 @@
 using Valgor.City.Data;
 using Valgor.Core;
 using Valgor.Core.Modules;
+using Valgor.WorldMap.Camera;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 using Valgor.WorldMap.Energy;
+using Valgor.WorldMap.Filters;
+using Valgor.WorldMap.Locate;
 using Valgor.WorldMap.Marches;
+using Valgor.WorldMap.Territory;
 using Xunit;
 
 namespace Valgor.GameLogic.Tests;
@@ -408,6 +412,150 @@ public sealed class WorldMapEnergyTests
             MaxEnergy = maxEnergy,
             EnergyRegenIntervalSec = intervalSec,
             EnergyRegenAmount = regenAmount,
+            MarchTickIntervalSeconds = 0
+        };
+        return new WorldMapSession(
+            settings,
+            _clock,
+            new ProvisionalHeroesGateway(),
+            new LocalWorldMapRepository(settings.PersistenceKey));
+    }
+}
+
+public sealed class WorldMapFilterLocateTerritoryTests
+{
+    private readonly FixedWorldMapClock _clock = new(new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc));
+
+    [Fact]
+    public void Filters_HideKinds_WithoutDestroyingNodeState()
+    {
+        var session = CreateSession();
+        var before = session.GetNode("forest-wood").RemainingAmount;
+        Assert.True(session.IsNodeVisible("forest-wood"));
+
+        session.Filters.SetShowResources(false);
+        Assert.False(session.IsNodeVisible("forest-wood"));
+        Assert.True(session.IsNodeVisible("forest-wolf"));
+        Assert.Equal(before, session.GetNode("forest-wood").RemainingAmount);
+        Assert.Equal(WorldNodeStatus.Available, session.GetNode("forest-wood").Status);
+    }
+
+    [Fact]
+    public void Filters_CombineKindAndAvailability()
+    {
+        var session = CreateSession();
+        var node = session.GetNode("forest-wood");
+        node.Status = WorldNodeStatus.Occupied;
+        node.OccupiedByMarchId = "march-1";
+
+        session.Filters.SetShowOccupied(false);
+        Assert.False(session.IsNodeVisible("forest-wood"));
+
+        session.Filters.SetShowOccupied(true);
+        session.Filters.SetShowAvailable(false);
+        Assert.True(session.IsNodeVisible("forest-wood"));
+        Assert.False(session.IsNodeVisible("home-city"));
+    }
+
+    [Fact]
+    public void Filters_ClearRestoresDefaults()
+    {
+        var session = CreateSession();
+        session.Filters.SetShowCreatures(false);
+        session.Filters.SetShowDragons(false);
+        session.Filters.ClearFilters();
+        Assert.True(session.Filters.State.ShowCreatures);
+        Assert.True(session.Filters.State.ShowDragons);
+        Assert.True(session.IsNodeVisible("forest-wolf"));
+    }
+
+    [Fact]
+    public void Filters_PersistAcrossReload()
+    {
+        var heroes = new ProvisionalHeroesGateway();
+        var settings = new WorldMapSettings
+        {
+            PersistenceKey = "valgor.worldmap.tests.filters." + Guid.NewGuid().ToString("N"),
+            FilterPersistenceKey = "valgor.worldmap.tests.filters.repo." + Guid.NewGuid().ToString("N"),
+            EnergyPersistenceKey = "valgor.worldmap.tests.filters.energy." + Guid.NewGuid().ToString("N"),
+            MarchTickIntervalSeconds = 0
+        };
+        var mapRepo = new LocalWorldMapRepository(settings.PersistenceKey);
+        var filterRepo = new WorldMapFilterPersistenceRepository(settings.FilterPersistenceKey);
+
+        var first = new WorldMapSession(settings, _clock, heroes, mapRepo, filterRepository: filterRepo);
+        first.LoadOrInitialize();
+        first.Filters.SetShowLandmarks(false);
+        first.Persist();
+
+        var second = new WorldMapSession(settings, _clock, heroes, mapRepo, filterRepository: filterRepo);
+        second.LoadOrInitialize();
+        Assert.False(second.Filters.State.ShowLandmarks);
+        Assert.False(second.IsNodeVisible("forest-stone"));
+    }
+
+    [Fact]
+    public void Locator_FindsHomeMarchSelectedCreatureAndResource()
+    {
+        var session = CreateSession();
+        Assert.True(session.Locator.TryLocatePlayerHome(out var home, out _));
+        Assert.Equal(WorldMapLocationKind.PlayerHome, home.Kind);
+        Assert.Equal(session.Settings.PlayerHomeNodeId, home.Id);
+
+        Assert.False(session.Locator.TryLocateActiveMarch(out _, out var noMarch));
+        Assert.Contains("marcha", noMarch, StringComparison.OrdinalIgnoreCase);
+
+        session.Selection.Select(session.GetNode("forest-wood"));
+        Assert.True(session.Locator.TryLocateSelectedNode(out var selected, out _));
+        Assert.Equal("forest-wood", selected.Id);
+
+        Assert.True(session.Locator.TryLocateCreature("forest-wolf", out var creature, out _));
+        Assert.Equal(WorldMapLocationKind.Creature, creature.Kind);
+        Assert.True(session.Locator.TryLocateResource("forest-wood", out var resource, out _));
+        Assert.Equal(WorldMapLocationKind.Resource, resource.Kind);
+
+        var focus = session.Locator.CreateFocusRequest(home, zoomOverride: 11f);
+        Assert.Equal(home.X, focus.X);
+        Assert.Equal(home.Z, focus.Z);
+        Assert.Equal(11f, focus.OrthographicSize);
+    }
+
+    [Fact]
+    public void CameraBounds_ClampKeepsFocusInsideMap()
+    {
+        var bounds = new WorldMapBounds();
+        var clamped = bounds.ClampPosition(new MapPosition(100f, 30f, -100f));
+        Assert.Equal(bounds.MaxX, clamped.X);
+        Assert.Equal(bounds.MinZ, clamped.Z);
+        Assert.Equal(30f, clamped.Y);
+    }
+
+    [Fact]
+    public void Territory_CatalogAndColors_CoverAllStates()
+    {
+        Assert.True(WorldTerritoryCatalog.All.Count >= 6);
+        Assert.True(WorldTerritoryCatalog.TryGetByRegion("forest", out var forest));
+        Assert.Equal(WorldTerritoryState.Owned, forest.DefaultState);
+
+        foreach (WorldTerritoryState state in Enum.GetValues(typeof(WorldTerritoryState)))
+        {
+            var color = WorldTerritoryColorResolver.Resolve(state);
+            Assert.InRange(color.A, 0.1f, 1f);
+        }
+
+        var session = CreateSession();
+        Assert.True(session.TryGetTerritoryByRegion("portal", out var runtime));
+        Assert.Equal(WorldTerritoryState.Contested, runtime.State);
+    }
+
+    private WorldMapSession CreateSession()
+    {
+        var settings = new WorldMapSettings
+        {
+            PersistenceKey = "valgor.worldmap.tests.flt." + Guid.NewGuid().ToString("N"),
+            FilterPersistenceKey = "valgor.worldmap.tests.flt.filters." + Guid.NewGuid().ToString("N"),
+            EnergyPersistenceKey = "valgor.worldmap.tests.flt.energy." + Guid.NewGuid().ToString("N"),
+            MarchSpeedUnitsPerHour = 10f,
             MarchTickIntervalSeconds = 0
         };
         return new WorldMapSession(

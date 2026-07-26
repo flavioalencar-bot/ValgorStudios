@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,7 +9,9 @@ using Valgor.City.Data;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
+using Valgor.WorldMap.Filters;
 using Valgor.WorldMap.Marches;
+using Valgor.WorldMap.Territory;
 
 namespace Valgor.WorldMap.UI
 {
@@ -18,9 +21,11 @@ namespace Valgor.WorldMap.UI
         private UIDocument _document = null!;
         private WorldMapController _map = null!;
         private CityEconomy? _economy;
+        private WorldMapFilterPanel? _filterPanel;
         private Label _title = null!;
         private Label _wallet = null!;
         private Label _march = null!;
+        private Label _territory = null!;
         private VisualElement _panel = null!;
         private Label _details = null!;
         private Button _dispatchButton = null!;
@@ -98,6 +103,15 @@ namespace Valgor.WorldMap.UI
             _march.style.width = 420;
             root.Add(_march);
 
+            _territory = new Label();
+            _territory.style.position = Position.Absolute;
+            _territory.style.left = 18;
+            _territory.style.top = 112;
+            _territory.style.color = new Color(0.85f, 0.8f, 1f);
+            _territory.style.fontSize = 13;
+            _territory.style.width = 420;
+            root.Add(_territory);
+
             var actions = new VisualElement();
             actions.style.position = Position.Absolute;
             actions.style.right = 18;
@@ -105,6 +119,31 @@ namespace Valgor.WorldMap.UI
             root.Add(actions);
             actions.Add(CreateButton("Voltar para a Cidade", () =>
                 StartCoroutine(GameBootstrap.Game.Navigator.GoToCity())));
+
+            _filterPanel = new WorldMapFilterPanel(_map.Session.Filters, root);
+
+            var locate = new VisualElement();
+            locate.style.position = Position.Absolute;
+            locate.style.right = 230;
+            locate.style.top = 70;
+            locate.style.width = 180;
+            locate.style.paddingLeft = 10;
+            locate.style.paddingRight = 10;
+            locate.style.paddingTop = 8;
+            locate.style.paddingBottom = 8;
+            locate.style.backgroundColor = new Color(0.04f, 0.08f, 0.06f, 0.92f);
+            root.Add(locate);
+
+            var locateTitle = new Label("Localizar");
+            locateTitle.style.color = Color.white;
+            locateTitle.style.fontSize = 15;
+            locateTitle.style.marginBottom = 4;
+            locate.Add(locateTitle);
+            locate.Add(CreateCompactButton("Cidade", OnLocateHome));
+            locate.Add(CreateCompactButton("Marcha ativa", OnLocateMarch));
+            locate.Add(CreateCompactButton("Nó selecionado", OnLocateSelected));
+            locate.Add(CreateCompactButton("Criatura", OnLocateCreature));
+            locate.Add(CreateCompactButton("Recurso", OnLocateResource));
 
             _panel = new VisualElement();
             _panel.style.position = Position.Absolute;
@@ -154,6 +193,75 @@ namespace Valgor.WorldMap.UI
             button.style.paddingTop = 7;
             button.style.paddingBottom = 7;
             return button;
+        }
+
+        private static Button CreateCompactButton(string text, Action action)
+        {
+            var button = new Button(action) { text = text };
+            button.style.marginTop = 4;
+            button.style.paddingLeft = 8;
+            button.style.paddingRight = 8;
+            button.style.paddingTop = 4;
+            button.style.paddingBottom = 4;
+            return button;
+        }
+
+        private void OnLocateHome()
+        {
+            _feedback.text = _map.TryLocatePlayerHome(out var error) ? "Cidade localizada." : error;
+            Refresh();
+        }
+
+        private void OnLocateMarch()
+        {
+            _feedback.text = _map.TryLocateActiveMarch(out var error) ? "Marcha localizada." : error;
+            Refresh();
+        }
+
+        private void OnLocateSelected()
+        {
+            _feedback.text = _map.TryLocateSelectedNode(out var error) ? "Nó centralizado." : error;
+            Refresh();
+        }
+
+        private void OnLocateCreature()
+        {
+            var selected = _map.Session.Selection.Selected;
+            var id = selected != null && _map.Session.GetDefinition(selected.DefinitionId).Kind == WorldNodeKind.Creature
+                ? selected.DefinitionId
+                : _map.Session.Nodes.Keys.FirstOrDefault(nodeId =>
+                    _map.Session.GetDefinition(nodeId).Kind == WorldNodeKind.Creature &&
+                    _map.Session.IsNodeVisible(nodeId));
+
+            if (string.IsNullOrEmpty(id))
+            {
+                _feedback.text = "Nenhuma criatura visível.";
+                Refresh();
+                return;
+            }
+
+            _feedback.text = _map.TryLocateCreature(id, out var error) ? "Criatura localizada." : error;
+            Refresh();
+        }
+
+        private void OnLocateResource()
+        {
+            var selected = _map.Session.Selection.Selected;
+            var id = selected != null && _map.Session.GetDefinition(selected.DefinitionId).Kind == WorldNodeKind.Resource
+                ? selected.DefinitionId
+                : _map.Session.Nodes.Keys.FirstOrDefault(nodeId =>
+                    _map.Session.GetDefinition(nodeId).Kind == WorldNodeKind.Resource &&
+                    _map.Session.IsNodeVisible(nodeId));
+
+            if (string.IsNullOrEmpty(id))
+            {
+                _feedback.text = "Nenhum recurso visível.";
+                Refresh();
+                return;
+            }
+
+            _feedback.text = _map.TryLocateResource(id, out var error) ? "Recurso localizado." : error;
+            Refresh();
         }
 
         private void OnDispatch()
@@ -247,6 +355,8 @@ namespace Valgor.WorldMap.UI
         {
             RefreshWallet();
             RefreshMarch();
+            RefreshTerritory();
+            _filterPanel?.SyncFromState();
 
             var selected = _map.Session.Selection.Selected;
             _panel.style.display = selected == null ? DisplayStyle.None : DisplayStyle.Flex;
@@ -343,6 +453,12 @@ namespace Valgor.WorldMap.UI
                     break;
             }
 
+            if (_map.Session.TryGetTerritoryByRegion(definition.RegionId, out var territoryRuntime) &&
+                WorldTerritoryCatalog.TryGetByRegion(definition.RegionId, out var territoryDef))
+            {
+                builder.AppendLine($"Território: {territoryDef.DisplayName} ({territoryRuntime.State})");
+            }
+
             _details.text = builder.ToString();
 
             var canDispatch = selected.Status != WorldNodeStatus.Locked &&
@@ -419,6 +535,32 @@ namespace Valgor.WorldMap.UI
 
             _march.text =
                 $"Marcha: {march.State} → {march.TargetNodeId} · carga {march.ResourceLoad}/{march.Capacity} · resta {FormatDuration(remaining)}";
+        }
+
+        private void RefreshTerritory()
+        {
+            var region = _map.Session.RegionSelection.Selected;
+            if (region != null &&
+                _map.Session.TryGetTerritoryByRegion(region.DefinitionId, out var runtime) &&
+                WorldTerritoryCatalog.TryGetByRegion(region.DefinitionId, out var definition))
+            {
+                _territory.text = $"Território: {definition.DisplayName} · {runtime.State}";
+                return;
+            }
+
+            var selected = _map.Session.Selection.Selected;
+            if (selected != null)
+            {
+                var def = _map.Session.GetDefinition(selected.DefinitionId);
+                if (_map.Session.TryGetTerritoryByRegion(def.RegionId, out var nodeTerritory) &&
+                    WorldTerritoryCatalog.TryGetByRegion(def.RegionId, out var territoryDef))
+                {
+                    _territory.text = $"Território: {territoryDef.DisplayName} · {nodeTerritory.State}";
+                    return;
+                }
+            }
+
+            _territory.text = "Território: selecione uma região ou nó.";
         }
 
         private static string FormatDuration(TimeSpan span)

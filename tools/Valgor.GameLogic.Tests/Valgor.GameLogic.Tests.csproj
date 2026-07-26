@@ -59,6 +59,14 @@
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\EnergyRegenerationService.cs" Link="WorldMap\EnergyRegenerationService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\EnergyCostResolver.cs" Link="WorldMap\EnergyCostResolver.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\EnergyPersistenceRepository.cs" Link="WorldMap\EnergyPersistenceRepository.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Filters\WorldMapFilterState.cs" Link="WorldMap\WorldMapFilterState.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Filters\WorldNodeVisibilityResolver.cs" Link="WorldMap\WorldNodeVisibilityResolver.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Filters\WorldMapFilterPersistenceRepository.cs" Link="WorldMap\WorldMapFilterPersistenceRepository.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Filters\WorldMapFilterService.cs" Link="WorldMap\WorldMapFilterService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Locate\WorldMapLocationTarget.cs" Link="WorldMap\WorldMapLocationTarget.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Locate\WorldMapLocatorService.cs" Link="WorldMap\WorldMapLocatorService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Territory\WorldTerritoryModels.cs" Link="WorldMap\WorldTerritoryModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Camera\WorldMapBounds.cs" Link="WorldMap\WorldMapBounds.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\IHeroesGateway.cs" Link="GameCore\IHeroesGateway.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\ProvisionalHeroesGateway.cs" Link="GameCore\ProvisionalHeroesGateway.cs" />
   </ItemGroup>

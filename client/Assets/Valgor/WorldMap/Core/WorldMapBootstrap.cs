@@ -7,6 +7,7 @@ using Valgor.WorldMap.Camera;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Data;
 using Valgor.WorldMap.Nodes;
+using Valgor.WorldMap.Territory;
 using Valgor.WorldMap.UI;
 
 namespace Valgor.WorldMap
@@ -29,6 +30,7 @@ namespace Valgor.WorldMap
             CreateNodes();
             CreateHud();
             ConfigureCamera();
+            Controller.ApplyNodeVisibility();
         }
 
         private void Update() => Controller.Tick();
@@ -92,6 +94,15 @@ namespace Valgor.WorldMap
                 var view = marker.AddComponent<RegionNodeView>();
                 view.Initialize(instance, definition);
                 Controller.AddRegion(instance, definition, view);
+
+                if (Session.Settings.TerritoryOverlayEnabled &&
+                    WorldTerritoryCatalog.TryGetByRegion(definition.Id, out var territory) &&
+                    Session.TryGetTerritory(territory.Id, out var runtime))
+                {
+                    var overlay = marker.AddComponent<WorldTerritoryOverlay>();
+                    overlay.Initialize(territory.Id, runtime.State, view);
+                    Controller.AddTerritoryOverlay(territory.Id, overlay);
+                }
             }
         }
 
@@ -124,7 +135,7 @@ namespace Valgor.WorldMap
             hud.Initialize(Controller, economy);
         }
 
-        private static void ConfigureCamera()
+        private void ConfigureCamera()
         {
             var camera = UnityEngine.Camera.main;
             if (camera == null)
@@ -132,10 +143,9 @@ namespace Valgor.WorldMap
                 return;
             }
 
-            if (camera.GetComponent<WorldMapCameraController>() == null)
-            {
-                camera.gameObject.AddComponent<WorldMapCameraController>();
-            }
+            var controller = camera.GetComponent<WorldMapCameraController>() ??
+                             camera.gameObject.AddComponent<WorldMapCameraController>();
+            Controller.BindCamera(controller);
         }
 
         private static PrimitiveType PrimitiveFor(WorldNodeKind kind) => kind switch

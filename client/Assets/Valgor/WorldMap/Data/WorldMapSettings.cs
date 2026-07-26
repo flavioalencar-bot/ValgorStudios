@@ -21,5 +21,9 @@ namespace Valgor.WorldMap.Data
         public string DefaultPlayerId { get; set; } = "local-player";
         public long DefaultMarchCapacity { get; set; } = 10_000;
         public string EnergyPersistenceKey { get; set; } = "valgor.worldmap.energy.v1";
+        public string FilterPersistenceKey { get; set; } = "valgor.worldmap.filters.v1";
+        public float LocateDefaultZoom { get; set; } = 14f;
+        public float LocateHomeZoom { get; set; } = 12f;
+        public bool TerritoryOverlayEnabled { get; set; } = true;
     }
 }

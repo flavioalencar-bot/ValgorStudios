@@ -9,6 +9,11 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- Pipeline do herói real **Vortex** (`Assets/Valgor/Heroes/Characters/Vortex/`): pastas, import profile, validators, menus `Valgor/Heroes/Vortex/*`, prefab shell `Vortex_Hero`, Animator Controller, materiais URP placeholder, Addressable key `heroes/HERO_VORTEX_000/prefab`, fallback técnico até o FBX final, postprocessor de auto-build
+- Preview 360° resolve Vortex via `HeroVisualResolver` (prefab real ou fallback) e dispara animação/VFX de poder especial no botão da demo
+
+### Added (anterior)
+
 - Game Core Foundation no cliente Unity: `ServiceRegistry`, `GameSession`, `GameStateMachine`, `LoadingFlow`, `GameNavigator`
 - Fluxo de cenas: Bootstrap → Loading → MainMenu → City → WorldMap → City
 - Cenas provisórias `City` e `WorldMap` com hosts de UI Toolkit
@@ -23,6 +28,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - Marchas completas e ocupação de nós: `MarchStateMachine`, `MarchService`, `MarchRepository`, `MarchTravelCalculator`, `WorldNodeOccupationService`, `MarchChangedEvent`
 - Coleta completa no mapa: taxa/`gatherRatePerHour`, carga da marcha, depleção e respawn de nós de recurso (`WorldResourceGatheringService`)
 - Energia do mapa mundial: `PlayerEnergyWallet`, regen por timestamp, custos configuráveis, HUD com ETA e persistência dedicada (`EnergyPersistenceRepository`)
+- Filtros, localizar e visão territorial no World Map: visibilidade combinável, foco de câmera com limites, overlays Neutral/Owned/Allied/Enemy/Contested/Locked
 - Documentação `docs/architecture/player-city.md` e `docs/architecture/world-map.md`
 
 ## [0.2.0] — 2026-07-26

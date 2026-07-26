@@ -5,7 +5,10 @@ using Valgor.Core.Modules;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 using Valgor.WorldMap.Energy;
+using Valgor.WorldMap.Filters;
+using Valgor.WorldMap.Locate;
 using Valgor.WorldMap.Marches;
+using Valgor.WorldMap.Territory;
 
 namespace Valgor.WorldMap.Core
 {
@@ -16,6 +19,7 @@ namespace Valgor.WorldMap.Core
     {
         private readonly Dictionary<string, WorldNodeInstance> _nodes = new();
         private readonly Dictionary<string, WorldCreatureInstance> _creatures = new();
+        private readonly Dictionary<string, WorldTerritoryRuntime> _territories = new();
         private readonly IHeroesGateway _heroes;
         private readonly WorldNodeOccupationService _occupation = new();
         private readonly IEnergyPersistenceRepository _energyRepository;
@@ -28,7 +32,8 @@ namespace Valgor.WorldMap.Core
             IHeroesGateway heroes,
             IWorldMapRepository repository,
             PlayerEnergyWallet? energyWallet = null,
-            IEnergyPersistenceRepository? energyRepository = null)
+            IEnergyPersistenceRepository? energyRepository = null,
+            IWorldMapFilterPersistenceRepository? filterRepository = null)
         {
             Settings = settings;
             Clock = clock;
@@ -38,6 +43,8 @@ namespace Valgor.WorldMap.Core
             EnergyWallet = energyWallet ?? CreateEnergyWallet(settings, clock);
             EnergyRegen = new EnergyRegenerationService(EnergyWallet, clock);
             EnergyCosts = new EnergyCostResolver(EnergyWallet.Settings);
+            Filters = new WorldMapFilterService(
+                filterRepository ?? new WorldMapFilterPersistenceRepository(settings.FilterPersistenceKey));
             Selection = new WorldNodeSelectionService();
             RegionSelection = new RegionSelectionService();
             Harvest = new WorldResourceHarvestService();
@@ -53,10 +60,17 @@ namespace Valgor.WorldMap.Core
                 id => WorldCreatureCatalog.TryGet(id, out var def) ? def : null,
                 id => _creatures.TryGetValue(id, out var inst) ? inst : null,
                 () => Marches.Active);
+            Locator = new WorldMapLocatorService(
+                settings,
+                id => WorldNodeCatalog.Get(id),
+                id => _nodes.TryGetValue(id, out var node) ? node : null,
+                () => Selection.Selected,
+                () => Marches.Active?.TargetNodeId);
             _tickIntervalSeconds = settings.MarchTickIntervalSeconds;
             _lastTickUtc = clock.UtcNow;
             SeedNodes();
             SeedCreatures();
+            SeedTerritories();
             Marches.Changed += (_, _) => Persist();
             Encounters.Changed += () =>
             {
@@ -73,6 +87,7 @@ namespace Valgor.WorldMap.Core
                 PersistEnergy();
                 Changed?.Invoke();
             };
+            Filters.Changed += () => Changed?.Invoke();
         }
 
         public WorldMapSettings Settings { get; }
@@ -88,10 +103,13 @@ namespace Valgor.WorldMap.Core
         public PlayerEnergyWallet EnergyWallet { get; }
         public EnergyRegenerationService EnergyRegen { get; }
         public EnergyCostResolver EnergyCosts { get; }
+        public WorldMapFilterService Filters { get; }
+        public WorldMapLocatorService Locator { get; }
         public int Energy => EnergyWallet.CurrentEnergy;
         public ResourceWallet? BoundWallet { get; private set; }
         public IReadOnlyDictionary<string, WorldNodeInstance> Nodes => _nodes;
         public IReadOnlyDictionary<string, WorldCreatureInstance> Creatures => _creatures;
+        public IReadOnlyDictionary<string, WorldTerritoryRuntime> Territories => _territories;
         public event Action? Changed;
 
         public static WorldMapSession Create(IHeroesGateway heroes, IWorldMapClock? clock = null)
@@ -112,6 +130,7 @@ namespace Valgor.WorldMap.Core
 
         public void LoadOrInitialize()
         {
+            Filters.LoadOrInitialize();
             var snapshot = Repository.Load();
             LoadEnergy(snapshot);
             EnergyRegen.ApplyUntil(Clock.UtcNow);
@@ -318,6 +337,30 @@ namespace Valgor.WorldMap.Core
             return true;
         }
 
+        public bool IsNodeVisible(string nodeId)
+        {
+            if (!_nodes.TryGetValue(nodeId, out var instance))
+            {
+                return false;
+            }
+
+            return WorldNodeVisibilityResolver.IsVisible(GetDefinition(nodeId), instance, Filters.State);
+        }
+
+        public bool TryGetTerritory(string territoryId, out WorldTerritoryRuntime runtime) =>
+            _territories.TryGetValue(territoryId, out runtime!);
+
+        public bool TryGetTerritoryByRegion(string regionId, out WorldTerritoryRuntime runtime)
+        {
+            runtime = null!;
+            if (!WorldTerritoryCatalog.TryGetByRegion(regionId, out var definition))
+            {
+                return false;
+            }
+
+            return _territories.TryGetValue(definition.Id, out runtime!);
+        }
+
         public bool TryResolveSelectedCreature(ResourceWallet? wallet, out string error, out CreatureDifficultyBand band)
         {
             band = CreatureDifficultyBand.Impossible;
@@ -355,6 +398,7 @@ namespace Valgor.WorldMap.Core
         {
             Marches.PersistMarch();
             PersistEnergy();
+            Filters.Persist();
             var snapshot = new WorldMapSnapshot
             {
                 SavedAtUtc = Clock.UtcNow,
@@ -510,6 +554,14 @@ namespace Valgor.WorldMap.Core
                     definition.RegionId,
                     definition.X,
                     definition.Z);
+            }
+        }
+
+        private void SeedTerritories()
+        {
+            foreach (var definition in WorldTerritoryCatalog.All.Values)
+            {
+                _territories[definition.Id] = new WorldTerritoryRuntime(definition.Id, definition.DefaultState);
             }
         }
     }

@@ -1,45 +1,8 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Valgor.WorldMap.Camera
 {
-    public readonly struct MapPosition
-    {
-        public MapPosition(float x, float y, float z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-
-        public float X { get; }
-        public float Y { get; }
-        public float Z { get; }
-    }
-
-    public sealed class WorldMapBounds
-    {
-        public WorldMapBounds(float minX = -22f, float maxX = 22f, float minZ = -18f, float maxZ = 22f)
-        {
-            MinX = minX;
-            MaxX = maxX;
-            MinZ = minZ;
-            MaxZ = maxZ;
-        }
-
-        public float MinX { get; }
-        public float MaxX { get; }
-        public float MinZ { get; }
-        public float MaxZ { get; }
-
-        public MapPosition ClampPosition(MapPosition position) =>
-            new(
-                Math.Clamp(position.X, MinX, MaxX),
-                position.Y,
-                Math.Clamp(position.Z, MinZ, MaxZ));
-    }
-
     [RequireComponent(typeof(UnityEngine.Camera))]
     public sealed class WorldMapCameraController : MonoBehaviour
     {
@@ -103,5 +66,20 @@ namespace Valgor.WorldMap.Camera
             var clamped = _bounds.ClampPosition(new MapPosition(transform.position.x, transform.position.y, transform.position.z));
             transform.position = new Vector3(clamped.X, clamped.Y, clamped.Z);
         }
+
+        /// <summary>
+        /// Centraliza a câmera no ponto e aplica zoom dentro dos limites configurados.
+        /// </summary>
+        public void FocusOn(float x, float z, float? orthographicSize = null)
+        {
+            transform.position = new Vector3(x, transform.position.y, z);
+            Clamp();
+            if (orthographicSize.HasValue)
+            {
+                _camera.orthographicSize = Mathf.Clamp(orthographicSize.Value, minZoom, maxZoom);
+            }
+        }
+
+        public WorldMapBounds Bounds => _bounds;
     }
 }

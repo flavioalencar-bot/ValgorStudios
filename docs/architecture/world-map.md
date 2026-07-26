@@ -14,6 +14,7 @@ Estado (`WorldMapSession`, marchas, nós, energia) sobrevive City↔WorldMap via
 |------|--------|
 | Core | `WorldMapBootstrap`, `WorldMapController`, `WorldMapSession`, `MarchService`, `TravelTimeCalculator`, `WorldResourceHarvestService` |
 | Energy | `PlayerEnergyWallet`, `EnergyRegenerationService`, `EnergyCostResolver`, `EnergyChangedEvent`, `EnergyPersistenceRepository` |
+| Filters / Locate / Territory | `WorldMapFilterService`, `WorldMapLocatorService`, `WorldTerritoryDefinition`, overlays |
 | Data | Regiões, `WorldNodeCatalog`, tipos `WorldCityNode`…`WorldLandmarkNode`, `WorldMapSettings` |
 | Nodes | `RegionNodeView`, `WorldNodeView` |
 | Camera | `WorldMapCameraController`, `WorldMapBounds` |
@@ -31,6 +32,21 @@ Campos: `currentEnergy`, `maxEnergy`, `lastUpdatedAt`, `regenIntervalSec`, `rege
 | `EnergyPersistenceRepository` | Memória (City↔WorldMap) + PlayerPrefs (restart); contrato pronto para backend |
 
 HUD exibe `current/max` e ETA até energia cheia. Engajar criatura e (se configurado) despachar marcha consomem energia.
+
+## Filtros, localizar e visão territorial
+
+| Tipo | Papel |
+|------|--------|
+| `WorldMapFilterState` / `WorldMapFilterService` | Seleção combinável (tipos + ocupados/disponíveis) |
+| `WorldNodeVisibilityResolver` | Visibilidade sem destruir estado dos nós |
+| `WorldMapFilterPanel` | Painel UI Toolkit + limpar filtros |
+| `WorldMapLocatorService` | Alvos: casa, marcha, seleção, criatura, recurso |
+| `WorldCameraFocusRequest` | Pedido de foco com zoom configurável |
+| `WorldMapBounds.ClampPosition` | Impede ultrapassar limites do mapa |
+| `WorldTerritoryDefinition` / `WorldTerritoryState` | Fundação de territórios por região |
+| `WorldTerritoryOverlay` / `WorldTerritoryColorResolver` | Overlay visual (Neutral/Owned/Allied/Enemy/Contested/Locked) |
+
+Filtros persistem via `WorldMapFilterPersistenceRepository` (memória + PlayerPrefs) e sobrevivem City↔WorldMap.
 
 ## Tipos de nó
 
