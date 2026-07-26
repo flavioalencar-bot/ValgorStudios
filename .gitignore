@@ -85,7 +85,7 @@ client/*.app
 
 # Docker volumes / local data
 *.sql.bak
-data/
+/data/
 .docker/
 
 # Coverage / tooling
