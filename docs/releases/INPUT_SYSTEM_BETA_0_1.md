@@ -21,3 +21,9 @@ Isso vinha do probe de gamepad legado, **não** do código Valgor. Não era bloq
 - Sem distribuição manual de `XInput1_3.dll`
 - Input System only → teclado/mouse OK
 - Gamepad opcional futuro via Input System (Windows.Gaming.Input), sem DLL antiga
+
+## Importante — cliques 3D
+
+Com `activeInputHandler = Input System only`, callbacks legadas `OnMouse*` **não disparam** no Player.
+
+Seleção de edifícios na City usa `CityBuildingPointerInput` (raycast Physics + `Mouse.current` / touch), layer `Building`, colliders no slot.

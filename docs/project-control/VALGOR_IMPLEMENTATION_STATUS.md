@@ -315,3 +315,9 @@ Histórico completo: `git log --oneline` no repositório.
   - `ux-10-upgrade-complete.png`
 - Situação City/upgrade contextual: **VISÍVEL NO EXECUTÁVEL** (primeira entrega validada).
 - Limitações restantes: demais edifícios fora do escopo; arte ainda silhueta; Concluir Agora / gemas e fila de construção além do MVP conforme sprint.
+
+## Patch crítico — clique nos edifícios (2026-07-27)
+
+- Causa: `activeInputHandler = Input System only` → `OnMouse*` não dispara no Player.
+- Correção: `CityBuildingPointerInput` (raycast), layer `Building`, colliders nos slots; tutorial overlay `pickingMode` só no botão.
+- Sprint UX **não** avançada (somente interação de seleção).

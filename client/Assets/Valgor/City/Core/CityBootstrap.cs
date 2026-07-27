@@ -135,7 +135,13 @@ namespace Valgor.City
                 var bounds = CityBuildingMeshFactory.Build(layout.Id, slotObject.transform, identity);
                 var box = slotObject.AddComponent<BoxCollider>();
                 box.center = bounds.center;
-                box.size = Vector3.Max(bounds.size, new Vector3(2f, 2f, 2f));
+                box.size = Vector3.Max(bounds.size, new Vector3(2.2f, 2.2f, 2.2f));
+
+                var buildingLayer = LayerMask.NameToLayer("Building");
+                if (buildingLayer >= 0)
+                {
+                    SetLayerRecursive(slotObject, buildingLayer);
+                }
 
                 var view = slotObject.AddComponent<BuildingView>();
                 view.Initialize(instance, definition, labelHeight: bounds.max.y + 0.6f);
@@ -158,9 +164,29 @@ namespace Valgor.City
         private static void ConfigureCamera()
         {
             var camera = UnityEngine.Camera.main;
-            if (camera != null && camera.GetComponent<Valgor.City.Camera.CityCameraController>() == null)
+            if (camera == null)
+            {
+                return;
+            }
+
+            if (camera.GetComponent<Valgor.City.Camera.CityCameraController>() == null)
             {
                 camera.gameObject.AddComponent<Valgor.City.Camera.CityCameraController>();
+            }
+
+            if (camera.GetComponent<Valgor.City.Input.CityBuildingPointerInput>() == null)
+            {
+                camera.gameObject.AddComponent<Valgor.City.Input.CityBuildingPointerInput>();
+            }
+        }
+
+        private static void SetLayerRecursive(GameObject root, int layer)
+        {
+            root.layer = layer;
+            var transforms = root.GetComponentsInChildren<Transform>(true);
+            for (var i = 0; i < transforms.Length; i++)
+            {
+                transforms[i].gameObject.layer = layer;
             }
         }
 

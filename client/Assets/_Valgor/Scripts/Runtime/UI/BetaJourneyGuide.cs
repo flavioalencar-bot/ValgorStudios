@@ -143,14 +143,18 @@ namespace Valgor.UI
             overlay.style.borderBottomColor = BetaVisualTheme.AgedGold;
             overlay.style.borderLeftColor = BetaVisualTheme.AgedGold;
             overlay.style.borderRightColor = BetaVisualTheme.AgedGold;
+            // Só o botão captura pointer — o restante da cidade permanece clicável.
+            overlay.pickingMode = PickingMode.Ignore;
 
             var title = new Label { name = "guide-title" };
+            title.pickingMode = PickingMode.Ignore;
             title.style.color = BetaVisualTheme.AgedGoldBright;
             title.style.fontSize = 13;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
             overlay.Add(title);
 
             var body = new Label { name = "guide-body" };
+            body.pickingMode = PickingMode.Ignore;
             body.style.color = BetaVisualTheme.TextPrimary;
             body.style.fontSize = 12;
             body.style.whiteSpace = WhiteSpace.Normal;
@@ -158,11 +162,13 @@ namespace Valgor.UI
             overlay.Add(body);
 
             var row = new VisualElement { name = "guide-row" };
+            row.pickingMode = PickingMode.Ignore;
             row.style.flexDirection = FlexDirection.Row;
             row.style.marginTop = 8;
             overlay.Add(row);
 
             var primary = new Button { name = "guide-primary", text = "Entendi" };
+            primary.pickingMode = PickingMode.Position;
             StyleButton(primary);
             row.Add(primary);
 
@@ -181,6 +187,7 @@ namespace Valgor.UI
             var index = row.IndexOf(primary);
             primary.RemoveFromHierarchy();
             var fresh = new Button { name = "guide-primary", text = primaryLabel };
+            fresh.pickingMode = PickingMode.Position;
             StyleButton(fresh);
             fresh.clicked += () =>
             {

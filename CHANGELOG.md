@@ -7,6 +7,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Fixed
+
+- City: seleção de edifícios quebrada com Input System only — `OnMouse*` não dispara; adicionado `CityBuildingPointerInput` (raycast), layer `Building`, colliders; tutorial overlay não bloqueia a cidade
+
 ### Added
 
 - Sprint UX contextual (1ª entrega): Castelo (Detalhes/Atualizar), Fazenda (Coletar/Detalhes/Atualizar), Armazém (Abrir/Detalhes/Atualizar)

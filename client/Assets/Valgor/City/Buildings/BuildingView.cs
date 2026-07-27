@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using Valgor.City.Camera;
 using Valgor.City.Data;
 using Valgor.City.Visual;
 
@@ -22,11 +21,14 @@ namespace Valgor.City.Buildings
         private TextMesh? _progressLabel;
         private bool _selected;
         private float _labelHeight = 3.2f;
-        private Vector3 _pointerDown;
 
         public event Action<BuildingView>? Clicked;
         public event Action? CollectRequested;
         public BuildingInstance Instance { get; private set; } = null!;
+
+        public void NotifyClicked() => Clicked?.Invoke(this);
+
+        public void NotifyCollectRequested() => CollectRequested?.Invoke();
 
         public void Initialize(BuildingInstance instance, BuildingDefinition definition, float labelHeight = 3.2f)
         {
@@ -178,31 +180,6 @@ namespace Valgor.City.Buildings
             }
         }
 
-        private void OnMouseDown()
-        {
-            var mouse = UnityEngine.InputSystem.Mouse.current;
-            _pointerDown = mouse != null
-                ? (Vector3)mouse.position.ReadValue()
-                : UnityEngine.Input.mousePosition;
-        }
-
-        private void OnMouseUpAsButton()
-        {
-            if (CityCameraController.ShouldSuppressBuildingClick)
-            {
-                return;
-            }
-
-            var mouse = UnityEngine.InputSystem.Mouse.current;
-            var up = mouse != null ? (Vector3)mouse.position.ReadValue() : UnityEngine.Input.mousePosition;
-            if ((up - _pointerDown).sqrMagnitude > 100f)
-            {
-                return;
-            }
-
-            Clicked?.Invoke(this);
-        }
-
         private TextMesh CreateLabel(string displayName)
         {
             var labelObject = new GameObject("Name");
@@ -251,7 +228,7 @@ namespace Valgor.City.Buildings
             _bubbleLabel.text = "0";
 
             var click = marker.AddComponent<BuildingCollectableClickProxy>();
-            click.Bind(() => CollectRequested?.Invoke());
+            click.Bind(() => NotifyCollectRequested());
             return marker;
         }
 
@@ -359,35 +336,13 @@ namespace Valgor.City.Buildings
         }
     }
 
-    /// <summary>Proxy de clique no indicador de coleta (não seleciona o prédio pelo arrasto).</summary>
+    /// <summary>Proxy de clique no indicador de coleta (Input System raycast).</summary>
     public sealed class BuildingCollectableClickProxy : MonoBehaviour
     {
         private Action? _onClick;
-        private Vector3 _down;
 
         public void Bind(Action onClick) => _onClick = onClick;
 
-        private void OnMouseDown()
-        {
-            var mouse = UnityEngine.InputSystem.Mouse.current;
-            _down = mouse != null ? (Vector3)mouse.position.ReadValue() : UnityEngine.Input.mousePosition;
-        }
-
-        private void OnMouseUpAsButton()
-        {
-            if (CityCameraController.ShouldSuppressBuildingClick)
-            {
-                return;
-            }
-
-            var mouse = UnityEngine.InputSystem.Mouse.current;
-            var up = mouse != null ? (Vector3)mouse.position.ReadValue() : UnityEngine.Input.mousePosition;
-            if ((up - _down).sqrMagnitude > 100f)
-            {
-                return;
-            }
-
-            _onClick?.Invoke();
-        }
+        public void NotifyClicked() => _onClick?.Invoke();
     }
 }

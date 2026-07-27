@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 namespace Valgor.City.Camera
 {
     [RequireComponent(typeof(UnityEngine.Camera))]
+    [DefaultExecutionOrder(-40)]
     public sealed class CityCameraController : MonoBehaviour
     {
         [SerializeField] private float minZoom = 9f;
