@@ -14,7 +14,8 @@ namespace Valgor.City.UI
         Train,
         Research,
         Open,
-        Send
+        Send,
+        Feed
     }
 
     public readonly struct BuildingContextActionInfo

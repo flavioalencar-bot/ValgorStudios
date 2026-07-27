@@ -253,6 +253,14 @@ namespace Valgor.UI
             yield return new WaitForSecondsRealtime(0.8f);
             yield return Capture("ux-24-academy-upgrade");
 
+            // 3ª entrega UX: Arena / Hospital / Torre / Templo / Mercado / Laboratório
+            yield return CaptureSupportBuilding("arena", "ux-25");
+            yield return CaptureSupportBuilding("hospital", "ux-26");
+            yield return CaptureSupportBuilding("dragon-tower", "ux-27", feedAction: true);
+            yield return CaptureSupportBuilding("temple", "ux-28");
+            yield return CaptureSupportBuilding("market", "ux-29");
+            yield return CaptureSupportBuilding("laboratory", "ux-30");
+
             TrySelectCityBuilding("farm");
             yield return new WaitForSecondsRealtime(0.8f);
             ForceFarmCollectable();
@@ -295,6 +303,38 @@ namespace Valgor.UI
 
             yield return Capture("ux-10-upgrade-complete");
             Debug.Log("[CheckpointSmoke] Evidências UX edifícios OK");
+        }
+
+        private IEnumerator CaptureSupportBuilding(string definitionId, string prefix, bool feedAction = false)
+        {
+            TrySelectCityBuilding(definitionId);
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture($"{prefix}-{definitionId}-selected");
+
+            InvokeCityPresenter("DebugOpenDetailsPanel");
+            yield return new WaitForSecondsRealtime(0.7f);
+            yield return Capture($"{prefix}-{definitionId}-details");
+
+            InvokeCityPresenter("DebugOpenOpenPanel");
+            yield return new WaitForSecondsRealtime(0.7f);
+            yield return Capture($"{prefix}-{definitionId}-open");
+
+            if (feedAction)
+            {
+                InvokeCityPresenter("DebugFeedDragon");
+                yield return new WaitForSecondsRealtime(0.5f);
+                yield return Capture($"{prefix}-{definitionId}-feed");
+            }
+
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture($"{prefix}-{definitionId}-upgrade");
+            TryCityUpgradeSelected();
+            yield return new WaitForSecondsRealtime(0.25f);
+            yield return Capture($"{prefix}-{definitionId}-blocked");
+            InvokeCityPresenter("DebugGoToFirstUnmetRequirement");
+            yield return new WaitForSecondsRealtime(1.0f);
+            yield return Capture($"{prefix}-{definitionId}-go");
         }
 
         private static void InvokeCityController(string methodName)

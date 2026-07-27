@@ -384,3 +384,20 @@ Histórico completo: `git log --oneline` no repositório.
   - `ux-24-academy-upgrade.png`
 - Infra smoke: `Application.runInBackground = true` no `CheckpointSmokeDriver`; timeout do script de captura **10 min** (sequência ux-01..24 + jornada).
 - Situação City/upgrade contextual (2ª entrega): **VISÍVEL NO EXECUTÁVEL**.
+
+## UX contextual 3ª entrega — bloco final City (2026-07-27)
+
+- Escopo (6 edifícios + ações): Arena (Abrir / Detalhes / Atualizar), Hospital (Abrir / Detalhes / Atualizar), Torre dos Dragões (Abrir / Alimentar / Detalhes / Atualizar), Templo (Abrir / Detalhes / Atualizar), Mercado (Abrir / Detalhes / Atualizar), Laboratório (Abrir / Detalhes / Atualizar).
+- Dependências data-driven (`BuildingRequirementCatalog`), regras de suporte (`SupportBuildingRules`), ações Open/Feed no menu contextual; sem sistemas novos de combate/economia.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **140 aprovados / 0 falha / 140 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=**2026-07-27 16:24:17**).
+- Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; evidência completa em `docs/releases/beta-0.1-evidence/ux-contextual-full/` (espelho também em `ux-contextual/`):
+  - Prefixo `ux-25-*` Arena (selected / details / open / upgrade / blocked / go)
+  - Prefixo `ux-26-*` Hospital
+  - Prefixo `ux-27-*` Torre dos Dragões (incl. feed)
+  - Prefixo `ux-28-*` Templo
+  - Prefixo `ux-29-*` Mercado
+  - Prefixo `ux-30-*` Laboratório
+- Nota de escopo: **sem** PvP, trade real, árvore de research nova ou novos dragões — só UX contextual + stats de exibição / hooks Open-Feed nos módulos já existentes.
+- Situação City (bloco final UX contextual): **VISÍVEL NO EXECUTÁVEL**.

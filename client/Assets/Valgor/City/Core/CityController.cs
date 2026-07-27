@@ -427,7 +427,7 @@ namespace Valgor.City.Core
                 ["institute"] = (0, BuildingState.Locked),
                 ["hospital"] = (0, BuildingState.Available),
                 ["market"] = (1, BuildingState.Ready),
-                ["temple"] = (0, BuildingState.Locked),
+                ["temple"] = (0, BuildingState.Available),
                 ["dragon-tower"] = (1, BuildingState.Ready),
                 ["arena"] = (0, BuildingState.Available),
                 ["laboratory"] = (0, BuildingState.Available)

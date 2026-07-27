@@ -118,6 +118,21 @@ namespace Valgor.City.UI
             OpenActionPanel(BuildingContextAction.Upgrade);
         }
 
+        /// <summary>API de smoke/QA: abre o painel Abrir/Dragões do selecionado.</summary>
+        public void DebugOpenOpenPanel()
+        {
+            if (_current == null)
+            {
+                return;
+            }
+
+            _openPanelAction = BuildingContextAction.Open;
+            OpenActionPanel(BuildingContextAction.Open);
+        }
+
+        /// <summary>API de smoke/QA: alimenta via Torre.</summary>
+        public void DebugFeedDragon() => ExecuteFeedDragon();
+
         /// <summary>API de smoke/QA: clica no primeiro pré-requisito não cumprido (botão Ir).</summary>
         public void DebugGoToFirstUnmetRequirement()
         {
@@ -259,7 +274,34 @@ namespace Valgor.City.UI
                 };
             }
 
-            // Demais edifícios (fora desta entrega): Detalhes + Atualizar.
+            if (string.Equals(id, "arena", StringComparison.Ordinal) ||
+                string.Equals(id, "hospital", StringComparison.Ordinal) ||
+                string.Equals(id, "temple", StringComparison.Ordinal) ||
+                string.Equals(id, "market", StringComparison.Ordinal) ||
+                string.Equals(id, "laboratory", StringComparison.Ordinal))
+            {
+                return new List<BuildingContextActionInfo>
+                {
+                    new(BuildingContextAction.Open, "Abrir", true),
+                    new(BuildingContextAction.Details, "Detalhes", true),
+                    UpgradeAction(building, definition)
+                };
+            }
+
+            if (string.Equals(id, "dragon-tower", StringComparison.Ordinal))
+            {
+                var canFeed = _dragons != null && _dragons.RoostOccupantCount > 0;
+                return new List<BuildingContextActionInfo>
+                {
+                    new(BuildingContextAction.Open, "Dragões", true),
+                    new(BuildingContextAction.Feed, "Alimentar", canFeed,
+                        canFeed ? null : "Nenhum dragão no ninho."),
+                    new(BuildingContextAction.Details, "Detalhes", true),
+                    UpgradeAction(building, definition)
+                };
+            }
+
+            // Demais edifícios (fora do bloco contextual): Detalhes + Atualizar.
             var list = new List<BuildingContextActionInfo>
             {
                 new(BuildingContextAction.Details, "Detalhes", true),
@@ -275,12 +317,6 @@ namespace Valgor.City.UI
                     "Coletar",
                     canCollect,
                     canCollect ? null : "Nada acumulado ainda."));
-            }
-
-            if (string.Equals(id, "dragon-tower", StringComparison.Ordinal))
-            {
-                list.Add(new BuildingContextActionInfo(BuildingContextAction.Open, "Abrir", true));
-                list.Add(new BuildingContextActionInfo(BuildingContextAction.Send, "Enviar", true));
             }
 
             return list;
@@ -321,6 +357,9 @@ namespace Valgor.City.UI
                 case BuildingContextAction.Collect:
                     ExecuteCollect();
                     break;
+                case BuildingContextAction.Feed:
+                    ExecuteFeedDragon();
+                    break;
                 case BuildingContextAction.Send:
                     ExecuteSend();
                     break;
@@ -332,6 +371,41 @@ namespace Valgor.City.UI
                     OpenActionPanel(action);
                     break;
             }
+        }
+
+        private void ExecuteFeedDragon()
+        {
+            if (_dragons == null)
+            {
+                _feedback.text = "Módulo de dragões indisponível.";
+                _feedback.style.display = DisplayStyle.Flex;
+                return;
+            }
+
+            string? fedName = null;
+            string lastError = "Nenhum dragão precisa de comida agora.";
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.Hunger >= status.MaxHunger)
+                {
+                    continue;
+                }
+
+                if (_dragons.TryFeed(status.DragonId, out var error))
+                {
+                    fedName = status.DisplayName;
+                    break;
+                }
+
+                lastError = error;
+            }
+
+            _feedback.text = fedName != null
+                ? $"{fedName} alimentado."
+                : lastError;
+            _feedback.style.display = DisplayStyle.Flex;
+            _city.Persist();
+            RefreshCurrent();
         }
 
         private void ExecuteCollect()
@@ -616,6 +690,12 @@ namespace Valgor.City.UI
                 return $"Eleva o teto acadêmico para Nv.{building.Level + 1}";
             }
 
+            var supportBenefit = SupportBuildingRules.DescribeUpgradeBenefit(building.DefinitionId, building.Level);
+            if (!string.IsNullOrEmpty(supportBenefit))
+            {
+                return supportBenefit;
+            }
+
             var productionBenefit = ProductionBuildingDetails.DescribeUpgradeBenefit(building.DefinitionId);
             return string.IsNullOrEmpty(productionBenefit)
                 ? $"Melhora {definition.DisplayName}"
@@ -815,8 +895,11 @@ namespace Valgor.City.UI
             {
                 BuildingContextAction.Details => $"Detalhes — {definition.DisplayName}",
                 BuildingContextAction.Upgrade => $"Atualizar — {definition.DisplayName}",
+                BuildingContextAction.Open when string.Equals(definition.Id, "dragon-tower", StringComparison.Ordinal)
+                    => $"Dragões — {definition.DisplayName}",
                 BuildingContextAction.Open => $"Abrir — {definition.DisplayName}",
                 BuildingContextAction.Collect => $"Coletar — {definition.DisplayName}",
+                BuildingContextAction.Feed => $"Alimentar — {definition.DisplayName}",
                 _ => definition.DisplayName
             };
 

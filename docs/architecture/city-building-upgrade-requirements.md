@@ -31,6 +31,12 @@ Extensão do upgrade existente (sem novos edifícios). Um prédio só evolui qua
 | **Pedreira** | Castelo ≥ N; Serraria nos níveis do catálogo |
 | **Mina** | Castelo ≥ N; Pedreira nos níveis do catálogo |
 | **Academia** | Castelo ≥ N; Armazém nos níveis do catálogo |
+| **Arena** | Castelo ≥ N; Academia nos níveis do catálogo |
+| **Hospital** | Castelo ≥ N; Fazenda (início) / Armazém (níveis altos) |
+| **Templo** | Castelo ≥ N; Hospital nos níveis do catálogo |
+| **Mercado** | Castelo ≥ N; Armazém nos níveis do catálogo |
+| **Laboratório** | Castelo ≥ N; Academia + Mina nos níveis do catálogo |
+| **Torre dos Dragões** | Castelo ≥ N; Academia nos níveis do catálogo; Essência nos custos do `BuildingCatalog` |
 
 ## Integração
 

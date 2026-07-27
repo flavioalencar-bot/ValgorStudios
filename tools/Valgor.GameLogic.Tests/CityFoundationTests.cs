@@ -176,10 +176,67 @@ public sealed class BuildingRequirementCatalogTests
     }
 
     [Fact]
-    public void DragonTower_Level2_RequiresGatherResearch()
+    public void DragonTower_Level2_RequiresAcademy()
     {
         var req = BuildingRequirementCatalog.GetRequirement("dragon-tower", currentLevel: 1);
-        Assert.Contains(req.RequiredUnlocks, u => u.UnlockKey == BuildingRequirementCatalog.UnlockGatherResearch);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "academy" && b.MinimumLevel == 1);
+        Assert.Empty(req.RequiredUnlocks);
+    }
+
+    [Fact]
+    public void Arena_RequiresCastleAndAcademy()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("arena", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "academy");
+    }
+
+    [Fact]
+    public void Hospital_RequiresCastleAndFarm()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("hospital", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "farm");
+    }
+
+    [Fact]
+    public void Temple_RequiresCastleAndHospital()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("temple", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "hospital");
+    }
+
+    [Fact]
+    public void Market_RequiresCastleAndWarehouse()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("market", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "warehouse");
+    }
+
+    [Fact]
+    public void Laboratory_RequiresCastleAcademyAndMine()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("laboratory", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "academy");
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "mine");
+    }
+
+    [Fact]
+    public void Evaluator_BlocksDragonTowerMissingAcademy()
+    {
+        var tower = new BuildingInstance("dragon-tower", 1, BuildingState.Ready);
+        var reason = BuildingRequirementEvaluator.GetFirstBlockReason(
+            tower,
+            castleLevel: 2,
+            _ => 0,
+            _ => true);
+
+        Assert.NotNull(reason);
+        Assert.Contains("Academia", reason);
     }
 
     [Fact]
@@ -196,17 +253,13 @@ public sealed class BuildingRequirementCatalogTests
     }
 
     [Fact]
-    public void Evaluator_BlocksMissingUnlock()
+    public void Evaluator_Laboratory_ReportsMultipleBlocks()
     {
-        var tower = new BuildingInstance("dragon-tower", 1, BuildingState.Ready);
-        var reason = BuildingRequirementEvaluator.GetFirstBlockReason(
-            tower,
-            castleLevel: 2,
-            id => id == "warehouse" ? 1 : 0,
-            _ => false);
-
-        Assert.NotNull(reason);
-        Assert.Contains("Coleta", reason);
+        var lab = new BuildingInstance("laboratory", 1, BuildingState.Ready);
+        var checks = BuildingRequirementEvaluator.Evaluate(lab, castleLevel: 1, _ => 0);
+        Assert.Contains(checks, c => !c.Satisfied && c.Label == "Castelo");
+        Assert.Contains(checks, c => !c.Satisfied && c.Label == "Academia" && c.JumpToDefinitionId == "academy");
+        Assert.Contains(checks, c => !c.Satisfied && c.Label == "Mina" && c.JumpToDefinitionId == "mine");
     }
 
     [Fact]
@@ -299,5 +352,23 @@ public sealed class ProductionBuildingDetailsTests
         Assert.Contains("madeira", ProductionBuildingDetails.DescribeUpgradeBenefit("lumbermill"));
         Assert.Contains("pedra", ProductionBuildingDetails.DescribeUpgradeBenefit("quarry"));
         Assert.Contains("ferro", ProductionBuildingDetails.DescribeUpgradeBenefit("mine"));
+    }
+}
+
+public sealed class SupportBuildingRulesTests
+{
+    [Fact]
+    public void ArenaAndHospital_ScaleWithLevel()
+    {
+        Assert.True(SupportBuildingRules.GetArenaFormationCapacity(2) > SupportBuildingRules.GetArenaFormationCapacity(1));
+        Assert.True(SupportBuildingRules.GetHospitalCapacity(2) > SupportBuildingRules.GetHospitalCapacity(1));
+        Assert.Equal(0, SupportBuildingRules.GetHospitalUnitsInCare(5));
+    }
+
+    [Fact]
+    public void DragonTowerBenefit_IsNonEmpty()
+    {
+        Assert.False(string.IsNullOrWhiteSpace(SupportBuildingRules.DescribeUpgradeBenefit("dragon-tower", 1)));
+        Assert.Contains("formação", SupportBuildingRules.BuildArenaDetails(1), System.StringComparison.OrdinalIgnoreCase);
     }
 }

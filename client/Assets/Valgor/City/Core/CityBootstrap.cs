@@ -28,7 +28,7 @@ namespace Valgor.City
             ("institute", BuildingState.Locked, 0),
             ("hospital", BuildingState.Available, 0),
             ("market", BuildingState.Ready, 1),
-            ("temple", BuildingState.Locked, 0),
+            ("temple", BuildingState.Available, 0),
             ("dragon-tower", BuildingState.Ready, 1),
             ("arena", BuildingState.Available, 0),
             ("laboratory", BuildingState.Available, 0)

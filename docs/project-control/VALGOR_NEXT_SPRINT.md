@@ -1,49 +1,46 @@
 # VALGOR — Próximo Sprint
 
 **Documento:** `docs/project-control/VALGOR_NEXT_SPRINT.md`  
-**Atualizado:** 2026-07-27 (após 1ª entrega UX contextual Castelo/Fazenda/Armazém)  
+**Atualizado:** 2026-07-27 (após bloco completo UX contextual da City)  
 **Governança:** agente único (D022) — ver `VALGOR_SINGLE_AGENT.md`.
 
 ---
 
-## Sprint em curso (parcialmente entregue)
+## Sprint UX contextual — ENCERRADA (City)
 
-**UX contextual dos edifícios — 1ª entrega:** Castelo, Fazenda, Armazém (menu contextual, upgrade com requisitos, coleta, progresso no prédio).
+Todos os edifícios da cidade com UX contextual (seleção → menu → Detalhes/ação/Atualizar → deps → progresso).
 
-### Ainda nesta sprint (próximos edifícios — NÃO iniciar até pedido explícito)
+### Entregue
 
-- Demais 11 edifícios com ações específicas
-- HUD de fila de construtores mais visível
-- Arte mínima Castelo/Torre (P1 legado)
+- [x] 1ª: Castelo / Fazenda / Armazém  
+- [x] 2ª: Serraria / Pedreira / Mina / Academia  
+- [x] 3ª: Arena / Hospital / Torre dos Dragões / Templo / Mercado / Laboratório  
+- [x] Pré-requisitos data-driven + Ir + GetCastleLevel real  
+- [x] Smoke + evidências `ux-contextual` / `ux-contextual-full`
 
 ---
 
-## Backlog P0 (aderência Beta — após fechar UX pedida)
+## Backlog P0 (preferência Beta)
 
 | # | Item | Critério |
 |---|------|----------|
 | 1 | README: Estado atual da Beta (offline) | Não promete online no exe |
 | 2 | Inventário de placeholders | Lista versionada |
-| 3 | Smoke Release documentado | Exit 0 + PNGs |
+| 3 | Arte mínima Castelo/Torre | Mesh além de silhueta |
+| 4 | HUD de fila de construtores mais visível | 1 slot claro na HUD |
 
-## Explicitamente FORA
+## Explicitamente FORA (não iniciar)
 
 - Alianças / PvP / SvS / gacha / shooter  
+- Monetização / loja  
+- Comércio entre jogadores  
+- Árvore de pesquisa nova / religião / facção  
+- Novos heróis ou novos dragões  
 - Menu administrativo central de construções  
-- Substituir Vortex por dummy  
-
-## Definition of Done (1ª entrega UX — desta sessão)
-
-- [x] Castelo / Fazenda / Armazém com ações pedidas  
-- [x] Painel Atualizar com 6 recursos + Concluir Agora  
-- [x] Coleta Fazenda (menu + indicador)  
-- [x] Progresso no prédio  
-- [x] Testes GameLogic + Server  
-- [x] Build + evidências ux-01…ux-10  
-- [x] Commit/push  
 
 ## Referências
 
 - `docs/architecture/city-building-context-ux.md`  
+- `docs/architecture/city-building-upgrade-requirements.md`  
 - `VALGOR_IMPLEMENTATION_STATUS.md`  
 - `VALGOR_SINGLE_AGENT.md`  

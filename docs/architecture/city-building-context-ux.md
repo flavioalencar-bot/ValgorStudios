@@ -6,7 +6,7 @@ O edifício é a interface principal. Não há menu central de construções.
 
 1. Clique/toque no edifício → destaque + câmera suave (`CityCameraController.FocusOn`)
 2. Menu contextual circular ao lado (`BuildingContextMenu` + `BuildingContextMenuPositioner`)
-3. Ação → painel (Detalhes / Atualizar / Abrir) ou execução imediata (Coletar)
+3. Ação → painel (Detalhes / Atualizar / Abrir / Dragões) ou execução imediata (Coletar / Alimentar)
 4. Clique fora (chão) fecha; outro edifício troca o contexto
 5. Arrastar a câmera (esquerdo/toque) **não** seleciona prédio
 
@@ -16,49 +16,33 @@ O edifício é a interface principal. Não há menu central de construções.
 
 | Edifício | Ações |
 |----------|--------|
-| Castelo (`castle`) | Detalhes, Atualizar |
-| Fazenda (`farm`) | Coletar, Detalhes, Atualizar |
-| Armazém (`warehouse`) | Abrir, Detalhes, Atualizar |
+| Castelo | Detalhes, Atualizar |
+| Fazenda | Coletar, Detalhes, Atualizar |
+| Armazém | Abrir, Detalhes, Atualizar |
 
 ### 2ª — Serraria / Pedreira / Mina / Academia
 
 | Edifício | Ações |
 |----------|--------|
-| Serraria (`lumbermill`) | Coletar, Detalhes, Atualizar |
-| Pedreira (`quarry`) | Coletar, Detalhes, Atualizar |
-| Mina (`mine`) | Coletar, Detalhes, Atualizar |
-| Academia (`academy`) | Detalhes, Atualizar |
+| Serraria / Pedreira / Mina | Coletar, Detalhes, Atualizar |
+| Academia | Detalhes, Atualizar |
 
-Detalhes de produção (`ProductionBuildingDetails`): taxa/h, armazenado, capacidade, tempo até lotar, bônus, próximo nível.
+### 3ª — Arena / Hospital / Torre / Templo / Mercado / Laboratório
 
-Fora desta etapa: Arena, Hospital, Torre dos Dragões.
+| Edifício | Ações |
+|----------|--------|
+| Arena / Hospital / Templo / Mercado / Laboratório | Abrir, Detalhes, Atualizar |
+| Torre dos Dragões | Dragões, Alimentar, Detalhes, Atualizar |
 
-### Painel Atualizar
+`SupportBuildingRules` + `ProductionBuildingDetails` alimentam Detalhes. Torre reutiliza `IDragonGateway` (sem duplicar lógica).
 
-Nome, níveis, benefício, duração, **pré-requisitos** (Castelo / prédios / pesquisa com ✓/✗ + **Ir**), recursos, **Atualizar** / **Concluir Agora** / **Fechar**.
+Fora do escopo: PvP, comércio entre jogadores, árvore de pesquisa nova, religião/facção, sistema de feridos.
 
-Ver `city-building-upgrade-requirements.md`.
+## Painel Atualizar
 
-### Mundo
+Pré-requisitos data-driven + **Ir** + recursos + construtor + Concluir Agora. Ver `city-building-upgrade-requirements.md`.
 
-- Indicador de coleta nos produtores
-- Barra/tempo de construção sobre o prédio
-- Armazém: capacidade + proteção (`WarehouseRules`)
+## Evidências
 
-## Tipos
-
-| Tipo | Papel |
-|------|--------|
-| `BuildingContextAction` | Enum + info de botão |
-| `BuildingContextMenu` | Botões circulares Valgor |
-| `BuildingContextMenuPositioner` | World→UI com área segura |
-| `BuildingSelectionPresenter` | Orquestra seleção/câmera/menu/painel |
-| `BuildingDetailsViewModel` | Texto do painel Detalhes |
-| `ProductionBuildingDetails` | Bloco rico de produção |
-| `BuildingUpgradeRequirements` | Custos de recursos + Concluir Agora |
-| `BuildingRequirementCatalog` / `Evaluator` | Pré-requisitos |
-| `WarehouseRules` | Capacidade/proteção |
-
-## Evidências smoke
-
-`ux-01`…`ux-14` (1ª + gates) e `ux-15`…`ux-24` (2ª entrega) via `CheckpointSmokeDriver`.
+- `docs/releases/beta-0.1-evidence/ux-contextual/` (entregas 1–2 + gates)
+- `docs/releases/beta-0.1-evidence/ux-contextual-full/` (bloco completo cidade)
