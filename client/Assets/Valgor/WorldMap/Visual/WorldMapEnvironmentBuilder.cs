@@ -34,11 +34,16 @@ namespace Valgor.WorldMap.Visual
 
         private static void BuildGround(Transform root)
         {
-            Part(root, "Ocean", Vector3.up * -0.25f, new Vector3(90f, 0.05f, 90f), new Color(0.12f, 0.2f, 0.28f));
-            Part(root, "Mainland", Vector3.up * -0.08f, new Vector3(48f, 0.08f, 48f), new Color(0.28f, 0.42f, 0.26f));
-            Part(root, "CoastRing", Vector3.up * -0.12f, new Vector3(56f, 0.06f, 56f), new Color(0.22f, 0.34f, 0.26f));
-            Part(root, "RoadNS", new Vector3(0f, 0.02f, 0f), new Vector3(0.7f, 0.04f, 34f), new Color(0.42f, 0.36f, 0.28f));
-            Part(root, "RoadEW", new Vector3(0f, 0.02f, 0f), new Vector3(34f, 0.04f, 0.7f), new Color(0.42f, 0.36f, 0.28f));
+            Part(root, "Ocean", Vector3.up * -0.25f, new Vector3(90f, 0.05f, 90f), new Color(0.1f, 0.18f, 0.26f));
+            Part(root, "Mainland", Vector3.up * -0.08f, new Vector3(48f, 0.08f, 48f), new Color(0.26f, 0.4f, 0.24f));
+            Part(root, "CoastRing", Vector3.up * -0.12f, new Vector3(56f, 0.06f, 56f), new Color(0.2f, 0.32f, 0.24f));
+            // Territórios (leitura de zonas sem mudar regras).
+            Part(root, "TerritoryNorth", new Vector3(0f, -0.05f, 12f), new Vector3(18f, 0.04f, 12f), new Color(0.24f, 0.36f, 0.28f));
+            Part(root, "TerritorySouth", new Vector3(0f, -0.05f, -12f), new Vector3(18f, 0.04f, 12f), new Color(0.3f, 0.36f, 0.24f));
+            Part(root, "TerritoryEast", new Vector3(14f, -0.05f, 0f), new Vector3(12f, 0.04f, 16f), new Color(0.28f, 0.32f, 0.26f));
+            Part(root, "TerritoryWest", new Vector3(-14f, -0.05f, 0f), new Vector3(12f, 0.04f, 16f), new Color(0.27f, 0.34f, 0.25f));
+            Part(root, "RoadNS", new Vector3(0f, 0.02f, 0f), new Vector3(0.7f, 0.04f, 34f), new Color(0.44f, 0.38f, 0.28f));
+            Part(root, "RoadEW", new Vector3(0f, 0.02f, 0f), new Vector3(34f, 0.04f, 0.7f), new Color(0.44f, 0.38f, 0.28f));
             // Colinas discretas (não “blocos gigantes”).
             Part(root, "HillsA", new Vector3(-11f, 0.12f, 9f), new Vector3(2.4f, 0.18f, 1.8f), new Color(0.3f, 0.4f, 0.28f));
             Part(root, "HillsB", new Vector3(12f, 0.1f, -7f), new Vector3(2.0f, 0.15f, 2.6f), new Color(0.32f, 0.42f, 0.3f));

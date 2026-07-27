@@ -1,46 +1,33 @@
 # VALGOR — Próximo Sprint
 
-**Documento:** `docs/project-control/VALGOR_NEXT_SPRINT.md`  
-**Atualizado:** 2026-07-27 (após bloco completo UX contextual da City)  
-**Governança:** agente único (D022) — ver `VALGOR_SINGLE_AGENT.md`.
+**Atualizado:** 2026-07-27 · após consolidação visual Beta 0.1  
+**Governança:** agente único (D022)
 
 ---
 
-## Sprint UX contextual — ENCERRADA (City)
+## Concluído recentemente
 
-Todos os edifícios da cidade com UX contextual (seleção → menu → Detalhes/ação/Atualizar → deps → progresso).
-
-### Entregue
-
-- [x] 1ª: Castelo / Fazenda / Armazém  
-- [x] 2ª: Serraria / Pedreira / Mina / Academia  
-- [x] 3ª: Arena / Hospital / Torre dos Dragões / Templo / Mercado / Laboratório  
-- [x] Pré-requisitos data-driven + Ir + GetCastleLevel real  
-- [x] Smoke + evidências `ux-contextual` / `ux-contextual-full`
+- [x] UX contextual completa da City (todos os edifícios atuais)
+- [x] Pré-requisitos data-driven + Castelo real + Ir
+- [x] Consolidação visual Beta 0.1 (silhuetas, zonas, menu, atmosfera, inventário)
 
 ---
 
-## Backlog P0 (preferência Beta)
+## Próxima sprint recomendada (P0)
 
 | # | Item | Critério |
 |---|------|----------|
-| 1 | README: Estado atual da Beta (offline) | Não promete online no exe |
-| 2 | Inventário de placeholders | Lista versionada |
-| 3 | Arte mínima Castelo/Torre | Mesh além de silhueta |
-| 4 | HUD de fila de construtores mais visível | 1 slot claro na HUD |
+| 1 | Arte mínima Castelo + Torre (mesh além de primitivo) | Substituir `Visual` preservando collider/ID |
+| 2 | Texturas de terreno/caminhos | Sem magenta URP |
+| 3 | Ícones de recurso/HUD originais | Substituir TextMesh genérico onde couber |
+| 4 | Polish Heroes cards + preview estável | Sem magenta; PT-BR |
 
-## Explicitamente FORA (não iniciar)
+## Fora (não iniciar)
 
-- Alianças / PvP / SvS / gacha / shooter  
-- Monetização / loja  
-- Comércio entre jogadores  
-- Árvore de pesquisa nova / religião / facção  
-- Novos heróis ou novos dragões  
-- Menu administrativo central de construções  
+PvP, alianças, SvS, monetização, loja, comércio P2P, novos heróis/dragões, menu central de construções.
 
 ## Referências
 
-- `docs/architecture/city-building-context-ux.md`  
-- `docs/architecture/city-building-upgrade-requirements.md`  
-- `VALGOR_IMPLEMENTATION_STATUS.md`  
-- `VALGOR_SINGLE_AGENT.md`  
+- `VALGOR_PLACEHOLDER_INVENTORY.md`
+- `VALGOR_IMPLEMENTATION_STATUS.md`
+- `docs/releases/beta-0.1-evidence/visual-consolidation/`

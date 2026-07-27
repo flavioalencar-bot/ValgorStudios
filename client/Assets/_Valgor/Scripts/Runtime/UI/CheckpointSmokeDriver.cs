@@ -55,6 +55,7 @@ namespace Valgor.UI
             Debug.Log("[CheckpointSmoke] MainMenu OK");
             yield return new WaitForSecondsRealtime(1.2f);
             yield return Capture("00-main-menu");
+            yield return Capture("vis-01-main-menu");
 
             EnsureLocalProfile();
             LocalPlayerProfile.MarkIntroDone();
@@ -67,6 +68,26 @@ namespace Valgor.UI
             Debug.Log("[CheckpointSmoke] City OK");
             yield return new WaitForSecondsRealtime(2.5f);
             yield return Capture("01-city");
+            yield return Capture("vis-02-city-full");
+            TrySelectCityBuilding("castle");
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Capture("vis-03-castle");
+            yield return Capture("vis-07-building-selected");
+            TrySelectCityBuilding("farm");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("vis-04-economy");
+            TrySelectCityBuilding("arena");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("vis-05-military");
+            TrySelectCityBuilding("dragon-tower");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("vis-06-dragon-tower");
+            InvokeCityPresenter("DebugOpenDetailsPanel");
+            yield return new WaitForSecondsRealtime(0.7f);
+            yield return Capture("vis-08-details");
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(0.7f);
+            yield return Capture("vis-09-upgrade");
 
             // —— Sprint UX contextual: Castelo / Fazenda / Armazém ——
             yield return CaptureBuildingUxEvidence();
@@ -76,18 +97,20 @@ namespace Valgor.UI
             Debug.Log("[CheckpointSmoke] HeroesDemo OK");
             yield return new WaitForSecondsRealtime(3.5f);
             yield return Capture("02-heroes-vortex");
+            yield return Capture("vis-10-heroes");
 
             yield return Navigate(n => n.GoToDragonTower());
             yield return WaitForScene(SceneIds.City, 90f);
             yield return new WaitForSecondsRealtime(2.5f);
             yield return Capture("03-dragons-tower");
+            yield return Capture("vis-11-dragons");
 
             yield return Navigate(n => n.GoToWorldMap());
             yield return WaitForScene(SceneIds.WorldMap, 90f);
             Debug.Log("[CheckpointSmoke] WorldMap OK");
             yield return new WaitForSecondsRealtime(2.5f);
             yield return Capture("04-worldmap");
-
+            yield return Capture("vis-12-worldmap");
             TrySelectFirstWorldNode();
             yield return new WaitForSecondsRealtime(1.2f);
             yield return Capture("05-worldmap-node");

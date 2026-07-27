@@ -7,7 +7,7 @@ using Valgor.Core;
 namespace Valgor.UI
 {
     /// <summary>
-    /// Menu principal da Beta 0.1 — Novo Jogo, Continuar, Configurações, Créditos, Sair.
+    /// Menu principal da Beta 0.1 — Jogar, Continuar, Configurações, Créditos, Sair.
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
     public sealed class MainMenuController : MonoBehaviour
@@ -132,6 +132,7 @@ namespace Valgor.UI
             card.Add(logo);
             card.Add(CreateLabel(ValgorVersion.ProductLine, 15, BetaVisualTheme.AgedGold));
             card.Add(CreateLabel("Reinos · Dragões · Heróis", 14, BetaVisualTheme.TextMuted));
+            card.Add(CreateLabel("Beta 0.1 · offline", 12, BetaVisualTheme.TextMuted));
 
             _homePanel = new VisualElement { name = "home-panel" };
             _homePanel.style.width = Length.Percent(100);
@@ -139,7 +140,7 @@ namespace Valgor.UI
             _homePanel.style.marginTop = 12;
             card.Add(_homePanel);
 
-            _homePanel.Add(CreateMenuButton("Novo Jogo", OnNewGame, "btn-new-game"));
+            _homePanel.Add(CreateMenuButton("Jogar", OnNewGame, "btn-new-game"));
             _homePanel.Add(CreateMenuButton("Continuar", OnContinue, "btn-continue"));
             _homePanel.Add(CreateMenuButton("Configurações", OnToggleSettings, "btn-settings"));
             _homePanel.Add(CreateMenuButton("Créditos", OnToggleCredits, "btn-credits"));
@@ -214,7 +215,7 @@ namespace Valgor.UI
             panel.style.marginTop = 16;
             panel.Add(CreateLabel("Apagar progresso atual?", 16, BetaVisualTheme.AgedGoldBright));
             var warn = CreateLabel(
-                "Um Novo Jogo apaga o save local e inicia outra jornada.",
+                "Um novo jogo apaga o save local e inicia outra jornada.",
                 13,
                 BetaVisualTheme.TextMuted);
             warn.style.whiteSpace = WhiteSpace.Normal;
@@ -346,7 +347,7 @@ namespace Valgor.UI
             {
                 _feedback.text = canContinue
                     ? $"Comandante: {LocalPlayerProfile.DisplayName}"
-                    : "Inicie um Novo Jogo para começar sua jornada.";
+                    : "Use Jogar para começar sua jornada.";
             }
         }
 

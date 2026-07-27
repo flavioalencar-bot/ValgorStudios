@@ -14,11 +14,57 @@ namespace Valgor.City.Visual
 
             HideSceneGround();
             BuildTerrain(root);
+            BuildDistrictPads(root);
             BuildPlaza(root);
             BuildRoads(root);
             BuildWallRing(root);
+            BuildGates(root);
             BuildTrees(root);
             SoftenLighting();
+        }
+
+        private static void BuildDistrictPads(Transform root)
+        {
+            // Economia (oeste)
+            Flat(root, "PadEconomy", new Vector3(-10f, 0.005f, 3f), new Vector3(10f, 0.05f, 16f),
+                new Color(0.3f, 0.38f, 0.26f));
+            // Militar (leste)
+            Flat(root, "PadMilitary", new Vector3(10f, 0.005f, 0f), new Vector3(8f, 0.05f, 12f),
+                new Color(0.36f, 0.32f, 0.28f));
+            // Comércio (sul)
+            Flat(root, "PadCommerce", new Vector3(0f, 0.005f, -10.5f), new Vector3(14f, 0.05f, 6f),
+                new Color(0.34f, 0.3f, 0.24f));
+            // Místico (nordeste)
+            Flat(root, "PadMystic", new Vector3(7f, 0.005f, 9f), new Vector3(10f, 0.05f, 10f),
+                new Color(0.28f, 0.3f, 0.36f));
+        }
+
+        private static void BuildGates(Transform root)
+        {
+            var stone = new Color(0.4f, 0.38f, 0.35f);
+            var gold = new Color(0.72f, 0.58f, 0.28f);
+            // Portões nos eixos (aberturas da muralha).
+            Vector3[] gates =
+            {
+                new(0f, 0f, 15.5f), new(0f, 0f, -15.5f),
+                new(15.5f, 0f, 0f), new(-15.5f, 0f, 0f)
+            };
+            for (var i = 0; i < gates.Length; i++)
+            {
+                var g = gates[i];
+                var alongX = Mathf.Abs(g.x) > Mathf.Abs(g.z);
+                var left = alongX ? new Vector3(g.x, 1.1f, g.z - 1.6f) : new Vector3(g.x - 1.6f, 1.1f, g.z);
+                var right = alongX ? new Vector3(g.x, 1.1f, g.z + 1.6f) : new Vector3(g.x + 1.6f, 1.1f, g.z);
+                Part(PrimitiveType.Cube, root, $"GateL_{i}", left, new Vector3(1.1f, 2.2f, 1.1f), stone);
+                Part(PrimitiveType.Cube, root, $"GateR_{i}", right, new Vector3(1.1f, 2.2f, 1.1f), stone);
+                var arch = alongX
+                    ? new Vector3(g.x, 2.35f, g.z)
+                    : new Vector3(g.x, 2.35f, g.z);
+                Part(PrimitiveType.Cube, root, $"GateArch_{i}", arch,
+                    alongX ? new Vector3(1.1f, 0.4f, 3.4f) : new Vector3(3.4f, 0.4f, 1.1f), stone);
+                Part(PrimitiveType.Cube, root, $"GateGold_{i}", arch + Vector3.up * 0.35f,
+                    alongX ? new Vector3(0.35f, 0.2f, 1.2f) : new Vector3(1.2f, 0.2f, 0.35f), gold);
+            }
         }
 
         private static void HideSceneGround()

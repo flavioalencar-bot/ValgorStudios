@@ -74,7 +74,7 @@ namespace Valgor.City.Visual
 
             var color = isEgg
                 ? new Color(0.85f, 0.72f, 0.45f)
-                : new Color(0.55f, 0.25f, 0.7f);
+                : new Color(0.62f, 0.28f, 0.14f); // brasas / cinzas — sem roxo/magenta
             CityVisualMaterials.Apply(go.GetComponent<Renderer>(), color);
             return go;
         }

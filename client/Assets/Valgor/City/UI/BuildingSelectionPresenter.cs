@@ -554,8 +554,8 @@ namespace Valgor.City.UI
             var detail = new Label(check.Detail);
             detail.style.fontSize = 11;
             detail.style.color = check.Satisfied
-                ? new Color(0.45f, 0.85f, 0.5f)
-                : new Color(0.9f, 0.35f, 0.32f);
+                ? BetaVisualTheme.Success
+                : BetaVisualTheme.Danger;
             detail.style.unityTextAlign = TextAnchor.MiddleRight;
             detail.style.flexGrow = 1;
             detail.style.flexShrink = 1;

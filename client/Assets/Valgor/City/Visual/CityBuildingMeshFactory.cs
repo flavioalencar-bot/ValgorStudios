@@ -87,6 +87,9 @@ namespace Valgor.City.Visual
             Doorway(root, new Vector3(0f, 0.85f, 2.15f));
             Flag(root, new Vector3(0f, 5.2f, 0f), Gold);
             Battlement(root, 0f, 2.95f, 4.4f, stone);
+            // Detalhes dourados na porta e cume.
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.6f, 2.2f), new Vector3(0.9f, 0.12f, 0.12f), Gold);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 4.0f, 0f), new Vector3(1.2f, 0.15f, 1.2f), Gold);
         }
 
         private static void BuildDragonTower(Transform root, Color color)
@@ -103,6 +106,9 @@ namespace Valgor.City.Visual
 
             Part(PrimitiveType.Cylinder, root, new Vector3(0f, 0.25f, 2.4f), new Vector3(3.0f, 0.22f, 3.0f), Stone);
             Part(PrimitiveType.Cylinder, root, new Vector3(0f, 0.5f, 2.4f), new Vector3(2.4f, 0.18f, 2.4f), Wood);
+            // Anéis de brasas no corpo da torre (marco secundário).
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 3.5f, 0f), new Vector3(2.25f, 0.12f, 2.25f), ember);
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 5.6f, 0f), new Vector3(1.7f, 0.1f, 1.7f), Gold);
             var nestRoot = new GameObject("NestOccupants");
             nestRoot.transform.SetParent(root, false);
             nestRoot.transform.localPosition = new Vector3(0f, 0.8f, 2.4f);
@@ -122,6 +128,9 @@ namespace Valgor.City.Visual
             Part(PrimitiveType.Cylinder, root, new Vector3(-1.6f, 1.2f, 0.2f), new Vector3(0.4f, 1.1f, 0.4f), Wood);
             Part(PrimitiveType.Cylinder, root, new Vector3(1.5f, 0.45f, 0.9f), new Vector3(0.5f, 0.35f, 0.5f), Wood);
             Part(PrimitiveType.Cylinder, root, new Vector3(1.5f, 0.45f, -0.3f), new Vector3(0.5f, 0.35f, 0.5f), Wood);
+            // Lâmina da serra (disco).
+            Part(PrimitiveType.Cylinder, root, new Vector3(-1.6f, 1.5f, 0.55f), new Vector3(1.1f, 0.08f, 1.1f),
+                new Color(0.55f, 0.55f, 0.58f));
         }
 
         private static void BuildQuarry(Transform root, Color color)

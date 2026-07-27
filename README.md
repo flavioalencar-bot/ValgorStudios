@@ -1,42 +1,78 @@
 # Valgor Studios
 
-Plataforma oficial do ecossistema **Valgor** — fundação de produção para cliente Unity, backend .NET, painel administrativo e infraestrutura containerizada.
+Cliente Unity + backend .NET do ecossistema **Valgor**.
 
-> Versão: `0.2.0` · Sprint Heroes Foundation  
-> Repositório: [flavioalencar-bot/ValgorStudios](https://github.com/flavioalencar-bot/ValgorStudios)
-
----
-
-## Visão
-
-A Valgor Studios desenvolve experiências interativas com arquitetura escalável e preparada para produção desde o primeiro commit. Este monorepo é a base definitiva do produto — sem protótipos descartáveis.
+> **Beta 0.1 (offline)** · repositório [flavioalencar-bot/ValgorStudios](https://github.com/flavioalencar-bot/ValgorStudios)
 
 ---
 
-## Arquitetura
+## Estado atual da Beta (leia isto)
+
+### O que funciona no executável
+
+- **Main Menu** offline (Jogar / Continuar / Configurações / Sair)
+- **City** com todos os edifícios atuais: seleção, menu contextual, Detalhes, Atualizar, pré-requisitos, botão Ir, coleta nos produtores, Torre com Dragões/Alimentar
+- **Heroes** (roster + preview Vortex)
+- **Dragons** via Torre / módulo existente (fome, vínculo, ninho)
+- **World Map** (nós, marcha, filtros) — regras estáveis; arte provisória
+- Save/reload local (`PlayerPrefs` / perfil local)
+
+### O que é offline
+
+- Sem login online obrigatório nesta beta
+- Sem multiplayer, alianças, PvP, SvS
+- Backend/API existem no monorepo, mas o **Player** da Beta 0.1 roda a jornada local
+
+### O que é placeholder
+
+- Silhuetas procedurais de edifícios/nós (não FBX finais)
+- Texturas e ícones provisórios
+- Ninho de dragões em primitivos
+- Ver inventário: [`docs/project-control/VALGOR_PLACEHOLDER_INVENTORY.md`](docs/project-control/VALGOR_PLACEHOLDER_INVENTORY.md)
+
+### O que NÃO faz parte da Beta 0.1
+
+- Monetização / loja
+- Comércio entre jogadores
+- Árvore de pesquisa completa / religião / facção
+- Novos heróis ou novos dragões além do módulo atual
+- Menu central administrativo de construções
+
+Build de referência: `builds/windows/Valgor-Beta-0.1/Valgor.exe`
+
+---
+
+## Arquitetura (monorepo)
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌──────────────────┐
-│ Unity 6 LTS │────▶│  Valgor.Api │────▶│ PostgreSQL       │
-│   client/   │     │   (.NET 9)  │     │ Redis            │
-└─────────────┘     └──────┬──────┘     └──────────────────┘
-                           │
-┌─────────────┐            │            ┌──────────────────┐
-│ Admin React │────────────┘            │ Valgor.Workers   │
-│   admin/    │                         │ (background)     │
-└─────────────┘                         └──────────────────┘
+client/   Unity 6 LTS (jogo)
+server/   .NET 9 (API / domínio)
+tools/    Testes de lógica do cliente
+docs/     Controle de projeto e evidências
 ```
 
-### Backend (Clean Architecture)
+Fluxo do cliente: **Bootstrap → Loading → MainMenu → City ⇄ Heroes ⇄ World Map**.
 
-| Projeto | Responsabilidade |
-|---------|------------------|
-| `Valgor.Api` | HTTP, JWT, Swagger, HealthChecks, Serilog, exceptions |
-| `Valgor.Application` | Casos de uso, MediatR, FluentValidation, Result |
-| `Valgor.Domain` | BaseEntity, Domain Events, Aggregates |
-| `Valgor.Infrastructure` | EF Core, PostgreSQL, Redis, JWT, seed |
-| `Valgor.Contracts` | DTOs compartilhados |
-| `Valgor.Workers` | Host de background jobs |
+---
+
+## Testes rápidos
+
+```powershell
+dotnet test tools/Valgor.GameLogic.Tests/Valgor.GameLogic.Tests.csproj
+dotnet test server/Valgor.sln
+powershell -File scripts/build-windows-beta.ps1
+powershell -File scripts/capture-checkpoint-evidence.ps1
+```
+
+---
+
+## Documentação de controle
+
+- [`docs/project-control/VALGOR_IMPLEMENTATION_STATUS.md`](docs/project-control/VALGOR_IMPLEMENTATION_STATUS.md)
+- [`docs/project-control/VALGOR_NEXT_SPRINT.md`](docs/project-control/VALGOR_NEXT_SPRINT.md)
+- [`docs/project-control/VALGOR_PLACEHOLDER_INVENTORY.md`](docs/project-control/VALGOR_PLACEHOLDER_INVENTORY.md)
+- [`docs/architecture/city-building-context-ux.md`](docs/architecture/city-building-context-ux.md)
+- [`CHANGELOG.md`](CHANGELOG.md)
 
 ---
 
@@ -44,147 +80,6 @@ A Valgor Studios desenvolve experiências interativas com arquitetura escalável
 
 | Camada | Tecnologia |
 |--------|------------|
-| Client | Unity 6 LTS · URP · Addressables · UI Toolkit · Input System · Localization |
-| Backend | .NET 9 · EF Core · MediatR · FluentValidation · Serilog · Swagger · JWT |
-| Banco | PostgreSQL 16 |
-| Cache | Redis 7 |
-| Admin | React · Vite · TypeScript |
-| Containers | Docker Compose |
-| CI | GitHub Actions |
-
----
-
-## Estrutura
-
-```
-/
-├── client/          # Unity 6 LTS (Game Core + City + Heroes)
-├── server/          # Solução .NET 9 (Valgor.sln)
-├── admin/           # Painel React + Vite
-├── database/        # Init SQL e seeds documentais
-├── infra/           # Artefatos de infra
-├── docs/            # Arquitetura, API e design references
-├── assets/          # Branding
-├── tools/           # Scripts e testes de lógica do cliente
-├── docker-compose.yml
-├── CHANGELOG.md
-└── README.md
-```
-
-Fluxo do cliente: **Bootstrap → Loading → MainMenu → City ⇄ WorldMap** (ver [docs/architecture/game-core.md](docs/architecture/game-core.md)).
-
----
-
-## Design References
-
-Referências visuais e sonoras aprovadas ficam em [`docs/design-references/`](docs/design-references/INDEX.md).
-
-Elas orientam identidade (cidade, mundo, construções, dragões, heróis, UI, ícones, VFX, luz, animação e áudio) durante todo o projeto.
-
-Regras:
-
-- Imagens são apenas referências — nenhuma arte pode ser copiada
-- Todo asset final deve ser original
-- Referência aprovada deve ser adicionada na pasta correspondente
-
-Índice completo: [docs/design-references/INDEX.md](docs/design-references/INDEX.md)
-
----
-
-## Como executar
-
-### Pré-requisitos
-
-- .NET 9 SDK
-- Docker Desktop
-- Node.js 20+
-- Unity 6 LTS (Hub)
-
-### Portas reservadas
-
-| Serviço | Porta |
-|---------|-------|
-| PostgreSQL | `5437` |
-| Redis | `6383` |
-| pgAdmin | `5051` |
-| API | `5100` |
-| Admin | `5173` |
-
-### 1. Infraestrutura
-
-```bash
-docker compose up -d
-```
-
-- Postgres: `localhost:5437` · `valgor` / `valgor` / `valgor`
-- Redis: `localhost:6383`
-- pgAdmin: http://localhost:5051 · `admin@valgor.com` / `valgor`
-
-### 2. Backend
-
-```bash
-cd server
-dotnet restore
-dotnet build
-dotnet run --project Valgor.Api
-```
-
-Em Development a API aplica migrations e cria o admin inicial:
-
-- email: `admin@valgor.local`
-- senha: `Valgor@Admin1`
-
-Endpoints:
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/health` | Liveness |
-| GET | `/version` | Versão e ambiente |
-| GET | `/health/ready` | Readiness (Postgres, Redis, EF) |
-| POST | `/api/auth/login` | Autenticação JWT |
-| GET | `/api/heroes/catalog` | Catálogo Vortex + 10 heroínas |
-| GET | `/api/heroes/factions` | Facções e vantagem circular |
-| GET | `/api/heroes/team-bonuses` | Bônus de composição |
-| POST | `/api/teams/validate` | Validação de equipe |
-| POST | `/api/battle/{id}/heroes/{heroId}/special/activate` | Poder especial (servidor) |
-| GET | `/swagger` | OpenAPI |
-
-Game design de heróis: [`docs/game-design/heroes/`](docs/game-design/heroes/README.md). API detalhada: [`docs/api/heroes.md`](docs/api/heroes.md). |
-
-### 3. Testes
-
-```bash
-cd server
-dotnet test
-```
-
-### 4. Admin
-
-```bash
-cd admin
-npm install
-npm run dev
-```
-
-Abra http://localhost:5173 e autentique com o admin seed.
-
-### 5. Client (Unity)
-
-1. Instale **Unity 6 LTS** via Hub  
-2. Abra a pasta `client/`  
-3. Cenas: `Bootstrap` → `Loading` → `MainMenu`  
-4. Pacotes: URP, Addressables, Input System, Localization, UI Toolkit  
-5. Sistema de heróis em `Assets/Valgor/Heroes/` — menu **Valgor → Heroes → Rebuild Catalog From Seed**
-
----
-
-## CI
-
-- **Build Backend** — restore, build, publish  
-- **Test Backend** — suíte automatizada
-
----
-
-## Licença
-
-[MIT](LICENSE)
+| Client | Unity 6 LTS · URP · UI Toolkit · Input System |
+| Backend | .NET 9 · EF Core · PostgreSQL · Redis |
+| Testes | xUnit (GameLogic + Server) |

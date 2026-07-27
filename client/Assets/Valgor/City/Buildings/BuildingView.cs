@@ -193,7 +193,7 @@ namespace Valgor.City.Buildings
             for (var i = 0; i < _renderers.Length; i++)
             {
                 var color = _selected
-                    ? Color.Lerp(_baseColors[i], Color.white, 0.35f)
+                    ? Color.Lerp(_baseColors[i], new Color(0.86f, 0.72f, 0.38f), 0.42f)
                     : _baseColors[i];
                 CityVisualMaterials.Apply(_renderers[i], color);
             }

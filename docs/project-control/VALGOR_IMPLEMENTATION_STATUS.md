@@ -401,3 +401,9 @@ Histórico completo: `git log --oneline` no repositório.
   - Prefixo `ux-30-*` Laboratório
 - Nota de escopo: **sem** PvP, trade real, árvore de research nova ou novos dragões — só UX contextual + stats de exibição / hooks Open-Feed nos módulos já existentes.
 - Situação City (bloco final UX contextual): **VISÍVEL NO EXECUTÁVEL**.
+
+## Consolidação visual Beta 0.1 (2026-07-27)
+
+- Inventário placeholders; distritos City; menu Jogar; evidências visual-consolidation (vis-01..vis-12 + backups 00-main-menu..04-worldmap).
+- GameLogic / Server counts: 140 / 23 aprovados (0 falha); exe LastWriteTime 2026-07-27 16:39:06 (Length=672256).
+- Sem novos sistemas/edifícios.

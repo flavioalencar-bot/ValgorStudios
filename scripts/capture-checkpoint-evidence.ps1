@@ -23,7 +23,7 @@ $p = Start-Process -FilePath $Exe -ArgumentList @(
   "-logfile", (Join-Path (Split-Path $Exe) "smoke-capture.log")
 ) -WorkingDirectory (Split-Path $Exe) -PassThru
 
-$deadline = (Get-Date).AddMinutes(18)
+$deadline = (Get-Date).AddMinutes(22)
 while (-not $p.HasExited -and (Get-Date) -lt $deadline) {
   Start-Sleep -Seconds 3
 }

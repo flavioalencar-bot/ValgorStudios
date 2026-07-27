@@ -9,6 +9,13 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- Visual: inventário de placeholders `VALGOR_PLACEHOLDER_INVENTORY.md`; evidências `visual-consolidation/`
+- City: distritos (economia/militar/comércio/místico), portões, pads de zona; seleção dourada; detalhes dourados Castelo/Torre/Serraria
+- Main Menu: botão **Jogar**, selo Beta 0.1 offline; tema Success/Danger
+- World Map: territórios de leitura; Dragons ninho sem cápsula roxa
+
+### Added
+
 - City: UX contextual 3ª entrega — Arena, Hospital, Torre dos Dragões, Templo, Mercado, Laboratório (`SupportBuildingRules`; Torre usa `IDragonGateway`)
 - City: UX contextual 2ª entrega — Serraria, Pedreira, Mina (Coletar/Detalhes/Atualizar) e Academia (Detalhes/Atualizar); `ProductionBuildingDetails` (taxa, estoque, capacidade, tempo até lotar)
 - City: deps data-driven Serraria←Fazenda, Pedreira←Serraria, Mina←Pedreira, Academia←Armazém; Arena/Torre/Lab←Academia; Hospital←Fazenda/Armazém; Templo←Hospital; Mercado←Armazém; Lab←Mina
