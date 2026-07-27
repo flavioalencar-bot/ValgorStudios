@@ -7,8 +7,13 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Fixed
+
+- GameLogic: removida dependência `Valgor.UI` de `WorldMapSession` (evento `RewardDeposited` → HUD/tutorial); testes `tools/Valgor.GameLogic.Tests` voltam a compilar (**114/114**)
+
 ### Changed
 
+- `production/Vortex/`: versionados exports FBX, staging Unity e previews de proporção; `.gitignore` cobre `.blend1`, autosaves, `__pycache__`, scripts temporários `_inspect*`/`_tmp*` e dumps locais
 - Governança: **agente único** assume o monorepo (Game Core + City + Heroes + Dragons + Map + backend + docs); segundo agente de heróis descontinuado — `docs/project-control/VALGOR_SINGLE_AGENT.md`, decisão D022
 
 ### Added

@@ -10,7 +10,6 @@ using Valgor.WorldMap.Filters;
 using Valgor.WorldMap.Locate;
 using Valgor.WorldMap.Marches;
 using Valgor.WorldMap.Territory;
-using Valgor.UI;
 
 namespace Valgor.WorldMap.Core
 {
@@ -121,6 +120,12 @@ namespace Valgor.WorldMap.Core
         public IReadOnlyDictionary<string, WorldCreatureInstance> Creatures => _creatures;
         public IReadOnlyDictionary<string, WorldTerritoryRuntime> Territories => _territories;
         public event Action? Changed;
+
+        /// <summary>
+        /// Disparado quando loot de marcha é depositado na carteira da cidade.
+        /// Camada de apresentação (HUD/tutorial) assina — sem dependência de UI na lógica.
+        /// </summary>
+        public event Action? RewardDeposited;
 
         public static WorldMapSession Create(IHeroesGateway heroes, IWorldMapClock? clock = null)
         {
@@ -648,7 +653,7 @@ namespace Valgor.WorldMap.Core
                     ? resource.ResourceType.ToString()
                     : "recursos";
                 LastDepositMessage = $"+{deposited} {resourceName} depositados na cidade!";
-                Valgor.UI.BetaJourneyGuide.NotifyRewardReceived();
+                RewardDeposited?.Invoke();
             }
         }
 

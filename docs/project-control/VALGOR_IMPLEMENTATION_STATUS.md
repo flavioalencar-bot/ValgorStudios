@@ -284,5 +284,12 @@ Histórico completo: `git log --oneline` no repositório.
 ## Evidência sessão 2026-07-27 (consolidação D022)
 
 - Server tests (`dotnet test server/Valgor.sln`): **aprovados 23 / falha 0 / total 23** (Domain 15 + Application 4 + Api 4).
-- GameLogic tests (`tools/Valgor.GameLogic.Tests`): **não executaram** — falha de compilação CS0234 (`Valgor.UI` ausente em `WorldMapSession.cs`); preexistente, fora do escopo D022.
+- GameLogic tests (`tools/Valgor.GameLogic.Tests`): na consolidação D022 **não executaram** (CS0234 `Valgor.UI` em `WorldMapSession.cs`).
 - Build Beta 0.1: `builds/windows/Valgor-Beta-0.1/Valgor.exe` existe (Length=672256, LastWriteTime=2026-07-27 12:19:09); Start-Process OK, processo Valgor ativo ~9s, Stop-Process graceful OK.
+
+## Evidência patch de saúde 2026-07-27 (pós-D022)
+
+- GameLogic: CS0234 corrigido — `WorldMapSession` dispara `RewardDeposited`; HUD assina e chama `BetaJourneyGuide` (sem UI na lógica pura).
+- `dotnet test tools/Valgor.GameLogic.Tests`: **114 aprovados / 0 falha / 114 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total**.
+- `production/Vortex/`: FBX de export/staging + previews de proporção + `unity_import_manifest.json` versionados; `.gitignore` ignora `.blend1`, autosaves, `__pycache__`, scripts `_inspect*`/`_tmp*`, dumps e XML local de editmode.

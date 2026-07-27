@@ -64,6 +64,7 @@ namespace Valgor.WorldMap.UI
             _map.Session.RegionSelection.SelectionChanged += _ => Refresh();
             _map.Changed += Refresh;
             _map.Session.EnergyWallet.Changed += (_, _) => RefreshWallet();
+            _map.Session.RewardDeposited += OnRewardDeposited;
             if (_economy != null)
             {
                 _economy.Wallet.Changed += (_, _) =>
@@ -72,6 +73,19 @@ namespace Valgor.WorldMap.UI
                     RefreshWallet();
                 };
             }
+        }
+
+        private void OnDestroy()
+        {
+            if (_map?.Session != null)
+            {
+                _map.Session.RewardDeposited -= OnRewardDeposited;
+            }
+        }
+
+        private static void OnRewardDeposited()
+        {
+            BetaJourneyGuide.NotifyRewardReceived();
         }
 
         private void EnsurePanelSettings()

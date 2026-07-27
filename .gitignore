@@ -104,3 +104,22 @@ tools/unity-install/
 # Player builds locais (binários + logs de batch)
 /builds/
 
+# Production / Vortex — temporários e caches (fonte + pipeline permanecem versionados)
+production/Vortex/**/__pycache__/
+production/Vortex/**/*.pyc
+production/Vortex/**/*.pyo
+production/Vortex/*.blend1
+production/Vortex/*_autosave*.blend
+production/Vortex/*autosave*.blend
+production/Vortex/_inspect_*.py
+production/Vortex/_tmp_*.py
+production/Vortex/_post_import_dump.py
+production/Vortex/reports/post_import_dump.json
+production/Vortex/reports/unity_editmode_results.xml
+production/Vortex/reports/*.log
+# Renders/caches locais descartáveis (previews oficiais de proporção ficam versionados)
+production/Vortex/previews/**/cache/
+production/Vortex/previews/**/*.tmp
+production/Vortex/export/*.tmp
+production/Vortex/unity_staging/**/*.tmp
+

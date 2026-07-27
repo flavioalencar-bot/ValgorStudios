@@ -1,0 +1,17 @@
+{
+  "character_id": "HERO_VORTEX_000",
+  "generated_utc": "2026-07-26T22:35:18.316552+00:00",
+  "blocked": false,
+  "staging_models": [
+    "C:\\Valgor_Studio\\production\\Vortex\\unity_staging\\Models\\Vortex_LOD0.fbx"
+  ],
+  "unity_target_models": "C:\\Valgor_Studio\\client\\Assets\\Valgor\\Heroes\\Characters\\Vortex\\Models",
+  "unity_target_textures": "C:\\Valgor_Studio\\client\\Assets\\Valgor\\Heroes\\Characters\\Vortex\\Textures",
+  "next_unity_steps": [
+    "Place Vortex_LOD0.fbx (and LOD1/LOD2) into Assets/Valgor/Heroes/Characters/Vortex/Models/",
+    "Place textures into .../Textures/",
+    "In Unity: Valgor \u2192 Heroes \u2192 Vortex \u2192 Validate Source Assets",
+    "Valgor \u2192 Heroes \u2192 Vortex \u2192 Build Vortex Prefab",
+    "Confirm PrefabAddress heroes/HERO_VORTEX_000/prefab"
+  ]
+}
