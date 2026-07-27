@@ -30,4 +30,4 @@ Menu no Editor: `Valgor/Build/Windows Beta Técnica 0.1`.
 
 ## Placeholders
 
-Edifícios, logotipo e modelos de dragão estão marcados como **PLACEHOLDER**. Heróis usam Vortex real no preview quando disponível; demais usam fallback do módulo de heróis.
+Arte final de edifícios/mapa ainda é silhueta procedural (não FBX). Vortex usa modelo real no HeroesDemo. Dragões no ninho são placeholders 3D sincronizados ao roost.

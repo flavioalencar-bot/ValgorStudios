@@ -70,7 +70,8 @@ namespace Valgor.WorldMap.Core
             WorldNodeInstance node,
             WorldResourceNode definition,
             MarchOrder march,
-            DateTime nowUtc)
+            DateTime nowUtc,
+            double gatherMultiplier = 1.0)
         {
             if (march.State != MarchState.Gathering ||
                 !string.Equals(march.TargetNodeId, node.DefinitionId, StringComparison.Ordinal))
@@ -84,8 +85,9 @@ namespace Valgor.WorldMap.Core
             }
 
             var last = node.LastGatherUpdatedUtc ?? nowUtc;
+            var rate = definition.GetGatherRatePerHour() * Math.Max(0.1, gatherMultiplier);
             var gathered = ResourceGatherCalculator.CalculateGathered(
-                definition.GetGatherRatePerHour(),
+                rate,
                 node.RemainingAmount,
                 march.ResourceLoad,
                 march.Capacity,

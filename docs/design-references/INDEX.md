@@ -4,6 +4,12 @@
 
 Centralizar referências visuais e sonoras aprovadas para o Valgor, garantindo identidade consistente entre arte, UI, VFX, iluminação, animação e áudio ao longo de todo o desenvolvimento.
 
+## Sistemas (gameplay)
+
+| Doc | Foco |
+|-----|------|
+| [LAST_Z_SYSTEMS_MAP.md](LAST_Z_SYSTEMS_MAP.md) | Mapa Last Z → o que entra na beta Valgor (estratégia; **sem** copiar arte/shooter) |
+
 ## Como utilizar as referências
 
 1. Consulte a categoria adequada antes de iniciar qualquer asset novo.
@@ -34,3 +40,4 @@ Centralizar referências visuais e sonoras aprovadas para o Valgor, garantindo i
 - Todo asset final deverá ser original.
 - As referências servem para manter identidade visual consistente durante todo o projeto.
 - Sempre que uma nova referência for aprovada, ela deve ser adicionada à pasta correspondente.
+- Referências de **sistemas** de outros jogos (ex.: Last Z) orientam loop e prioridade — **não** identidade visual Valgor.

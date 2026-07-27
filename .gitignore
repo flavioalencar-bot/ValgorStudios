@@ -101,3 +101,6 @@ BenchmarkDotNet.Artifacts/
 # Local Unity installer downloads
 tools/unity-install/
 
+# Player builds locais (binários + logs de batch)
+/builds/
+

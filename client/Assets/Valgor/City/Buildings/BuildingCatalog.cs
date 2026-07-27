@@ -26,6 +26,11 @@ namespace Valgor.City.Buildings
 
         public static BuildingDefinition Get(string id) => Definitions[id];
 
+        public static IReadOnlyDictionary<string, BuildingDefinition> All => Definitions;
+
+        public static bool TryGet(string id, out BuildingDefinition definition) =>
+            Definitions.TryGetValue(id, out definition!);
+
         private static BuildingDefinition Create(string id, string name, int maxLevel, long gold, long wood, long stone) =>
             new(id, name, maxLevel, new Dictionary<ResourceType, long>
             {

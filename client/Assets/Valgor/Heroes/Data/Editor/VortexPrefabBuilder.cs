@@ -71,6 +71,7 @@ namespace Valgor.Heroes.EditorTools
                 }
 
                 NormalizeModelTransform(instance);
+                VortexMaterialFixer.ApplyToHierarchy(instance);
             }
             else
             {
@@ -144,6 +145,7 @@ namespace Valgor.Heroes.EditorTools
             CreateUrpMat("MAT_Vortex_Cloth", new Color(0.12f, 0.12f, 0.16f));
             CreateUrpMat("MAT_Vortex_Eyes", new Color(0.15f, 0.55f, 0.85f), emission: new Color(0.05f, 0.2f, 0.35f));
             CreateUrpMat("MAT_Vortex_Sword", new Color(0.55f, 0.55f, 0.6f), metallic: 0.9f, smooth: 0.65f);
+            VortexMaterialFixer.EnsureBodyMaterial();
         }
 
         public static AnimatorController EnsureAnimatorController()
@@ -249,6 +251,7 @@ namespace Valgor.Heroes.EditorTools
                     sword.transform.localPosition = Vector3.zero;
                     sword.transform.localRotation = Quaternion.Euler(0f, 0f, -90f);
                     sword.transform.localScale = Vector3.one;
+                    VortexMaterialFixer.ApplyToHierarchy(sword);
                 }
                 else
                 {

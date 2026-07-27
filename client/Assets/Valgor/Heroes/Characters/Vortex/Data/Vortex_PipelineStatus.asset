@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa8f84819070cab45870e75716d1d761, type: 3}
   m_Name: Vortex_PipelineStatus
   m_EditorClassIdentifier: 
-  Phase: 2
+  Phase: 3
   UsingTechnicalFallback: 0
   LastValidationReport: "=== Vortex Asset Validation ===\r\nFonte: Assets/Valgor/Heroes/Characters/Vortex/Models/Vortex_LOD0.fbx.
     Prefab=True. Erros=0. Avisos=3.\r\nHasSourceModel=True\r\nPrefabReady=True UsingFallback=False\r\nAvatarOk=True

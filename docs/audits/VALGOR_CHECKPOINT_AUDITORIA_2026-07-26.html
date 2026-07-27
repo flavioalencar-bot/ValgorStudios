@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>VALGOR — Checkpoint Geral e Auditoria Executável</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      color: #1a1a1a;
+      font-size: 10.5pt;
+      line-height: 1.35;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      font-size: 18pt;
+      margin: 0 0 6pt;
+      color: #111;
+      border-bottom: 2px solid #c9a227;
+      padding-bottom: 8pt;
+    }
+    h2 {
+      font-size: 13pt;
+      margin: 18pt 0 8pt;
+      color: #222;
+      border-left: 4px solid #c9a227;
+      padding-left: 8pt;
+    }
+    h3 {
+      font-size: 11pt;
+      margin: 12pt 0 6pt;
+      color: #333;
+    }
+    .meta {
+      color: #555;
+      font-size: 9.5pt;
+      margin-bottom: 14pt;
+    }
+    .verdict {
+      background: #f7f3e8;
+      border: 1px solid #d4c28a;
+      padding: 10pt 12pt;
+      margin: 10pt 0 16pt;
+    }
+    .verdict strong { color: #5a4500; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6pt 0 12pt;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 4pt 6pt;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: #2b2b2b;
+      color: #fff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) td { background: #fafafa; }
+    .s-impl { color: #0b6b2f; font-weight: 700; }
+    .s-parc { color: #9a6700; font-weight: 700; }
+    .s-plac { color: #6b4f00; font-weight: 700; }
+    .s-quebr { color: #a10f0f; font-weight: 700; }
+    .s-nao { color: #555; font-weight: 700; }
+    pre {
+      background: #f4f4f4;
+      border: 1px solid #ddd;
+      padding: 8pt;
+      font-size: 8.5pt;
+      white-space: pre-wrap;
+      page-break-inside: avoid;
+    }
+    ul { margin: 4pt 0 10pt 16pt; padding: 0; }
+    li { margin: 2pt 0; }
+    .footer {
+      margin-top: 20pt;
+      padding-top: 8pt;
+      border-top: 1px solid #ccc;
+      font-size: 8.5pt;
+      color: #666;
+    }
+    .legend span {
+      display: inline-block;
+      margin-right: 10pt;
+      font-size: 8.5pt;
+    }
+  </style>
+</head>
+<body>
+  <h1>VALGOR — Checkpoint Geral e Auditoria Executável</h1>
+  <div class="meta">
+    <div><strong>Repositório:</strong> C:\Valgor_Studio</div>
+    <div><strong>Data da auditoria:</strong> 26 de julho de 2026</div>
+    <div><strong>Método:</strong> Validação por evidência em disco (código, cenas, prefabs, testes e builds). Mensagens de chat anteriores não contam como prova de conclusão.</div>
+    <div><strong>Unity:</strong> 6000.0.58f2 · <strong>Monorepo declarado:</strong> 0.2.0</div>
+  </div>
+
+  <div class="legend">
+    <span class="s-impl">IMPLEMENTADO</span>
+    <span class="s-parc">PARCIAL</span>
+    <span class="s-plac">PLACEHOLDER</span>
+    <span class="s-quebr">QUEBRADO</span>
+    <span class="s-nao">NÃO INICIADO</span>
+  </div>
+
+  <div class="verdict">
+    <strong>Veredito:</strong> monorepo com fundação real (Unity beta jogável no Editor + API Heroes/Auth + admin login),
+    mas <strong>não é produto completo</strong>: arte 3D quase só Vortex, sem player Windows, client offline
+    (API Heroes no Unity não integrada ao fluxo beta), Workers/infra/nginx vazios ou stub.
+  </div>
+
+  <h2>1. Projetos</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Cliente Unity <code>client/</code></td><td class="s-impl">IMPLEMENTADO</td><td>Unity 6000.0.58f2, URP, Addressables no manifest</td></tr>
+      <tr><td>Solução .NET <code>server/Valgor.sln</code></td><td class="s-impl">IMPLEMENTADO</td><td>Api, Domain, Application, Infrastructure, Contracts, Workers + 3 projetos de teste</td></tr>
+      <tr><td>Admin <code>admin/</code></td><td class="s-parc">PARCIAL</td><td>React 19 + Vite; só Login + Dashboard</td></tr>
+      <tr><td>Testes lógica cliente <code>tools/Valgor.GameLogic.Tests</code></td><td class="s-impl">IMPLEMENTADO</td><td>114 testes passando (fora do Unity)</td></tr>
+      <tr><td>Pipeline arte <code>production/Vortex/</code></td><td class="s-impl">IMPLEMENTADO</td><td>Blender + scripts + FBX export</td></tr>
+      <tr><td>Scaffold Unity <code>builds/_unity-beta-project/</code></td><td class="s-quebr">QUEBRADO</td><td>Sem pasta Assets/ — não jogável</td></tr>
+      <tr><td>Player Windows <code>builds/windows/Valgor-Beta-0.1/</code></td><td class="s-quebr">QUEBRADO</td><td>Pasta inexistente; beta-build.log return code 1 (Package Manager ENOENT)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Módulos Unity (asmdef)</h2>
+  <table>
+    <thead><tr><th>Módulo</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Valgor.Runtime</td><td class="s-impl">IMPLEMENTADO</td><td>Bootstrap, navegação, UI hosts, gateways (~41 cs)</td></tr>
+      <tr><td>Valgor.City</td><td class="s-parc">PARCIAL</td><td>Lógica + silhuetas runtime; 0 prefab/FBX</td></tr>
+      <tr><td>Valgor.WorldMap</td><td class="s-parc">PARCIAL</td><td>Marchas/energia/nós; 0 prefab/FBX</td></tr>
+      <tr><td>Valgor.Dragons</td><td class="s-parc">PARCIAL</td><td>DragonService + persistência; 0 modelo/prefab</td></tr>
+      <tr><td>Valgor.Heroes</td><td class="s-parc">PARCIAL</td><td>Catálogo SO + Vortex real; 10 heróis = dummy</td></tr>
+      <tr><td>Valgor.Heroes.Editor / Tests</td><td class="s-impl">IMPLEMENTADO</td><td>Pipeline + EditMode/PlayMode</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Cenas Unity (6 em build)</h2>
+  <table>
+    <thead><tr><th>Cena</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Bootstrap, Loading, MainMenu</td><td class="s-impl">IMPLEMENTADO</td><td>Cenas mínimas + hosts runtime</td></tr>
+      <tr><td>City, WorldMap</td><td class="s-parc">PARCIAL</td><td>Conteúdo montado em runtime (não assets serializados)</td></tr>
+      <tr><td>HeroesDemo</td><td class="s-impl">IMPLEMENTADO</td><td>Cena rica (~73 GOs), Vortex preview</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Paths:</strong> <code>Assets/_Valgor/Scenes/</code> (Bootstrap, Loading, MainMenu, WorldMap) · <code>Assets/Valgor/City/Scenes/City.unity</code> · <code>Assets/Valgor/Heroes/Scenes/HeroesDemo.unity</code></p>
+
+  <h2>4. Prefabs</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Prefabs totais</td><td class="s-parc">PARCIAL</td><td>2 apenas: Vortex_Hero.prefab, HumanoidDummy.prefab</td></tr>
+      <tr><td>Prefabs City / WorldMap / Dragons</td><td class="s-nao">NÃO INICIADO</td><td>Só .gitkeep</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Modelos 3D</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Vortex LOD0 + espada</td><td class="s-parc">PARCIAL</td><td>2 FBX em Heroes/Characters/Vortex/Models/</td></tr>
+      <tr><td>LOD1/LOD2, texturas canônicas, portraits/VFX/áudio</td><td class="s-nao">NÃO INICIADO</td><td>Pastas vazias / refs ausentes</td></tr>
+      <tr><td>Edifícios / mapa / dragões</td><td class="s-plac">PLACEHOLDER</td><td>Primitivas/meshes gerados por código</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. ScriptableObjects</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Heroes (HeroCatalog, facções, Vortex pipeline)</td><td class="s-impl">IMPLEMENTADO</td><td>Assets em Heroes/Data/Generated/</td></tr>
+      <tr><td>City / WorldMap / Dragons SO</td><td class="s-nao">NÃO INICIADO</td><td>Catálogos = classes C# estáticas</td></tr>
+      <tr><td>UI PanelSettings / URP</td><td class="s-impl">IMPLEMENTADO</td><td>BetaPanelSettings, URP assets</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Seeds / catálogos</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Heroes seed → SO</td><td class="s-impl">IMPLEMENTADO</td><td>docs/game-design/heroes/heroes.seed.json + builder</td></tr>
+      <tr><td>Buildings (14), Production (6), Nodes (17), Creatures, Territories, Dragons</td><td class="s-impl">IMPLEMENTADO</td><td>Catálogos C# hardcoded</td></tr>
+      <tr><td>Seeds SQL em database/seeds/</td><td class="s-plac">PLACEHOLDER</td><td>Só README; seed real na API (DatabaseInitializer)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8. Serviços (cliente)</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>GameCore (session, navigator, registry)</td><td class="s-impl">IMPLEMENTADO</td><td>GameBootstrap</td></tr>
+      <tr><td>City (upgrade, produção, HUD, filas)</td><td class="s-parc">PARCIAL</td><td>Código funcional; visual provisional</td></tr>
+      <tr><td>WorldMap (marcha, fila 1+1, gather, energia, território)</td><td class="s-parc">PARCIAL</td><td>Funcional beta; arte provisional</td></tr>
+      <tr><td>Dragons (FSM, ninho, deploy)</td><td class="s-parc">PARCIAL</td><td>Lógica OK; mesh placeholder</td></tr>
+      <tr><td>Heroes (Vortex + gateway beta)</td><td class="s-parc">PARCIAL</td><td>Vortex no demo; roster sem arte</td></tr>
+      <tr><td>HTTP HeroCatalogService</td><td class="s-plac">PLACEHOLDER</td><td>Código existe; 0 referências de uso no fluxo beta</td></tr>
+      <tr><td>Alliance / Gacha / Shooter / PvP</td><td class="s-nao">NÃO INICIADO</td><td>Fora do escopo; sem código</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9. Persistência</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>PlayerPrefs (perfil, cidade, dragões, mapa, energia, filtros, câmera, BetaProgress)</td><td class="s-impl">IMPLEMENTADO</td><td>Prefixos valgor.*.v1/v3</td></tr>
+      <tr><td>MarchRepository</td><td class="s-parc">PARCIAL</td><td>Memória / contrato backend</td></tr>
+      <tr><td>Sync client ↔ API</td><td class="s-nao">NÃO INICIADO</td><td>Beta 100% local</td></tr>
+    </tbody>
+  </table>
+
+  <h2>10. Backend</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>API Auth + Heroes (+ teams/battle special)</td><td class="s-impl">IMPLEMENTADO</td><td>Controllers + Minimal health; testes OK</td></tr>
+      <tr><td>Workers</td><td class="s-plac">PLACEHOLDER</td><td>Loop Delay 1 min; sem jobs de domínio</td></tr>
+      <tr><td>Docker imagem API</td><td class="s-nao">NÃO INICIADO</td><td>Sem Dockerfile</td></tr>
+      <tr><td>Compose API/Workers</td><td class="s-nao">NÃO INICIADO</td><td>Compose só Postgres/Redis/pgAdmin</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Endpoints reais:</strong> GET /health, /version, /health/ready · POST /api/auth/login · GET /api/heroes/* · GET /api/players/me/heroes · POST /api/teams/validate · POST /api/battle/.../special/activate</p>
+
+  <h2>11. Banco de dados</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Postgres via Compose (5437)</td><td class="s-impl">IMPLEMENTADO</td><td>docker-compose.yml</td></tr>
+      <tr><td>Init SQL extensions</td><td class="s-impl">IMPLEMENTADO</td><td>database/init/01_extensions.sql</td></tr>
+      <tr><td>database/migrations/</td><td class="s-nao">NÃO INICIADO</td><td>Pasta vazia</td></tr>
+      <tr><td>Migrations EF (users + heroes)</td><td class="s-impl">IMPLEMENTADO</td><td>Valgor.Infrastructure/Persistence/Migrations/</td></tr>
+      <tr><td>Redis (6383)</td><td class="s-impl">IMPLEMENTADO</td><td>No compose (uso app parcial)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>12. Painel administrativo</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>Login JWT → API</td><td class="s-impl">IMPLEMENTADO</td><td>LoginPage + api/auth</td></tr>
+      <tr><td>Dashboard</td><td class="s-plac">PLACEHOLDER</td><td>Só displayName; sem CRUD</td></tr>
+      <tr><td>Rotas extras (users/heroes/content)</td><td class="s-nao">NÃO INICIADO</td><td>Só /login e /dashboard</td></tr>
+    </tbody>
+  </table>
+
+  <h2>13. Infraestrutura</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>docker-compose.yml (deps)</td><td class="s-impl">IMPLEMENTADO</td><td>postgres, redis, pgadmin</td></tr>
+      <tr><td>infra/docker, infra/nginx</td><td class="s-plac">PLACEHOLDER</td><td>Pastas vazias + README genérico</td></tr>
+      <tr><td>CI GitHub Actions</td><td class="s-parc">PARCIAL</td><td>Só build/test backend</td></tr>
+    </tbody>
+  </table>
+
+  <h2>14. Documentação</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>docs/architecture/*, docs/api/*, beta 0.1</td><td class="s-impl">IMPLEMENTADO</td><td>Conteúdo preenchido</td></tr>
+      <tr><td>docs/game-design/</td><td class="s-parc">PARCIAL</td><td>Só heroes</td></tr>
+      <tr><td>docs/design-references/</td><td class="s-plac">PLACEHOLDER</td><td>READMEs/INDEX; 0 imagens de referência</td></tr>
+    </tbody>
+  </table>
+
+  <h2>15. Testes (executados nesta auditoria)</h2>
+  <table>
+    <thead><tr><th>Suíte</th><th>Status</th><th>Resultado</th></tr></thead>
+    <tbody>
+      <tr><td>server Domain + Application + Api</td><td class="s-impl">IMPLEMENTADO</td><td>15+4+4 = 23 OK</td></tr>
+      <tr><td>tools/Valgor.GameLogic.Tests</td><td class="s-impl">IMPLEMENTADO</td><td>114 OK</td></tr>
+      <tr><td>Unity Heroes Edit/PlayMode</td><td class="s-parc">PARCIAL</td><td>Existem no client; não executados nesta sessão (requer Editor)</td></tr>
+      <tr><td>City/WorldMap Unity Test folders</td><td class="s-plac">PLACEHOLDER</td><td>Só README apontando para tools/</td></tr>
+    </tbody>
+  </table>
+
+  <h2>16. Builds</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Status</th><th>Evidência</th></tr></thead>
+    <tbody>
+      <tr><td>builds/windows/Valgor-Beta-0.1/Valgor.exe</td><td class="s-quebr">QUEBRADO</td><td>Inexistente</td></tr>
+      <tr><td>Último build log</td><td class="s-quebr">QUEBRADO</td><td>Package resolve falhou (URP/ugui ENOENT); exit 1</td></tr>
+      <tr><td>Jogável no Editor</td><td class="s-parc">PARCIAL</td><td>Documentado e cenas/hosts presentes; validação visual depende do Editor</td></tr>
+    </tbody>
+  </table>
+
+  <h2>17. Diagrama do estado atual</h2>
+  <pre>[Editor Unity] Bootstrap → Loading → MainMenu → City ⇄ Heroes ⇄ WorldMap
+       │
+       ├── Persistência LOCAL (PlayerPrefs)
+       ├── Arte: silhuetas + Vortex FBX
+       └── API localhost:5100  →  NÃO usada pelo fluxo beta
+
+[Admin :5173] ──login──▶ [API :5100] ──▶ [Postgres :5437]
+                              │
+                         Workers = stub</pre>
+
+  <h2>18. Riscos / inconsistências</h2>
+  <ol>
+    <li>README promete Unity→API→Postgres; client beta não chama API.</li>
+    <li>Build Windows documentado como entregável; artefato ausente e log de falha.</li>
+    <li><code>builds/_unity-beta-project</code> sem Assets — scaffold quebrado.</li>
+    <li>Dois <code>WorldMapBootstrap</code> (Valgor.WorldMap usado; Valgor.Runtime.World legado).</li>
+    <li>Addressables no pacote, sem AddressableAssetsData versionado.</li>
+    <li>Infra/nginx vazia — SSL/produção não existem neste repo.</li>
+  </ol>
+
+  <h2>19. Observação de processo</h2>
+  <p>Sob ordem explícita de checkpoint: <strong>sem desenvolvimento de novas funcionalidades</strong> durante esta auditoria. Próximo passo recomendado: plano de correção apenas de itens QUEBRADO / PLACEHOLDER críticos (build Windows, limpeza de scaffold, ou integração client↔API).</p>
+
+  <div class="footer">
+    Documento gerado automaticamente a partir da auditoria executável do repositório Valgor_Studio · 2026-07-26<br/>
+    Fonte HTML: docs/audits/VALGOR_CHECKPOINT_AUDITORIA_2026-07-26.html
+  </div>
+</body>
+</html>

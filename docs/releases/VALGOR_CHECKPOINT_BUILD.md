@@ -1,7 +1,8 @@
 # VALGOR — Checkpoint Build (Windows Executável)
 
-Data: **2026-07-26**  
-Fonte de verdade da auditoria: `docs/audits/VALGOR_CHECKPOINT_AUDITORIA_2026-07-26.html`
+Data: **2026-07-26** (revalidado **2026-07-27**)  
+Fonte de verdade da auditoria: `docs/audits/VALGOR_CHECKPOINT_AUDITORIA_2026-07-26.html`  
+Validação mais recente: `docs/releases/VALGOR_BETA_0_1_VALIDATION_2026-07-27.md`
 
 ## Resultado
 

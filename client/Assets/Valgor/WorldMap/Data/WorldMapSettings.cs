@@ -22,10 +22,10 @@ namespace Valgor.WorldMap.Data
         public long DefaultMarchCapacity { get; set; } = 10_000;
         public string EnergyPersistenceKey { get; set; } = "valgor.worldmap.energy.v1";
         public string FilterPersistenceKey { get; set; } = "valgor.worldmap.filters.v1";
-        public string CameraPersistenceKey { get; set; } = "valgor.worldmap.camera.v1";
-        public float LocateDefaultZoom { get; set; } = 14f;
-        public float LocateHomeZoom { get; set; } = 12f;
-        public float DefaultCameraZoom { get; set; } = 14f;
+        public string CameraPersistenceKey { get; set; } = "valgor.worldmap.camera.v2";
+        public float LocateDefaultZoom { get; set; } = 15f;
+        public float LocateHomeZoom { get; set; } = 13f;
+        public float DefaultCameraZoom { get; set; } = 15f;
         public bool TerritoryOverlayEnabled { get; set; } = true;
     }
 }

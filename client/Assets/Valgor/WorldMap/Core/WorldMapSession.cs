@@ -221,6 +221,8 @@ namespace Valgor.WorldMap.Core
 
         public bool TryDispatchToSelected(out string error)
         {
+            LastDispatchDetail = null;
+            LastDispatchWasQueued = false;
             if (Selection.Selected == null)
             {
                 error = "Nenhum nó selecionado.";
@@ -233,6 +235,9 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
+            var selectedId = Selection.Selected.DefinitionId;
+            var hadLiveMarch = Marches.Active != null;
+
             EnergyRegen.ApplyUntil(Clock.UtcNow);
             var dispatchCost = EnergyCosts.ResolveMarchDispatch();
             if (dispatchCost > 0 && !EnergyWallet.TrySpend(dispatchCost, out error))
@@ -240,7 +245,7 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
-            if (!Marches.TryDispatch(Selection.Selected.DefinitionId, Settings.DefaultPlayerId, out error))
+            if (!Marches.TryDispatch(selectedId, Settings.DefaultPlayerId, out error))
             {
                 if (dispatchCost > 0)
                 {
@@ -250,9 +255,25 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
-            if (Marches.Active != null)
+            if (hadLiveMarch &&
+                Marches.HasQueuedMarch &&
+                string.Equals(Marches.QueuedTargetNodeId, selectedId, StringComparison.Ordinal))
             {
-                _dragons.TryDeployFirstReadyToMarch(Marches.Active.Id, out _);
+                LastDispatchWasQueued = true;
+                LastDispatchDetail = $"Fila: próxima → {selectedId}";
+            }
+            else if (Marches.Active != null)
+            {
+                if (_dragons.TryDeployFirstReadyToMarch(Marches.Active.Id, out var dragonError))
+                {
+                    LastDispatchDetail =
+                        $"{_heroes.DescribeFormation()} · Dragão destacado · Poder {GetAttackerPower()}";
+                }
+                else
+                {
+                    LastDispatchDetail =
+                        $"{_heroes.DescribeFormation()} · Sem dragão READY ({dragonError}) · Poder {_heroes.GetProvisionalMarchPower()}";
+                }
             }
 
             Changed?.Invoke();
@@ -319,7 +340,12 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
-            collected = Gathering.ApplyGathering(Selection.Selected, resource, Marches.Active, Clock.UtcNow);
+            collected = Gathering.ApplyGathering(
+                Selection.Selected,
+                resource,
+                Marches.Active,
+                Clock.UtcNow,
+                _heroes.GetGatherRateMultiplier());
             Persist();
             Changed?.Invoke();
             return true;
@@ -430,7 +456,7 @@ namespace Valgor.WorldMap.Core
                 return false;
             }
 
-            var attackerPower = _heroes.GetProvisionalMarchPower() + _dragons.GetProvisionalDragonPower();
+            var attackerPower = GetAttackerPower();
             if (!Encounters.TryResolveProvisional(
                     Selection.Selected.DefinitionId,
                     attackerPower,
@@ -447,6 +473,28 @@ namespace Valgor.WorldMap.Core
             Persist();
             Changed?.Invoke();
             return true;
+        }
+
+        public int GetAttackerPower() =>
+            _heroes.GetProvisionalMarchPower() + _dragons.GetProvisionalDragonPower();
+
+        public int GetHeroMarchPower() => _heroes.GetProvisionalMarchPower();
+
+        public string DescribeHeroFormation() => _heroes.DescribeFormation();
+
+        public string? LastDispatchDetail { get; private set; }
+
+        public bool LastDispatchWasQueued { get; private set; }
+
+        public float GetGatherRateMultiplier() => _heroes.GetGatherRateMultiplier();
+        public string? LastDepositMessage { get; private set; }
+        public long LastDepositAmount { get; private set; }
+
+        public string? ConsumeDepositMessage()
+        {
+            var message = LastDepositMessage;
+            LastDepositMessage = null;
+            return message;
         }
 
         public void Persist()
@@ -552,7 +600,12 @@ namespace Valgor.WorldMap.Core
                 return;
             }
 
-            Gathering.ApplyGathering(GetNode(march.TargetNodeId), resource, march, nowUtc);
+            Gathering.ApplyGathering(
+                GetNode(march.TargetNodeId),
+                resource,
+                march,
+                nowUtc,
+                _heroes.GetGatherRateMultiplier());
         }
 
         private void AdvanceResourceRespawns(DateTime nowUtc)
@@ -582,10 +635,19 @@ namespace Valgor.WorldMap.Core
 
             if (BoundWallet == null)
             {
+                LastDepositMessage = "Loot pendente — abra a Cidade para sincronizar a carteira.";
+                LastDepositAmount = 0;
                 return;
             }
 
-            TryDepositMarchLoad(completed, BoundWallet, out _);
+            if (TryDepositMarchLoad(completed, BoundWallet, out var deposited) && deposited > 0)
+            {
+                LastDepositAmount = deposited;
+                var resourceName = GetDefinition(completed.TargetNodeId) is WorldResourceNode resource
+                    ? resource.ResourceType.ToString()
+                    : "recursos";
+                LastDepositMessage = $"+{deposited} {resourceName} depositados na cidade!";
+            }
         }
 
         private void AdvanceCreatures(DateTime utcNow)

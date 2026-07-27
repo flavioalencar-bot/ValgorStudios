@@ -8,10 +8,8 @@ namespace Valgor.UI
     {
         private void Awake()
         {
-            if (gameObject.GetComponent<UIDocument>() == null)
-            {
-                gameObject.AddComponent<UIDocument>();
-            }
+            var document = gameObject.GetComponent<UIDocument>() ?? gameObject.AddComponent<UIDocument>();
+            BetaUiPanels.ApplyTo(document);
 
             var cityBootstrapType = Type.GetType("Valgor.City.CityBootstrap, Valgor.City");
             if (cityBootstrapType == null)

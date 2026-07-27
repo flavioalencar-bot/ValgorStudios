@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using Valgor.WorldMap.Camera;
 using Valgor.WorldMap.Data;
 using Valgor.WorldMap.Locate;
 using Valgor.WorldMap.Nodes;
 using Valgor.WorldMap.Territory;
+using Valgor.WorldMap.Visual;
 
 namespace Valgor.WorldMap.Core
 {
@@ -17,6 +19,7 @@ namespace Valgor.WorldMap.Core
         private readonly Dictionary<string, WorldTerritoryOverlay> _territoryOverlays = new();
         private readonly List<RegionInstance> _regions = new();
         private WorldMapCameraController? _camera;
+        private MarchArmyView? _marchArmy;
 
         public WorldMapController(WorldMapSession session)
         {
@@ -31,6 +34,7 @@ namespace Valgor.WorldMap.Core
             _session.Marches.Changed += (_, _) =>
             {
                 ApplyNodeVisibility();
+                SyncMarchArmy();
                 Changed?.Invoke();
             };
             _session.Filters.Changed += () =>
@@ -48,6 +52,12 @@ namespace Valgor.WorldMap.Core
         {
             _camera = camera;
             _camera.BindPersistence(_session.CameraPersistence);
+        }
+
+        public void BindMarchArmy(MarchArmyView army)
+        {
+            _marchArmy = army;
+            SyncMarchArmy();
         }
 
         public void AddRegion(RegionInstance instance, RegionDefinition definition, RegionNodeView view)
@@ -78,7 +88,7 @@ namespace Valgor.WorldMap.Core
 
         public void Tick()
         {
-            // Tick de simulação é global (GlobalMarchTickService). Aqui só sincroniza a UI.
+            SyncMarchArmy();
             Changed?.Invoke();
         }
 
@@ -131,6 +141,14 @@ namespace Valgor.WorldMap.Core
             }
 
             _session.Selection.Select(_session.GetNode(target.Id));
+            if (_marchArmy != null && _marchArmy.gameObject.activeInHierarchy)
+            {
+                return TryFocus(new WorldCameraFocusRequest(
+                    _marchArmy.transform.position.x,
+                    _marchArmy.transform.position.z,
+                    _session.Settings.LocateHomeZoom));
+            }
+
             return TryFocus(_session.Locator.CreateFocusRequest(target));
         }
 
@@ -166,15 +184,32 @@ namespace Valgor.WorldMap.Core
             return TryFocus(_session.Locator.CreateFocusRequest(target));
         }
 
+        private void SyncMarchArmy()
+        {
+            _marchArmy?.Sync(
+                _session.Marches.Active,
+                id =>
+                {
+                    var definition = _session.GetDefinition(id);
+                    return new Vector3(definition.X, 0f, definition.Z);
+                },
+                _session.Clock.UtcNow,
+                _session.DescribeHeroFormation());
+        }
+
         private void ApplyNodeVisibility(string nodeId)
         {
-            if (!_nodeViews.TryGetValue(nodeId, out var view))
+            if (!_nodeViews.TryGetValue(nodeId, out var view) || view == null)
             {
                 return;
             }
 
             var visible = _session.IsNodeVisible(nodeId);
             view.gameObject.SetActive(visible);
+            if (visible)
+            {
+                view.RefreshVisual();
+            }
         }
 
         private void OnNodeSelectionChanged(WorldNodeInstance? selected)

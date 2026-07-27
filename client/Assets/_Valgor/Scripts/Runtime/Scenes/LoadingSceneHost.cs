@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using Valgor.UI;
 
 namespace Valgor.Scenes
 {
@@ -10,8 +11,12 @@ namespace Valgor.Scenes
     {
         private void Awake()
         {
-            _ = gameObject.GetComponent<UIDocument>() ?? gameObject.AddComponent<UIDocument>();
-            _ = gameObject.GetComponent<LoadingScreenController>() ?? gameObject.AddComponent<LoadingScreenController>();
+            var document = gameObject.GetComponent<UIDocument>() ?? gameObject.AddComponent<UIDocument>();
+            BetaUiPanels.ApplyTo(document);
+            if (gameObject.GetComponent<LoadingScreenController>() == null)
+            {
+                gameObject.AddComponent<LoadingScreenController>();
+            }
         }
     }
 }

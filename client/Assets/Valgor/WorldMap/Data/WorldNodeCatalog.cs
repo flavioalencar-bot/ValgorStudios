@@ -25,7 +25,7 @@ namespace Valgor.WorldMap.Data
                     settings.PlayerHomeNodeId,
                     "home",
                     "Cidade do Jogador",
-                    "Sua base. Origem das marchas provisórias.",
+                    "Sua base. Origem das marchas e retorno do exército.",
                     WorldNodeStatus.Available,
                     settings.PlayerHomeX,
                     settings.PlayerHomeZ,
@@ -44,7 +44,7 @@ namespace Valgor.WorldMap.Data
                 new WorldVillageNode("coast-harbor", "coast", "Porto de Âmbar", "Comércio costeiro.", WorldNodeStatus.Available, -16f, -4f, 780),
                 new WorldResourceNode("coast-gold", "coast", "Banco de Conchas", "Ouro lavado pela maré.", WorldNodeStatus.Available, -11f, -8f, ResourceType.Gold, 350, 1, 120, TimeSpan.FromHours(3)),
                 new WorldCreatureNode("coast-crab", "coast", "Caranguejo Titã", "Ameaça das praias.", WorldNodeStatus.Available, -18f, -9f, 3, "tide-crab"),
-                new WorldCityNode("coast-outpost", "coast", "Posto Mercante", "Cidade aliada provisória.", WorldNodeStatus.Available, -12f, -3f),
+                new WorldCityNode("coast-outpost", "coast", "Posto Mercante", "Cidade aliada do litoral.", WorldNodeStatus.Available, -12f, -3f),
 
                 new WorldResourceNode("desert-stone", "desert", "Pedreira de Vidro", "Bloqueada pelo calor.", WorldNodeStatus.Locked, 14f, -8f, ResourceType.Stone, 600, 2, 180, TimeSpan.FromHours(6)),
                 new WorldCreatureNode("desert-scorpion", "desert", "Escorpião de Areia", "Região trancada.", WorldNodeStatus.Locked, 10f, -12f, 5, "glass-scorpion"),

@@ -9,6 +9,25 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- Validação Windows Beta 0.1 (2026-07-27): smoke exit 0 + evidências em `docs/releases/beta-0.1-evidence/`
+- Progressão beta: `BetaProgress` (Castelo + pesquisa Coleta); poder Vortex escala com Castelo; gather x1.10 (+5% com Lab); fila de marcha 1 ativa + 1 enfileirada com feedback no HUD
+- UX estilo Last Z (beta): **persistência de níveis** dos prédios, **fila de construção 1/1** com timer curto, bolhas de coleta com valor, setas de upgrade, faixa Construção/Pesquisa no HUD; no mapa badges de nível + path pontilhado da marcha
+
+### Fixed
+
+- UI Toolkit da beta: `PanelSettings` sem Theme Style Sheet. Hosts aplicam tema ao criar `UIDocument`; `BetaUiPanels` substitui settings sem tema
+
+### Changed
+
+- Cidade provisional com silhuetas distintas por edifício, layout em distritos (castelo central), praça/caminhos/muralha e ambiente — ainda sem arte final FBX
+- World Map provisional: silhuetas por tipo de nó, terreno/atmosfera e **marcha visível** no mundo (`MarchArmyView` com trail)
+- Torre dos Dragões: ninho 3D com ocupantes; upgrade gated pelo nível do Castelo (estilo HQ); `BetaHeroesGateway` (Vortex poder 280) nos encontros; painel de combate no mapa
+- Beta 0.1 fechada como jogo strategy jogável: poder no HUD, deploy de dragão com feedback, depósito de loot, tutorial sem pular retorno, PLACEHOLDERs limpos, formação Vortex no HeroesDemo
+
+### Added
+
+- Mapa de sistemas Last Z → Valgor (`docs/design-references/LAST_Z_SYSTEMS_MAP.md`): o que entra na beta, o que fica de fora (shooter/gacha/aliança)
+- Jornada do jogador Beta Técnica 0.1: splash/loading com mensagens, first-access (nome+ID local), intro, tutorial guiado na cidade/mapa, Continuar/Nova Jornada via `LocalPlayerProfile`
 - Vortex jogável: rig Humanoid no Blender, 16 clips mínimos, `Vortex_DragonSword.fbx`, Avatar Humanoid no Unity, espada em `Socket_RightHand`, VFX Domínio do Rei (~10s) e preview HeroesDemo sem dummy
 - Script de produção `production/Vortex/rig_animate_weapon_vortex.py` (skinning + animações + export FBX)
 

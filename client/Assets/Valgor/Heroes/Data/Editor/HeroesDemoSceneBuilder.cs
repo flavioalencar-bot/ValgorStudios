@@ -160,10 +160,29 @@ namespace Valgor.Heroes.EditorTools
 
         private static void EnsurePanelSettings()
         {
+            const string themePath = "Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss";
+            var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(themePath);
             var existing = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsPath);
-            if (existing != null) return;
+            if (existing != null)
+            {
+                if (existing.themeStyleSheet == null && theme != null)
+                {
+                    existing.themeStyleSheet = theme;
+                    EditorUtility.SetDirty(existing);
+                    AssetDatabase.SaveAssets();
+                }
+
+                return;
+            }
 
             var settings = ScriptableObject.CreateInstance<PanelSettings>();
+            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+            settings.referenceResolution = new Vector2Int(1920, 1080);
+            if (theme != null)
+            {
+                settings.themeStyleSheet = theme;
+            }
+
             AssetDatabase.CreateAsset(settings, PanelSettingsPath);
             AssetDatabase.SaveAssets();
         }

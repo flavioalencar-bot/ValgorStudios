@@ -22,5 +22,9 @@ namespace Valgor.Core.Modules
         }
 
         public int GetProvisionalMarchPower() => 100;
+
+        public float GetGatherRateMultiplier() => 1f;
+
+        public string DescribeFormation() => "Formação provisional";
     }
 }

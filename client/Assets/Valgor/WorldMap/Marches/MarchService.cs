@@ -22,6 +22,8 @@ namespace Valgor.WorldMap.Marches
         private readonly IMarchRepository _repository;
         private MarchOrder? _active;
         private MarchOrder? _lastCompleted;
+        private string? _queuedTargetNodeId;
+        private string? _queuedPlayerId;
         private DateTime _lastAdvanceUtc;
 
         public MarchService(
@@ -46,6 +48,8 @@ namespace Valgor.WorldMap.Marches
 
         public MarchOrder? Active => _active;
         public MarchOrder? LastCompleted => _lastCompleted;
+        public string? QueuedTargetNodeId => _queuedTargetNodeId;
+        public bool HasQueuedMarch => !string.IsNullOrEmpty(_queuedTargetNodeId);
         public MarchStateMachine StateMachine => _stateMachine;
         public WorldNodeOccupationService Occupation => _occupation;
         public MarchTravelCalculator Travel => _travel;
@@ -63,10 +67,30 @@ namespace Valgor.WorldMap.Marches
 
             if (_active != null && IsLive(_active.State))
             {
-                error = "Já existe uma marcha ativa.";
-                return false;
+                if (!string.IsNullOrEmpty(_queuedTargetNodeId))
+                {
+                    error = "Fila de marcha cheia (máx. 1).";
+                    return false;
+                }
+
+                if (!ValidateDispatchTarget(targetNodeId, out error))
+                {
+                    return false;
+                }
+
+                _queuedTargetNodeId = targetNodeId;
+                _queuedPlayerId = playerId;
+                PersistMarch();
+                Raise(null);
+                error = string.Empty;
+                return true;
             }
 
+            return StartMarch(targetNodeId, playerId, out error);
+        }
+
+        private bool ValidateDispatchTarget(string targetNodeId, out string error)
+        {
             var target = _resolveDefinition(targetNodeId);
             var node = _resolveNode(targetNodeId);
 
@@ -88,12 +112,24 @@ namespace Valgor.WorldMap.Marches
                 return false;
             }
 
+            error = string.Empty;
+            return true;
+        }
+
+        private bool StartMarch(string targetNodeId, string? playerId, out string error)
+        {
+            if (!ValidateDispatchTarget(targetNodeId, out error))
+            {
+                return false;
+            }
+
             if (!_heroes.TryReserveMarchSlot(targetNodeId, out var teamId))
             {
                 error = "Slot de marcha indisponível.";
                 return false;
             }
 
+            var target = _resolveDefinition(targetNodeId);
             var originId = _settings.PlayerHomeNodeId;
             var origin = _resolveDefinition(originId);
             var speed = _settings.MarchSpeedUnitsPerHour;
@@ -205,6 +241,7 @@ namespace Valgor.WorldMap.Marches
             _active = null;
             PersistMarch();
             Raise(MarchState.Cancelled);
+            TryPromoteQueue();
             return true;
         }
 
@@ -262,6 +299,7 @@ namespace Valgor.WorldMap.Marches
         {
             if (_active == null)
             {
+                TryPromoteQueue();
                 _lastAdvanceUtc = utcNow;
                 return;
             }
@@ -287,6 +325,7 @@ namespace Valgor.WorldMap.Marches
                         _active = null;
                         PersistMarch();
                         Raise(MarchState.Cancelled);
+                        TryPromoteQueue();
                         _lastAdvanceUtc = utcNow;
                         return;
                     }
@@ -309,10 +348,34 @@ namespace Valgor.WorldMap.Marches
                     _active = null;
                     PersistMarch();
                     Raise(MarchState.Completed);
+                    TryPromoteQueue();
                 }
             }
 
             _lastAdvanceUtc = utcNow;
+        }
+
+        private void TryPromoteQueue()
+        {
+            if (_active != null && IsLive(_active.State))
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_queuedTargetNodeId))
+            {
+                return;
+            }
+
+            var target = _queuedTargetNodeId;
+            var player = _queuedPlayerId;
+            _queuedTargetNodeId = null;
+            _queuedPlayerId = null;
+            if (!StartMarch(target!, player, out _))
+            {
+                // mantém limpo; jogador pode reenviar
+                PersistMarch();
+            }
         }
 
         public void Restore(MarchOrder? march, DateTime lastAdvanceUtc, MarchOrder? lastCompleted = null)

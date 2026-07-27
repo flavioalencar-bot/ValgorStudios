@@ -1,4 +1,4 @@
-using Valgor.Addressables;
+using Valgor.ContentLoading;
 using Valgor.Audio;
 using Valgor.Localization;
 using Valgor.Navigation;

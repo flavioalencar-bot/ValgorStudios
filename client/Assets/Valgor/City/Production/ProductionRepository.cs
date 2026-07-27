@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Valgor.City.Buildings;
 using Valgor.City.Data;
 
 namespace Valgor.City.Production
@@ -15,6 +16,7 @@ namespace Valgor.City.Production
     {
         public DateTime SavedAtUtc { get; set; }
         public Dictionary<string, BuildingProductionState> Buildings { get; set; } = new();
+        public Dictionary<string, BuildingProgressRecord> BuildingProgress { get; set; } = new();
         public Dictionary<ResourceType, long> Wallet { get; set; } = new();
     }
 
@@ -84,6 +86,36 @@ namespace Valgor.City.Production
                 };
             }
 
+            foreach (var pair in BuildingCatalog.All)
+            {
+                var lvKey = _keyPrefix + ".slot." + pair.Key + ".lv";
+                if (!UnityEngine.PlayerPrefs.HasKey(lvKey))
+                {
+                    continue;
+                }
+
+                var stKey = _keyPrefix + ".slot." + pair.Key + ".st";
+                var upKey = _keyPrefix + ".slot." + pair.Key + ".up";
+                var state = (BuildingState)UnityEngine.PlayerPrefs.GetInt(stKey, (int)BuildingState.Ready);
+                DateTime? upgradeAt = null;
+                if (UnityEngine.PlayerPrefs.HasKey(upKey))
+                {
+                    var raw = UnityEngine.PlayerPrefs.GetString(upKey);
+                    if (!string.IsNullOrEmpty(raw))
+                    {
+                        upgradeAt = ParseTime(raw);
+                    }
+                }
+
+                snapshot.BuildingProgress[pair.Key] = new BuildingProgressRecord
+                {
+                    DefinitionId = pair.Key,
+                    Level = UnityEngine.PlayerPrefs.GetInt(lvKey, 0),
+                    State = state,
+                    UpgradeCompletesAtUtc = upgradeAt
+                };
+            }
+
             foreach (ResourceType resource in Enum.GetValues(typeof(ResourceType)))
             {
                 var key = _keyPrefix + ".w." + resource;
@@ -109,6 +141,23 @@ namespace Valgor.City.Production
                 UnityEngine.PlayerPrefs.SetString(
                     _keyPrefix + ".b." + pair.Key + ".ts",
                     pair.Value.LastUpdatedUtc.ToString("O", CultureInfo.InvariantCulture));
+            }
+
+            foreach (var pair in snapshot.BuildingProgress)
+            {
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".slot." + pair.Key + ".lv", pair.Value.Level);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".slot." + pair.Key + ".st", (int)pair.Value.State);
+                var upKey = _keyPrefix + ".slot." + pair.Key + ".up";
+                if (pair.Value.UpgradeCompletesAtUtc.HasValue)
+                {
+                    UnityEngine.PlayerPrefs.SetString(
+                        upKey,
+                        pair.Value.UpgradeCompletesAtUtc.Value.ToString("O", CultureInfo.InvariantCulture));
+                }
+                else
+                {
+                    UnityEngine.PlayerPrefs.DeleteKey(upKey);
+                }
             }
 
             foreach (var pair in snapshot.Wallet)
@@ -143,6 +192,17 @@ namespace Valgor.City.Production
                 clone.Buildings[pair.Key] = new BuildingProductionState(pair.Value.BuildingDefinitionId, pair.Value.LastUpdatedUtc)
                 {
                     Accumulated = pair.Value.Accumulated
+                };
+            }
+
+            foreach (var pair in source.BuildingProgress)
+            {
+                clone.BuildingProgress[pair.Key] = new BuildingProgressRecord
+                {
+                    DefinitionId = pair.Value.DefinitionId,
+                    Level = pair.Value.Level,
+                    State = pair.Value.State,
+                    UpgradeCompletesAtUtc = pair.Value.UpgradeCompletesAtUtc
                 };
             }
 

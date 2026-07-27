@@ -51,15 +51,7 @@ namespace Valgor.World
 
         private void EnsurePanelSettings()
         {
-            if (document.panelSettings != null)
-            {
-                return;
-            }
-
-            var settings = ScriptableObject.CreateInstance<PanelSettings>();
-            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            settings.referenceResolution = new Vector2Int(1920, 1080);
-            document.panelSettings = settings;
+            Valgor.UI.BetaUiPanels.ApplyTo(document);
         }
 
         private void EnsureUi()

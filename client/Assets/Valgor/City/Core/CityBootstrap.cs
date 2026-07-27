@@ -5,9 +5,11 @@ using Valgor.City.Buildings;
 using Valgor.City.Core;
 using Valgor.City.Data;
 using Valgor.City.UI;
+using Valgor.City.Visual;
 using Valgor.Core;
 using Valgor.Core.Modules;
 using Valgor.Dragons.Core;
+using Valgor.UI;
 
 namespace Valgor.City
 {
@@ -29,7 +31,7 @@ namespace Valgor.City
             ("temple", BuildingState.Locked, 0),
             ("dragon-tower", BuildingState.Ready, 1),
             ("arena", BuildingState.Available, 0),
-            ("laboratory", BuildingState.Locked, 0)
+            ("laboratory", BuildingState.Available, 0)
         };
 
         public bool IsLoaded { get; private set; }
@@ -46,8 +48,12 @@ namespace Valgor.City
             Controller.BindDragons(Dragons);
             GameBootstrap.Services?.Register<IPlayerCityModule>(this);
             GameBootstrap.Services?.Register<IResourceModule>(new CityResourceModule(Economy.Wallet));
+            CityEnvironmentBuilder.Build(transform);
             CreateBuildings();
+            Controller.SyncBetaProgress();
             Economy.ApplyOfflineAndPersist(Controller.Buildings);
+            Controller.SyncBetaProgress();
+            Controller.RefreshPresentation();
             CreateHud();
             ConfigureCamera();
         }
@@ -69,9 +75,12 @@ namespace Valgor.City
         public void Enter()
         {
             IsLoaded = true;
+            BetaJourneyGuide.NotifyReturnedToCity();
+            PlayerPrefs.Save();
             if (BetaFocusHints.TryConsumeBuildingFocus(out var buildingId))
             {
                 Controller.TrySelectByDefinitionId(buildingId);
+                BetaJourneyGuide.NotifyDragonTowerFocused();
             }
         }
 
@@ -107,32 +116,36 @@ namespace Valgor.City
 
         private void CreateBuildings()
         {
-            const int columns = 4;
-            const float spacing = 7f;
             var root = new GameObject("BuildingSlots").transform;
+            root.SetParent(transform, false);
             for (var index = 0; index < BuildingLayout.Length; index++)
             {
                 var layout = BuildingLayout[index];
                 var definition = BuildingCatalog.Get(layout.Id);
                 var instance = new BuildingInstance(layout.Id, layout.Level, layout.State);
-                var row = index / columns;
-                var column = index % columns;
-                var position = new Vector3((column - 1.5f) * spacing, 0.7f, (row - 1.5f) * spacing);
+                var position = CityLayout.WorldPosition(layout.Id);
 
                 var slotObject = new GameObject($"Slot_{index + 1}_{layout.Id}");
-                slotObject.transform.SetParent(root);
+                slotObject.transform.SetParent(root, false);
                 slotObject.transform.position = position;
                 var slot = slotObject.AddComponent<BuildingSlot>();
                 slot.Initialize($"slot-{index + 1}", layout.Id, instance);
 
-                var primitive = GameObject.CreatePrimitive(index % 3 == 0 ? PrimitiveType.Cylinder : PrimitiveType.Cube);
-                primitive.transform.SetParent(slotObject.transform, false);
-                primitive.transform.localScale = layout.Id == "castle"
-                    ? new Vector3(2.3f, 3.5f, 2.3f)
-                    : new Vector3(2.3f, 1.5f, 2.3f);
-                var view = primitive.AddComponent<BuildingView>();
-                view.Initialize(instance, definition);
+                var identity = CityLayout.IdentityColor(layout.Id);
+                var bounds = CityBuildingMeshFactory.Build(layout.Id, slotObject.transform, identity);
+                var box = slotObject.AddComponent<BoxCollider>();
+                box.center = bounds.center;
+                box.size = Vector3.Max(bounds.size, new Vector3(2f, 2f, 2f));
+
+                var view = slotObject.AddComponent<BuildingView>();
+                view.Initialize(instance, definition, labelHeight: bounds.max.y + 0.6f);
                 Controller.Add(slot, instance, definition, view);
+
+                if (layout.Id == "dragon-tower")
+                {
+                    var nest = slotObject.AddComponent<DragonNestView>();
+                    nest.Bind(Dragons);
+                }
             }
         }
 
