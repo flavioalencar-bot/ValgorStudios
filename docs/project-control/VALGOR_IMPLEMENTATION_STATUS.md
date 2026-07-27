@@ -434,10 +434,14 @@ Histórico completo: `git log --oneline` no repositório.
 - Escopo: `docs/project-control/VALGOR_BETA_0_2_MACRO.md` (checklist chat truncado; inferido dos títulos + auditoria).
 - City: HUD construtores; Concluir Agora só em upgrade ativo; wipe inclui `wall`; arte modular Serraria…Lab.
 - UI: menu `ValgorVersion` Beta 0.2; painel Torre Dragões com Alimentar; nomes Lyra/Nyx/Selene.
-- Build: `builds/windows/Valgor-Beta-0.2/Valgor.exe` (0.1 preservada).
 - Perf/mobile prep: `VALGOR_BETA_0_2_PERF_MOBILE.md`.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **143 aprovados / 0 falha / 143 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
+- Build 0.2: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.2\Valgor.exe` (Length=672256, LastWriteTime=**2026-07-27 18:41:38**).
+- Build 0.1 preservada: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (LastWriteTime=**2026-07-27 18:24:10**).
+- Smoke: `scripts/capture-checkpoint-evidence.ps1 -Exe ...\Valgor-Beta-0.2\Valgor.exe` exit 0; **97** PNGs em `docs/releases/beta-0.2-evidence/vertical-slice/`.
 
-
+## Muralha evolutiva (2026-07-27)
 - Edifício `wall` / **Muralha**: catálogo, seed Lv.1, requisitos Castelo≥N (`DynamicCastle`), Detalhes/Atualizar, efeitos defesa/HP/resistência (exibição).
 - Visual: anel/portões em `CityEnvironmentBuilder.ApplyWallLevel` respondem ao nível; gatehouse selecionável em `(0, 14.8)`.
 - Clique: segmentos/portões com proxies de seleção selecionam a muralha como um único `definitionId` `wall`; highlight do anel completo; log `Building clicked: wall` (smoke: `[CheckpointSmoke] Clique proxy muralha`).
