@@ -75,19 +75,52 @@ namespace Valgor.City.Buildings
                         [5] = WithBuildings(5, new BuildingLevelRequirement("farm", 3, "Fazenda"))
                     }),
 
-                ["lumbermill"] = new BuildingUpgradeDefinition("lumbermill", DynamicCastle()),
-                ["quarry"] = new BuildingUpgradeDefinition("quarry", DynamicCastle()),
+                // Serraria → Nv.N: Castelo ≥ N; Fazenda em níveis configurados.
+                ["lumbermill"] = new BuildingUpgradeDefinition(
+                    "lumbermill",
+                    DynamicCastle(),
+                    new Dictionary<int, BuildingUpgradeRequirement>
+                    {
+                        [2] = WithBuildings(2, new BuildingLevelRequirement("farm", 1, "Fazenda")),
+                        [3] = WithBuildings(3, new BuildingLevelRequirement("farm", 1, "Fazenda")),
+                        [4] = WithBuildings(4, new BuildingLevelRequirement("farm", 2, "Fazenda")),
+                        [5] = WithBuildings(5, new BuildingLevelRequirement("farm", 2, "Fazenda"))
+                    }),
+
+                // Pedreira → Nv.N: Castelo ≥ N; Serraria em níveis configurados.
+                ["quarry"] = new BuildingUpgradeDefinition(
+                    "quarry",
+                    DynamicCastle(),
+                    new Dictionary<int, BuildingUpgradeRequirement>
+                    {
+                        [2] = WithBuildings(2, new BuildingLevelRequirement("lumbermill", 1, "Serraria")),
+                        [3] = WithBuildings(3, new BuildingLevelRequirement("lumbermill", 2, "Serraria")),
+                        [4] = WithBuildings(4, new BuildingLevelRequirement("lumbermill", 2, "Serraria")),
+                        [5] = WithBuildings(5, new BuildingLevelRequirement("lumbermill", 3, "Serraria"))
+                    }),
 
                 ["mine"] = new BuildingUpgradeDefinition(
                     "mine",
                     DynamicCastle(),
                     new Dictionary<int, BuildingUpgradeRequirement>
                     {
+                        [2] = WithBuildings(2, new BuildingLevelRequirement("quarry", 1, "Pedreira")),
                         [3] = WithBuildings(3, new BuildingLevelRequirement("quarry", 1, "Pedreira")),
-                        [4] = WithBuildings(4, new BuildingLevelRequirement("quarry", 2, "Pedreira"))
+                        [4] = WithBuildings(4, new BuildingLevelRequirement("quarry", 2, "Pedreira")),
+                        [5] = WithBuildings(5, new BuildingLevelRequirement("quarry", 2, "Pedreira"))
                     }),
 
-                ["academy"] = new BuildingUpgradeDefinition("academy", DynamicCastle()),
+                // Academia → Nv.N: Castelo ≥ N; Armazém em níveis configurados.
+                ["academy"] = new BuildingUpgradeDefinition(
+                    "academy",
+                    DynamicCastle(),
+                    new Dictionary<int, BuildingUpgradeRequirement>
+                    {
+                        [2] = WithBuildings(2, new BuildingLevelRequirement("warehouse", 1, "Armazém")),
+                        [3] = WithBuildings(3, new BuildingLevelRequirement("warehouse", 1, "Armazém")),
+                        [4] = WithBuildings(4, new BuildingLevelRequirement("warehouse", 2, "Armazém")),
+                        [5] = WithBuildings(5, new BuildingLevelRequirement("warehouse", 2, "Armazém"))
+                    }),
 
                 ["institute"] = new BuildingUpgradeDefinition(
                     "institute",

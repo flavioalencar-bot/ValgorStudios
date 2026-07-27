@@ -6,7 +6,7 @@ using Valgor.City.Production;
 
 namespace Valgor.City.UI
 {
-    /// <summary>Dados do painel Detalhes (Castelo / Fazenda / Armazém).</summary>
+    /// <summary>Dados do painel Detalhes (edifícios com UX contextual).</summary>
     public sealed class BuildingDetailsViewModel
     {
         public string Title { get; set; } = string.Empty;
@@ -31,11 +31,6 @@ namespace Valgor.City.UI
                 sb.AppendLine($"Duração upgrade: {(int)definition.GetUpgradeDuration(building.Level).TotalSeconds}s");
                 sb.AppendLine(DescribeRequirementsShort(city, building));
             }
-            else if (string.Equals(building.DefinitionId, "farm", System.StringComparison.Ordinal))
-            {
-                sb.AppendLine(BuildProductionBlock(city, building));
-                sb.AppendLine($"Próximo benefício: +produção de comida no Nv.{building.Level + 1}");
-            }
             else if (string.Equals(building.DefinitionId, "warehouse", System.StringComparison.Ordinal))
             {
                 sb.AppendLine($"Capacidade: {WarehouseRules.GetCapacity(building.Level):N0}");
@@ -50,13 +45,19 @@ namespace Valgor.City.UI
                     sb.AppendLine("Armazém aberto — estoque e proteção da cidade.");
                 }
             }
-            else
+            else if (string.Equals(building.DefinitionId, "academy", System.StringComparison.Ordinal))
             {
-                var production = BuildProductionBlock(city, building);
-                if (!string.IsNullOrEmpty(production))
-                {
-                    sb.AppendLine(production);
-                }
+                sb.AppendLine("Função: centro de conhecimento da cidade (pesquisas na beta seguinte).");
+                sb.AppendLine(
+                    building.Level > 0
+                        ? $"Bônus atuais: Academia Nv.{building.Level} (desbloqueios futuros)."
+                        : "Bônus atuais: — (ainda não construída).");
+                sb.AppendLine($"Próximo benefício: eleva o teto acadêmico para Nv.{building.Level + 1}");
+                sb.AppendLine(DescribeRequirementsShort(city, building));
+            }
+            else if (ProductionCatalog.TryGet(building.DefinitionId, out _))
+            {
+                sb.AppendLine(ProductionBuildingDetails.BuildBlock(building, city.Economy.Production));
             }
 
             if (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue)
@@ -101,26 +102,11 @@ namespace Valgor.City.UI
                     sb.Append(", ");
                 }
 
-                sb.Append($"{FriendlyResource(req.Resource)} {req.Required}");
+                sb.Append($"{ProductionBuildingDetails.FriendlyResource(req.Resource)} {req.Required}");
                 first = false;
             }
 
             return first ? "Requisitos: —" : sb.ToString();
-        }
-
-        private static string BuildProductionBlock(CityController city, BuildingInstance building)
-        {
-            if (!ProductionCatalog.TryGet(building.DefinitionId, out var productionDef))
-            {
-                return string.Empty;
-            }
-
-            var rate = city.Economy.Production.GetRatePerHour(building);
-            var capacity = city.Economy.Production.GetCapacity(building);
-            city.Economy.Production.TryGetState(building.DefinitionId, out var state);
-            var accumulated = state?.Accumulated ?? 0;
-            return
-                $"Produção: {rate:0.#}/h · Acumulado {accumulated}/{capacity} ({FriendlyResource(productionDef.Resource)})";
         }
 
         private static string FriendlyState(BuildingState state) => state switch
@@ -130,18 +116,6 @@ namespace Valgor.City.UI
             BuildingState.Locked => "Bloqueado",
             BuildingState.Upgrading => "Melhorando",
             _ => state.ToString()
-        };
-
-        private static string FriendlyResource(ResourceType resource) => resource switch
-        {
-            ResourceType.Gold => "Ouro",
-            ResourceType.Food => "Comida",
-            ResourceType.Wood => "Madeira",
-            ResourceType.Stone => "Pedra",
-            ResourceType.Iron => "Ferro",
-            ResourceType.DragonEssence => "Essência de Dragão",
-            ResourceType.Diamonds => "Diamantes",
-            _ => resource.ToString()
         };
     }
 }

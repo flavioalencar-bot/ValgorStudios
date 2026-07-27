@@ -224,7 +224,10 @@ namespace Valgor.City.UI
                 };
             }
 
-            if (string.Equals(id, "farm", StringComparison.Ordinal))
+            if (string.Equals(id, "farm", StringComparison.Ordinal) ||
+                string.Equals(id, "lumbermill", StringComparison.Ordinal) ||
+                string.Equals(id, "quarry", StringComparison.Ordinal) ||
+                string.Equals(id, "mine", StringComparison.Ordinal))
             {
                 var canCollect = _city.Economy.Production.TryGetState(building.DefinitionId, out var state) &&
                                  state.HasCollectable;
@@ -247,7 +250,16 @@ namespace Valgor.City.UI
                 };
             }
 
-            // Demais edifícios: Detalhes + Atualizar (sem menu central).
+            if (string.Equals(id, "academy", StringComparison.Ordinal))
+            {
+                return new List<BuildingContextActionInfo>
+                {
+                    new(BuildingContextAction.Details, "Detalhes", true),
+                    UpgradeAction(building, definition)
+                };
+            }
+
+            // Demais edifícios (fora desta entrega): Detalhes + Atualizar.
             var list = new List<BuildingContextActionInfo>
             {
                 new(BuildingContextAction.Details, "Detalhes", true),
@@ -563,63 +575,8 @@ namespace Valgor.City.UI
             return row;
         }
 
-        private string BuildDetailsBody(BuildingInstance building, BuildingDefinition definition, bool openMode)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine(definition.DisplayName);
-            sb.AppendLine($"Nível: {building.Level}/{definition.MaxLevel}");
-            sb.AppendLine($"Estado: {FriendlyState(building.State)}");
-
-            if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
-            {
-                sb.AppendLine("Função: coração da cidade — limita o nível dos demais edifícios.");
-                sb.AppendLine($"Bônus atuais: Castelo Nv.{building.Level} (teto de upgrade).");
-                sb.AppendLine($"Próximo nível: {Math.Min(definition.MaxLevel, building.Level + 1)}");
-                sb.AppendLine($"Duração upgrade: {(int)definition.GetUpgradeDuration(building.Level).TotalSeconds}s");
-                sb.AppendLine(DescribeRequirementsShort(building));
-            }
-            else if (string.Equals(building.DefinitionId, "farm", StringComparison.Ordinal))
-            {
-                sb.AppendLine(BuildProductionBlock(building));
-                sb.AppendLine($"Próximo benefício: +produção de comida no Nv.{building.Level + 1}");
-            }
-            else if (string.Equals(building.DefinitionId, "warehouse", StringComparison.Ordinal))
-            {
-                sb.AppendLine($"Capacidade: {WarehouseRules.GetCapacity(building.Level):N0}");
-                sb.AppendLine($"Proteção de recursos: {WarehouseRules.GetProtection(building.Level):N0}");
-                sb.AppendLine(
-                    $"Próximo benefício: capacidade {WarehouseRules.GetNextCapacity(building.Level):N0} · " +
-                    $"proteção {WarehouseRules.GetNextProtection(building.Level):N0}");
-                sb.AppendLine(DescribeRequirementsShort(building));
-                if (openMode)
-                {
-                    sb.AppendLine();
-                    sb.AppendLine("Armazém aberto — estoque e proteção da cidade.");
-                }
-            }
-            else
-            {
-                sb.AppendLine(BuildProductionBlock(building));
-            }
-
-            if (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue)
-            {
-                sb.AppendLine($"Melhorando → Nv.{building.Level + 1} ({FormatRemaining(building.UpgradeCompletesAtUtc.Value)})");
-            }
-
-            var block = _city.GetUpgradeBlockReason(building, definition);
-            if (!string.IsNullOrEmpty(block))
-            {
-                sb.AppendLine(block);
-            }
-
-            if (!string.IsNullOrEmpty(_city.LastUpgradeFeedback))
-            {
-                sb.AppendLine(_city.LastUpgradeFeedback);
-            }
-
-            return sb.ToString().Trim();
-        }
+        private string BuildDetailsBody(BuildingInstance building, BuildingDefinition definition, bool openMode) =>
+            BuildingDetailsViewModel.From(_city, building, definition, openMode).Body;
 
         private string DescribeRequirementsShort(BuildingInstance building)
         {
@@ -647,11 +604,6 @@ namespace Valgor.City.UI
                 return $"Eleva o teto da cidade para Nv.{building.Level + 1}";
             }
 
-            if (string.Equals(building.DefinitionId, "farm", StringComparison.Ordinal))
-            {
-                return "Aumenta taxa e capacidade de comida";
-            }
-
             if (string.Equals(building.DefinitionId, "warehouse", StringComparison.Ordinal))
             {
                 return
@@ -659,7 +611,15 @@ namespace Valgor.City.UI
                     $"proteção {WarehouseRules.GetNextProtection(building.Level):N0}";
             }
 
-            return $"Melhora {definition.DisplayName}";
+            if (string.Equals(building.DefinitionId, "academy", StringComparison.Ordinal))
+            {
+                return $"Eleva o teto acadêmico para Nv.{building.Level + 1}";
+            }
+
+            var productionBenefit = ProductionBuildingDetails.DescribeUpgradeBenefit(building.DefinitionId);
+            return string.IsNullOrEmpty(productionBenefit)
+                ? $"Melhora {definition.DisplayName}"
+                : productionBenefit;
         }
 
         private string BuildPanelBodyLegacy(
@@ -840,19 +800,8 @@ namespace Valgor.City.UI
             _actionButtons.Add(button);
         }
 
-        private string BuildProductionBlock(BuildingInstance building)
-        {
-            if (!ProductionCatalog.TryGet(building.DefinitionId, out var productionDef))
-            {
-                return string.Empty;
-            }
-
-            var rate = _city.Economy.Production.GetRatePerHour(building);
-            var capacity = _city.Economy.Production.GetCapacity(building);
-            _city.Economy.Production.TryGetState(building.DefinitionId, out var state);
-            var accumulated = state?.Accumulated ?? 0;
-            return $"Produção: {rate:0.#}/h · Acumulado {accumulated}/{capacity} ({FriendlyResource(productionDef.Resource)})";
-        }
+        private string BuildProductionBlock(BuildingInstance building) =>
+            ProductionBuildingDetails.BuildBlock(building, _city.Economy.Production);
 
         private string FormatRemaining(DateTime completesAtUtc)
         {

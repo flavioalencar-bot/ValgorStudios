@@ -9,6 +9,8 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- City: UX contextual 2ª entrega — Serraria, Pedreira, Mina (Coletar/Detalhes/Atualizar) e Academia (Detalhes/Atualizar); `ProductionBuildingDetails` (taxa, estoque, capacidade, tempo até lotar)
+- City: deps data-driven Serraria←Fazenda, Pedreira←Serraria, Mina←Pedreira, Academia←Armazém
 - City: pré-requisitos data-driven de evolução (`BuildingRequirementCatalog` + `BuildingRequirementEvaluator`) — Castelo/prédios/pesquisa; painel Atualizar com Pré-requisitos (vermelho + **Ir**), Recursos e **Atualizar** bloqueado quando inválido
 - Regras iniciais: Fazenda→Castelo N; Armazém→Castelo N + Fazenda; Castelo→Fazenda/Armazém do catálogo
 - Doc: `docs/architecture/city-building-upgrade-requirements.md`

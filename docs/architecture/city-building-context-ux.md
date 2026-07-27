@@ -10,7 +10,9 @@ O edifício é a interface principal. Não há menu central de construções.
 4. Clique fora (chão) fecha; outro edifício troca o contexto
 5. Arrastar a câmera (esquerdo/toque) **não** seleciona prédio
 
-## Primeira entrega (2026-07-27)
+## Entregas
+
+### 1ª — Castelo / Fazenda / Armazém
 
 | Edifício | Ações |
 |----------|--------|
@@ -18,16 +20,29 @@ O edifício é a interface principal. Não há menu central de construções.
 | Fazenda (`farm`) | Coletar, Detalhes, Atualizar |
 | Armazém (`warehouse`) | Abrir, Detalhes, Atualizar |
 
+### 2ª — Serraria / Pedreira / Mina / Academia
+
+| Edifício | Ações |
+|----------|--------|
+| Serraria (`lumbermill`) | Coletar, Detalhes, Atualizar |
+| Pedreira (`quarry`) | Coletar, Detalhes, Atualizar |
+| Mina (`mine`) | Coletar, Detalhes, Atualizar |
+| Academia (`academy`) | Detalhes, Atualizar |
+
+Detalhes de produção (`ProductionBuildingDetails`): taxa/h, armazenado, capacidade, tempo até lotar, bônus, próximo nível.
+
+Fora desta etapa: Arena, Hospital, Torre dos Dragões.
+
 ### Painel Atualizar
 
-Nome, níveis, benefício, duração, **pré-requisitos** (Castelo / prédios / pesquisa com ✓/✗), requisitos de recursos (Ouro/Comida/Madeira/Pedra/Ferro/Essência com ✓/✗), botões **Atualizar**, **Concluir Agora** (diamantes), **Fechar**.
+Nome, níveis, benefício, duração, **pré-requisitos** (Castelo / prédios / pesquisa com ✓/✗ + **Ir**), recursos, **Atualizar** / **Concluir Agora** / **Fechar**.
 
-Ver `city-building-upgrade-requirements.md` para o catálogo data-driven (Fazenda/Armazém/Castelo + botão **Ir**).
+Ver `city-building-upgrade-requirements.md`.
 
 ### Mundo
 
-- Indicador de coleta na Fazenda (toque direto + menu)
-- Barra/tempo/ícone de construção sobre o prédio
+- Indicador de coleta nos produtores
+- Barra/tempo de construção sobre o prédio
 - Armazém: capacidade + proteção (`WarehouseRules`)
 
 ## Tipos
@@ -38,10 +53,12 @@ Ver `city-building-upgrade-requirements.md` para o catálogo data-driven (Fazend
 | `BuildingContextMenu` | Botões circulares Valgor |
 | `BuildingContextMenuPositioner` | World→UI com área segura |
 | `BuildingSelectionPresenter` | Orquestra seleção/câmera/menu/painel |
+| `BuildingDetailsViewModel` | Texto do painel Detalhes |
+| `ProductionBuildingDetails` | Bloco rico de produção |
 | `BuildingUpgradeRequirements` | Custos de recursos + Concluir Agora |
-| `BuildingRequirementCatalog` / `Evaluator` | Pré-requisitos Castelo/prédios/unlock |
+| `BuildingRequirementCatalog` / `Evaluator` | Pré-requisitos |
 | `WarehouseRules` | Capacidade/proteção |
 
 ## Evidências smoke
 
-`ux-01`…`ux-10` via `CheckpointSmokeDriver` + `scripts/capture-checkpoint-evidence.ps1`.
+`ux-01`…`ux-14` (1ª + gates) e `ux-15`…`ux-24` (2ª entrega) via `CheckpointSmokeDriver`.

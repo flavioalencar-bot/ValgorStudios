@@ -32,6 +32,7 @@ namespace Valgor.UI
                 return;
             }
 
+            Application.runInBackground = true;
             var host = new GameObject("CheckpointSmokeDriver");
             DontDestroyOnLoad(host);
             host.AddComponent<CheckpointSmokeDriver>();
@@ -216,6 +217,41 @@ namespace Valgor.UI
             TryCityUpgradeSelected();
             yield return new WaitForSecondsRealtime(0.3f);
             yield return Capture("ux-14-castle-blocked-by-farm-warehouse");
+
+            // 2ª entrega UX: Serraria / Pedreira / Mina / Academia
+            TrySelectCityBuilding("lumbermill");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-15-lumbermill-selected");
+            InvokeCityPresenter("DebugOpenDetailsPanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-16-lumbermill-details");
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-17-lumbermill-upgrade");
+
+            TrySelectCityBuilding("quarry");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-18-quarry-selected");
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-19-quarry-upgrade");
+
+            TrySelectCityBuilding("mine");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-20-mine-selected");
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-21-mine-upgrade");
+
+            TrySelectCityBuilding("academy");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-22-academy-selected");
+            InvokeCityPresenter("DebugOpenDetailsPanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-23-academy-details");
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-24-academy-upgrade");
 
             TrySelectCityBuilding("farm");
             yield return new WaitForSecondsRealtime(0.8f);

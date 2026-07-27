@@ -27,6 +27,10 @@ Extensão do upgrade existente (sem novos edifícios). Um prédio só evolui qua
 | **Fazenda** | Castelo ≥ N |
 | **Armazém** | Castelo ≥ N; Nv.2+ exige Fazenda (Nv.2 no catálogo para alvo 2–4; Nv.3 para alvo 5) |
 | **Castelo** | Sem gate de Castelo; alvo 2–3 exigem Fazenda Nv.2 + Armazém Nv.2; alvos 4+ sobem em paralelo no catálogo |
+| **Serraria** | Castelo ≥ N; Fazenda nos níveis do catálogo (alvo 2–3 → Farm 1; 4–5 → Farm 2) |
+| **Pedreira** | Castelo ≥ N; Serraria nos níveis do catálogo |
+| **Mina** | Castelo ≥ N; Pedreira nos níveis do catálogo |
+| **Academia** | Castelo ≥ N; Armazém nos níveis do catálogo |
 
 ## Integração
 

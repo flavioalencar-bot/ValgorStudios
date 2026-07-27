@@ -249,4 +249,55 @@ public sealed class BuildingRequirementCatalogTests
         Assert.Contains("Castelo", reason);
         Assert.Contains("4", reason);
     }
+
+    [Fact]
+    public void Lumbermill_RequiresCastleAndFarm()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("lumbermill", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "farm" && b.MinimumLevel == 1);
+    }
+
+    [Fact]
+    public void Quarry_RequiresCastleAndLumbermill()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("quarry", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "lumbermill" && b.MinimumLevel == 1);
+    }
+
+    [Fact]
+    public void Mine_RequiresCastleAndQuarry()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("mine", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "quarry" && b.MinimumLevel == 1);
+    }
+
+    [Fact]
+    public void Academy_RequiresCastleAndWarehouse()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("academy", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "warehouse" && b.MinimumLevel == 1);
+    }
+}
+
+public sealed class ProductionBuildingDetailsTests
+{
+    [Fact]
+    public void FormatTimeToFill_ReportsFullAndMinutes()
+    {
+        Assert.Equal("Cheio", ProductionBuildingDetails.FormatTimeToFill(400, 400, 100));
+        Assert.Equal("Sem produção", ProductionBuildingDetails.FormatTimeToFill(0, 400, 0));
+        Assert.Equal("2h", ProductionBuildingDetails.FormatTimeToFill(0, 200, 100));
+    }
+
+    [Fact]
+    public void DescribeUpgradeBenefit_UsesResourceLabel()
+    {
+        Assert.Contains("madeira", ProductionBuildingDetails.DescribeUpgradeBenefit("lumbermill"));
+        Assert.Contains("pedra", ProductionBuildingDetails.DescribeUpgradeBenefit("quarry"));
+        Assert.Contains("ferro", ProductionBuildingDetails.DescribeUpgradeBenefit("mine"));
+    }
 }

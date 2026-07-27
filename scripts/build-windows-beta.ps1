@@ -51,6 +51,7 @@ $buildStart = Get-Date
 Write-Host "Building Valgor Beta 0.1 -> $exe (start=$buildStart)"
 Write-Host "Log: $log"
 
+$unityBefore = @(Get-Process -Name "Unity" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id)
 & $UnityExe `
   -batchmode `
   -nographics `
@@ -61,6 +62,21 @@ Write-Host "Log: $log"
 
 $code = $LASTEXITCODE
 if ($null -eq $code) { $code = 0 }
+
+# Unity.exe no Windows pode retornar antes do Editor/batch terminar.
+$waitDeadline = (Get-Date).AddMinutes(20)
+while ((Get-Date) -lt $waitDeadline) {
+  $alive = @(Get-Process -Name "Unity" -ErrorAction SilentlyContinue | Where-Object { $unityBefore -notcontains $_.Id })
+  $exeReady = (Test-Path -LiteralPath $exe) -and ((Get-Item -LiteralPath $exe).LastWriteTime -gt $buildStart)
+  if ($exeReady -and $alive.Count -eq 0) { break }
+  if ($alive.Count -eq 0 -and -not $exeReady) {
+    Start-Sleep -Seconds 2
+    # allow brief delay for file flush
+    if ((Test-Path -LiteralPath $exe) -and ((Get-Item -LiteralPath $exe).LastWriteTime -gt $buildStart)) { break }
+    break
+  }
+  Start-Sleep -Seconds 5
+}
 
 # Aceita exit vazio do Unity quando o log confirma sucesso.
 $logOk = $false

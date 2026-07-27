@@ -364,3 +364,23 @@ Histórico completo: `git log --oneline` no repositório.
 - Garante Castelo/Fazenda/Armazem em Nv.1 no painel — `PlayerLevel` nao mascara gate do Castelo cidade.
 - Build: `Valgor.exe` LastWriteTime=**2026-07-27 15:33:33** (Length=672256).
 - OCR/smoke: `ux-13` = Requer Castelo Nv.2 (atual 1) FAIL; `ux-14` = Fazenda+Armazem FAIL; `ux-11` = Armazem bloqueado por Fazenda (+Castelo).
+## Evidência sprint UX contextual - 2ª entrega (2026-07-27)
+
+- Escopo: Serraria, Pedreira, Mina (Coletar / Detalhes / Atualizar) e Academia (Detalhes / Atualizar); catálogo de dependências estendido; `ProductionBuildingDetails` + painéis via `BuildingDetailsViewModel` / `BuildingSelectionPresenter`.
+- Sem novos edifícios na cidade; reutiliza menu contextual e painel Atualizar da 1ª entrega.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **132 aprovados / 0 falha / 132 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 16:01:10).
+- Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs em `builds/windows/Valgor-Beta-0.1/evidence/` e versionados em `docs/releases/beta-0.1-evidence/ux-contextual/`:
+  - `ux-15-lumbermill-selected.png`
+  - `ux-16-lumbermill-details.png`
+  - `ux-17-lumbermill-upgrade.png`
+  - `ux-18-quarry-selected.png`
+  - `ux-19-quarry-upgrade.png`
+  - `ux-20-mine-selected.png`
+  - `ux-21-mine-upgrade.png`
+  - `ux-22-academy-selected.png`
+  - `ux-23-academy-details.png`
+  - `ux-24-academy-upgrade.png`
+- Infra smoke: `Application.runInBackground = true` no `CheckpointSmokeDriver`; timeout do script de captura **10 min** (sequência ux-01..24 + jornada).
+- Situação City/upgrade contextual (2ª entrega): **VISÍVEL NO EXECUTÁVEL**.
