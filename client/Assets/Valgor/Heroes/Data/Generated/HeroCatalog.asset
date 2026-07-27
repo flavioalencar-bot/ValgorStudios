@@ -343,9 +343,9 @@ MonoBehaviour:
   m_Name: HERO_CONSORTE_002
   m_EditorClassIdentifier: 
   Id: HERO_CONSORTE_002
-  DisplayName: A definir
+  DisplayName: Lyra
   Title: A Consorte de Valgor
-  PendingNamePlaceholder: A definir
+  PendingNamePlaceholder: Lyra
   Rarity: 4
   Faction: 2
   ClassName: Lanceira Real
@@ -606,9 +606,9 @@ MonoBehaviour:
   m_Name: HERO_ABISMO_007
   m_EditorClassIdentifier: 
   Id: HERO_ABISMO_007
-  DisplayName: A definir
+  DisplayName: Selene
   Title: A Maga do Abismo
-  PendingNamePlaceholder: A definir
+  PendingNamePlaceholder: Selene
   Rarity: 3
   Faction: 1
   ClassName: Maga
@@ -644,9 +644,9 @@ MonoBehaviour:
   m_Name: HERO_SOMBRA_003
   m_EditorClassIdentifier: 
   Id: HERO_SOMBRA_003
-  DisplayName: A definir
+  DisplayName: Nyx
   Title: A Arqueira da Sombra
-  PendingNamePlaceholder: A definir
+  PendingNamePlaceholder: Nyx
   Rarity: 3
   Faction: 0
   ClassName: "Atiradora \xC9lfica"

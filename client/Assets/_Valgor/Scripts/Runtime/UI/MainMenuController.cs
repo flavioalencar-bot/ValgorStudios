@@ -7,7 +7,7 @@ using Valgor.Core;
 namespace Valgor.UI
 {
     /// <summary>
-    /// Menu principal da Beta 0.1 — Jogar, Continuar, Configurações, Créditos, Sair.
+    /// Menu principal da Beta 0.2 — Jogar, Continuar, Configurações, Créditos, Sair.
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
     public sealed class MainMenuController : MonoBehaviour
@@ -132,7 +132,7 @@ namespace Valgor.UI
             card.Add(logo);
             card.Add(CreateLabel(ValgorVersion.ProductLine, 15, BetaVisualTheme.AgedGold));
             card.Add(CreateLabel("Reinos · Dragões · Heróis", 14, BetaVisualTheme.TextMuted));
-            card.Add(CreateLabel("Beta 0.1 · offline", 12, BetaVisualTheme.TextMuted));
+            card.Add(CreateLabel($"{ValgorVersion.Display} · offline", 12, BetaVisualTheme.TextMuted));
 
             _homePanel = new VisualElement { name = "home-panel" };
             _homePanel.style.width = Length.Percent(100);
@@ -303,7 +303,7 @@ namespace Valgor.UI
             panel.style.width = Length.Percent(100);
             panel.Add(CreateLabel("Créditos", 16, BetaVisualTheme.AgedGoldBright));
             var body = CreateLabel(
-                "Valgor Studios\nBeta 0.1 — jornada inicial do jogador\nReinos · Dragões · Heróis",
+                $"Valgor Studios\n{ValgorVersion.Display} — jornada vertical do jogador\nReinos · Dragões · Heróis",
                 13,
                 BetaVisualTheme.TextPrimary);
             body.style.whiteSpace = WhiteSpace.Normal;

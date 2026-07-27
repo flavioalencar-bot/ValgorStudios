@@ -64,6 +64,16 @@ namespace Valgor.City.UI
                 sb.AppendLine($"Duração upgrade: {(int)definition.GetUpgradeDuration(building.Level).TotalSeconds}s");
                 sb.AppendLine(DescribeRequirementsShort(city, building));
             }
+            else if (string.Equals(building.DefinitionId, "institute", System.StringComparison.Ordinal))
+            {
+                sb.AppendLine("Função: instituto de estudos avançados (desbloqueios futuros).");
+                sb.AppendLine(
+                    building.Level > 0
+                        ? $"Bônus atuais: Instituto Nv.{building.Level}."
+                        : "Bônus atuais: — (ainda não construído).");
+                sb.AppendLine($"Próximo benefício: eleva o teto do instituto para Nv.{building.Level + 1}");
+                sb.AppendLine(DescribeRequirementsShort(city, building));
+            }
             else if (string.Equals(building.DefinitionId, "arena", System.StringComparison.Ordinal))
             {
                 sb.AppendLine(SupportBuildingRules.BuildArenaDetails(building.Level));

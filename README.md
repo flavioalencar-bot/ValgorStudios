@@ -38,7 +38,8 @@ Cliente Unity + backend .NET do ecossistema **Valgor**.
 - Novos heróis ou novos dragões além do módulo atual
 - Menu central administrativo de construções
 
-Build de referência: `builds/windows/Valgor-Beta-0.1/Valgor.exe`
+Build de referência Beta 0.1: `builds/windows/Valgor-Beta-0.1/Valgor.exe`  
+Build de referência Beta 0.2: `builds/windows/Valgor-Beta-0.2/Valgor.exe`
 
 ---
 

@@ -45,7 +45,18 @@ namespace Valgor.City.UI
             _presenter?.Dispose();
         }
 
-        private void Update() => _presenter?.Tick();
+        private float _nextHudRefreshUnscaled;
+
+        private void Update()
+        {
+            _presenter?.Tick();
+            if (_city != null &&
+                (_city.GetActiveConstructionCount() > 0 || Time.unscaledTime >= _nextHudRefreshUnscaled))
+            {
+                _nextHudRefreshUnscaled = Time.unscaledTime + 0.5f;
+                RefreshResources();
+            }
+        }
 
         private void Build()
         {
@@ -136,7 +147,8 @@ namespace Valgor.City.UI
                 $"Ferro {w.Get(ResourceType.Iron)}  ·  " +
                 $"Essência {w.Get(ResourceType.DragonEssence)}  ·  " +
                 $"Diamantes {w.Get(ResourceType.Diamonds)}  ·  " +
-                $"Energia {energy}";
+                $"Energia {energy}  ·  " +
+                _city.DescribeConstructionQueue();
         }
 
         private static string ReadEnergyDisplay()

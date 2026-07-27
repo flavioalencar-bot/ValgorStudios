@@ -429,7 +429,14 @@ Histórico completo: `git log --oneline` no repositório.
 - Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=**2026-07-27 17:47:21**).
 - Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs `art-01` ... `art-09` versionados em `docs/releases/beta-0.1-evidence/art-direction-p0/`.
 
-## Muralha evolutiva (2026-07-27)
+## Beta 0.2 vertical slice (2026-07-27)
+
+- Escopo: `docs/project-control/VALGOR_BETA_0_2_MACRO.md` (checklist chat truncado; inferido dos títulos + auditoria).
+- City: HUD construtores; Concluir Agora só em upgrade ativo; wipe inclui `wall`; arte modular Serraria…Lab.
+- UI: menu `ValgorVersion` Beta 0.2; painel Torre Dragões com Alimentar; nomes Lyra/Nyx/Selene.
+- Build: `builds/windows/Valgor-Beta-0.2/Valgor.exe` (0.1 preservada).
+- Perf/mobile prep: `VALGOR_BETA_0_2_PERF_MOBILE.md`.
+
 
 - Edifício `wall` / **Muralha**: catálogo, seed Lv.1, requisitos Castelo≥N (`DynamicCastle`), Detalhes/Atualizar, efeitos defesa/HP/resistência (exibição).
 - Visual: anel/portões em `CityEnvironmentBuilder.ApplyWallLevel` respondem ao nível; gatehouse selecionável em `(0, 14.8)`.

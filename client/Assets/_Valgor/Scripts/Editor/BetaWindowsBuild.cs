@@ -22,12 +22,12 @@ namespace Valgor.Editor
             "Assets/_Valgor/Scenes/WorldMap.unity"
         };
 
-        [MenuItem("Valgor/Build/Windows Beta 0.1")]
+        [MenuItem("Valgor/Build/Windows Beta 0.2")]
         public static void BuildFromMenu()
         {
             var report = Build();
             EditorUtility.DisplayDialog(
-                "Valgor Beta 0.1",
+                "Valgor Beta 0.2",
                 report.summary.result == BuildResult.Succeeded
                     ? $"Build OK:\n{GetOutputExe()}"
                     : $"Build falhou: {report.summary.result}",
@@ -77,7 +77,7 @@ namespace Valgor.Editor
                 options = BuildOptions.Development | BuildOptions.CompressWithLz4HC
             };
 
-            Debug.Log($"[Valgor] Building Windows Beta 0.1 â†’ {exe}");
+            Debug.Log($"[Valgor] Building Windows {ValgorVersion.Display} → {exe}");
             Debug.Log($"[Valgor] Scenes: {string.Join(" | ", Scenes)}");
             return BuildPipeline.BuildPlayer(options);
         }

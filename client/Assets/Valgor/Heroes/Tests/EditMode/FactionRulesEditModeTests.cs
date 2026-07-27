@@ -62,7 +62,7 @@ namespace Valgor.Heroes.Tests
         {
             var hero = ScriptableObject.CreateInstance<HeroDefinitionSO>();
             hero.Id = "HERO_CONSORTE_002";
-            hero.DisplayName = "A definir";
+            hero.DisplayName = "Lyra";
             hero.Title = "A Consorte de Valgor";
             Assert.AreEqual("A Consorte de Valgor", hero.ResolveDisplayName());
             Object.DestroyImmediate(hero);

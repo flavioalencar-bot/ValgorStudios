@@ -195,7 +195,8 @@ namespace Valgor.Core
         private static readonly string[] CityBuildingIds =
         {
             "castle", "farm", "lumbermill", "quarry", "mine", "warehouse", "academy",
-            "institute", "hospital", "market", "temple", "dragon-tower", "arena", "laboratory"
+            "institute", "hospital", "market", "temple", "dragon-tower", "arena", "laboratory",
+            "wall"
         };
 
         /// <summary>Passos do tutorial mínimo da Beta 0.1.</summary>

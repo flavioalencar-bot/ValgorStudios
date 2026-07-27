@@ -449,13 +449,33 @@ namespace Valgor.City.UI
 
             if (action is BuildingContextAction.Details or BuildingContextAction.Open)
             {
+                // Torre: painel acionável (status + Alimentar), não só texto.
+                if (action == BuildingContextAction.Open &&
+                    string.Equals(definition.Id, "dragon-tower", StringComparison.Ordinal))
+                {
+                    _detailsPanel.Hide();
+                    _actionTitle.text = ActionTitle(action, definition);
+                    var model = BuildingDetailsViewModel.From(_city, _current, definition, openMode: true);
+                    AppendBodyText(model.Body);
+                    var canFeed = _dragons != null && _dragons.RoostOccupantCount > 0;
+                    AddPanelButton("Alimentar", ExecuteFeedDragon, enabled: canFeed);
+                    AddPanelButton("Fechar", HideActionPanel);
+                    _actionPanel.style.display = DisplayStyle.Flex;
+                    _actionPanel.style.visibility = Visibility.Visible;
+                    _actionPanel.style.opacity = 1f;
+                    _actionPanel.BringToFront();
+                    BetaJourneyGuide.NotifyCityModalOpen(true, panelOnRight: true);
+                    Debug.Log("[Valgor] Painel Dragões aberto (acionável).");
+                    return;
+                }
+
                 _actionPanel.style.display = DisplayStyle.None;
-                var model = BuildingDetailsViewModel.From(
+                var detailsModel = BuildingDetailsViewModel.From(
                     _city,
                     _current,
                     definition,
                     openMode: action == BuildingContextAction.Open);
-                _detailsPanel.Show(model, HideActionPanel);
+                _detailsPanel.Show(detailsModel, HideActionPanel);
                 BetaJourneyGuide.NotifyCityModalOpen(true, panelOnRight: true);
                 Debug.Log($"[Valgor] Painel Detalhes aberto: {definition.DisplayName}");
                 return;
@@ -474,7 +494,9 @@ namespace Valgor.City.UI
                         _current.State == BuildingState.Available && _current.Level <= 0 ? "Construir" : "Atualizar",
                         ExecuteUpgrade,
                         enabled: canConfirmUpgrade);
-                    AddPanelButton("Concluir Agora", ExecuteInstantComplete);
+                    var canInstant = _current.State == BuildingState.Upgrading &&
+                                     _current.UpgradeCompletesAtUtc.HasValue;
+                    AddPanelButton("Concluir Agora", ExecuteInstantComplete, enabled: canInstant);
                     AddPanelButton("Fechar", HideActionPanel);
                     break;
                 default:

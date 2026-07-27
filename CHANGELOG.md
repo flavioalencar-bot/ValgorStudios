@@ -7,9 +7,17 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+## [Unreleased]
+
+### Added
+
+- **Beta 0.2** vertical slice: versão/`Valgor-Beta-0.2`, HUD de construtores, wipe inclui `wall`, painel Dragões acionável, arte modular dos 8 edifícios restantes, nomes das 3 heroínas pendentes, script `build-windows-beta-0.2.ps1`
+- Doc: `VALGOR_BETA_0_2_MACRO.md` (escopo inferido; checklist original truncado no chat)
+
 ### Fixed
 
 - City: Muralha clicável — colliders nos segmentos/portões + `BuildingSelectionClickProxy` → `wall`; destaque da fortificação inteira; log `Building clicked: wall`
+- City: **Concluir Agora** só habilitado durante construção ativa
 
 ### Added
 

@@ -1,4 +1,4 @@
-# Roda smoke + capturas da build Beta 0.1 (com janela — precisa de GPU).
+# Roda smoke + capturas. Prefere Beta 0.2; fallback 0.1.
 param(
   [string]$Exe = ""
 )
@@ -6,7 +6,10 @@ param(
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 if (-not $Exe) {
-  $Exe = Join-Path $root "builds\windows\Valgor-Beta-0.1\Valgor.exe"
+  $candidate02 = Join-Path $root "builds\windows\Valgor-Beta-0.2\Valgor.exe"
+  $candidate01 = Join-Path $root "builds\windows\Valgor-Beta-0.1\Valgor.exe"
+  if (Test-Path -LiteralPath $candidate02) { $Exe = $candidate02 }
+  else { $Exe = $candidate01 }
 }
 if (-not (Test-Path -LiteralPath $Exe)) {
   throw "EXE não encontrado: $Exe"
