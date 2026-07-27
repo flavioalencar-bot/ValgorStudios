@@ -441,6 +441,17 @@ Histórico completo: `git log --oneline` no repositório.
 - Build 0.1 preservada: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (LastWriteTime=**2026-07-27 18:24:10**).
 - Smoke: `scripts/capture-checkpoint-evidence.ps1 -Exe ...\Valgor-Beta-0.2\Valgor.exe` exit 0; **97** PNGs em `docs/releases/beta-0.2-evidence/vertical-slice/`.
 
+## Beta 0.2.1 fechamento P0/P1 (2026-07-27)
+
+- Versão `ValgorVersion` **0.2.1** / pasta `builds/windows/Valgor-Beta-0.2.1` (0.1 e 0.2 **preservadas**).
+- Script: `scripts/build-windows-beta-0.2.1.ps1`; smoke preferindo 0.2.1.
+- Fix residual: nomes Lyra/Nyx/Selene no catálogo (`PendingNamePlaceholder`).
+- Revalidação: `docs/audits/VALGOR_BETA_0_2_1_REVALIDATION.md` — **P0 abertos: 0**.
+- Evidência: `docs/audits/beta-0.2.1-revalidation-evidence/`.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **143** · `server`: **23**.
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.2.1\Valgor.exe` (LastWriteTime=**2026-07-27 20:21:12**).
+- Próximo: vertical slice **visual** (sem novos sistemas).
+
 ## Muralha evolutiva (2026-07-27)
 - Edifício `wall` / **Muralha**: catálogo, seed Lv.1, requisitos Castelo≥N (`DynamicCastle`), Detalhes/Atualizar, efeitos defesa/HP/resistência (exibição).
 - Visual: anel/portões em `CityEnvironmentBuilder.ApplyWallLevel` respondem ao nível; gatehouse selecionável em `(0, 14.8)`.

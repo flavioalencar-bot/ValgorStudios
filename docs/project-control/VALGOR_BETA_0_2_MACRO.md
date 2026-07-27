@@ -3,8 +3,9 @@
 A mensagem original truncou após a Fase 1.1. Este documento fixa o escopo executável
 a partir dos títulos da continuação + docs de controle + auditoria do código.
 
-**Não sobrescrever** `builds/windows/Valgor-Beta-0.1/`.
-**Saída:** `builds/windows/Valgor-Beta-0.2/Valgor.exe`
+**Não sobrescrever** `builds/windows/Valgor-Beta-0.1/` nem `Valgor-Beta-0.2/`.  
+**Saída histórica 0.2:** `builds/windows/Valgor-Beta-0.2/Valgor.exe`  
+**Saída oficial pós-patch:** `builds/windows/Valgor-Beta-0.2.1/Valgor.exe` (`scripts/build-windows-beta-0.2.1.ps1`)
 
 ## Fase 1 — Estabilidade City (1.2–1.5)
 

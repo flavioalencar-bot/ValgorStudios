@@ -7,14 +7,13 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
-### Fixed
+### Added
 
-- **Patch de recuperacao Beta 0.2 (P0/P1):** energia World Map, menu/nav, missoes minimas, save diagnostics, build sem watermark Development
-
-## [Unreleased]
+- **Beta 0.2.1** pasta isolada `Valgor-Beta-0.2.1` (preserva 0.1 e 0.2); script `build-windows-beta-0.2.1.ps1`; revalidação P0/P1
 
 ### Fixed
 
+- Heróis Lyra/Nyx/Selene: `PendingNamePlaceholder` incorreto fazia cards exibirem o título
 - **Patch de recuperacao Beta 0.2 (P0/P1):** energia World Map, menu/nav, missoes minimas, save diagnostics, build sem watermark Development
 
 ### Added

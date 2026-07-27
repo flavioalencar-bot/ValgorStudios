@@ -29,4 +29,8 @@ Pasta: `docs/audits/beta-0.2-recovery-evidence/`
 
 ## Build
 
-`C:\Valgor_Studio\builds\windows\Valgor-Beta-0.2\Valgor.exe` (pasta 0.1 preservada)
+Oficial pós-patch: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.2.1\Valgor.exe`  
+(congeladas: `Valgor-Beta-0.1`, `Valgor-Beta-0.2`)
+
+Revalidação: `docs/audits/VALGOR_BETA_0_2_1_REVALIDATION.md`
+

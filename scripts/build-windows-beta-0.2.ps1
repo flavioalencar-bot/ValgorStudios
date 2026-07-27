@@ -1,5 +1,8 @@
-# Build Windows Beta 0.2 — NÃO sobrescreve Valgor-Beta-0.1
+# HISTÓRICO / CONGELADO — pasta Valgor-Beta-0.2.
+# Build ativa da linha 0.2.x: scripts\build-windows-beta-0.2.1.ps1
+# Este script só regenera 0.2 se ValgorVersion.BuildFolderName ainda for Valgor-Beta-0.2.
 # Fecha instancias Unity que travam o projeto antes do batchmode.
+
 param(
   [string]$UnityExe = "C:\Program Files\Unity\Hub\Editor\6000.0.58f2\Editor\Unity.exe",
   [switch]$SkipCloseEditor

@@ -24,8 +24,11 @@ namespace Valgor.Heroes.Data
 
         public string ResolveDisplayName()
         {
+            // Placeholder canônico: "A definir". Não comparar DisplayName com
+            // PendingNamePlaceholder quando este foi gravado por engano com o nome real.
+            const string CanonicalPending = "A definir";
             if (string.IsNullOrWhiteSpace(DisplayName)
-                || DisplayName == PendingNamePlaceholder)
+                || DisplayName == CanonicalPending)
             {
                 return Title;
             }
