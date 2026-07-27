@@ -1,6 +1,3 @@
-using System;
-using UnityEngine;
-
 namespace Valgor.Core
 {
     public static class ValgorVersion
