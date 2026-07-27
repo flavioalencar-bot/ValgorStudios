@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -7,8 +7,8 @@ using Valgor.Core;
 namespace Valgor.Editor
 {
     /// <summary>
-    /// Build Windows da beta executável. Projeto fonte: client/ apenas.
-    /// Não usa builds/_unity-beta-project (obsoleto).
+    /// Build Windows da beta executÃ¡vel. Projeto fonte: client/ apenas.
+    /// NÃ£o usa builds/_unity-beta-project (obsoleto).
     /// </summary>
     public static class BetaWindowsBuild
     {
@@ -74,12 +74,10 @@ namespace Valgor.Editor
                 scenes = Scenes,
                 locationPathName = exe,
                 target = BuildTarget.StandaloneWindows64,
-                options = BuildOptions.Development |
-                          BuildOptions.AllowDebugging |
-                          BuildOptions.CompressWithLz4HC
+                options = BuildOptions.Development | BuildOptions.CompressWithLz4HC
             };
 
-            Debug.Log($"[Valgor] Building Windows Beta 0.1 (Dev+ScriptDebug) → {exe}");
+            Debug.Log($"[Valgor] Building Windows Beta 0.1 â†’ {exe}");
             Debug.Log($"[Valgor] Scenes: {string.Join(" | ", Scenes)}");
             return BuildPipeline.BuildPlayer(options);
         }
@@ -94,8 +92,7 @@ namespace Valgor.Editor
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
             PlayerSettings.resizableWindow = true;
             PlayerSettings.usePlayerLog = true;
-            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
-            // Mono é mais simples para Dev/script debugging em recovery builds.
+            // Input System only: ProjectSettings.asset already has activeInputHandler: 1 (PlayerSettings API unavailable here).
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
         }
 

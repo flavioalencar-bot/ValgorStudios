@@ -29,16 +29,18 @@ namespace Valgor.UI
 
         private static readonly string[] IntroTitles =
         {
-            "Bem-vindo a Valgor",
-            "Heróis e Dragões",
-            "Sua cidade aguarda"
+            "Vortex",
+            "Vortex",
+            "Vortex",
+            "Vortex"
         };
 
         private static readonly string[] IntroBodies =
         {
-            "Você é o senhor de um reino nascente. Reúna recursos, proteja sua cidade e conquiste o mapa.",
-            "Vortex, o Rei dos Dragões, lidera seus heróis. Na Torre dos Dragões, Ember e Ash aguardam seu comando.",
-            "Colete na cidade, marche no mapa mundial e volte para fortalecer o que é seu. A jornada começa agora."
+            "O reino de Valgor foi fragmentado.",
+            "Esta cidade será o início de nossa reconstrução.",
+            "Reúna seus heróis e fortaleça suas defesas.",
+            "Eu sou Vortex. Lutarei ao seu lado."
         };
 
         private void Awake()
@@ -449,7 +451,25 @@ namespace Valgor.UI
                 return;
             }
 
-            EnterCity();
+            EnterLastScreen();
+        }
+
+        private void EnterLastScreen()
+        {
+            if (GameBootstrap.Game == null)
+            {
+                _feedback.text = "Não foi possível continuar.";
+                return;
+            }
+
+            _feedback.text = "Retomando jornada…";
+            StartCoroutine(EnterLastScreenRoutine());
+        }
+
+        private IEnumerator EnterLastScreenRoutine()
+        {
+            yield return GameBootstrap.Game.Navigator.GoToLastSavedScreen();
+            PlayerPrefs.Save();
         }
 
         private void EnterCity()

@@ -7,9 +7,15 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
-### Added
+### Fixed
 
-- Validação Windows Beta 0.1 (2026-07-27): smoke exit 0 + evidências em `docs/releases/beta-0.1-evidence/`
+- Missing Scripts no boot: assets URP stubados (`UniversalRenderPipelineAsset` / `UniversalRenderer`) com GUIDs inválidos — restaurados para GUIDs URP 17
+- Localização Beta 0.1: PT-BR embutido sem Addressables; warnings de catálogo removidos
+- Input: handler **Input System only** (sem probe legado `XInput1_3.dll`)
+
+### Changed
+
+- Jornada Beta 0.1: intro Vortex (4 frases), tutorial 11 passos, save/Continuar com última tela, build `Valgor-Beta-0.1`
 - Progressão beta: `BetaProgress` (Castelo + pesquisa Coleta); poder Vortex escala com Castelo; gather x1.10 (+5% com Lab); fila de marcha 1 ativa + 1 enfileirada com feedback no HUD
 - UX estilo Last Z (beta): **persistência de níveis** dos prédios, **fila de construção 1/1** com timer curto, bolhas de coleta com valor, setas de upgrade, faixa Construção/Pesquisa no HUD; no mapa badges de nível + path pontilhado da marcha
 

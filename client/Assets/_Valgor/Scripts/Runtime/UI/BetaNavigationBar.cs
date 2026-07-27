@@ -87,26 +87,39 @@ namespace Valgor.UI
             }));
             bar.Add(NavButton("Heróis", () =>
             {
-                BetaJourneyGuide.NotifyHeroesOpened();
                 PlayerPrefs.Save();
                 Run(n => n.GoToHeroes());
             }));
             bar.Add(NavButton("Dragões", () =>
             {
-                BetaFocusHints.RequestDragonTower();
-                BetaJourneyGuide.NotifyDragonTowerFocused();
                 PlayerPrefs.Save();
                 Run(n => n.GoToDragonTower());
             }));
             bar.Add(NavButton("Mapa", () =>
             {
-                BetaJourneyGuide.NotifyWorldMapOpened();
                 PlayerPrefs.Save();
                 Run(n => n.GoToWorldMap());
             }));
             bar.Add(NavButton("Missões", () =>
             {
-                Debug.Log("[Valgor] Missões — em breve (beta).");
+                // Feedback jogável — sem log técnico na experiência do jogador.
+                var root = _document.rootVisualElement;
+                var toast = root.Q("missions-toast") ?? new Label("Missões em breve.") { name = "missions-toast" };
+                toast.style.position = Position.Absolute;
+                toast.style.left = Length.Percent(50);
+                toast.style.bottom = 80;
+                toast.style.translate = new Translate(Length.Percent(-50), 0);
+                toast.style.color = BetaVisualTheme.AgedGoldBright;
+                toast.style.fontSize = 14;
+                toast.style.backgroundColor = new Color(0.08f, 0.09f, 0.1f, 0.92f);
+                toast.style.paddingLeft = 12;
+                toast.style.paddingRight = 12;
+                toast.style.paddingTop = 8;
+                toast.style.paddingBottom = 8;
+                if (toast.parent == null)
+                {
+                    root.Add(toast);
+                }
             }));
 
             _hint = new Label();

@@ -6,6 +6,7 @@ using Valgor.Heroes.Data;
 using Valgor.Heroes.Factions;
 using Valgor.Heroes.Preview360;
 using Valgor.Heroes.SpecialPowers;
+using Valgor.UI;
 
 namespace Valgor.Heroes.UI
 {
@@ -267,6 +268,12 @@ namespace Valgor.Heroes.UI
             RebuildRoster();
             RefreshDetail();
             UpdatePreview(hero);
+            if (hero != null &&
+                (string.Equals(hero.Id, "HERO_VORTEX_000", StringComparison.Ordinal) ||
+                 string.Equals(hero.ResolveDisplayName(), "Vortex", StringComparison.OrdinalIgnoreCase)))
+            {
+                Valgor.UI.BetaJourneyGuide.NotifyVortexViewed();
+            }
         }
 
         private void UpdatePreview(HeroDefinitionSO hero)
@@ -275,16 +282,7 @@ namespace Valgor.Heroes.UI
             previewController.ShowHero(hero.Id, hero.Faction);
             if (_previewLabel != null)
             {
-                if (string.Equals(hero.Id, "HERO_VORTEX_000", StringComparison.Ordinal))
-                {
-                    _previewLabel.text = "PREVIEW 360° — preto/dourado";
-                }
-                else
-                {
-                    _previewLabel.text = previewController.UsingTechnicalFallback
-                        ? "PREVIEW 360° (fallback técnico)"
-                        : "PREVIEW 360° — modelo real";
-                }
+                _previewLabel.text = "Arraste para girar · scroll para zoom";
             }
         }
 
@@ -298,7 +296,7 @@ namespace Valgor.Heroes.UI
             {
                 var marchLine = string.Equals(_selected.Id, "HERO_VORTEX_000", System.StringComparison.Ordinal)
                     ? "\nFormação de marcha: Vortex · Poder 280"
-                    : "\nFormação de marcha (beta): Vortex é o líder";
+                    : "\nFormação de marcha: Vortex é o líder";
                 _detailMeta.text =
                     $"{RarityLabel(_selected.Rarity)} · {HeroFactionIds.ToDisplayName(_selected.Faction)} · {_selected.ClassName}\n" +
                     $"{_selected.Role} · {_selected.Position}\n" +

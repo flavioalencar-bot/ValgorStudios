@@ -50,7 +50,17 @@ namespace Valgor.WorldMap.UI
             _document = GetComponent<UIDocument>();
             EnsurePanelSettings();
             Build();
-            _map.Session.Selection.SelectionChanged += _ => Refresh();
+            _map.Session.Selection.SelectionChanged += _ =>
+            {
+                var selected = _map.Session.Selection.Selected;
+                if (selected != null &&
+                    _map.Session.GetDefinition(selected.DefinitionId).Kind == WorldNodeKind.Resource)
+                {
+                    BetaJourneyGuide.NotifyResourceNodeSelected();
+                }
+
+                Refresh();
+            };
             _map.Session.RegionSelection.SelectionChanged += _ => Refresh();
             _map.Changed += Refresh;
             _map.Session.EnergyWallet.Changed += (_, _) => RefreshWallet();

@@ -23,9 +23,9 @@ MonoBehaviour:
     m_StripUnusedVariants: 1
     m_StripScreenCoordOverrideVariants: 1
   m_ShaderVariantLogLevel: 0
-  m_ExportShaderVariants: 1
+  m_ExportShaderVariants: 0
   m_StripDebugVariants: 1
-  m_StripUnusedPostProcessingVariants: 0
+  m_StripUnusedPostProcessingVariants: 1
   m_StripUnusedVariants: 1
   m_StripScreenCoordOverrideVariants: 1
   supportRuntimeDebugDisplay: 0
@@ -60,7 +60,17 @@ MonoBehaviour:
       - rid: 5597702264907104280
       - rid: 5597702264907104281
     m_RuntimeSettings:
-      m_List: []
+      m_List:
+      - rid: 5597702264907104256
+      - rid: 5597702264907104258
+      - rid: 5597702264907104266
+      - rid: 5597702264907104267
+      - rid: 5597702264907104269
+      - rid: 5597702264907104270
+      - rid: 5597702264907104271
+      - rid: 5597702264907104273
+      - rid: 5597702264907104274
+      - rid: 5597702264907104281
   m_AssetVersion: 8
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
   m_RenderingLayerNames:

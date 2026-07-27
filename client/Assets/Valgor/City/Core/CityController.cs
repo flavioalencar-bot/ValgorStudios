@@ -372,6 +372,20 @@ namespace Valgor.City.Core
             {
                 pair.Value.SetSelected(ReferenceEquals(pair.Key, selected));
             }
+
+            if (selected == null)
+            {
+                return;
+            }
+
+            if (string.Equals(selected.DefinitionId, "castle", StringComparison.Ordinal))
+            {
+                Valgor.UI.BetaJourneyGuide.NotifyCastleSelected();
+            }
+            else if (string.Equals(selected.DefinitionId, "farm", StringComparison.Ordinal))
+            {
+                Valgor.UI.BetaJourneyGuide.NotifyFarmSelected();
+            }
         }
 
         private static string FormatDuration(TimeSpan value)

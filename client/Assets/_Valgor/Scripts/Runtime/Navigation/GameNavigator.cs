@@ -30,6 +30,7 @@ namespace Valgor.Navigation
             ExitOptionalModules();
             yield return _sceneLoader.LoadAsync(SceneIds.MainMenu, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.MainMenu);
+            LocalPlayerProfile.LastScene = SceneIds.MainMenu;
         }
 
         public IEnumerator GoToCity()
@@ -37,11 +38,14 @@ namespace Valgor.Navigation
             ExitWorldAndHeroesModules();
             yield return _sceneLoader.LoadAsync(SceneIds.City, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.PlayerCity);
+            LocalPlayerProfile.LastScene = SceneIds.City;
 
             if (_services.TryGet<IPlayerCityModule>(out var city))
             {
                 city.Enter();
             }
+
+            Valgor.UI.BetaJourneyGuide.NotifyReturnedToCity();
         }
 
         /// <summary>Alias de <see cref="GoToCity"/>.</summary>
@@ -52,6 +56,8 @@ namespace Valgor.Navigation
             ExitCityAndHeroesModules();
             yield return _sceneLoader.LoadAsync(SceneIds.WorldMap, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.WorldMap);
+            LocalPlayerProfile.LastScene = SceneIds.WorldMap;
+            Valgor.UI.BetaJourneyGuide.NotifyWorldMapOpened();
 
             if (_services.TryGet<IWorldMapModule>(out var world))
             {
@@ -73,12 +79,33 @@ namespace Valgor.Navigation
 
             yield return _sceneLoader.LoadAsync(SceneIds.Heroes, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.Heroes);
+            LocalPlayerProfile.LastScene = SceneIds.Heroes;
+            Valgor.UI.BetaJourneyGuide.NotifyHeroesOpened();
         }
 
         public IEnumerator GoToDragonTower()
         {
             BetaFocusHints.RequestDragonTower();
+            Valgor.UI.BetaJourneyGuide.NotifyDragonTowerFocused();
             yield return GoToCity();
+        }
+
+        /// <summary>Continuar: retoma a última tela salva (City/Heroes/WorldMap).</summary>
+        public IEnumerator GoToLastSavedScreen()
+        {
+            var scene = LocalPlayerProfile.LastScene;
+            if (string.Equals(scene, SceneIds.WorldMap, StringComparison.Ordinal))
+            {
+                yield return GoToWorldMap();
+            }
+            else if (string.Equals(scene, SceneIds.Heroes, StringComparison.Ordinal))
+            {
+                yield return GoToHeroes();
+            }
+            else
+            {
+                yield return GoToCity();
+            }
         }
 
         private void ExitOptionalModules()

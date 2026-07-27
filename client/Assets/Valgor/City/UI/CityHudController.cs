@@ -155,19 +155,16 @@ namespace Valgor.City.UI
                 {
                     case LocalPlayerProfile.TutorialSteps.OpenHeroes:
                         _city.Persist();
-                        BetaJourneyGuide.NotifyHeroesOpened();
                         StartCoroutine(GameBootstrap.Game.Navigator.GoToHeroes());
                         break;
-                    case LocalPlayerProfile.TutorialSteps.DragonTower:
+                    case LocalPlayerProfile.TutorialSteps.OpenDragons:
                         BetaFocusHints.RequestDragonTower();
                         _city.TrySelectByDefinitionId(BetaFocusHints.DragonTowerBuildingId);
-                        BetaJourneyGuide.NotifyDragonTowerFocused();
                         RefreshSelection();
                         BetaJourneyGuide.AttachOrRefresh(root, null);
                         break;
                     case LocalPlayerProfile.TutorialSteps.OpenMap:
                         _city.Persist();
-                        BetaJourneyGuide.NotifyWorldMapOpened();
                         StartCoroutine(GameBootstrap.Game.Navigator.GoToWorldMap());
                         break;
                 }
@@ -232,9 +229,17 @@ namespace Valgor.City.UI
             {
                 if (status.StateLabel is "HUNGRY" or "RESTING" or "READY" or "JUVENILE")
                 {
-                    _feedback.text = _dragons.TryFeed(status.DragonId, out var error)
-                        ? "Dragão alimentado."
-                        : error;
+                    if (_dragons.TryFeed(status.DragonId, out var error))
+                    {
+                        _feedback.text = "Dragão alimentado.";
+                        BetaJourneyGuide.NotifyDragonFed();
+                        BetaJourneyGuide.AttachOrRefresh(_document.rootVisualElement);
+                    }
+                    else
+                    {
+                        _feedback.text = error;
+                    }
+
                     RefreshResources();
                     RefreshSelection();
                     return;
@@ -302,6 +307,7 @@ namespace Valgor.City.UI
                 $"Pedra {w.Get(ResourceType.Stone)}  ·  " +
                 $"Ferro {w.Get(ResourceType.Iron)}  ·  " +
                 $"Essência {w.Get(ResourceType.DragonEssence)}  ·  " +
+                $"Diamantes {w.Get(ResourceType.Diamonds)}  ·  " +
                 $"Energia {energy}";
         }
 

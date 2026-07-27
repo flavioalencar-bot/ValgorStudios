@@ -10,6 +10,7 @@ using Valgor.WorldMap.Filters;
 using Valgor.WorldMap.Locate;
 using Valgor.WorldMap.Marches;
 using Valgor.WorldMap.Territory;
+using Valgor.UI;
 
 namespace Valgor.WorldMap.Core
 {
@@ -647,6 +648,7 @@ namespace Valgor.WorldMap.Core
                     ? resource.ResourceType.ToString()
                     : "recursos";
                 LastDepositMessage = $"+{deposited} {resourceName} depositados na cidade!";
+                Valgor.UI.BetaJourneyGuide.NotifyRewardReceived();
             }
         }
 

@@ -22,14 +22,8 @@ namespace Valgor.ContentLoading
             }
 
             var settingsPath = Path.Combine(Application.streamingAssetsPath, "aa", "settings.json");
+            // Beta 0.1: sem catálogo remoto — fallback silencioso (sem warning de jogador).
             _catalogAvailable = File.Exists(settingsPath);
-            if (!_catalogAvailable.Value)
-            {
-                Debug.LogWarning(
-                    "[Valgor.Addressables] Catálogo ausente (StreamingAssets/aa/settings.json). " +
-                    "Loads retornam fallback sem inicializar Addressables.");
-            }
-
             return _catalogAvailable.Value;
         }
 

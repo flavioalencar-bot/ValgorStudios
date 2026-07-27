@@ -11,7 +11,7 @@ using Valgor.Navigation;
 namespace Valgor.UI
 {
     /// <summary>
-    /// QA da build Checkpoint. Ativa só com -checkpointSmoke.
+    /// QA da build Beta 0.1. Ativa só com -checkpointSmoke.
     /// Com -captureEvidence também grava PNGs das telas principais.
     /// </summary>
     public sealed class CheckpointSmokeDriver : MonoBehaviour
@@ -52,43 +52,55 @@ namespace Valgor.UI
             Debug.Log("[CheckpointSmoke] Aguardando MainMenu…");
             yield return WaitForScene(SceneIds.MainMenu, 120f);
             Debug.Log("[CheckpointSmoke] MainMenu OK");
-            yield return new WaitForSecondsRealtime(1.5f);
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return Capture("00-main-menu");
 
             EnsureLocalProfile();
+            LocalPlayerProfile.MarkIntroDone();
             LocalPlayerProfile.TutorialStep = LocalPlayerProfile.TutorialSteps.Complete;
             PlayerPrefs.Save();
-            yield return new WaitForSecondsRealtime(0.5f);
+            yield return new WaitForSecondsRealtime(0.4f);
 
             yield return Navigate(n => n.GoToCity());
             yield return WaitForScene(SceneIds.City, 90f);
             Debug.Log("[CheckpointSmoke] City OK");
-            yield return new WaitForSecondsRealtime(3f);
+            yield return new WaitForSecondsRealtime(2.5f);
             yield return Capture("01-city");
+
+            TrySelectCityBuilding("castle");
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Capture("01b-city-castle");
 
             yield return Navigate(n => n.GoToHeroes());
             yield return WaitForScene(SceneIds.Heroes, 90f);
             Debug.Log("[CheckpointSmoke] HeroesDemo OK");
-            yield return new WaitForSecondsRealtime(4f);
+            yield return new WaitForSecondsRealtime(3.5f);
             yield return Capture("02-heroes-vortex");
+
+            yield return Navigate(n => n.GoToDragonTower());
+            yield return WaitForScene(SceneIds.City, 90f);
+            yield return new WaitForSecondsRealtime(2.5f);
+            yield return Capture("03-dragons-tower");
 
             yield return Navigate(n => n.GoToWorldMap());
             yield return WaitForScene(SceneIds.WorldMap, 90f);
             Debug.Log("[CheckpointSmoke] WorldMap OK");
-            yield return new WaitForSecondsRealtime(3f);
-            yield return Capture("03-worldmap");
+            yield return new WaitForSecondsRealtime(2.5f);
+            yield return Capture("04-worldmap");
 
             TrySelectFirstWorldNode();
-            yield return new WaitForSecondsRealtime(1.5f);
-            yield return Capture("04-worldmap-node-selected");
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return Capture("05-worldmap-node");
 
-            TryExpandWorldMapFilters();
-            yield return new WaitForSecondsRealtime(1f);
-            yield return Capture("05-worldmap-filters-open");
+            TryDispatchSelected();
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return Capture("06-worldmap-march");
 
             yield return Navigate(n => n.GoToCity());
             yield return WaitForScene(SceneIds.City, 90f);
+            yield return Capture("07-city-return");
             Debug.Log("[CheckpointSmoke] Jornada mínima concluída.");
-            yield return new WaitForSecondsRealtime(1f);
+            yield return new WaitForSecondsRealtime(0.8f);
             Application.Quit(0);
         }
 
@@ -99,14 +111,12 @@ namespace Valgor.UI
                 yield break;
             }
 
-            // Aguarda frames para ScreenCapture assíncrono não sobrescrever o PNG anterior.
             yield return new WaitForEndOfFrame();
             var path = Path.GetFullPath(Path.Combine(_evidenceDir, name + ".png"));
             ScreenCapture.CaptureScreenshot(path);
             Debug.Log($"[CheckpointSmoke] Captura: {path}");
             yield return new WaitForEndOfFrame();
-            // ScreenCapture é assíncrono no player — aguarda flush do PNG.
-            yield return new WaitForSecondsRealtime(2.5f);
+            yield return new WaitForSecondsRealtime(2.2f);
             for (var i = 0; i < 20 && !File.Exists(path); i++)
             {
                 yield return new WaitForSecondsRealtime(0.25f);
@@ -205,25 +215,30 @@ namespace Valgor.UI
             Debug.LogWarning("[CheckpointSmoke] Nenhum WorldNodeView encontrado.");
         }
 
-        private static void TryExpandWorldMapFilters()
+        private static void TryDispatchSelected()
         {
             foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
             {
-                if (mb == null || !string.Equals(mb.GetType().Name, "WorldMapHudController", StringComparison.Ordinal))
+                if (mb == null || !string.Equals(mb.GetType().Name, "WorldMapController", StringComparison.Ordinal))
                 {
                     continue;
                 }
 
-                var field = mb.GetType().GetField("_filterPanel",
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-                var panel = field?.GetValue(mb);
-                var expand = panel?.GetType().GetMethod("Expand");
-                expand?.Invoke(panel, null);
-                Debug.Log("[CheckpointSmoke] Filtros expandidos.");
+                var sessionProp = mb.GetType().GetProperty("Session");
+                var session = sessionProp?.GetValue(mb);
+                var method = session?.GetType().GetMethod("TryDispatchToSelected");
+                if (method == null)
+                {
+                    continue;
+                }
+
+                var args = new object[] { null! };
+                var ok = method.Invoke(session, args);
+                Debug.Log($"[CheckpointSmoke] Dispatch: {ok} err={args[0]}");
                 return;
             }
 
-            Debug.LogWarning("[CheckpointSmoke] Filtros não encontrados.");
+            Debug.LogWarning("[CheckpointSmoke] Dispatch não encontrado.");
         }
     }
 }
