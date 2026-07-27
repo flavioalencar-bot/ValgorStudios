@@ -7,6 +7,11 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Added
+
+- UX contextual de edifícios na City: menu ancorado ao prédio (`BuildingContextMenu`), presenter, positioner e painéis de ação (Detalhes/Atualizar/Coletar/Produzir/Treinar/Pesquisar/Abrir/Enviar)
+- `CityCameraController.FocusOn` com centralização suave ao selecionar edifício
+
 ### Fixed
 
 - Missing Scripts no boot: assets URP stubados (`UniversalRenderPipelineAsset` / `UniversalRenderer`) com GUIDs inválidos — restaurados para GUIDs URP 17

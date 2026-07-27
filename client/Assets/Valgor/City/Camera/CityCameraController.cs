@@ -153,10 +153,67 @@ namespace Valgor.City.Camera
             _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize - amount, minZoom, maxZoom);
         }
 
+        /// <summary>
+        /// Centraliza suavemente o ponto de olhar da câmera isométrica sobre o alvo no chão.
+        /// </summary>
+        public void FocusOn(Vector3 worldTarget, float duration = 0.35f)
+        {
+            if (_camera == null)
+            {
+                _camera = GetComponent<UnityEngine.Camera>();
+            }
+
+            var lookPoint = ProjectLookPointOnGround();
+            var delta = worldTarget - lookPoint;
+            delta.y = 0f;
+            _focusFrom = transform.position;
+            _focusTo = transform.position + delta;
+            _focusDuration = Mathf.Max(0.05f, duration);
+            _focusElapsed = 0f;
+            _focusing = true;
+        }
+
+        private Vector3 ProjectLookPointOnGround()
+        {
+            var plane = new Plane(Vector3.up, Vector3.zero);
+            var ray = new Ray(transform.position, transform.forward);
+            if (plane.Raycast(ray, out var enter))
+            {
+                return ray.GetPoint(enter);
+            }
+
+            return new Vector3(transform.position.x, 0f, transform.position.z);
+        }
+
+        private void LateUpdate()
+        {
+            if (!_focusing)
+            {
+                return;
+            }
+
+            _focusElapsed += Time.unscaledDeltaTime;
+            var t = Mathf.Clamp01(_focusElapsed / _focusDuration);
+            // Ease-out suave.
+            t = 1f - (1f - t) * (1f - t);
+            transform.position = Vector3.Lerp(_focusFrom, _focusTo, t);
+            ClampPosition();
+            if (_focusElapsed >= _focusDuration)
+            {
+                _focusing = false;
+            }
+        }
+
         private void ClampPosition()
         {
             var clamped = _bounds.ClampPosition(new CityPosition(transform.position.x, transform.position.y, transform.position.z));
             transform.position = new Vector3(clamped.X, Mathf.Clamp(clamped.Y, 10f, 20f), clamped.Z);
         }
+
+        private Vector3 _focusFrom;
+        private Vector3 _focusTo;
+        private float _focusDuration = 0.35f;
+        private float _focusElapsed;
+        private bool _focusing;
     }
 }

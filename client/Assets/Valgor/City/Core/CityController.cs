@@ -58,6 +58,9 @@ namespace Valgor.City.Core
 
         public BuildingDefinition GetDefinition(BuildingInstance instance) => _definitions[instance];
 
+        public bool TryGetView(BuildingInstance instance, out BuildingView view) =>
+            _views.TryGetValue(instance, out view!);
+
         public bool TrySelectByDefinitionId(string definitionId)
         {
             foreach (var building in _buildings)

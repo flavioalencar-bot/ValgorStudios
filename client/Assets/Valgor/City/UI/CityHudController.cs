@@ -1,11 +1,9 @@
 using System;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Valgor.Bootstrap;
 using Valgor.City.Core;
 using Valgor.City.Data;
-using Valgor.City.Production;
 using Valgor.Core;
 using Valgor.Core.Modules;
 using Valgor.UI;
@@ -19,39 +17,20 @@ namespace Valgor.City.UI
 
         private UIDocument _document = null!;
         private CityController _city = null!;
-        private IDragonGateway? _dragons;
         private Label _resources = null!;
-        private VisualElement _selectedPanel = null!;
-        private Label _selectedText = null!;
-        private Button _upgradeButton = null!;
-        private Button _collectButton = null!;
-        private Button _feedButton = null!;
-        private Button _hatchButton = null!;
-        private Button _evolveButton = null!;
-        private Label _feedback = null!;
+        private BuildingSelectionPresenter? _presenter;
+        private IDragonGateway? _dragons;
 
         public void Initialize(CityController city, IDragonGateway? dragons = null)
         {
             _city = city;
             _dragons = dragons ?? city.Dragons;
             _document = GetComponent<UIDocument>();
-            EnsurePanelSettings();
+            BetaUiPanels.ApplyTo(_document);
             Build();
             _city.Economy.Wallet.Changed += OnResourceChanged;
-            _city.Selection.SelectionChanged += _ => RefreshSelection();
-            _city.BuildingChanged += () =>
-            {
-                RefreshSelection();
-                RefreshResources();
-            };
-            // Não chamar ForceApply a partir deste handler — evita reentrada Production.Changed.
-            _city.Economy.Production.Changed += (_, __) =>
-            {
-                if (_selectedPanel != null && _selectedPanel.style.display == DisplayStyle.Flex)
-                {
-                    RefreshSelection();
-                }
-            };
+            _city.BuildingChanged += RefreshResources;
+            _city.Economy.Production.Changed += (_, __) => _presenter?.RefreshCurrent();
         }
 
         private void OnDestroy()
@@ -60,12 +39,11 @@ namespace Valgor.City.UI
             {
                 _city.Economy.Wallet.Changed -= OnResourceChanged;
             }
+
+            _presenter?.Dispose();
         }
 
-        private void EnsurePanelSettings()
-        {
-            BetaUiPanels.ApplyTo(_document);
-        }
+        private void Update() => _presenter?.Tick();
 
         private void Build()
         {
@@ -75,6 +53,7 @@ namespace Valgor.City.UI
             root.pickingMode = PickingMode.Ignore;
 
             _resources = new Label();
+            _resources.name = "city-resources";
             _resources.style.position = Position.Absolute;
             _resources.style.left = 12;
             _resources.style.right = 12;
@@ -93,56 +72,22 @@ namespace Valgor.City.UI
             _resources.pickingMode = PickingMode.Ignore;
             root.Add(_resources);
 
-            _selectedPanel = new VisualElement();
-            _selectedPanel.style.position = Position.Absolute;
-            _selectedPanel.style.left = 16;
-            _selectedPanel.style.bottom = 78;
-            _selectedPanel.style.paddingLeft = 14;
-            _selectedPanel.style.paddingRight = 14;
-            _selectedPanel.style.paddingTop = 12;
-            _selectedPanel.style.paddingBottom = 12;
-            _selectedPanel.style.backgroundColor = new Color(0.1f, 0.11f, 0.12f, 0.94f);
-            _selectedPanel.style.borderTopWidth = 2;
-            _selectedPanel.style.borderBottomWidth = 2;
-            _selectedPanel.style.borderLeftWidth = 2;
-            _selectedPanel.style.borderRightWidth = 2;
-            _selectedPanel.style.borderTopColor = BetaVisualTheme.AgedGold;
-            _selectedPanel.style.borderBottomColor = BetaVisualTheme.AgedGold;
-            _selectedPanel.style.borderLeftColor = BetaVisualTheme.AgedGold;
-            _selectedPanel.style.borderRightColor = BetaVisualTheme.AgedGold;
-            _selectedPanel.style.width = 340;
-            _selectedText = new Label();
-            _selectedText.style.whiteSpace = WhiteSpace.Normal;
-            _selectedText.style.color = BetaVisualTheme.TextPrimary;
-            _selectedText.style.fontSize = 13;
-            _selectedPanel.Add(_selectedText);
-            _collectButton = CreateButton("Coletar", () =>
-            {
-                var amount = _city.CollectSelected();
-                _feedback.text = amount > 0
-                    ? $"+{amount} coletado!"
-                    : "Nada para coletar agora.";
-                RefreshResources();
-                RefreshSelection();
-            });
-            _selectedPanel.Add(_collectButton);
-            _upgradeButton = CreateButton("Melhorar", OnUpgrade);
-            _selectedPanel.Add(_upgradeButton);
-            _feedButton = CreateButton("Alimentar dragão", OnFeed);
-            _selectedPanel.Add(_feedButton);
-            _hatchButton = CreateButton("Chocar ovo", OnHatch);
-            _selectedPanel.Add(_hatchButton);
-            _evolveButton = CreateButton("Evoluir dragão", OnEvolve);
-            _selectedPanel.Add(_evolveButton);
-            _feedback = new Label();
-            _feedback.style.color = BetaVisualTheme.AgedGoldBright;
-            _feedback.style.marginTop = 6;
-            _feedback.style.whiteSpace = WhiteSpace.Normal;
-            _selectedPanel.Add(_feedback);
-            _selectedPanel.Add(CreateButton("Fechar", () => _city.Selection.Deselect()));
-            root.Add(_selectedPanel);
+            _presenter = new BuildingSelectionPresenter(
+                _city,
+                root,
+                _dragons,
+                () =>
+                {
+                    _city.Persist();
+                    if (GameBootstrap.Game == null)
+                    {
+                        return;
+                    }
+
+                    StartCoroutine(GameBootstrap.Game.Navigator.GoToWorldMap());
+                });
+
             RefreshResources();
-            RefreshSelection();
             AttachJourneyGuide(root);
         }
 
@@ -160,7 +105,6 @@ namespace Valgor.City.UI
                     case LocalPlayerProfile.TutorialSteps.OpenDragons:
                         BetaFocusHints.RequestDragonTower();
                         _city.TrySelectByDefinitionId(BetaFocusHints.DragonTowerBuildingId);
-                        RefreshSelection();
                         BetaJourneyGuide.AttachOrRefresh(root, null);
                         break;
                     case LocalPlayerProfile.TutorialSteps.OpenMap:
@@ -169,124 +113,6 @@ namespace Valgor.City.UI
                         break;
                 }
             });
-        }
-
-        private Button CreateButton(string text, Action action)
-        {
-            var button = new Button(action) { text = text };
-            button.style.marginTop = 8;
-            button.style.paddingLeft = 12;
-            button.style.paddingRight = 12;
-            button.style.paddingTop = 8;
-            button.style.paddingBottom = 8;
-            button.style.backgroundColor = BetaVisualTheme.ButtonFace;
-            button.style.color = BetaVisualTheme.TextPrimary;
-            button.style.borderTopWidth = 1;
-            button.style.borderBottomWidth = 1;
-            button.style.borderLeftWidth = 1;
-            button.style.borderRightWidth = 1;
-            button.style.borderTopColor = BetaVisualTheme.ButtonBorder;
-            button.style.borderBottomColor = BetaVisualTheme.ButtonBorder;
-            button.style.borderLeftColor = BetaVisualTheme.ButtonBorder;
-            button.style.borderRightColor = BetaVisualTheme.ButtonBorder;
-            button.style.fontSize = 13;
-            return button;
-        }
-
-        private void OnUpgrade()
-        {
-            var building = _city.Selection.Selected;
-            if (building == null)
-            {
-                return;
-            }
-
-            var definition = _city.GetDefinition(building);
-            if (_city.TryUpgradeSelected())
-            {
-                var duration = definition.GetUpgradeDuration(building.Level);
-                _feedback.text = building.State == BuildingState.Upgrading
-                    ? $"{definition.DisplayName}: melhoria iniciada ({(int)duration.TotalSeconds}s)"
-                    : $"{definition.DisplayName} → Nv.{building.Level}";
-            }
-            else
-            {
-                _feedback.text = _city.GetUpgradeBlockReason(building, definition) ?? "Não foi possível melhorar.";
-            }
-
-            RefreshSelection();
-            RefreshResources();
-        }
-
-        private void OnFeed()
-        {
-            if (_dragons == null)
-            {
-                return;
-            }
-
-            foreach (var status in _dragons.GetDragonStatuses())
-            {
-                if (status.StateLabel is "HUNGRY" or "RESTING" or "READY" or "JUVENILE")
-                {
-                    if (_dragons.TryFeed(status.DragonId, out var error))
-                    {
-                        _feedback.text = "Dragão alimentado.";
-                        BetaJourneyGuide.NotifyDragonFed();
-                        BetaJourneyGuide.AttachOrRefresh(_document.rootVisualElement);
-                    }
-                    else
-                    {
-                        _feedback.text = error;
-                    }
-
-                    RefreshResources();
-                    RefreshSelection();
-                    return;
-                }
-            }
-
-            _feedback.text = "Nenhum dragão disponível para alimentar.";
-        }
-
-        private void OnHatch()
-        {
-            if (_dragons == null)
-            {
-                return;
-            }
-
-            _feedback.text = _dragons.TryUnlockAndHatch("ash-drake", out var error)
-                ? "Incubação iniciada."
-                : error;
-            RefreshSelection();
-        }
-
-        private void OnEvolve()
-        {
-            if (_dragons == null)
-            {
-                return;
-            }
-
-            foreach (var status in _dragons.GetDragonStatuses())
-            {
-                if (_dragons.TryEvolve(status.DragonId, out var error))
-                {
-                    _feedback.text = $"{status.DisplayName} evoluiu!";
-                    RefreshSelection();
-                    return;
-                }
-
-                if (!string.Equals(error, "Esta espécie não possui evolução.", StringComparison.Ordinal) &&
-                    !string.Equals(error, "Evolução indisponível neste estado.", StringComparison.Ordinal))
-                {
-                    _feedback.text = error;
-                    return;
-                }
-            }
-
-            _feedback.text = "Nenhum dragão elegível para evoluir.";
         }
 
         private void OnResourceChanged(object? sender, ResourceChangedEvent args) => RefreshResources();
@@ -321,84 +147,6 @@ namespace Valgor.City.UI
             var current = PlayerPrefs.GetInt(EnergyPrefsPrefix + ".current", 100);
             var max = Mathf.Max(1, PlayerPrefs.GetInt(EnergyPrefsPrefix + ".max", 100));
             return $"{current}/{max}";
-        }
-
-        private void RefreshSelection()
-        {
-            var building = _city.Selection.Selected;
-            _selectedPanel.style.display = building == null ? DisplayStyle.None : DisplayStyle.Flex;
-            if (building == null)
-            {
-                return;
-            }
-
-            var definition = _city.GetDefinition(building);
-            var builder = new StringBuilder();
-            builder.AppendLine(definition.DisplayName);
-            builder.AppendLine($"Nível {building.Level}/{definition.MaxLevel}");
-            if (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue)
-            {
-                var remaining = building.UpgradeCompletesAtUtc.Value - _city.Economy.Clock.UtcNow;
-                if (remaining < TimeSpan.Zero)
-                {
-                    remaining = TimeSpan.Zero;
-                }
-
-                builder.AppendLine($"Melhorando → Nv.{building.Level + 1} ({(int)remaining.TotalSeconds}s)");
-            }
-            else
-            {
-                builder.AppendLine($"Estado: {FriendlyState(building.State)}");
-            }
-
-            var block = _city.GetUpgradeBlockReason(building, definition);
-            if (!string.IsNullOrEmpty(block))
-            {
-                builder.AppendLine(block);
-            }
-
-            builder.AppendLine(BuildProductionBlock(building));
-
-            var isTower = string.Equals(building.DefinitionId, "dragon-tower", StringComparison.Ordinal);
-            if (isTower && _dragons != null)
-            {
-                builder.AppendLine($"Ninho: {_dragons.RoostOccupantCount}/{_dragons.RoostCapacity}");
-            }
-
-            _selectedText.text = builder.ToString();
-            _upgradeButton.SetEnabled(_city.CanUpgrade(building, definition));
-            var canCollect = _city.Economy.Production.TryGetState(building.DefinitionId, out var state) && state.HasCollectable;
-            _collectButton.SetEnabled(canCollect);
-            _collectButton.style.display = ProductionCatalog.TryGet(building.DefinitionId, out _)
-                ? DisplayStyle.Flex
-                : DisplayStyle.None;
-            _feedButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
-            _hatchButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
-            _evolveButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
-        }
-
-        private static string FriendlyState(BuildingState state) => state switch
-        {
-            BuildingState.Ready => "Pronto",
-            BuildingState.Available => "Disponível",
-            BuildingState.Locked => "Bloqueado",
-            BuildingState.Upgrading => "Melhorando",
-            _ => state.ToString()
-        };
-
-        private string BuildProductionBlock(BuildingInstance building)
-        {
-            if (!ProductionCatalog.TryGet(building.DefinitionId, out var productionDef))
-            {
-                return string.Empty;
-            }
-
-            // Leitura apenas — ForceApply aqui reentra em Production.Changed → StackOverflow.
-            var rate = _city.Economy.Production.GetRatePerHour(building);
-            var capacity = _city.Economy.Production.GetCapacity(building);
-            _city.Economy.Production.TryGetState(building.DefinitionId, out var state);
-            var accumulated = state?.Accumulated ?? 0;
-            return $"Produção: {rate:0.#}/h · Acumulado {accumulated}/{capacity} ({productionDef.Resource})";
         }
     }
 }
