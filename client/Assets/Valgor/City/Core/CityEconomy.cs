@@ -141,7 +141,7 @@ namespace Valgor.City.Core
             Wallet.Add(ResourceType.Stone, 2000);
             Wallet.Add(ResourceType.Iron, 1000);
             Wallet.Add(ResourceType.DragonEssence, 100);
-            // Diamantes começam em 0 (sem Add — carteira inicia zerada).
+            Wallet.Add(ResourceType.Diamonds, 50);
             LocalPlayerProfile.SeedStartingEnergy();
         }
     }

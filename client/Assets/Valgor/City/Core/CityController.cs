@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Valgor.City.Buildings;
+using Valgor.City.Camera;
 using Valgor.City.Data;
 using Valgor.City.Production;
 using Valgor.Core.Modules;
@@ -52,7 +53,25 @@ namespace Valgor.City.Core
             _views.Add(instance, view);
             _buildings.Add(instance);
             _economy.Production.RegisterBuilding(instance);
-            view.Clicked += _ => Selection.Select(instance);
+            view.Clicked += _ =>
+            {
+                if (CityCameraController.ShouldSuppressBuildingClick)
+                {
+                    return;
+                }
+
+                Selection.Select(instance);
+            };
+            view.CollectRequested += () =>
+            {
+                if (CityCameraController.ShouldSuppressBuildingClick)
+                {
+                    return;
+                }
+
+                Selection.Select(instance);
+                CollectSelected();
+            };
             view.RefreshLabel(definition);
         }
 
@@ -75,6 +94,65 @@ namespace Valgor.City.Core
             return false;
         }
 
+        public string? LastUpgradeFeedback { get; private set; }
+
+        public IReadOnlyList<UpgradeResourceRequirement> GetUpgradeRequirements(BuildingInstance building)
+        {
+            if (!_definitions.TryGetValue(building, out var definition))
+            {
+                return Array.Empty<UpgradeResourceRequirement>();
+            }
+
+            return BuildingUpgradeRequirements.Build(definition, building, _wallet);
+        }
+
+        public bool TryInstantCompleteSelected(out string error)
+        {
+            error = string.Empty;
+            var building = Selection.Selected;
+            if (building == null ||
+                building.State != BuildingState.Upgrading ||
+                !building.UpgradeCompletesAtUtc.HasValue)
+            {
+                error = "Nenhuma construção em andamento neste edifício.";
+                return false;
+            }
+
+            var remaining = building.UpgradeCompletesAtUtc.Value - _economy.Clock.UtcNow;
+            if (remaining < TimeSpan.Zero)
+            {
+                remaining = TimeSpan.Zero;
+            }
+
+            var cost = BuildingUpgradeRequirements.InstantCompleteDiamondCost(remaining);
+            if (cost > 0 && !_wallet.TrySpend(ResourceType.Diamonds, cost))
+            {
+                error = $"Diamantes insuficientes (precisa {cost}).";
+                return false;
+            }
+
+            building.CompleteUpgrade();
+            _economy.Production.OnBuildingUpgraded(building);
+            if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
+            {
+                Valgor.Core.BetaProgress.SyncCastleLevel(building.Level);
+            }
+
+            if (_views.TryGetValue(building, out var view) &&
+                _definitions.TryGetValue(building, out var definition))
+            {
+                view.RefreshStateColor();
+                view.RefreshLabel(definition);
+                view.SetConstructionProgress(0f, string.Empty, false);
+            }
+
+            LastUpgradeFeedback = $"{GetDefinition(building).DisplayName} → Nv.{building.Level} (concluído agora)";
+            _economy.Persist(_buildings);
+            BuildingChanged?.Invoke();
+            RefreshWorldIndicators();
+            return true;
+        }
+
         public bool TryUpgradeSelected()
         {
             var building = Selection.Selected;
@@ -88,18 +166,23 @@ namespace Valgor.City.Core
                 return false;
             }
 
-            foreach (var cost in definition.BaseCosts)
+            if (!HasUpgradeFunds(building, definition))
             {
-                var amount = definition.GetUpgradeCost(cost.Key, building.Level);
-                if (_wallet.Get(cost.Key) < amount)
-                {
-                    return false;
-                }
+                return false;
             }
 
             foreach (var cost in definition.BaseCosts)
             {
-                _wallet.TrySpend(cost.Key, definition.GetUpgradeCost(cost.Key, building.Level));
+                var amount = definition.GetUpgradeCost(cost.Key, building.Level);
+                if (amount <= 0)
+                {
+                    continue;
+                }
+
+                if (!_wallet.TrySpend(cost.Key, amount))
+                {
+                    return false;
+                }
             }
 
             var completesAt = _economy.Clock.UtcNow + definition.GetUpgradeDuration(building.Level);
@@ -110,6 +193,7 @@ namespace Valgor.City.Core
                 view.RefreshLabel(definition);
             }
 
+            LastUpgradeFeedback = $"{definition.DisplayName}: melhoria iniciada";
             _economy.Persist(_buildings);
             BuildingChanged?.Invoke();
             RefreshWorldIndicators();
@@ -317,8 +401,10 @@ namespace Valgor.City.Core
                 {
                     view.RefreshStateColor();
                     view.RefreshLabel(definition);
+                    view.SetConstructionProgress(0f, string.Empty, false);
                 }
 
+                LastUpgradeFeedback = $"{_definitions[building].DisplayName} → Nv.{building.Level}";
                 completed = true;
             }
 
@@ -331,6 +417,7 @@ namespace Valgor.City.Core
 
         private void RefreshWorldIndicators()
         {
+            var now = _economy.Clock.UtcNow;
             foreach (var pair in _views)
             {
                 var building = pair.Key;
@@ -353,6 +440,19 @@ namespace Valgor.City.Core
                 view.SetUpgradeAvailable(CanUpgrade(building, definition) &&
                                          GetUpgradeBlockReason(building, definition) == null &&
                                          HasUpgradeFunds(building, definition));
+
+                if (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue)
+                {
+                    var total = definition.GetUpgradeDuration(Math.Max(0, building.Level)).TotalSeconds;
+                    var remaining = (building.UpgradeCompletesAtUtc.Value - now).TotalSeconds;
+                    if (remaining < 0) remaining = 0;
+                    var progress = total <= 0 ? 1f : (float)Math.Clamp(1.0 - remaining / total, 0, 1);
+                    view.SetConstructionProgress(progress, FormatDuration(TimeSpan.FromSeconds(remaining)), true);
+                }
+                else
+                {
+                    view.SetConstructionProgress(0f, string.Empty, false);
+                }
             }
         }
 
@@ -360,7 +460,13 @@ namespace Valgor.City.Core
         {
             foreach (var cost in definition.BaseCosts)
             {
-                if (_wallet.Get(cost.Key) < definition.GetUpgradeCost(cost.Key, building.Level))
+                var need = definition.GetUpgradeCost(cost.Key, building.Level);
+                if (need <= 0)
+                {
+                    continue;
+                }
+
+                if (_wallet.Get(cost.Key) < need)
                 {
                     return false;
                 }

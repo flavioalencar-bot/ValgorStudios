@@ -11,19 +11,26 @@ namespace Valgor.City.Camera
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
         [SerializeField] private float initialZoom = 14.5f;
+        [SerializeField] private float dragThresholdPixels = 10f;
 
         private readonly CityBounds _bounds = new(-18f, 18f, -18f, 18f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
+        private Vector2 _pointerDown;
         private float _lastPinchDistance;
         private bool _isPanning;
+        private bool _dragExceededThreshold;
+        private static float _suppressClickUntilUnscaled;
+
+        /// <summary>True se o último gesto foi arrasto de câmera — não selecionar prédio.</summary>
+        public static bool ShouldSuppressBuildingClick =>
+            Time.unscaledTime < _suppressClickUntilUnscaled;
 
         private void Awake()
         {
             _camera = GetComponent<UnityEngine.Camera>();
             _camera.orthographic = true;
             _camera.orthographicSize = initialZoom;
-            // Enquadra castelo + Torre dos Dragões (NE) com margem para HUD.
             transform.rotation = Quaternion.Euler(42f, 45f, 0f);
             transform.position = new Vector3(-15.5f, 19.5f, -15.5f);
             ClampPosition();
@@ -43,26 +50,47 @@ namespace Valgor.City.Camera
                 return;
             }
 
-            var panPressed = mouse.rightButton.isPressed || mouse.middleButton.isPressed;
-            var panBegan = mouse.rightButton.wasPressedThisFrame || mouse.middleButton.wasPressedThisFrame;
-            var panEnded = mouse.rightButton.wasReleasedThisFrame || mouse.middleButton.wasReleasedThisFrame;
             var position = mouse.position.ReadValue();
+            var leftPressed = mouse.leftButton.isPressed;
+            var leftBegan = mouse.leftButton.wasPressedThisFrame;
+            var leftEnded = mouse.leftButton.wasReleasedThisFrame;
+            var altPanPressed = mouse.rightButton.isPressed || mouse.middleButton.isPressed;
+            var altPanBegan = mouse.rightButton.wasPressedThisFrame || mouse.middleButton.wasPressedThisFrame;
+            var altPanEnded = mouse.rightButton.wasReleasedThisFrame || mouse.middleButton.wasReleasedThisFrame;
 
-            if (panBegan)
+            if (leftBegan || altPanBegan)
             {
                 _lastPointer = position;
+                _pointerDown = position;
                 _isPanning = true;
+                _dragExceededThreshold = false;
             }
 
-            if (panPressed && _isPanning)
+            if ((leftPressed || altPanPressed) && _isPanning)
             {
-                Pan(position - _lastPointer);
-                _lastPointer = position;
+                var delta = position - _lastPointer;
+                var fromDown = position - _pointerDown;
+                if (!_dragExceededThreshold && fromDown.sqrMagnitude >= dragThresholdPixels * dragThresholdPixels)
+                {
+                    _dragExceededThreshold = true;
+                }
+
+                if (_dragExceededThreshold || altPanPressed)
+                {
+                    Pan(delta);
+                    _lastPointer = position;
+                }
             }
 
-            if (panEnded)
+            if (leftEnded || altPanEnded)
             {
+                if (_dragExceededThreshold)
+                {
+                    _suppressClickUntilUnscaled = Time.unscaledTime + 0.2f;
+                }
+
                 _isPanning = false;
+                _dragExceededThreshold = false;
             }
 
             Zoom(mouse.scroll.ReadValue().y * zoomSpeed);
@@ -110,6 +138,7 @@ namespace Valgor.City.Camera
 
                 _lastPinchDistance = distance;
                 _isPanning = false;
+                _suppressClickUntilUnscaled = Time.unscaledTime + 0.2f;
                 return;
             }
 
@@ -119,13 +148,21 @@ namespace Valgor.City.Camera
             if (first.press.wasPressedThisFrame)
             {
                 _lastPointer = first.position.ReadValue();
+                _pointerDown = _lastPointer;
                 _isPanning = true;
+                _dragExceededThreshold = false;
             }
             else if (first.press.isPressed && _isPanning)
             {
                 var position = first.position.ReadValue();
                 var delta = position - _lastPointer;
-                if (delta.sqrMagnitude > 16f)
+                var fromDown = position - _pointerDown;
+                if (!_dragExceededThreshold && fromDown.sqrMagnitude >= dragThresholdPixels * dragThresholdPixels)
+                {
+                    _dragExceededThreshold = true;
+                }
+
+                if (_dragExceededThreshold && delta.sqrMagnitude > 1f)
                 {
                     Pan(delta);
                     _lastPointer = position;
@@ -133,7 +170,13 @@ namespace Valgor.City.Camera
             }
             else if (first.press.wasReleasedThisFrame)
             {
+                if (_dragExceededThreshold)
+                {
+                    _suppressClickUntilUnscaled = Time.unscaledTime + 0.2f;
+                }
+
                 _isPanning = false;
+                _dragExceededThreshold = false;
             }
         }
 
@@ -153,9 +196,6 @@ namespace Valgor.City.Camera
             _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize - amount, minZoom, maxZoom);
         }
 
-        /// <summary>
-        /// Centraliza suavemente o ponto de olhar da câmera isométrica sobre o alvo no chão.
-        /// </summary>
         public void FocusOn(Vector3 worldTarget, float duration = 0.35f)
         {
             if (_camera == null)
@@ -194,7 +234,6 @@ namespace Valgor.City.Camera
 
             _focusElapsed += Time.unscaledDeltaTime;
             var t = Mathf.Clamp01(_focusElapsed / _focusDuration);
-            // Ease-out suave.
             t = 1f - (1f - t) * (1f - t);
             transform.position = Vector3.Lerp(_focusFrom, _focusTo, t);
             ClampPosition();

@@ -4,29 +4,41 @@ O edifício é a interface principal. Não há menu central de construções.
 
 ## Fluxo
 
-1. Clique no edifício → destaque + câmera suave (`CityCameraController.FocusOn`)
-2. Menu contextual ao lado (`BuildingContextMenu` + `BuildingContextMenuPositioner`)
-3. Ação → painel específico (direita) ou execução imediata (Coletar / Enviar)
-4. Clique fora (chão/céu) fecha; outro edifício troca o contexto
+1. Clique/toque no edifício → destaque + câmera suave (`CityCameraController.FocusOn`)
+2. Menu contextual circular ao lado (`BuildingContextMenu` + `BuildingContextMenuPositioner`)
+3. Ação → painel (Detalhes / Atualizar / Abrir) ou execução imediata (Coletar)
+4. Clique fora (chão) fecha; outro edifício troca o contexto
+5. Arrastar a câmera (esquerdo/toque) **não** seleciona prédio
+
+## Primeira entrega (2026-07-27)
+
+| Edifício | Ações |
+|----------|--------|
+| Castelo (`castle`) | Detalhes, Atualizar |
+| Fazenda (`farm`) | Coletar, Detalhes, Atualizar |
+| Armazém (`warehouse`) | Abrir, Detalhes, Atualizar |
+
+### Painel Atualizar
+
+Nome, níveis, benefício, duração, requisitos (Ouro/Comida/Madeira/Pedra/Ferro/Essência com ✓/✗), botões **Atualizar**, **Concluir Agora** (diamantes), **Fechar**.
+
+### Mundo
+
+- Indicador de coleta na Fazenda (toque direto + menu)
+- Barra/tempo/ícone de construção sobre o prédio
+- Armazém: capacidade + proteção (`WarehouseRules`)
 
 ## Tipos
 
 | Tipo | Papel |
 |------|--------|
 | `BuildingContextAction` | Enum + info de botão |
-| `BuildingContextMenu` | Lista compacta de ações |
+| `BuildingContextMenu` | Botões circulares Valgor |
 | `BuildingContextMenuPositioner` | World→UI com área segura |
 | `BuildingSelectionPresenter` | Orquestra seleção/câmera/menu/painel |
+| `BuildingUpgradeRequirements` | Requisitos + custo Concluir Agora |
+| `WarehouseRules` | Capacidade/proteção |
 
-## Ações × edifícios
+## Evidências smoke
 
-| Ação | Quando aparece |
-|------|----------------|
-| Detalhes | Sempre |
-| Atualizar / Construir | Sempre (desabilitado se bloqueado) |
-| Coletar / Produzir | Catálogo de produção |
-| Treinar | Arena |
-| Pesquisar | Laboratório / Academia |
-| Abrir / Enviar | Torre dos Dragões |
-
-Reutiliza `TryUpgradeSelected`, `CollectSelected`, dragões e navegação ao mapa.
+`ux-01`…`ux-10` via `CheckpointSmokeDriver` + `scripts/capture-checkpoint-evidence.ps1`.

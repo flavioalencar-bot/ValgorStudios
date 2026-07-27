@@ -21,6 +21,8 @@ namespace Valgor.City.UI
         private BuildingSelectionPresenter? _presenter;
         private IDragonGateway? _dragons;
 
+        public BuildingSelectionPresenter? Presenter => _presenter;
+
         public void Initialize(CityController city, IDragonGateway? dragons = null)
         {
             _city = city;

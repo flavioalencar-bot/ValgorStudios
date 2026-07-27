@@ -34,7 +34,7 @@ namespace Valgor.City.UI
         public void Apply(
             VisualElement menu,
             VisualElement root,
-            Camera camera,
+            UnityEngine.Camera camera,
             Vector3 worldAnchor,
             float measuredHeight = -1f)
         {

@@ -290,6 +290,28 @@ Histórico completo: `git log --oneline` no repositório.
 ## Evidência patch de saúde 2026-07-27 (pós-D022)
 
 - GameLogic: CS0234 corrigido — `WorldMapSession` dispara `RewardDeposited`; HUD assina e chama `BetaJourneyGuide` (sem UI na lógica pura).
-- `dotnet test tools/Valgor.GameLogic.Tests`: **114 aprovados / 0 falha / 114 total**.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **114 aprovados / 0 falha / 114 total** (antes do sprint UX; ver evidência abaixo).
 - `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total**.
 - `production/Vortex/`: FBX de export/staging + previews de proporção + `unity_import_manifest.json` versionados; `.gitignore` ignora `.blend1`, autosaves, `__pycache__`, scripts `_inspect*`/`_tmp*`, dumps e XML local de editmode.
+
+## Evidência sprint UX contextual - 1ª entrega (2026-07-27) — validação ship
+
+- Edifícios (escopo 1ª entrega): Castelo (Detalhes / Atualizar), Fazenda (Coletar / Detalhes / Atualizar), Armazém (Abrir / Detalhes / Atualizar).
+- Sem menu central de construções; menu contextual circular ancorado ao edifício.
+- Painel Atualizar: seis recursos + Concluir Agora; indicador de coleta na fazenda; progresso/timer de construção 3D; `WarehouseRules` + `BuildingUpgradeRequirements`.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **117 aprovados / 0 falha / 117 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 13:21:22).
+- Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs em `builds/windows/Valgor-Beta-0.1/evidence/` e versionados em `docs/releases/beta-0.1-evidence/ux-contextual/`:
+  - `ux-01-castle-selected.png`
+  - `ux-02-castle-context-menu.png`
+  - `ux-03-farm-collectable.png`
+  - `ux-04-farm-collected.png`
+  - `ux-05-warehouse-selected.png`
+  - `ux-06-upgrade-panel.png`
+  - `ux-07-upgrade-requirements.png`
+  - `ux-08-construction-progress.png`
+  - `ux-09-construction-timer.png`
+  - `ux-10-upgrade-complete.png`
+- Situação City/upgrade contextual: **VISÍVEL NO EXECUTÁVEL** (primeira entrega validada).
+- Limitações restantes: demais edifícios fora do escopo; arte ainda silhueta; Concluir Agora / gemas e fila de construção além do MVP conforme sprint.

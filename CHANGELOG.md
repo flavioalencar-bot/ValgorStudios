@@ -7,12 +7,21 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Added
+
+- Sprint UX contextual (1ª entrega): Castelo (Detalhes/Atualizar), Fazenda (Coletar/Detalhes/Atualizar), Armazém (Abrir/Detalhes/Atualizar)
+- Painel de atualização com Ouro/Comida/Madeira/Pedra/Ferro/Essência (✓/✗), **Concluir Agora** (diamantes), progresso 3D no prédio
+- `WarehouseRules` (capacidade/proteção), coleta direta no indicador da Fazenda, botões circulares no menu contextual
+- Evidências smoke `ux-01`…`ux-10` no `CheckpointSmokeDriver`
+
 ### Fixed
 
 - GameLogic: removida dependência `Valgor.UI` de `WorldMapSession` (evento `RewardDeposited` → HUD/tutorial); testes `tools/Valgor.GameLogic.Tests` voltam a compilar (**114/114**)
 
 ### Changed
 
+- Câmera da cidade: arrastar com botão esquerdo/toque move o mapa sem selecionar prédio; pinça/scroll zoom
+- Custos de upgrade passam a incluir Food/Iron/Essência no catálogo; diamantes iniciais na carteira seed (50)
 - `production/Vortex/`: versionados exports FBX, staging Unity e previews de proporção; `.gitignore` cobre `.blend1`, autosaves, `__pycache__`, scripts temporários `_inspect*`/`_tmp*` e dumps locais
 - Governança: **agente único** assume o monorepo (Game Core + City + Heroes + Dragons + Map + backend + docs); segundo agente de heróis descontinuado — `docs/project-control/VALGOR_SINGLE_AGENT.md`, decisão D022
 

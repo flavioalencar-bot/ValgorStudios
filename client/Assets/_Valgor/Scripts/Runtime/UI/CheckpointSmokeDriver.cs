@@ -67,9 +67,8 @@ namespace Valgor.UI
             yield return new WaitForSecondsRealtime(2.5f);
             yield return Capture("01-city");
 
-            TrySelectCityBuilding("castle");
-            yield return new WaitForSecondsRealtime(1f);
-            yield return Capture("01b-city-castle");
+            // —— Sprint UX contextual: Castelo / Fazenda / Armazém ——
+            yield return CaptureBuildingUxEvidence();
 
             yield return Navigate(n => n.GoToHeroes());
             yield return WaitForScene(SceneIds.Heroes, 90f);
@@ -168,6 +167,176 @@ namespace Valgor.UI
 
             Debug.LogError(
                 $"[CheckpointSmoke] Timeout cena {sceneName}. Atual={SceneManager.GetActiveScene().name}");
+        }
+
+        private IEnumerator CaptureBuildingUxEvidence()
+        {
+            TrySelectCityBuilding("castle");
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return Capture("ux-01-castle-selected");
+            yield return Capture("ux-02-castle-context-menu");
+
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Capture("ux-06-upgrade-panel");
+            yield return Capture("ux-07-upgrade-requirements");
+
+            TrySelectCityBuilding("farm");
+            yield return new WaitForSecondsRealtime(0.8f);
+            ForceFarmCollectable();
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return Capture("ux-03-farm-collectable");
+
+            TryCityCollectSelected();
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-04-farm-collected");
+
+            TrySelectCityBuilding("warehouse");
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Capture("ux-05-warehouse-selected");
+            InvokeCityPresenter("DebugOpenDetailsPanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            TrySelectCityBuilding("castle");
+            yield return new WaitForSecondsRealtime(0.5f);
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(0.4f);
+            TryCityUpgradeSelected();
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-08-construction-progress");
+            yield return Capture("ux-09-construction-timer");
+
+            // Aguarda conclusão natural (~6–10s) ou força instantâneo.
+            var waited = 0f;
+            while (waited < 14f && IsSelectedUpgrading())
+            {
+                waited += 0.5f;
+                yield return new WaitForSecondsRealtime(0.5f);
+            }
+
+            if (IsSelectedUpgrading())
+            {
+                TryCityInstantComplete();
+                yield return new WaitForSecondsRealtime(0.8f);
+            }
+
+            yield return Capture("ux-10-upgrade-complete");
+            Debug.Log("[CheckpointSmoke] Evidências UX edifícios OK");
+        }
+
+        private static void InvokeCityPresenter(string methodName)
+        {
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (mb == null || !string.Equals(mb.GetType().Name, "CityHudController", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var presenterProp = mb.GetType().GetProperty("Presenter");
+                var presenter = presenterProp?.GetValue(mb);
+                var method = presenter?.GetType().GetMethod(methodName);
+                method?.Invoke(presenter, null);
+                Debug.Log($"[CheckpointSmoke] Presenter.{methodName}");
+                return;
+            }
+
+            Debug.LogWarning($"[CheckpointSmoke] Presenter.{methodName} indisponível.");
+        }
+
+        private static object? FindCityController()
+        {
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (mb == null || !string.Equals(mb.GetType().Name, "CityBootstrap", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                return mb.GetType().GetProperty("Controller")?.GetValue(mb);
+            }
+
+            return null;
+        }
+
+        private static void TryCityUpgradeSelected()
+        {
+            var controller = FindCityController();
+            var method = controller?.GetType().GetMethod("TryUpgradeSelected");
+            var ok = method?.Invoke(controller, null);
+            Debug.Log($"[CheckpointSmoke] TryUpgradeSelected → {ok}");
+        }
+
+        private static void TryCityInstantComplete()
+        {
+            var controller = FindCityController();
+            var method = controller?.GetType().GetMethod("TryInstantCompleteSelected");
+            if (method == null)
+            {
+                return;
+            }
+
+            var args = new object?[] { null };
+            var ok = method.Invoke(controller, args);
+            Debug.Log($"[CheckpointSmoke] InstantComplete → {ok} err={args[0]}");
+        }
+
+        private static void TryCityCollectSelected()
+        {
+            var controller = FindCityController();
+            var method = controller?.GetType().GetMethod("CollectSelected");
+            var amount = method?.Invoke(controller, null);
+            Debug.Log($"[CheckpointSmoke] CollectSelected → {amount}");
+        }
+
+        private static void ForceFarmCollectable()
+        {
+            var controller = FindCityController();
+            if (controller == null)
+            {
+                return;
+            }
+
+            try
+            {
+                var economy = controller.GetType().GetProperty("Economy")?.GetValue(controller);
+                var production = economy?.GetType().GetProperty("Production")?.GetValue(economy);
+                var tryGet = production?.GetType().GetMethod("TryGetState");
+                if (tryGet == null)
+                {
+                    return;
+                }
+
+                var args = new object?[] { "farm", null };
+                if (tryGet.Invoke(production, args) is not true || args[1] == null)
+                {
+                    Debug.LogWarning("[CheckpointSmoke] Farm production state ausente.");
+                    return;
+                }
+
+                var accProp = args[1].GetType().GetProperty("Accumulated");
+                accProp?.SetValue(args[1], 150L);
+                controller.GetType().GetMethod("RefreshPresentation")?.Invoke(controller, null);
+                Debug.Log("[CheckpointSmoke] Farm Accumulated=150");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[CheckpointSmoke] ForceFarmCollectable: {ex.Message}");
+            }
+        }
+
+        private static bool IsSelectedUpgrading()
+        {
+            var controller = FindCityController();
+            var selection = controller?.GetType().GetProperty("Selection")?.GetValue(controller);
+            var selected = selection?.GetType().GetProperty("Selected")?.GetValue(selection);
+            if (selected == null)
+            {
+                return false;
+            }
+
+            var state = selected.GetType().GetProperty("State")?.GetValue(selected);
+            return state != null && string.Equals(state.ToString(), "Upgrading", StringComparison.Ordinal);
         }
 
         private static void TrySelectCityBuilding(string definitionId)

@@ -7,7 +7,7 @@ using Valgor.UI;
 namespace Valgor.City.UI
 {
     /// <summary>
-    /// Menu contextual compacto ancorado ao edifício selecionado.
+    /// Menu contextual compacto (botões circulares) ancorado ao edifício.
     /// </summary>
     public sealed class BuildingContextMenu
     {
@@ -24,12 +24,13 @@ namespace Valgor.City.UI
             _positioner = new BuildingContextMenuPositioner();
             _root = new VisualElement { name = RootName };
             _root.style.position = Position.Absolute;
-            _root.style.width = 168;
-            _root.style.paddingLeft = 8;
-            _root.style.paddingRight = 8;
+            _root.style.minWidth = 150;
+            _root.style.maxWidth = 210;
+            _root.style.paddingLeft = 10;
+            _root.style.paddingRight = 10;
             _root.style.paddingTop = 8;
-            _root.style.paddingBottom = 8;
-            _root.style.backgroundColor = new Color(0.09f, 0.1f, 0.11f, 0.96f);
+            _root.style.paddingBottom = 10;
+            _root.style.backgroundColor = new Color(0.08f, 0.09f, 0.1f, 0.96f);
             _root.style.borderTopWidth = 2;
             _root.style.borderBottomWidth = 2;
             _root.style.borderLeftWidth = 2;
@@ -38,6 +39,10 @@ namespace Valgor.City.UI
             _root.style.borderBottomColor = BetaVisualTheme.AgedGold;
             _root.style.borderLeftColor = BetaVisualTheme.AgedGold;
             _root.style.borderRightColor = BetaVisualTheme.AgedGold;
+            _root.style.borderTopLeftRadius = 10;
+            _root.style.borderTopRightRadius = 10;
+            _root.style.borderBottomLeftRadius = 10;
+            _root.style.borderBottomRightRadius = 10;
             _root.pickingMode = PickingMode.Position;
             _root.style.display = DisplayStyle.None;
 
@@ -46,11 +51,15 @@ namespace Valgor.City.UI
             _title.style.fontSize = 13;
             _title.style.unityFontStyleAndWeight = FontStyle.Bold;
             _title.style.whiteSpace = WhiteSpace.Normal;
-            _title.style.marginBottom = 6;
+            _title.style.marginBottom = 8;
+            _title.style.unityTextAlign = TextAnchor.MiddleCenter;
             _title.pickingMode = PickingMode.Ignore;
             _root.Add(_title);
 
             _actionsHost = new VisualElement { name = "context-actions" };
+            _actionsHost.style.flexDirection = FlexDirection.Row;
+            _actionsHost.style.flexWrap = Wrap.Wrap;
+            _actionsHost.style.justifyContent = Justify.Center;
             _root.Add(_actionsHost);
             parent.Add(_root);
         }
@@ -79,11 +88,9 @@ namespace Valgor.City.UI
                     _onAction?.Invoke(captured.Action);
                 })
                 {
-                    text = captured.Enabled
-                        ? captured.Label
-                        : $"{captured.Label}…"
+                    text = CompactLabel(captured)
                 };
-                StyleActionButton(button, captured.Enabled);
+                StyleCircularButton(button, captured);
                 if (!captured.Enabled && !string.IsNullOrEmpty(captured.DisabledReason))
                 {
                     button.tooltip = captured.DisabledReason;
@@ -102,7 +109,7 @@ namespace Valgor.City.UI
             _onAction = null;
         }
 
-        public void Reposition(VisualElement panelRoot, Camera camera, Vector3 worldAnchor)
+        public void Reposition(VisualElement panelRoot, UnityEngine.Camera camera, Vector3 worldAnchor)
         {
             if (!IsVisible)
             {
@@ -118,32 +125,69 @@ namespace Valgor.City.UI
             });
         }
 
-        private static void StyleActionButton(Button button, bool enabled)
+        private static string CompactLabel(BuildingContextActionInfo info)
         {
+            if (!info.Enabled)
+            {
+                return info.Label.Length <= 8 ? info.Label : info.Label[..7] + "…";
+            }
+
+            return info.Label;
+        }
+
+        private static void StyleCircularButton(Button button, BuildingContextActionInfo info)
+        {
+            button.style.marginLeft = 4;
+            button.style.marginRight = 4;
             button.style.marginTop = 4;
-            button.style.marginBottom = 0;
-            button.style.width = Length.Percent(100);
-            button.style.paddingLeft = 8;
-            button.style.paddingRight = 8;
-            button.style.paddingTop = 7;
-            button.style.paddingBottom = 7;
-            button.style.fontSize = 12;
-            button.style.unityTextAlign = TextAnchor.MiddleLeft;
-            button.style.backgroundColor = enabled
-                ? BetaVisualTheme.ButtonFace
-                : new Color(0.12f, 0.12f, 0.13f, 0.85f);
-            button.style.color = enabled
-                ? BetaVisualTheme.TextPrimary
-                : BetaVisualTheme.TextMuted;
-            button.style.borderTopWidth = 1;
-            button.style.borderBottomWidth = 1;
-            button.style.borderLeftWidth = 1;
-            button.style.borderRightWidth = 1;
-            button.style.borderTopColor = BetaVisualTheme.ButtonBorder;
-            button.style.borderBottomColor = BetaVisualTheme.ButtonBorder;
-            button.style.borderLeftColor = BetaVisualTheme.ButtonBorder;
-            button.style.borderRightColor = BetaVisualTheme.ButtonBorder;
-            button.SetEnabled(enabled);
+            button.style.marginBottom = 4;
+            button.style.width = 64;
+            button.style.height = 64;
+            button.style.borderTopLeftRadius = 32;
+            button.style.borderTopRightRadius = 32;
+            button.style.borderBottomLeftRadius = 32;
+            button.style.borderBottomRightRadius = 32;
+            button.style.paddingLeft = 4;
+            button.style.paddingRight = 4;
+            button.style.paddingTop = 4;
+            button.style.paddingBottom = 4;
+            button.style.fontSize = 11;
+            button.style.unityTextAlign = TextAnchor.MiddleCenter;
+            button.style.whiteSpace = WhiteSpace.Normal;
+            button.style.borderTopWidth = 2;
+            button.style.borderBottomWidth = 2;
+            button.style.borderLeftWidth = 2;
+            button.style.borderRightWidth = 2;
+
+            if (!info.Enabled)
+            {
+                button.style.backgroundColor = new Color(0.18f, 0.12f, 0.12f, 0.95f);
+                button.style.borderTopColor = new Color(0.55f, 0.22f, 0.2f);
+                button.style.borderBottomColor = new Color(0.55f, 0.22f, 0.2f);
+                button.style.borderLeftColor = new Color(0.55f, 0.22f, 0.2f);
+                button.style.borderRightColor = new Color(0.55f, 0.22f, 0.2f);
+                button.style.color = new Color(0.85f, 0.55f, 0.5f);
+            }
+            else if (info.Action == BuildingContextAction.Collect)
+            {
+                button.style.backgroundColor = new Color(0.14f, 0.28f, 0.18f, 0.96f);
+                button.style.borderTopColor = new Color(0.35f, 0.75f, 0.42f);
+                button.style.borderBottomColor = new Color(0.35f, 0.75f, 0.42f);
+                button.style.borderLeftColor = new Color(0.35f, 0.75f, 0.42f);
+                button.style.borderRightColor = new Color(0.35f, 0.75f, 0.42f);
+                button.style.color = BetaVisualTheme.TextPrimary;
+            }
+            else
+            {
+                button.style.backgroundColor = new Color(0.14f, 0.15f, 0.18f, 0.96f);
+                button.style.borderTopColor = BetaVisualTheme.AgedGold;
+                button.style.borderBottomColor = BetaVisualTheme.AgedGold;
+                button.style.borderLeftColor = BetaVisualTheme.AgedGold;
+                button.style.borderRightColor = BetaVisualTheme.AgedGold;
+                button.style.color = BetaVisualTheme.TextPrimary;
+            }
+
+            button.SetEnabled(info.Enabled);
         }
     }
 }

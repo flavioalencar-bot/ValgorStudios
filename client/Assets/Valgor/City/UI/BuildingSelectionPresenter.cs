@@ -17,6 +17,7 @@ namespace Valgor.City.UI
 {
     /// <summary>
     /// Orquestra seleção → câmera → menu contextual → painel de ação.
+    /// Primeira entrega: Castelo, Fazenda, Armazém.
     /// </summary>
     public sealed class BuildingSelectionPresenter
     {
@@ -26,12 +27,12 @@ namespace Valgor.City.UI
         private readonly BuildingContextMenu _contextMenu;
         private readonly VisualElement _actionPanel;
         private readonly Label _actionTitle;
-        private readonly Label _actionBody;
+        private readonly VisualElement _actionBodyHost;
         private readonly VisualElement _actionButtons;
         private readonly Label _feedback;
         private readonly Action? _goToWorldMap;
         private CityCameraController? _cameraController;
-        private Camera? _camera;
+        private UnityEngine.Camera? _camera;
         private BuildingInstance? _current;
         private BuildingContextAction? _openPanelAction;
 
@@ -47,7 +48,7 @@ namespace Valgor.City.UI
             _goToWorldMap = goToWorldMap;
 
             _contextMenu = new BuildingContextMenu(panelRoot);
-            _actionPanel = BuildActionPanel(out _actionTitle, out _actionBody, out _actionButtons, out _feedback);
+            _actionPanel = BuildActionPanel(out _actionTitle, out _actionBodyHost, out _actionButtons, out _feedback);
             panelRoot.Add(_actionPanel);
 
             _city.Selection.SelectionChanged += OnSelectionChanged;
@@ -71,6 +72,13 @@ namespace Valgor.City.UI
                 }
             }
 
+            if (_openPanelAction == BuildingContextAction.Upgrade &&
+                _actionPanel.style.display == DisplayStyle.Flex)
+            {
+                // Mantém requisitos/tempo atualizados durante construção.
+                RebuildUpgradeBody(_current);
+            }
+
             HandleOutsideClick();
         }
 
@@ -86,6 +94,29 @@ namespace Valgor.City.UI
             {
                 OpenActionPanel(_openPanelAction.Value);
             }
+        }
+
+        /// <summary>API de smoke/QA: abre o painel Atualizar do selecionado.</summary>
+        public void DebugOpenUpgradePanel()
+        {
+            if (_current == null)
+            {
+                return;
+            }
+
+            _openPanelAction = BuildingContextAction.Upgrade;
+            OpenActionPanel(BuildingContextAction.Upgrade);
+        }
+
+        public void DebugOpenDetailsPanel()
+        {
+            if (_current == null)
+            {
+                return;
+            }
+
+            _openPanelAction = BuildingContextAction.Details;
+            OpenActionPanel(BuildingContextAction.Details);
         }
 
         public void Dispose()
@@ -137,57 +168,85 @@ namespace Valgor.City.UI
             BuildingInstance building,
             BuildingDefinition definition)
         {
-            var list = new List<BuildingContextActionInfo>(8)
+            var id = building.DefinitionId;
+
+            // Primeira entrega: ações explícitas por edifício.
+            if (string.Equals(id, "castle", StringComparison.Ordinal))
             {
-                new(BuildingContextAction.Details, "Detalhes", true)
-            };
+                return new List<BuildingContextActionInfo>
+                {
+                    new(BuildingContextAction.Details, "Detalhes", true),
+                    UpgradeAction(building, definition)
+                };
+            }
 
-            var upgradeLabel = building.State == BuildingState.Available && building.Level <= 0
-                ? "Construir"
-                : "Atualizar";
-            var canUpgrade = _city.CanUpgrade(building, definition);
-            var upgradeBlock = _city.GetUpgradeBlockReason(building, definition);
-            list.Add(new BuildingContextActionInfo(
-                BuildingContextAction.Upgrade,
-                upgradeLabel,
-                canUpgrade,
-                upgradeBlock));
-
-            var hasProduction = ProductionCatalog.TryGet(building.DefinitionId, out _);
-            if (hasProduction)
+            if (string.Equals(id, "farm", StringComparison.Ordinal))
             {
                 var canCollect = _city.Economy.Production.TryGetState(building.DefinitionId, out var state) &&
                                  state.HasCollectable;
-                list.Add(new BuildingContextActionInfo(
+                return new List<BuildingContextActionInfo>
+                {
+                    new(BuildingContextAction.Collect, "Coletar", canCollect,
+                        canCollect ? null : "Nada acumulado ainda."),
+                    new(BuildingContextAction.Details, "Detalhes", true),
+                    UpgradeAction(building, definition)
+                };
+            }
+
+            if (string.Equals(id, "warehouse", StringComparison.Ordinal))
+            {
+                return new List<BuildingContextActionInfo>
+                {
+                    new(BuildingContextAction.Open, "Abrir", true),
+                    new(BuildingContextAction.Details, "Detalhes", true),
+                    UpgradeAction(building, definition)
+                };
+            }
+
+            // Demais edifícios: Detalhes + Atualizar (sem menu central).
+            var list = new List<BuildingContextActionInfo>
+            {
+                new(BuildingContextAction.Details, "Detalhes", true),
+                UpgradeAction(building, definition)
+            };
+
+            if (ProductionCatalog.TryGet(building.DefinitionId, out _))
+            {
+                var canCollect = _city.Economy.Production.TryGetState(building.DefinitionId, out var state) &&
+                                 state.HasCollectable;
+                list.Insert(0, new BuildingContextActionInfo(
                     BuildingContextAction.Collect,
                     "Coletar",
                     canCollect,
                     canCollect ? null : "Nada acumulado ainda."));
-                list.Add(new BuildingContextActionInfo(BuildingContextAction.Produce, "Produzir", true));
             }
 
-            if (string.Equals(building.DefinitionId, "arena", StringComparison.Ordinal))
-            {
-                list.Add(new BuildingContextActionInfo(BuildingContextAction.Train, "Treinar", true));
-            }
-
-            if (string.Equals(building.DefinitionId, "laboratory", StringComparison.Ordinal) ||
-                string.Equals(building.DefinitionId, "academy", StringComparison.Ordinal))
-            {
-                list.Add(new BuildingContextActionInfo(
-                    BuildingContextAction.Research,
-                    "Pesquisar",
-                    building.Level >= 1 || string.Equals(building.DefinitionId, "laboratory", StringComparison.Ordinal),
-                    "Melhore o edifício para pesquisar."));
-            }
-
-            if (string.Equals(building.DefinitionId, "dragon-tower", StringComparison.Ordinal))
+            if (string.Equals(id, "dragon-tower", StringComparison.Ordinal))
             {
                 list.Add(new BuildingContextActionInfo(BuildingContextAction.Open, "Abrir", true));
                 list.Add(new BuildingContextActionInfo(BuildingContextAction.Send, "Enviar", true));
             }
 
             return list;
+        }
+
+        private BuildingContextActionInfo UpgradeAction(BuildingInstance building, BuildingDefinition definition)
+        {
+            var upgradeLabel = building.State == BuildingState.Available && building.Level <= 0
+                ? "Construir"
+                : "Atualizar";
+            var canUpgrade = _city.CanUpgrade(building, definition) &&
+                             string.IsNullOrEmpty(_city.GetUpgradeBlockReason(building, definition));
+            // Ainda mostra o botão se só faltar recurso — painel explica.
+            var softEnable = building.State != BuildingState.Upgrading &&
+                             building.CanUpgrade(definition) &&
+                             (_city.GetActiveConstructionCount() < CityController.ConstructionQueueSlots ||
+                              building.State == BuildingState.Upgrading);
+            return new BuildingContextActionInfo(
+                BuildingContextAction.Upgrade,
+                upgradeLabel,
+                softEnable || canUpgrade,
+                _city.GetUpgradeBlockReason(building, definition));
         }
 
         private void OnContextAction(BuildingContextAction action)
@@ -216,7 +275,13 @@ namespace Valgor.City.UI
         {
             var amount = _city.CollectSelected();
             _feedback.text = amount > 0 ? $"+{amount} coletado!" : "Nada para coletar agora.";
-            ShowTransientFeedback();
+            if (_actionPanel.style.display != DisplayStyle.Flex)
+            {
+                _openPanelAction = BuildingContextAction.Details;
+                OpenActionPanel(BuildingContextAction.Details);
+            }
+
+            _feedback.style.display = DisplayStyle.Flex;
             RefreshCurrent();
         }
 
@@ -226,7 +291,6 @@ namespace Valgor.City.UI
             if (_goToWorldMap == null)
             {
                 _feedback.text = "Mapa indisponível.";
-                ShowTransientFeedback();
                 return;
             }
 
@@ -242,124 +306,217 @@ namespace Valgor.City.UI
 
             var definition = _city.GetDefinition(_current);
             _actionButtons.Clear();
+            _actionBodyHost.Clear();
             _actionTitle.text = ActionTitle(action, definition);
-            _actionBody.text = BuildPanelBody(action, _current, definition);
             _feedback.text = string.Empty;
 
             switch (action)
             {
                 case BuildingContextAction.Details:
+                case BuildingContextAction.Open:
+                    AppendBodyText(BuildDetailsBody(_current, definition, openMode: action == BuildingContextAction.Open));
                     AddPanelButton("Fechar", HideActionPanel);
                     break;
                 case BuildingContextAction.Upgrade:
+                    RebuildUpgradeBody(_current);
                     AddPanelButton(
-                        _current.State == BuildingState.Available && _current.Level <= 0 ? "Construir" : "Confirmar atualização",
+                        _current.State == BuildingState.Available && _current.Level <= 0 ? "Construir" : "Atualizar",
                         ExecuteUpgrade);
-                    AddPanelButton("Voltar", HideActionPanel);
-                    break;
-                case BuildingContextAction.Produce:
-                    AddPanelButton("Coletar agora", ExecuteCollect);
-                    AddPanelButton("Voltar", HideActionPanel);
-                    break;
-                case BuildingContextAction.Train:
-                    AddPanelButton("Entendi", HideActionPanel);
-                    break;
-                case BuildingContextAction.Research:
-                    AddPanelButton("Voltar", HideActionPanel);
-                    if (string.Equals(_current.DefinitionId, "laboratory", StringComparison.Ordinal) &&
-                        _city.CanUpgrade(_current, definition))
-                    {
-                        AddPanelButton("Melhorar laboratório", ExecuteUpgrade);
-                    }
-
-                    break;
-                case BuildingContextAction.Open:
-                    AddPanelButton("Alimentar", ExecuteFeed);
-                    AddPanelButton("Chocar ovo", ExecuteHatch);
-                    AddPanelButton("Evoluir", ExecuteEvolve);
-                    AddPanelButton("Voltar", HideActionPanel);
+                    AddPanelButton("Concluir Agora", ExecuteInstantComplete);
+                    AddPanelButton("Fechar", HideActionPanel);
                     break;
                 default:
-                    AddPanelButton("Voltar", HideActionPanel);
+                    AppendBodyText(BuildPanelBodyLegacy(action, _current, definition));
+                    AddPanelButton("Fechar", HideActionPanel);
                     break;
             }
 
             _actionPanel.style.display = DisplayStyle.Flex;
         }
 
-        private string BuildPanelBody(
+        private void RebuildUpgradeBody(BuildingInstance building)
+        {
+            if (_openPanelAction != BuildingContextAction.Upgrade)
+            {
+                return;
+            }
+
+            _actionBodyHost.Clear();
+            var definition = _city.GetDefinition(building);
+            var next = Math.Min(definition.MaxLevel, building.Level + 1);
+            var duration = definition.GetUpgradeDuration(building.Level);
+
+            AppendBodyText(
+                $"{definition.DisplayName}\n" +
+                $"Nível atual: {building.Level}\n" +
+                $"Próximo nível: {next}\n" +
+                $"Benefício: {DescribeUpgradeBenefit(building, definition)}\n" +
+                $"Duração: {(int)duration.TotalSeconds}s\n" +
+                (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue
+                    ? $"Em andamento — resta {FormatRemaining(building.UpgradeCompletesAtUtc.Value)}\n"
+                    : string.Empty) +
+                $"Construtor: {_city.GetActiveConstructionCount()}/{CityController.ConstructionQueueSlots}\n" +
+                "Requisitos:");
+
+            foreach (var req in _city.GetUpgradeRequirements(building))
+            {
+                _actionBodyHost.Add(BuildRequirementRow(req));
+            }
+
+            var diamonds = BuildingUpgradeRequirements.InstantCompleteDiamondCost(
+                building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue
+                    ? building.UpgradeCompletesAtUtc.Value - _city.Economy.Clock.UtcNow
+                    : duration);
+            AppendBodyText($"\nConcluir Agora: {diamonds} diamante(s) · saldo {_city.Economy.Wallet.Get(ResourceType.Diamonds)}");
+        }
+
+        private static VisualElement BuildRequirementRow(UpgradeResourceRequirement req)
+        {
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.justifyContent = Justify.SpaceBetween;
+            row.style.marginTop = 3;
+            row.style.paddingLeft = 6;
+            row.style.paddingRight = 6;
+            row.style.paddingTop = 4;
+            row.style.paddingBottom = 4;
+            row.style.backgroundColor = new Color(0.12f, 0.12f, 0.14f, 0.85f);
+
+            var name = new Label(FriendlyResource(req.Resource));
+            name.style.color = BetaVisualTheme.TextPrimary;
+            name.style.fontSize = 12;
+            name.style.flexGrow = 1;
+
+            var amounts = new Label($"{req.Available} / {req.Required}");
+            amounts.style.fontSize = 12;
+            amounts.style.color = req.Satisfied
+                ? new Color(0.45f, 0.85f, 0.5f)
+                : new Color(0.9f, 0.35f, 0.32f);
+            amounts.style.unityTextAlign = TextAnchor.MiddleRight;
+            amounts.style.minWidth = 90;
+
+            var mark = new Label(req.Satisfied ? "✓" : "✗");
+            mark.style.fontSize = 13;
+            mark.style.marginLeft = 8;
+            mark.style.color = amounts.style.color;
+            mark.style.unityFontStyleAndWeight = FontStyle.Bold;
+
+            row.Add(name);
+            row.Add(amounts);
+            row.Add(mark);
+            return row;
+        }
+
+        private string BuildDetailsBody(BuildingInstance building, BuildingDefinition definition, bool openMode)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(definition.DisplayName);
+            sb.AppendLine($"Nível: {building.Level}/{definition.MaxLevel}");
+            sb.AppendLine($"Estado: {FriendlyState(building.State)}");
+
+            if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
+            {
+                sb.AppendLine("Função: coração da cidade — limita o nível dos demais edifícios.");
+                sb.AppendLine($"Bônus atuais: Castelo Nv.{building.Level} (teto de upgrade).");
+                sb.AppendLine($"Próximo nível: {Math.Min(definition.MaxLevel, building.Level + 1)}");
+                sb.AppendLine($"Duração upgrade: {(int)definition.GetUpgradeDuration(building.Level).TotalSeconds}s");
+                sb.AppendLine(DescribeRequirementsShort(building));
+            }
+            else if (string.Equals(building.DefinitionId, "farm", StringComparison.Ordinal))
+            {
+                sb.AppendLine(BuildProductionBlock(building));
+                sb.AppendLine($"Próximo benefício: +produção de comida no Nv.{building.Level + 1}");
+            }
+            else if (string.Equals(building.DefinitionId, "warehouse", StringComparison.Ordinal))
+            {
+                sb.AppendLine($"Capacidade: {WarehouseRules.GetCapacity(building.Level):N0}");
+                sb.AppendLine($"Proteção de recursos: {WarehouseRules.GetProtection(building.Level):N0}");
+                sb.AppendLine(
+                    $"Próximo benefício: capacidade {WarehouseRules.GetNextCapacity(building.Level):N0} · " +
+                    $"proteção {WarehouseRules.GetNextProtection(building.Level):N0}");
+                sb.AppendLine(DescribeRequirementsShort(building));
+                if (openMode)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("Armazém aberto — estoque e proteção da cidade.");
+                }
+            }
+            else
+            {
+                sb.AppendLine(BuildProductionBlock(building));
+            }
+
+            if (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue)
+            {
+                sb.AppendLine($"Melhorando → Nv.{building.Level + 1} ({FormatRemaining(building.UpgradeCompletesAtUtc.Value)})");
+            }
+
+            var block = _city.GetUpgradeBlockReason(building, definition);
+            if (!string.IsNullOrEmpty(block))
+            {
+                sb.AppendLine(block);
+            }
+
+            if (!string.IsNullOrEmpty(_city.LastUpgradeFeedback))
+            {
+                sb.AppendLine(_city.LastUpgradeFeedback);
+            }
+
+            return sb.ToString().Trim();
+        }
+
+        private string DescribeRequirementsShort(BuildingInstance building)
+        {
+            var sb = new StringBuilder("Requisitos: ");
+            var first = true;
+            foreach (var req in _city.GetUpgradeRequirements(building))
+            {
+                if (req.Required <= 0)
+                {
+                    continue;
+                }
+
+                if (!first) sb.Append(", ");
+                sb.Append($"{FriendlyResource(req.Resource)} {req.Required}");
+                first = false;
+            }
+
+            return first ? "Requisitos: —" : sb.ToString();
+        }
+
+        private static string DescribeUpgradeBenefit(BuildingInstance building, BuildingDefinition definition)
+        {
+            if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
+            {
+                return $"Eleva o teto da cidade para Nv.{building.Level + 1}";
+            }
+
+            if (string.Equals(building.DefinitionId, "farm", StringComparison.Ordinal))
+            {
+                return "Aumenta taxa e capacidade de comida";
+            }
+
+            if (string.Equals(building.DefinitionId, "warehouse", StringComparison.Ordinal))
+            {
+                return
+                    $"Capacidade {WarehouseRules.GetNextCapacity(building.Level):N0} · " +
+                    $"proteção {WarehouseRules.GetNextProtection(building.Level):N0}";
+            }
+
+            return $"Melhora {definition.DisplayName}";
+        }
+
+        private string BuildPanelBodyLegacy(
             BuildingContextAction action,
             BuildingInstance building,
             BuildingDefinition definition)
         {
-            var sb = new StringBuilder();
-            switch (action)
+            if (action == BuildingContextAction.Produce)
             {
-                case BuildingContextAction.Details:
-                    sb.AppendLine(definition.DisplayName);
-                    sb.AppendLine($"Nível {building.Level}/{definition.MaxLevel}");
-                    sb.AppendLine($"Estado: {FriendlyState(building.State)}");
-                    if (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue)
-                    {
-                        var remaining = building.UpgradeCompletesAtUtc.Value - _city.Economy.Clock.UtcNow;
-                        if (remaining < TimeSpan.Zero) remaining = TimeSpan.Zero;
-                        sb.AppendLine($"Melhorando → Nv.{building.Level + 1} ({(int)remaining.TotalSeconds}s)");
-                    }
-
-                    var block = _city.GetUpgradeBlockReason(building, definition);
-                    if (!string.IsNullOrEmpty(block))
-                    {
-                        sb.AppendLine(block);
-                    }
-
-                    sb.AppendLine(BuildProductionBlock(building));
-                    if (string.Equals(building.DefinitionId, "dragon-tower", StringComparison.Ordinal) &&
-                        _dragons != null)
-                    {
-                        sb.AppendLine($"Ninho: {_dragons.RoostOccupantCount}/{_dragons.RoostCapacity}");
-                    }
-
-                    break;
-                case BuildingContextAction.Upgrade:
-                    sb.AppendLine($"{definition.DisplayName}");
-                    sb.AppendLine($"Nv.{building.Level} → Nv.{Math.Min(definition.MaxLevel, building.Level + 1)}");
-                    var reason = _city.GetUpgradeBlockReason(building, definition);
-                    sb.AppendLine(string.IsNullOrEmpty(reason)
-                        ? $"Tempo: {(int)definition.GetUpgradeDuration(building.Level).TotalSeconds}s"
-                        : reason);
-                    break;
-                case BuildingContextAction.Produce:
-                    sb.AppendLine(BuildProductionBlock(building));
-                    if (string.IsNullOrWhiteSpace(sb.ToString()))
-                    {
-                        sb.Append("Este edifício não produz recursos passivos.");
-                    }
-
-                    break;
-                case BuildingContextAction.Train:
-                    sb.Append("Treino de unidades estará disponível em breve neste edifício.");
-                    break;
-                case BuildingContextAction.Research:
-                    sb.AppendLine(BetaProgress.Describe());
-                    sb.AppendLine(string.Equals(building.DefinitionId, "laboratory", StringComparison.Ordinal)
-                        ? "Melhore o Laboratório para desbloquear Coleta +."
-                        : "A Academia prepara pesquisas futuras.");
-                    break;
-                case BuildingContextAction.Open:
-                    sb.AppendLine("Torre dos Dragões");
-                    if (_dragons != null)
-                    {
-                        sb.AppendLine($"Ninho: {_dragons.RoostOccupantCount}/{_dragons.RoostCapacity}");
-                        foreach (var status in _dragons.GetDragonStatuses())
-                        {
-                            sb.AppendLine($"· {status.DisplayName}: {status.StateLabel}");
-                        }
-                    }
-
-                    break;
+                return BuildProductionBlock(building);
             }
 
-            return sb.ToString().Trim();
+            return definition.DisplayName;
         }
 
         private void ExecuteUpgrade()
@@ -371,89 +528,39 @@ namespace Valgor.City.UI
             }
 
             var definition = _city.GetDefinition(building);
+            if (building.State == BuildingState.Upgrading)
+            {
+                _feedback.text = "Melhoria já em andamento.";
+                RebuildUpgradeBody(building);
+                return;
+            }
+
             if (_city.TryUpgradeSelected())
             {
                 var duration = definition.GetUpgradeDuration(building.Level);
-                _feedback.text = building.State == BuildingState.Upgrading
-                    ? $"{definition.DisplayName}: melhoria iniciada ({(int)duration.TotalSeconds}s)"
-                    : $"{definition.DisplayName} → Nv.{building.Level}";
+                _feedback.text = $"{definition.DisplayName}: melhoria iniciada ({(int)duration.TotalSeconds}s)";
             }
             else
             {
-                _feedback.text = _city.GetUpgradeBlockReason(building, definition) ?? "Não foi possível atualizar.";
+                _feedback.text = _city.GetUpgradeBlockReason(building, definition)
+                                 ?? "Recursos insuficientes ou construtor ocupado.";
             }
 
             RefreshCurrent();
         }
 
-        private void ExecuteFeed()
+        private void ExecuteInstantComplete()
         {
-            if (_dragons == null)
+            if (_city.TryInstantCompleteSelected(out var error))
             {
-                _feedback.text = "Dragões indisponíveis.";
-                return;
+                _feedback.text = _city.LastUpgradeFeedback ?? "Upgrade concluído!";
+            }
+            else
+            {
+                _feedback.text = error;
             }
 
-            foreach (var status in _dragons.GetDragonStatuses())
-            {
-                if (status.StateLabel is "HUNGRY" or "RESTING" or "READY" or "JUVENILE")
-                {
-                    if (_dragons.TryFeed(status.DragonId, out var error))
-                    {
-                        _feedback.text = "Dragão alimentado.";
-                        BetaJourneyGuide.NotifyDragonFed();
-                    }
-                    else
-                    {
-                        _feedback.text = error;
-                    }
-
-                    RefreshCurrent();
-                    return;
-                }
-            }
-
-            _feedback.text = "Nenhum dragão disponível para alimentar.";
-        }
-
-        private void ExecuteHatch()
-        {
-            if (_dragons == null)
-            {
-                return;
-            }
-
-            _feedback.text = _dragons.TryUnlockAndHatch("ash-drake", out var error)
-                ? "Incubação iniciada."
-                : error;
             RefreshCurrent();
-        }
-
-        private void ExecuteEvolve()
-        {
-            if (_dragons == null)
-            {
-                return;
-            }
-
-            foreach (var status in _dragons.GetDragonStatuses())
-            {
-                if (_dragons.TryEvolve(status.DragonId, out var error))
-                {
-                    _feedback.text = $"{status.DisplayName} evoluiu!";
-                    RefreshCurrent();
-                    return;
-                }
-
-                if (!string.Equals(error, "Esta espécie não possui evolução.", StringComparison.Ordinal) &&
-                    !string.Equals(error, "Evolução indisponível neste estado.", StringComparison.Ordinal))
-                {
-                    _feedback.text = error;
-                    return;
-                }
-            }
-
-            _feedback.text = "Nenhum dragão elegível para evoluir.";
         }
 
         private void HandleOutsideClick()
@@ -464,13 +571,17 @@ namespace Valgor.City.UI
                 return;
             }
 
+            if (CityCameraController.ShouldSuppressBuildingClick)
+            {
+                return;
+            }
+
             EnsureCamera();
             if (_camera == null)
             {
                 return;
             }
 
-            // Clique em UI do menu/painel — não fecha.
             var pos = mouse.position.ReadValue();
             if (IsScreenOverElement(_contextMenu.Root, pos) ||
                 (_actionPanel.style.display == DisplayStyle.Flex && IsScreenOverElement(_actionPanel, pos)))
@@ -481,9 +592,11 @@ namespace Valgor.City.UI
             var ray = _camera.ScreenPointToRay(pos);
             if (Physics.Raycast(ray, out var hit, 500f))
             {
-                if (hit.collider != null && hit.collider.GetComponentInParent<BuildingView>() != null)
+                if (hit.collider != null &&
+                    (hit.collider.GetComponentInParent<BuildingView>() != null ||
+                     hit.collider.GetComponentInParent<BuildingCollectableClickProxy>() != null))
                 {
-                    return; // outro/mesmo edifício — seleção cuida
+                    return;
                 }
             }
 
@@ -512,8 +625,8 @@ namespace Valgor.City.UI
             if (_camera == null)
             {
                 _camera = _cameraController != null
-                    ? _cameraController.GetComponent<Camera>()
-                    : Camera.main;
+                    ? _cameraController.GetComponent<UnityEngine.Camera>()
+                    : UnityEngine.Camera.main;
             }
         }
 
@@ -524,15 +637,17 @@ namespace Valgor.City.UI
             _openPanelAction = null;
             _actionPanel.style.display = DisplayStyle.None;
             _actionButtons.Clear();
+            _actionBodyHost.Clear();
         }
 
-        private void ShowTransientFeedback()
+        private void AppendBodyText(string text)
         {
-            if (_actionPanel.style.display != DisplayStyle.Flex)
-            {
-                _openPanelAction = BuildingContextAction.Details;
-                OpenActionPanel(BuildingContextAction.Details);
-            }
+            var label = new Label(text);
+            label.style.color = BetaVisualTheme.TextPrimary;
+            label.style.fontSize = 13;
+            label.style.whiteSpace = WhiteSpace.Normal;
+            label.style.marginBottom = 6;
+            _actionBodyHost.Add(label);
         }
 
         private void AddPanelButton(string text, Action action)
@@ -571,15 +686,20 @@ namespace Valgor.City.UI
             return $"Produção: {rate:0.#}/h · Acumulado {accumulated}/{capacity} ({FriendlyResource(productionDef.Resource)})";
         }
 
+        private string FormatRemaining(DateTime completesAtUtc)
+        {
+            var remaining = completesAtUtc - _city.Economy.Clock.UtcNow;
+            if (remaining < TimeSpan.Zero) remaining = TimeSpan.Zero;
+            return $"{Math.Max(0, (int)remaining.TotalSeconds)}s";
+        }
+
         private static string ActionTitle(BuildingContextAction action, BuildingDefinition definition) =>
             action switch
             {
                 BuildingContextAction.Details => $"Detalhes — {definition.DisplayName}",
                 BuildingContextAction.Upgrade => $"Atualizar — {definition.DisplayName}",
-                BuildingContextAction.Produce => $"Produção — {definition.DisplayName}",
-                BuildingContextAction.Train => $"Treinar — {definition.DisplayName}",
-                BuildingContextAction.Research => $"Pesquisar — {definition.DisplayName}",
                 BuildingContextAction.Open => $"Abrir — {definition.DisplayName}",
+                BuildingContextAction.Collect => $"Coletar — {definition.DisplayName}",
                 _ => definition.DisplayName
             };
 
@@ -599,7 +719,7 @@ namespace Valgor.City.UI
             ResourceType.Wood => "Madeira",
             ResourceType.Stone => "Pedra",
             ResourceType.Iron => "Ferro",
-            ResourceType.DragonEssence => "Essência",
+            ResourceType.DragonEssence => "Essência de Dragão",
             ResourceType.Diamonds => "Diamantes",
             _ => resource.ToString()
         };
@@ -617,7 +737,7 @@ namespace Valgor.City.UI
 
         private static VisualElement BuildActionPanel(
             out Label title,
-            out Label body,
+            out VisualElement bodyHost,
             out VisualElement buttons,
             out Label feedback)
         {
@@ -625,8 +745,8 @@ namespace Valgor.City.UI
             panel.style.position = Position.Absolute;
             panel.style.right = 16;
             panel.style.top = 64;
-            panel.style.width = 320;
-            panel.style.maxHeight = 420;
+            panel.style.width = 340;
+            panel.style.maxHeight = 520;
             panel.style.paddingLeft = 14;
             panel.style.paddingRight = 14;
             panel.style.paddingTop = 12;
@@ -650,11 +770,11 @@ namespace Valgor.City.UI
             title.style.marginBottom = 8;
             panel.Add(title);
 
-            body = new Label();
-            body.style.color = BetaVisualTheme.TextPrimary;
-            body.style.fontSize = 13;
-            body.style.whiteSpace = WhiteSpace.Normal;
-            panel.Add(body);
+            var scroll = new ScrollView();
+            scroll.style.maxHeight = 320;
+            bodyHost = new VisualElement { name = "action-body-host" };
+            scroll.Add(bodyHost);
+            panel.Add(scroll);
 
             feedback = new Label();
             feedback.style.color = BetaVisualTheme.AgedGoldBright;

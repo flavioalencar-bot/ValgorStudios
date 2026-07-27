@@ -1,3 +1,4 @@
+using Valgor.City.Buildings;
 using Valgor.City.Camera;
 using Valgor.City.Core;
 using Valgor.City.Data;
@@ -99,5 +100,50 @@ public sealed class CityNavigationConceptTests
         session.Begin();
 
         Assert.True(session.IsActive);
+    }
+}
+
+public sealed class WarehouseRulesTests
+{
+    [Fact]
+    public void CapacityAndProtection_ScaleWithLevel()
+    {
+        Assert.Equal(5_000, WarehouseRules.GetCapacity(0));
+        Assert.Equal(7_500, WarehouseRules.GetCapacity(1));
+        Assert.Equal(1_000, WarehouseRules.GetProtection(0));
+        Assert.Equal(1_500, WarehouseRules.GetProtection(1));
+        Assert.True(WarehouseRules.GetNextCapacity(1) > WarehouseRules.GetCapacity(1));
+    }
+}
+
+public sealed class BuildingUpgradeRequirementsTests
+{
+    [Fact]
+    public void Build_ListsSixResources_WithSatisfiedFlags()
+    {
+        var definition = BuildingCatalog.Get("castle");
+        var building = new BuildingInstance("castle", 1, BuildingState.Ready);
+        var wallet = new ResourceWallet();
+        wallet.Add(ResourceType.Gold, 10_000);
+        wallet.Add(ResourceType.Food, 10_000);
+        wallet.Add(ResourceType.Wood, 10_000);
+        wallet.Add(ResourceType.Stone, 10_000);
+        wallet.Add(ResourceType.Iron, 10_000);
+        wallet.Add(ResourceType.DragonEssence, 10_000);
+
+        var reqs = BuildingUpgradeRequirements.Build(definition, building, wallet);
+
+        Assert.Equal(6, reqs.Count);
+        Assert.All(reqs, r => Assert.True(r.Satisfied));
+        Assert.True(definition.GetUpgradeCost(ResourceType.Gold, 1) > 0);
+        Assert.True(definition.GetUpgradeCost(ResourceType.DragonEssence, 1) > 0);
+    }
+
+    [Fact]
+    public void InstantCompleteDiamondCost_ScalesWithRemainingTime()
+    {
+        Assert.Equal(0, BuildingUpgradeRequirements.InstantCompleteDiamondCost(TimeSpan.Zero));
+        Assert.Equal(1, BuildingUpgradeRequirements.InstantCompleteDiamondCost(TimeSpan.FromSeconds(3)));
+        Assert.Equal(2, BuildingUpgradeRequirements.InstantCompleteDiamondCost(TimeSpan.FromSeconds(6)));
     }
 }
