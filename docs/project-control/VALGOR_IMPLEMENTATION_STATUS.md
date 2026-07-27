@@ -327,8 +327,8 @@ Histórico completo: `git log --oneline` no repositório.
 - Sem novos edifícios; sem reescrita do fluxo de upgrade; **sem** arquivos de outros repositórios.
 - `dotnet test tools/Valgor.GameLogic.Tests`: **126 aprovados / 0 falha / 126 total**.
 - `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
-- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 15:27:25).
-- Testes revalidados (2026-07-27 15:27): GameLogic **126/126**, Server **23/23**.
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 15:33:33).
+- Testes revalidados (2026-07-27 15:33): GameLogic **126/126**, Server **23/23**.
 - Evidência smoke (três cenários de bloqueio + Ir): painéis de upgrade com pré-requisitos.
 - Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs em `builds/windows/Valgor-Beta-0.1/evidence/` e versionados em `docs/releases/beta-0.1-evidence/ux-contextual/`:
   - `ux-13-farm-blocked-by-city-castle.png` — Fazenda bloqueada por Castelo cidade (+ `ux-13b-prereq-go-castle.png` após **Ir**)
@@ -341,7 +341,7 @@ Histórico completo: `git log --oneline` no repositório.
 - Ex.: PlayerLevel 20 + Castelo cidade Nv.3 → Fazenda 3→4 **bloqueada** (exige Castelo 4).
 - Catálogo Castelo→2 exige Fazenda Nv.2 + Armazém Nv.2 (bloqueio simultâneo no seed).
 - Testes: GameLogic **126/126**; Server **23/23**.
-- Build: `Valgor.exe` LastWriteTime=**2026-07-27 15:27:25** (Length=672256).
+- Build: `Valgor.exe` LastWriteTime=**2026-07-27 15:33:33** (Length=672256).
 - Evidências (ux-contextual): `ux-13-farm-blocked-by-city-castle.png`, `ux-13b-prereq-go-castle.png`, `ux-11-prereq-blocked.png`, `ux-12-prereq-go-farm.png`, `ux-14-castle-blocked-by-farm-warehouse.png`.
 
 ## Patch crítico — clique nos edifícios (2026-07-27)
@@ -357,3 +357,10 @@ Histórico completo: `git log --oneline` no repositório.
 - Indicadores: ícone colorido, sem abreviações; quantidade só com seleção.
 - Painel Atualizar: coluna flex + scroll + botões fixos (cabimento 1600×900).
 - Sem novos edifícios.
+
+## Smoke seed reset (2026-07-27)
+
+- Smoke chama `CityController.DebugResetBuildingsToSeedLayout` antes das capturas de prerequisito (ux-11/13/14).
+- Garante Castelo/Fazenda/Armazem em Nv.1 no painel — `PlayerLevel` nao mascara gate do Castelo cidade.
+- Build: `Valgor.exe` LastWriteTime=**2026-07-27 15:33:33** (Length=672256).
+- OCR/smoke: `ux-13` = Requer Castelo Nv.2 (atual 1) FAIL; `ux-14` = Fazenda+Armazem FAIL; `ux-11` = Armazem bloqueado por Fazenda (+Castelo).

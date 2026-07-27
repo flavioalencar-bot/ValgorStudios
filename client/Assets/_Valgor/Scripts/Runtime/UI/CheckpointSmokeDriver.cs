@@ -171,6 +171,9 @@ namespace Valgor.UI
 
         private IEnumerator CaptureBuildingUxEvidence()
         {
+            InvokeCityController("DebugResetBuildingsToSeedLayout");
+            yield return new WaitForSecondsRealtime(0.5f);
+
             TrySelectCityBuilding("castle");
             yield return new WaitForSecondsRealtime(1.2f);
             yield return Capture("ux-01-castle-selected");
@@ -256,6 +259,26 @@ namespace Valgor.UI
 
             yield return Capture("ux-10-upgrade-complete");
             Debug.Log("[CheckpointSmoke] Evidências UX edifícios OK");
+        }
+
+        private static void InvokeCityController(string methodName)
+        {
+            var controller = FindCityController();
+            if (controller == null)
+            {
+                Debug.LogWarning($"[CheckpointSmoke] CityController ausente p/ {methodName}");
+                return;
+            }
+
+            var method = controller.GetType().GetMethod(methodName);
+            if (method == null)
+            {
+                Debug.LogWarning($"[CheckpointSmoke] CityController.{methodName} indisponível.");
+                return;
+            }
+
+            method.Invoke(controller, null);
+            Debug.Log($"[CheckpointSmoke] CityController.{methodName}");
         }
 
         private static void InvokeCityPresenter(string methodName)

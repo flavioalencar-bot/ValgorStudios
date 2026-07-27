@@ -409,6 +409,47 @@ namespace Valgor.City.Core
             _dragons?.Persist();
         }
 
+        /// <summary>
+        /// Smoke/QA: restaura Castelo/Fazenda/Armazém (e demais) ao layout seed
+        /// para validar pré-requisitos sem save antigo.
+        /// </summary>
+        public void DebugResetBuildingsToSeedLayout()
+        {
+            var seed = new Dictionary<string, (int Level, BuildingState State)>(StringComparer.Ordinal)
+            {
+                ["castle"] = (1, BuildingState.Ready),
+                ["farm"] = (1, BuildingState.Ready),
+                ["lumbermill"] = (1, BuildingState.Ready),
+                ["quarry"] = (1, BuildingState.Ready),
+                ["mine"] = (0, BuildingState.Available),
+                ["warehouse"] = (1, BuildingState.Ready),
+                ["academy"] = (0, BuildingState.Available),
+                ["institute"] = (0, BuildingState.Locked),
+                ["hospital"] = (0, BuildingState.Available),
+                ["market"] = (1, BuildingState.Ready),
+                ["temple"] = (0, BuildingState.Locked),
+                ["dragon-tower"] = (1, BuildingState.Ready),
+                ["arena"] = (0, BuildingState.Available),
+                ["laboratory"] = (0, BuildingState.Available)
+            };
+
+            foreach (var building in _buildings)
+            {
+                if (!seed.TryGetValue(building.DefinitionId, out var target))
+                {
+                    continue;
+                }
+
+                building.ApplyPersisted(target.Level, target.State, upgradeCompletesAtUtc: null);
+            }
+
+            // Perfil alto permanece; Castelo beta não pode inflar GetCastleLevel (só cidade).
+            Valgor.Core.BetaProgress.CastleLevel = 1;
+            _economy.Persist(_buildings);
+            RefreshPresentation();
+            BuildingChanged?.Invoke();
+        }
+
         public void RefreshPresentation() => RefreshWorldIndicators();
 
         private void AdvanceConstruction()
