@@ -9,6 +9,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- City: arte mínima P0 — Castelo, Torre dos Dragões, Fazenda, Armazém, Academia (modulares reconhecíveis); materiais com noise; indicadores medalhão/chevron; evidências `art-01`…`art-09`
 - Visual: inventário de placeholders `VALGOR_PLACEHOLDER_INVENTORY.md`; evidências `visual-consolidation/`
 - City: distritos (economia/militar/comércio/místico), portões, pads de zona; seleção dourada; detalhes dourados Castelo/Torre/Serraria
 - Main Menu: botão **Jogar**, selo Beta 0.1 offline; tema Success/Danger

@@ -407,3 +407,16 @@ Histórico completo: `git log --oneline` no repositório.
 - Inventário placeholders; distritos City; menu Jogar; evidências visual-consolidation (vis-01..vis-12 + backups 00-main-menu..04-worldmap).
 - GameLogic / Server counts: 140 / 23 aprovados (0 falha); exe LastWriteTime 2026-07-27 16:39:06 (Length=672256).
 - Sem novos sistemas/edifícios.
+
+## Arte mínima City P0 (2026-07-27)
+
+- Visuais modulares: Castelo, Torre dos Dragões, Fazenda, Armazém, Academia - IDs/colliders/menus preservados.
+- Materiais com noise (pedra/madeira/telha/ouro/vegetação); indicadores medalhão/chevron/badges; câmera mais fechada; noite provisória.
+- Evidências: `docs/releases/beta-0.1-evidence/art-minimal-p0/` (`art-01` ... `art-09`).
+- Sem novas regras/edifícios/sistemas.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **140 aprovados / 0 falha / 140 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 17:09:17).
+- Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs `art-01` ... `art-09` versionados em `docs/releases/beta-0.1-evidence/art-minimal-p0/`.
+- Patch compile: `CheckpointSmokeDriver` chama `CityEnvironmentBuilder` via reflection (evita ciclo Valgor.Runtime vs Valgor.City).
+

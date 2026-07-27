@@ -7,14 +7,14 @@ namespace Valgor.City.Camera
     [DefaultExecutionOrder(-40)]
     public sealed class CityCameraController : MonoBehaviour
     {
-        [SerializeField] private float minZoom = 9f;
-        [SerializeField] private float maxZoom = 16f;
+        [SerializeField] private float minZoom = 8.5f;
+        [SerializeField] private float maxZoom = 15f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
-        [SerializeField] private float initialZoom = 14.5f;
+        [SerializeField] private float initialZoom = 12.2f;
         [SerializeField] private float dragThresholdPixels = 10f;
 
-        private readonly CityBounds _bounds = new(-18f, 18f, -18f, 18f);
+        private readonly CityBounds _bounds = new(-16f, 16f, -16f, 16f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
         private Vector2 _pointerDown;
@@ -32,8 +32,9 @@ namespace Valgor.City.Camera
             _camera = GetComponent<UnityEngine.Camera>();
             _camera.orthographic = true;
             _camera.orthographicSize = initialZoom;
-            transform.rotation = Quaternion.Euler(42f, 45f, 0f);
-            transform.position = new Vector3(-15.5f, 19.5f, -15.5f);
+            transform.rotation = Quaternion.Euler(44f, 42f, 0f);
+            // Enquadra Castelo + Torre sem cortar distritos próximos.
+            transform.position = new Vector3(-13.2f, 17.8f, -13.8f);
             ClampPosition();
         }
 

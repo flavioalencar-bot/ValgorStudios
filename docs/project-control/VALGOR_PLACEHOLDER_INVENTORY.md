@@ -1,6 +1,6 @@
 # VALGOR — Inventário de Placeholders (Beta 0.1)
 
-**Atualizado:** 2026-07-27 · Sprint consolidação visual  
+**Atualizado:** 2026-07-27 · Patch arte mínima City (5 P0)  
 **Escopo:** Main Menu, City, Heroes, Dragons, World Map
 
 Classificação: **P0** bloqueia apresentação · **P1** muito provisório · **P2** aceitável na beta · **P3** detalhe futuro
@@ -20,19 +20,19 @@ Classificação: **P0** bloqueia apresentação · **P1** muito provisório · *
 
 | Objeto | Função | Tipo atual | Arte necessária | Pri | Risco troca | Status |
 |--------|--------|------------|-----------------|-----|-------------|--------|
-| Castelo | HQ | Primitivos pedra/torres | Mesh Castelo P1 | P1 | Médio (collider/Visual) | Distinto |
-| Fazenda | Comida | Casa + campo | Barn + plantação | P1 | Médio | Distinto |
-| Armazém | Estoque | Galpão madeira | Warehouse mesh | P1 | Médio | Distinto |
-| Serraria | Madeira | Casa + toras | Sawmill | P1 | Médio | Distinto |
-| Pedreira | Pedra | Blocos pedra | Quarry | P1 | Médio | Distinto |
-| Mina | Ferro | Entrada escura | Mine mouth | P1 | Médio | Distinto |
-| Academia | Conhecimento | Torre azul | Academy | P1 | Médio | Distinto |
-| Arena | Formação | Anel areia | Coliseu | P1 | Médio | Distinto |
-| Hospital | Cura | Casa + cruz | Hospital | P1 | Médio | Distinto |
-| Torre Dragões | Ninho | Torre alta + ninho | Dragon keep | P0 | Médio | Marco secundário |
-| Templo | Bônus | Pedra + colunas | Temple | P1 | Médio | Distinto |
-| Mercado | Trocas | Barraca | Market stall | P1 | Médio | Distinto |
-| Laboratório | Tech | Casa + orbe | Lab tower | P1 | Médio | Distinto |
+| Castelo | HQ | Modular P0 (muralhas/torres/portão/praça) | Mesh/FBX final | P1 | Médio | **Arte mínima P0** |
+| Fazenda | Comida | Casa + celeiro + campos + cercas | Barn final | P1 | Médio | **Arte mínima P0** |
+| Armazém | Estoque | Galpão + caixas/barris + portão carga | Warehouse final | P1 | Médio | **Arte mínima P0** |
+| Serraria | Madeira | Casa + toras | Sawmill | P1 | Médio | Distinto (kit) |
+| Pedreira | Pedra | Blocos pedra | Quarry | P1 | Médio | Distinto (kit) |
+| Mina | Ferro | Entrada escura | Mine mouth | P1 | Médio | Distinto (kit) |
+| Academia | Conhecimento | Pedra + torre estudo + runas | Academy final | P1 | Médio | **Arte mínima P0** |
+| Arena | Formação | Anel areia | Coliseu | P1 | Médio | Distinto (kit) |
+| Hospital | Cura | Casa + cruz | Hospital | P1 | Médio | Distinto (kit) |
+| Torre Dragões | Ninho | Torre alta + pouso + brasas | Dragon keep final | P1 | Médio | **Arte mínima P0** |
+| Templo | Bônus | Pedra + colunas | Temple | P1 | Médio | Distinto (kit) |
+| Mercado | Trocas | Barraca | Market stall | P1 | Médio | Distinto (kit) |
+| Laboratório | Tech | Casa + orbe | Lab tower | P1 | Médio | Distinto (kit) |
 | Institute | — | Casa | — | P3 | Baixo | Fora do foco UX |
 
 ## City — ambiente
@@ -43,7 +43,7 @@ Classificação: **P0** bloqueia apresentação · **P1** muito provisório · *
 | Praça/caminhos | Leitura | Cubes | Cobble textures | P2 | Baixo | Zonas + portões |
 | Muralha | Limite | Segmentos | Wall kit | P2 | Baixo | Portões nas entradas |
 | Árvores | Atmosfera | Cilindro+esfera | Tree prefabs | P2 | Baixo | OK |
-| Indicadores coleta/upgrade | Feedback | Primitivos + TextMesh | Ícones 2D | P2 | Baixo | Funcionais |
+| Indicadores coleta/upgrade | Feedback | Medalhão/chevron/badges | Ícones 2D finais | P2 | Baixo | **Ícones provisórios P0** |
 
 ## Heroes
 

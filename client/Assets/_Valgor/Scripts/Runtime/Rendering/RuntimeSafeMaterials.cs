@@ -27,15 +27,22 @@ namespace Valgor.Core
             }
 
             var mat = renderer.material;
+            var created = false;
             if (mat == null || IsBroken(mat))
             {
                 EnsureTemplate();
                 mat = new Material(_template!);
                 renderer.material = mat;
+                created = true;
+                ClearMaps(mat);
             }
 
             ApplyColor(mat, color);
-            ClearMaps(mat);
+            // Não limpar mapas em recolor (preserva noise de CityVisualMaterials).
+            if (created)
+            {
+                // já limpo acima
+            }
         }
 
         public static void ApplyColor(Material material, Color color)

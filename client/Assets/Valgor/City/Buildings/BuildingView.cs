@@ -17,6 +17,8 @@ namespace Valgor.City.Buildings
         private GameObject? _collectableMarker;
         private Renderer? _resourceIconRenderer;
         private GameObject? _upgradeArrow;
+        private GameObject? _lockedBadge;
+        private GameObject? _readyBadge;
         private GameObject? _constructionRoot;
         private Transform? _progressFill;
         private TextMesh? _progressLabel;
@@ -45,10 +47,13 @@ namespace Valgor.City.Buildings
             _label.gameObject.SetActive(false);
             _collectableMarker = CreateCollectableMarker();
             _upgradeArrow = CreateUpgradeArrow();
+            _lockedBadge = CreateStatusBadge("LockedBadge", new Color(0.35f, 0.38f, 0.45f), isLock: true);
+            _readyBadge = CreateStatusBadge("ReadyBadge", new Color(0.72f, 0.58f, 0.28f), isLock: false);
             _constructionRoot = CreateConstructionOverlay();
             SetCollectable(0, null);
             SetUpgradeAvailable(false);
             SetConstructionProgress(0f, string.Empty, false);
+            RefreshStatusBadges();
         }
 
         public void SetSelected(bool selected)
@@ -146,6 +151,23 @@ namespace Valgor.City.Buildings
         public void RefreshStateColor()
         {
             ApplyStateTint();
+            RefreshStatusBadges();
+        }
+
+        private void RefreshStatusBadges()
+        {
+            var locked = Instance.State == BuildingState.Locked;
+            var readyNew = Instance.State == BuildingState.Available && Instance.Level <= 0;
+            if (_lockedBadge != null)
+            {
+                _lockedBadge.SetActive(locked);
+            }
+
+            if (_readyBadge != null)
+            {
+                // “Construir disponível” — distintivo dourado pequeno (não confunde com upgrade).
+                _readyBadge.SetActive(readyNew && !locked);
+            }
         }
 
         private string FormatLabel(BuildingDefinition definition)
@@ -226,34 +248,43 @@ namespace Valgor.City.Buildings
 
         private GameObject CreateCollectableMarker()
         {
-            var marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            // Medalhão plano (não esfera verde genérica) + ícone de recurso.
+            var marker = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             marker.name = "CollectableMarker";
             marker.transform.SetParent(transform, false);
-            marker.transform.localPosition = Vector3.up * (_labelHeight + 0.95f);
-            marker.transform.localScale = Vector3.one * 0.78f;
-            CityVisualMaterials.Apply(marker.GetComponent<Renderer>(), new Color(0.18f, 0.72f, 0.34f));
+            marker.transform.localPosition = Vector3.up * (_labelHeight + 0.85f);
+            marker.transform.localScale = new Vector3(0.48f, 0.06f, 0.48f);
+            marker.transform.localRotation = Quaternion.Euler(90f, 45f, 0f);
+            CityVisualMaterials.Apply(marker.GetComponent<Renderer>(), new Color(0.14f, 0.42f, 0.28f));
 
-            // Ícone de recurso (cubo colorido) — sem texto técnico no mundo.
+            var rim = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            rim.name = "Rim";
+            rim.transform.SetParent(marker.transform, false);
+            rim.transform.localPosition = new Vector3(0f, 0.15f, 0f);
+            rim.transform.localScale = new Vector3(1.15f, 0.35f, 1.15f);
+            Destroy(rim.GetComponent<Collider>());
+            CityVisualMaterials.Apply(rim.GetComponent<Renderer>(), new Color(0.72f, 0.58f, 0.28f));
+
             var icon = GameObject.CreatePrimitive(PrimitiveType.Cube);
             icon.name = "ResourceIcon";
             icon.transform.SetParent(marker.transform, false);
-            icon.transform.localPosition = Vector3.zero;
-            icon.transform.localScale = Vector3.one * 0.42f;
-            icon.transform.localRotation = Quaternion.Euler(35f, 45f, 0f);
+            icon.transform.localPosition = new Vector3(0f, 0.55f, 0f);
+            icon.transform.localScale = new Vector3(0.55f, 0.55f, 0.55f);
+            icon.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             Destroy(icon.GetComponent<Collider>());
             _resourceIconRenderer = icon.GetComponent<Renderer>();
             CityVisualMaterials.Apply(_resourceIconRenderer, new Color(0.95f, 0.85f, 0.35f));
 
             var amountObject = new GameObject("Amount");
             amountObject.transform.SetParent(marker.transform, false);
-            amountObject.transform.localPosition = Vector3.up * 1.05f;
-            amountObject.transform.localRotation = Quaternion.Euler(30f, 45f, 0f);
-            amountObject.transform.localScale = Vector3.one * 0.28f;
+            amountObject.transform.localPosition = new Vector3(0f, 1.8f, 0f);
+            amountObject.transform.localRotation = Quaternion.Euler(-90f, 0f, -45f);
+            amountObject.transform.localScale = Vector3.one * 0.55f;
             _bubbleLabel = amountObject.AddComponent<TextMesh>();
             _bubbleLabel.anchor = TextAnchor.MiddleCenter;
             _bubbleLabel.alignment = TextAlignment.Center;
-            _bubbleLabel.characterSize = 0.2f;
-            _bubbleLabel.fontSize = 56;
+            _bubbleLabel.characterSize = 0.18f;
+            _bubbleLabel.fontSize = 48;
             _bubbleLabel.color = new Color(0.95f, 0.92f, 0.8f);
             _bubbleLabel.text = string.Empty;
             amountObject.SetActive(false);
@@ -265,23 +296,60 @@ namespace Valgor.City.Buildings
 
         private GameObject CreateUpgradeArrow()
         {
-            var arrow = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            arrow.name = "UpgradeArrow";
+            // Chevron dourado (upgrade) — menor e integrado.
+            var arrow = new GameObject("UpgradeArrow");
             arrow.transform.SetParent(transform, false);
-            arrow.transform.localPosition = Vector3.up * (_labelHeight + 1.55f);
-            arrow.transform.localScale = new Vector3(0.22f, 0.34f, 0.22f);
-            Destroy(arrow.GetComponent<Collider>());
-            CityVisualMaterials.Apply(arrow.GetComponent<Renderer>(), new Color(0.35f, 0.95f, 0.45f));
+            arrow.transform.localPosition = Vector3.up * (_labelHeight + 1.35f);
 
-            var tip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            var stem = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stem.name = "Stem";
+            stem.transform.SetParent(arrow.transform, false);
+            stem.transform.localPosition = Vector3.zero;
+            stem.transform.localScale = new Vector3(0.14f, 0.42f, 0.14f);
+            Destroy(stem.GetComponent<Collider>());
+            CityVisualMaterials.Apply(stem.GetComponent<Renderer>(), new Color(0.78f, 0.62f, 0.28f));
+
+            var tip = GameObject.CreatePrimitive(PrimitiveType.Cube);
             tip.name = "Tip";
             tip.transform.SetParent(arrow.transform, false);
-            tip.transform.localPosition = new Vector3(0f, 1.1f, 0f);
-            tip.transform.localScale = Vector3.one * 1.4f;
+            tip.transform.localPosition = new Vector3(0f, 0.32f, 0f);
+            tip.transform.localScale = new Vector3(0.32f, 0.22f, 0.14f);
+            tip.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             Destroy(tip.GetComponent<Collider>());
-            CityVisualMaterials.Apply(tip.GetComponent<Renderer>(), new Color(0.45f, 1f, 0.55f));
+            CityVisualMaterials.Apply(tip.GetComponent<Renderer>(), new Color(0.9f, 0.75f, 0.35f));
+
             arrow.SetActive(false);
             return arrow;
+        }
+
+        private GameObject CreateStatusBadge(string name, Color color, bool isLock)
+        {
+            var root = new GameObject(name);
+            root.transform.SetParent(transform, false);
+            root.transform.localPosition = Vector3.up * (_labelHeight + 0.55f);
+
+            var plate = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            plate.name = "Plate";
+            plate.transform.SetParent(root.transform, false);
+            plate.transform.localScale = new Vector3(0.38f, 0.38f, 0.08f);
+            plate.transform.localRotation = Quaternion.Euler(25f, 45f, 0f);
+            Destroy(plate.GetComponent<Collider>());
+            CityVisualMaterials.Apply(plate.GetComponent<Renderer>(), color);
+
+            var glyph = GameObject.CreatePrimitive(isLock ? PrimitiveType.Cylinder : PrimitiveType.Sphere);
+            glyph.name = "Glyph";
+            glyph.transform.SetParent(root.transform, false);
+            glyph.transform.localPosition = new Vector3(0f, 0f, -0.06f);
+            glyph.transform.localScale = isLock
+                ? new Vector3(0.16f, 0.08f, 0.16f)
+                : Vector3.one * 0.16f;
+            glyph.transform.localRotation = Quaternion.Euler(25f, 45f, 0f);
+            Destroy(glyph.GetComponent<Collider>());
+            CityVisualMaterials.Apply(glyph.GetComponent<Renderer>(),
+                isLock ? new Color(0.18f, 0.18f, 0.22f) : new Color(0.95f, 0.88f, 0.55f));
+
+            root.SetActive(false);
+            return root;
         }
 
         private GameObject CreateConstructionOverlay()

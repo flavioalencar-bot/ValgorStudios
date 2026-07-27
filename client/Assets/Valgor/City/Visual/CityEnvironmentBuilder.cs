@@ -78,33 +78,43 @@ namespace Valgor.City.Visual
 
         private static void BuildTerrain(Transform root)
         {
-            Flat(root, "Grass", Vector3.zero, new Vector3(38f, 0.08f, 38f), new Color(0.28f, 0.4f, 0.24f))
+            Flat(root, "Grass", Vector3.zero, new Vector3(38f, 0.08f, 38f), CityVisualMaterials.Vegetation, SurfaceKind.Vegetation)
                 .transform.localPosition = new Vector3(0f, -0.04f, 0f);
 
-            Flat(root, "OuterRing", Vector3.zero, new Vector3(30f, 0.06f, 30f), new Color(0.32f, 0.36f, 0.28f))
+            Flat(root, "OuterRing", Vector3.zero, new Vector3(30f, 0.06f, 30f),
+                    Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.35f), SurfaceKind.Dirt)
                 .transform.localPosition = new Vector3(0f, -0.01f, 0f);
         }
 
         private static void BuildPlaza(Transform root)
         {
-            Flat(root, "Plaza", Vector3.zero, new Vector3(9f, 0.12f, 9f), new Color(0.48f, 0.44f, 0.38f))
+            Flat(root, "Plaza", Vector3.zero, new Vector3(9f, 0.12f, 9f), CityVisualMaterials.Path)
                 .transform.localPosition = new Vector3(0f, 0.02f, 0f);
 
-            Flat(root, "PlazaRim", Vector3.zero, new Vector3(10.5f, 0.1f, 10.5f), new Color(0.4f, 0.36f, 0.32f))
+            Flat(root, "PlazaRim", Vector3.zero, new Vector3(10.5f, 0.1f, 10.5f),
+                    Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneDark, 0.25f))
                 .transform.localPosition = new Vector3(0f, 0.01f, 0f);
+
+            // Praça frontal do Castelo (sul) — pedras douradas.
+            Flat(root, "CastleForecourt", new Vector3(0f, 0.04f, 4.2f), new Vector3(6.5f, 0.1f, 3.2f),
+                Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.Gold, 0.12f));
         }
 
         private static void BuildRoads(Transform root)
         {
-            var road = new Color(0.4f, 0.36f, 0.3f);
-            Flat(root, "RoadNS", Vector3.zero, new Vector3(2.1f, 0.09f, 24f), road)
+            var road = CityVisualMaterials.Path;
+            Flat(root, "RoadNS", Vector3.zero, new Vector3(2.1f, 0.09f, 22f), road)
                 .transform.localPosition = new Vector3(0f, 0.03f, 0f);
-            Flat(root, "RoadEW", Vector3.zero, new Vector3(24f, 0.09f, 2.1f), road)
+            Flat(root, "RoadEW", Vector3.zero, new Vector3(22f, 0.09f, 2.1f), road)
                 .transform.localPosition = new Vector3(0f, 0.03f, 0f);
-            Flat(root, "RoadNE", new Vector3(4.5f, 0.03f, 4.5f), new Vector3(1.8f, 0.09f, 11f), road)
+            Flat(root, "RoadNE", new Vector3(4.2f, 0.03f, 4.2f), new Vector3(1.8f, 0.09f, 10f), road)
                 .transform.localRotation = Quaternion.Euler(0f, 45f, 0f);
-            Flat(root, "RoadToTower", new Vector3(3.5f, 0.03f, 3.5f), new Vector3(1.6f, 0.09f, 9f), road)
+            Flat(root, "RoadToTower", new Vector3(3.2f, 0.03f, 3.2f), new Vector3(1.6f, 0.09f, 8.5f), road)
                 .transform.localRotation = Quaternion.Euler(0f, 45f, 0f);
+            Flat(root, "RoadToFarm", new Vector3(-5f, 0.03f, -1f), new Vector3(1.5f, 0.09f, 8f), road)
+                .transform.localRotation = Quaternion.Euler(0f, -20f, 0f);
+            Flat(root, "RoadToAcademy", new Vector3(5f, 0.03f, -2f), new Vector3(1.5f, 0.09f, 8f), road)
+                .transform.localRotation = Quaternion.Euler(0f, 25f, 0f);
         }
 
         private static void BuildWallRing(Transform root)
@@ -150,37 +160,82 @@ namespace Valgor.City.Visual
             }
         }
 
-        private static void SoftenLighting()
+        private static void SoftenLighting() => ApplyDayLighting();
+
+        /// <summary>Iluminação diurna quente (padrão).</summary>
+        public static void ApplyDayLighting()
         {
             var light = Object.FindFirstObjectByType<Light>();
             if (light != null && light.type == LightType.Directional)
             {
                 light.color = new Color(1f, 0.92f, 0.78f);
-                light.intensity = 1.2f;
+                light.intensity = 1.25f;
                 light.shadows = LightShadows.Soft;
                 light.transform.rotation = Quaternion.Euler(42f, -35f, 0f);
             }
 
+            ApplySky(new Color(0.48f, 0.62f, 0.78f),
+                new Color(0.62f, 0.72f, 0.88f),
+                new Color(0.55f, 0.5f, 0.42f),
+                new Color(0.28f, 0.26f, 0.22f),
+                new Color(0.58f, 0.68f, 0.8f),
+                0.016f);
+        }
+
+        /// <summary>Iluminação noturna provisória (evidências / apresentação).</summary>
+        public static void ApplyNightLighting()
+        {
+            var light = Object.FindFirstObjectByType<Light>();
+            if (light != null && light.type == LightType.Directional)
+            {
+                light.color = new Color(0.55f, 0.62f, 0.9f);
+                light.intensity = 0.55f;
+                light.shadows = LightShadows.Soft;
+                light.transform.rotation = Quaternion.Euler(28f, -50f, 0f);
+            }
+
+            ApplySky(new Color(0.08f, 0.1f, 0.18f),
+                new Color(0.18f, 0.22f, 0.38f),
+                new Color(0.28f, 0.24f, 0.2f),
+                new Color(0.1f, 0.1f, 0.12f),
+                new Color(0.12f, 0.14f, 0.22f),
+                0.028f);
+        }
+
+        private static void ApplySky(
+            Color background,
+            Color sky,
+            Color equator,
+            Color ground,
+            Color fog,
+            float fogDensity)
+        {
             var camera = UnityEngine.Camera.main;
             if (camera != null)
             {
                 camera.clearFlags = CameraClearFlags.SolidColor;
-                camera.backgroundColor = new Color(0.48f, 0.62f, 0.78f);
+                camera.backgroundColor = background;
                 camera.farClipPlane = 80f;
             }
 
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.62f, 0.72f, 0.88f);
-            RenderSettings.ambientEquatorColor = new Color(0.55f, 0.5f, 0.42f);
-            RenderSettings.ambientGroundColor = new Color(0.28f, 0.26f, 0.22f);
+            RenderSettings.ambientSkyColor = sky;
+            RenderSettings.ambientEquatorColor = equator;
+            RenderSettings.ambientGroundColor = ground;
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.ExponentialSquared;
-            RenderSettings.fogColor = new Color(0.58f, 0.68f, 0.8f);
-            RenderSettings.fogDensity = 0.018f;
+            RenderSettings.fogColor = fog;
+            RenderSettings.fogDensity = fogDensity;
         }
 
-        private static GameObject Flat(Transform parent, string name, Vector3 position, Vector3 scale, Color color) =>
-            Part(PrimitiveType.Cube, parent, name, position, scale, color);
+        private static GameObject Flat(
+            Transform parent,
+            string name,
+            Vector3 position,
+            Vector3 scale,
+            Color color,
+            SurfaceKind surface = SurfaceKind.Dirt) =>
+            Part(PrimitiveType.Cube, parent, name, position, scale, color, surface);
 
         private static GameObject Part(
             PrimitiveType type,
@@ -188,7 +243,8 @@ namespace Valgor.City.Visual
             string name,
             Vector3 position,
             Vector3 scale,
-            Color color)
+            Color color,
+            SurfaceKind surface = SurfaceKind.Stone)
         {
             var go = GameObject.CreatePrimitive(type);
             go.name = name;
@@ -196,7 +252,7 @@ namespace Valgor.City.Visual
             go.transform.localPosition = position;
             go.transform.localScale = scale;
             Object.Destroy(go.GetComponent<Collider>());
-            CityVisualMaterials.Apply(go.GetComponent<Renderer>(), color);
+            CityVisualMaterials.ApplySurface(go.GetComponent<Renderer>(), color, surface);
             return go;
         }
     }

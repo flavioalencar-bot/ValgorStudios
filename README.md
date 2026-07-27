@@ -25,8 +25,8 @@ Cliente Unity + backend .NET do ecossistema **Valgor**.
 
 ### O que é placeholder
 
-- Silhuetas procedurais de edifícios/nós (não FBX finais)
-- Texturas e ícones provisórios
+- Silhuetas procedurais modulares (P0 Castelo/Torre/Fazenda/Armazém/Academia melhorados; demais ainda kit básico)
+- Texturas noise provisórias (não atlas final)
 - Ninho de dragões em primitivos
 - Ver inventário: [`docs/project-control/VALGOR_PLACEHOLDER_INVENTORY.md`](docs/project-control/VALGOR_PLACEHOLDER_INVENTORY.md)
 

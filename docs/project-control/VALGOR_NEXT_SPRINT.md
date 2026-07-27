@@ -10,6 +10,7 @@
 - [x] UX contextual completa da City (todos os edifícios atuais)
 - [x] Pré-requisitos data-driven + Castelo real + Ir
 - [x] Consolidação visual Beta 0.1 (silhuetas, zonas, menu, atmosfera, inventário)
+- [x] Arte mínima P0: Castelo, Torre dos Dragões, Fazenda, Armazém, Academia
 
 ---
 
@@ -17,9 +18,9 @@
 
 | # | Item | Critério |
 |---|------|----------|
-| 1 | Arte mínima Castelo + Torre (mesh além de primitivo) | Substituir `Visual` preservando collider/ID |
-| 2 | Texturas de terreno/caminhos | Sem magenta URP |
-| 3 | Ícones de recurso/HUD originais | Substituir TextMesh genérico onde couber |
+| 1 | Arte mínima dos 8 edifícios restantes (kit → modular) | Serraria…Lab; preservar collider/ID |
+| 2 | Texturas de terreno/caminhos além do noise | Sem magenta URP |
+| 3 | Ícones de recurso/HUD originais | Substituir medalhões provisórios |
 | 4 | Polish Heroes cards + preview estável | Sem magenta; PT-BR |
 
 ## Fora (não iniciar)
@@ -31,3 +32,4 @@ PvP, alianças, SvS, monetização, loja, comércio P2P, novos heróis/dragões,
 - `VALGOR_PLACEHOLDER_INVENTORY.md`
 - `VALGOR_IMPLEMENTATION_STATUS.md`
 - `docs/releases/beta-0.1-evidence/visual-consolidation/`
+- `docs/releases/beta-0.1-evidence/art-minimal-p0/` (após smoke)

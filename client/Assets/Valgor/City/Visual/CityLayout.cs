@@ -13,23 +13,23 @@ namespace Valgor.City.Visual
         private static readonly Dictionary<string, Vector2> Positions = new()
         {
             ["castle"] = new Vector2(0f, 0f),
-            // Economia (O / N)
-            ["farm"] = new Vector2(-12f, -2.5f),
-            ["lumbermill"] = new Vector2(-12f, 4f),
-            ["quarry"] = new Vector2(-8.5f, 10.5f),
-            ["mine"] = new Vector2(-1.5f, 12f),
+            // Economia (O / N) — agrupada e mais próxima do centro
+            ["farm"] = new Vector2(-10.5f, -2f),
+            ["lumbermill"] = new Vector2(-10.5f, 3.5f),
+            ["quarry"] = new Vector2(-7.5f, 9.5f),
+            ["mine"] = new Vector2(-1.2f, 10.8f),
             // Comércio / suporte (S)
-            ["market"] = new Vector2(0f, -10.5f),
-            ["warehouse"] = new Vector2(6.5f, -10f),
-            ["hospital"] = new Vector2(-6.5f, -10f),
-            ["laboratory"] = new Vector2(3.5f, -12f),
-            ["institute"] = new Vector2(-3.5f, -12f),
+            ["market"] = new Vector2(0f, -9.5f),
+            ["warehouse"] = new Vector2(5.8f, -9.2f),
+            ["hospital"] = new Vector2(-5.8f, -9.2f),
+            ["laboratory"] = new Vector2(3.2f, -11.2f),
+            ["institute"] = new Vector2(-3.2f, -11.2f),
             // Militar (L)
-            ["arena"] = new Vector2(11.5f, 3f),
-            ["academy"] = new Vector2(11f, -4.5f),
+            ["arena"] = new Vector2(10.5f, 2.8f),
+            ["academy"] = new Vector2(10.2f, -3.8f),
             // Místico / marco (NE)
-            ["temple"] = new Vector2(4.5f, 11f),
-            ["dragon-tower"] = new Vector2(9.2f, 9.2f)
+            ["temple"] = new Vector2(4.2f, 10.2f),
+            ["dragon-tower"] = new Vector2(8.6f, 8.6f)
         };
 
         public static Vector3 WorldPosition(string buildingId)

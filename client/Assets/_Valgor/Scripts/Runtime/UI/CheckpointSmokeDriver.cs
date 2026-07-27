@@ -69,25 +69,46 @@ namespace Valgor.UI
             yield return new WaitForSecondsRealtime(2.5f);
             yield return Capture("01-city");
             yield return Capture("vis-02-city-full");
+            yield return Capture("art-01-city-full");
             TrySelectCityBuilding("castle");
             yield return new WaitForSecondsRealtime(1f);
             yield return Capture("vis-03-castle");
             yield return Capture("vis-07-building-selected");
+            yield return Capture("art-02-castle");
+            yield return Capture("art-07-building-selected");
+            yield return Capture("art-08-context-panel");
+            TrySelectCityBuilding("dragon-tower");
+            yield return new WaitForSecondsRealtime(0.9f);
+            yield return Capture("vis-06-dragon-tower");
+            yield return Capture("art-03-dragon-tower");
             TrySelectCityBuilding("farm");
             yield return new WaitForSecondsRealtime(0.8f);
             yield return Capture("vis-04-economy");
+            yield return Capture("art-04-farm");
+            TrySelectCityBuilding("warehouse");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("art-05-warehouse");
+            TrySelectCityBuilding("academy");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("art-06-academy");
             TrySelectCityBuilding("arena");
             yield return new WaitForSecondsRealtime(0.8f);
             yield return Capture("vis-05-military");
-            TrySelectCityBuilding("dragon-tower");
-            yield return new WaitForSecondsRealtime(0.8f);
-            yield return Capture("vis-06-dragon-tower");
+            TrySelectCityBuilding("castle");
+            yield return new WaitForSecondsRealtime(0.5f);
             InvokeCityPresenter("DebugOpenDetailsPanel");
             yield return new WaitForSecondsRealtime(0.7f);
             yield return Capture("vis-08-details");
             InvokeCityPresenter("DebugOpenUpgradePanel");
             yield return new WaitForSecondsRealtime(0.7f);
             yield return Capture("vis-09-upgrade");
+
+            // Noite provisória (evidência de iluminação).
+            InvokeCityVisualLighting("ApplyNightLighting");
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return Capture("art-09-city-night");
+            InvokeCityVisualLighting("ApplyDayLighting");
+            yield return new WaitForSecondsRealtime(0.3f);
 
             // —— Sprint UX contextual: Castelo / Fazenda / Armazém ——
             yield return CaptureBuildingUxEvidence();
@@ -565,5 +586,15 @@ namespace Valgor.UI
 
             Debug.LogWarning("[CheckpointSmoke] Dispatch não encontrado.");
         }
+        /// <summary>
+        /// Reflection evita referência Valgor.Runtime → Valgor.City (ciclo com asmdef).
+        /// </summary>
+        private static void InvokeCityVisualLighting(string methodName)
+        {
+            var type = Type.GetType("Valgor.City.Visual.CityEnvironmentBuilder, Valgor.City");
+            type?.GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+                ?.Invoke(null, null);
+        }
+
     }
 }
