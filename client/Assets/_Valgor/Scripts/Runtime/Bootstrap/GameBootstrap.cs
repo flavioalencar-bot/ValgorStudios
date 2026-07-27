@@ -1,4 +1,4 @@
-using Valgor.Addressables;
+using Valgor.ContentLoading;
 using Valgor.Audio;
 using Valgor.Core;
 using Valgor.Core.Modules;
@@ -25,9 +25,11 @@ namespace Valgor.Bootstrap
             }
 
             DontDestroyOnLoad(gameObject);
+            DeveloperConsoleGate.Install();
             Services = BuildRegistry();
             Game = new ValgorGame(Services);
             Valgor.UI.BetaNavigationBar.Ensure();
+            Valgor.UI.CheckpointSmokeDriver.EnsureFromCommandLine();
         }
 
         private System.Collections.IEnumerator Start()
@@ -45,7 +47,7 @@ namespace Valgor.Bootstrap
             var sceneLoader = new SceneLoader();
             var addressables = new AddressablesService();
             var audio = GetOrCreatePersistent<AudioManager>();
-            var localization = GetOrCreatePersistent<LocalizationBootstrap>();
+            var localization = new LocalizationBootstrap();
 
             registry.Register(session);
             registry.Register(stateMachine);
@@ -57,7 +59,7 @@ namespace Valgor.Bootstrap
 
             var navigator = new GameNavigator(registry);
             registry.Register(navigator);
-            registry.Register<IHeroesGateway>(new ProvisionalHeroesGateway());
+            registry.Register<IHeroesGateway>(new BetaHeroesGateway());
             var dragons = new ProvisionalDragonGateway();
             registry.Register<IDragonModule>(dragons);
             registry.Register<IDragonGateway>(dragons);

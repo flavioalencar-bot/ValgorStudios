@@ -6,12 +6,13 @@ namespace Valgor.City.Camera
     [RequireComponent(typeof(UnityEngine.Camera))]
     public sealed class CityCameraController : MonoBehaviour
     {
-        [SerializeField] private float minZoom = 7f;
-        [SerializeField] private float maxZoom = 20f;
+        [SerializeField] private float minZoom = 8f;
+        [SerializeField] private float maxZoom = 18f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
+        [SerializeField] private float initialZoom = 11.5f;
 
-        private readonly CityBounds _bounds = new();
+        private readonly CityBounds _bounds = new(-16f, 16f, -16f, 16f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
         private float _lastPinchDistance;
@@ -21,7 +22,10 @@ namespace Valgor.City.Camera
         {
             _camera = GetComponent<UnityEngine.Camera>();
             _camera.orthographic = true;
-            transform.rotation = Quaternion.Euler(30f, 45f, 0f);
+            _camera.orthographicSize = initialZoom;
+            // Isométrica centrada na praça / castelo, com margem para HUD inferior.
+            transform.rotation = Quaternion.Euler(35f, 45f, 0f);
+            transform.position = new Vector3(-11.5f, 14.5f, -11.5f);
             ClampPosition();
         }
 
@@ -39,7 +43,6 @@ namespace Valgor.City.Camera
                 return;
             }
 
-            // Botão direito/meio: pan. Esquerdo fica livre para seleção de edifícios.
             var panPressed = mouse.rightButton.isPressed || mouse.middleButton.isPressed;
             var panBegan = mouse.rightButton.wasPressedThisFrame || mouse.middleButton.wasPressedThisFrame;
             var panEnded = mouse.rightButton.wasReleasedThisFrame || mouse.middleButton.wasReleasedThisFrame;
@@ -153,7 +156,7 @@ namespace Valgor.City.Camera
         private void ClampPosition()
         {
             var clamped = _bounds.ClampPosition(new CityPosition(transform.position.x, transform.position.y, transform.position.z));
-            transform.position = new Vector3(clamped.X, clamped.Y, clamped.Z);
+            transform.position = new Vector3(clamped.X, Mathf.Clamp(clamped.Y, 10f, 20f), clamped.Z);
         }
     }
 }

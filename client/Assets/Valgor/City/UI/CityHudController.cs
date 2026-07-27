@@ -15,6 +15,8 @@ namespace Valgor.City.UI
     [RequireComponent(typeof(UIDocument))]
     public sealed class CityHudController : MonoBehaviour
     {
+        private const string EnergyPrefsPrefix = "valgor.worldmap.energy.v1";
+
         private UIDocument _document = null!;
         private CityController _city = null!;
         private IDragonGateway? _dragons;
@@ -37,8 +39,19 @@ namespace Valgor.City.UI
             Build();
             _city.Economy.Wallet.Changed += OnResourceChanged;
             _city.Selection.SelectionChanged += _ => RefreshSelection();
-            _city.BuildingChanged += RefreshSelection;
-            _city.Economy.Production.Changed += (_, __) => RefreshSelection();
+            _city.BuildingChanged += () =>
+            {
+                RefreshSelection();
+                RefreshResources();
+            };
+            // Não chamar ForceApply a partir deste handler — evita reentrada Production.Changed.
+            _city.Economy.Production.Changed += (_, __) =>
+            {
+                if (_selectedPanel != null && _selectedPanel.style.display == DisplayStyle.Flex)
+                {
+                    RefreshSelection();
+                }
+            };
         }
 
         private void OnDestroy()
@@ -51,15 +64,7 @@ namespace Valgor.City.UI
 
         private void EnsurePanelSettings()
         {
-            if (_document.panelSettings != null)
-            {
-                return;
-            }
-
-            var settings = ScriptableObject.CreateInstance<PanelSettings>();
-            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            settings.referenceResolution = new Vector2Int(1920, 1080);
-            _document.panelSettings = settings;
+            BetaUiPanels.ApplyTo(_document);
         }
 
         private void Build()
@@ -71,54 +76,32 @@ namespace Valgor.City.UI
 
             _resources = new Label();
             _resources.style.position = Position.Absolute;
-            _resources.style.left = 18;
-            _resources.style.top = 64;
-            _resources.style.paddingLeft = 12;
-            _resources.style.paddingRight = 12;
-            _resources.style.paddingTop = 8;
-            _resources.style.paddingBottom = 8;
-            _resources.style.backgroundColor = BetaVisualTheme.BackgroundPanel;
+            _resources.style.left = 12;
+            _resources.style.right = 12;
+            _resources.style.top = 8;
+            _resources.style.height = 44;
+            _resources.style.paddingLeft = 14;
+            _resources.style.paddingRight = 14;
+            _resources.style.paddingTop = 10;
+            _resources.style.paddingBottom = 10;
+            _resources.style.backgroundColor = new Color(0.08f, 0.09f, 0.1f, 0.88f);
             _resources.style.color = BetaVisualTheme.TextPrimary;
-            _resources.style.borderLeftWidth = 2;
-            _resources.style.borderLeftColor = BetaVisualTheme.AgedGold;
+            _resources.style.borderBottomWidth = 2;
+            _resources.style.borderBottomColor = BetaVisualTheme.AgedGold;
+            _resources.style.unityTextAlign = TextAnchor.MiddleLeft;
+            _resources.style.fontSize = 13;
             _resources.pickingMode = PickingMode.Ignore;
             root.Add(_resources);
 
-            var actions = new VisualElement();
-            actions.style.position = Position.Absolute;
-            actions.style.right = 18;
-            actions.style.top = 64;
-            root.Add(actions);
-            actions.Add(CreateButton("Mapa Mundial", () =>
-            {
-                _city.Persist();
-                StartCoroutine(GameBootstrap.Game.Navigator.GoToWorldMap());
-            }));
-            actions.Add(CreateButton("Heróis", () =>
-            {
-                _city.Persist();
-                StartCoroutine(GameBootstrap.Game.Navigator.GoToHeroes());
-            }));
-            actions.Add(CreateButton("Torre dos Dragões", () =>
-            {
-                _city.TrySelectByDefinitionId(BetaFocusHints.DragonTowerBuildingId);
-                RefreshSelection();
-            }));
-            actions.Add(CreateButton("Menu Principal", () =>
-            {
-                _city.Persist();
-                StartCoroutine(GameBootstrap.Game.Navigator.GoToMainMenu());
-            }));
-
             _selectedPanel = new VisualElement();
             _selectedPanel.style.position = Position.Absolute;
-            _selectedPanel.style.left = 18;
-            _selectedPanel.style.bottom = 18;
+            _selectedPanel.style.left = 16;
+            _selectedPanel.style.bottom = 78;
             _selectedPanel.style.paddingLeft = 14;
             _selectedPanel.style.paddingRight = 14;
             _selectedPanel.style.paddingTop = 12;
             _selectedPanel.style.paddingBottom = 12;
-            _selectedPanel.style.backgroundColor = BetaVisualTheme.BackgroundPanel;
+            _selectedPanel.style.backgroundColor = new Color(0.1f, 0.11f, 0.12f, 0.94f);
             _selectedPanel.style.borderTopWidth = 2;
             _selectedPanel.style.borderBottomWidth = 2;
             _selectedPanel.style.borderLeftWidth = 2;
@@ -127,14 +110,18 @@ namespace Valgor.City.UI
             _selectedPanel.style.borderBottomColor = BetaVisualTheme.AgedGold;
             _selectedPanel.style.borderLeftColor = BetaVisualTheme.AgedGold;
             _selectedPanel.style.borderRightColor = BetaVisualTheme.AgedGold;
-            _selectedPanel.style.width = 380;
+            _selectedPanel.style.width = 340;
             _selectedText = new Label();
             _selectedText.style.whiteSpace = WhiteSpace.Normal;
             _selectedText.style.color = BetaVisualTheme.TextPrimary;
+            _selectedText.style.fontSize = 13;
             _selectedPanel.Add(_selectedText);
             _collectButton = CreateButton("Coletar", () =>
             {
-                _city.CollectSelected();
+                var amount = _city.CollectSelected();
+                _feedback.text = amount > 0
+                    ? $"+{amount} coletado!"
+                    : "Nada para coletar agora.";
                 RefreshResources();
                 RefreshSelection();
             });
@@ -156,6 +143,35 @@ namespace Valgor.City.UI
             root.Add(_selectedPanel);
             RefreshResources();
             RefreshSelection();
+            AttachJourneyGuide(root);
+        }
+
+        private void AttachJourneyGuide(VisualElement root)
+        {
+            BetaJourneyGuide.AttachOrRefresh(root, () =>
+            {
+                var step = LocalPlayerProfile.TutorialStep;
+                switch (step)
+                {
+                    case LocalPlayerProfile.TutorialSteps.OpenHeroes:
+                        _city.Persist();
+                        BetaJourneyGuide.NotifyHeroesOpened();
+                        StartCoroutine(GameBootstrap.Game.Navigator.GoToHeroes());
+                        break;
+                    case LocalPlayerProfile.TutorialSteps.DragonTower:
+                        BetaFocusHints.RequestDragonTower();
+                        _city.TrySelectByDefinitionId(BetaFocusHints.DragonTowerBuildingId);
+                        BetaJourneyGuide.NotifyDragonTowerFocused();
+                        RefreshSelection();
+                        BetaJourneyGuide.AttachOrRefresh(root, null);
+                        break;
+                    case LocalPlayerProfile.TutorialSteps.OpenMap:
+                        _city.Persist();
+                        BetaJourneyGuide.NotifyWorldMapOpened();
+                        StartCoroutine(GameBootstrap.Game.Navigator.GoToWorldMap());
+                        break;
+                }
+            });
         }
 
         private Button CreateButton(string text, Action action)
@@ -176,14 +192,33 @@ namespace Valgor.City.UI
             button.style.borderBottomColor = BetaVisualTheme.ButtonBorder;
             button.style.borderLeftColor = BetaVisualTheme.ButtonBorder;
             button.style.borderRightColor = BetaVisualTheme.ButtonBorder;
-            button.style.fontSize = 14;
+            button.style.fontSize = 13;
             return button;
         }
 
         private void OnUpgrade()
         {
-            _city.TryUpgradeSelected();
+            var building = _city.Selection.Selected;
+            if (building == null)
+            {
+                return;
+            }
+
+            var definition = _city.GetDefinition(building);
+            if (_city.TryUpgradeSelected())
+            {
+                var duration = definition.GetUpgradeDuration(building.Level);
+                _feedback.text = building.State == BuildingState.Upgrading
+                    ? $"{definition.DisplayName}: melhoria iniciada ({(int)duration.TotalSeconds}s)"
+                    : $"{definition.DisplayName} → Nv.{building.Level}";
+            }
+            else
+            {
+                _feedback.text = _city.GetUpgradeBlockReason(building, definition) ?? "Não foi possível melhorar.";
+            }
+
             RefreshSelection();
+            RefreshResources();
         }
 
         private void OnFeed()
@@ -254,9 +289,32 @@ namespace Valgor.City.UI
         private void RefreshResources()
         {
             var w = _city.Economy.Wallet;
+            var name = LocalPlayerProfile.HasProfile
+                ? LocalPlayerProfile.DisplayName
+                : "Visitante";
+            var level = _city.GetCastleLevel();
+            var energy = ReadEnergyDisplay();
             _resources.text =
-                $"Ouro: {w.Get(ResourceType.Gold)}   Comida: {w.Get(ResourceType.Food)}   Madeira: {w.Get(ResourceType.Wood)}   " +
-                $"Pedra: {w.Get(ResourceType.Stone)}   Ferro: {w.Get(ResourceType.Iron)}   Essência: {w.Get(ResourceType.DragonEssence)}   Diamantes: {w.Get(ResourceType.Diamonds)}";
+                $"{name}  ·  Nv.{level}  ·  " +
+                $"Ouro {w.Get(ResourceType.Gold)}  ·  " +
+                $"Comida {w.Get(ResourceType.Food)}  ·  " +
+                $"Madeira {w.Get(ResourceType.Wood)}  ·  " +
+                $"Pedra {w.Get(ResourceType.Stone)}  ·  " +
+                $"Ferro {w.Get(ResourceType.Iron)}  ·  " +
+                $"Essência {w.Get(ResourceType.DragonEssence)}  ·  " +
+                $"Energia {energy}";
+        }
+
+        private static string ReadEnergyDisplay()
+        {
+            if (!PlayerPrefs.HasKey(EnergyPrefsPrefix + ".current"))
+            {
+                return "100/100";
+            }
+
+            var current = PlayerPrefs.GetInt(EnergyPrefsPrefix + ".current", 100);
+            var max = Mathf.Max(1, PlayerPrefs.GetInt(EnergyPrefsPrefix + ".max", 100));
+            return $"{current}/{max}";
         }
 
         private void RefreshSelection()
@@ -269,29 +327,40 @@ namespace Valgor.City.UI
             }
 
             var definition = _city.GetDefinition(building);
-            var productionBlock = BuildProductionBlock(building);
             var builder = new StringBuilder();
-            builder.AppendLine($"{definition.DisplayName}  ·  PLACEHOLDER");
+            builder.AppendLine(definition.DisplayName);
             builder.AppendLine($"Nível {building.Level}/{definition.MaxLevel}");
-            builder.AppendLine($"Estado: {building.State}");
-            builder.AppendLine($"Custo upgrade: {definition.GetUpgradeCost(ResourceType.Gold, building.Level)} ouro");
-            builder.AppendLine(productionBlock);
+            if (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue)
+            {
+                var remaining = building.UpgradeCompletesAtUtc.Value - _city.Economy.Clock.UtcNow;
+                if (remaining < TimeSpan.Zero)
+                {
+                    remaining = TimeSpan.Zero;
+                }
+
+                builder.AppendLine($"Melhorando → Nv.{building.Level + 1} ({(int)remaining.TotalSeconds}s)");
+            }
+            else
+            {
+                builder.AppendLine($"Estado: {FriendlyState(building.State)}");
+            }
+
+            var block = _city.GetUpgradeBlockReason(building, definition);
+            if (!string.IsNullOrEmpty(block))
+            {
+                builder.AppendLine(block);
+            }
+
+            builder.AppendLine(BuildProductionBlock(building));
 
             var isTower = string.Equals(building.DefinitionId, "dragon-tower", StringComparison.Ordinal);
             if (isTower && _dragons != null)
             {
                 builder.AppendLine($"Ninho: {_dragons.RoostOccupantCount}/{_dragons.RoostCapacity}");
-                builder.AppendLine("Modelos de dragão: PLACEHOLDER visual");
-                foreach (var status in _dragons.GetDragonStatuses())
-                {
-                    builder.AppendLine(
-                        $"• {status.DisplayName}: {status.StateLabel} | {status.GrowthStageLabel} | " +
-                        $"fome {status.Hunger}/{status.MaxHunger} | stamina {status.Stamina} | vínculo {status.BondLevel}");
-                }
             }
 
             _selectedText.text = builder.ToString();
-            _upgradeButton.SetEnabled(building.CanUpgrade(definition));
+            _upgradeButton.SetEnabled(_city.CanUpgrade(building, definition));
             var canCollect = _city.Economy.Production.TryGetState(building.DefinitionId, out var state) && state.HasCollectable;
             _collectButton.SetEnabled(canCollect);
             _collectButton.style.display = ProductionCatalog.TryGet(building.DefinitionId, out _)
@@ -302,30 +371,28 @@ namespace Valgor.City.UI
             _evolveButton.style.display = isTower ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
+        private static string FriendlyState(BuildingState state) => state switch
+        {
+            BuildingState.Ready => "Pronto",
+            BuildingState.Available => "Disponível",
+            BuildingState.Locked => "Bloqueado",
+            BuildingState.Upgrading => "Melhorando",
+            _ => state.ToString()
+        };
+
         private string BuildProductionBlock(BuildingInstance building)
         {
             if (!ProductionCatalog.TryGet(building.DefinitionId, out var productionDef))
             {
-                return "Sem produção passiva";
+                return string.Empty;
             }
 
-            _city.Economy.Tick.ForceApply();
+            // Leitura apenas — ForceApply aqui reentra em Production.Changed → StackOverflow.
             var rate = _city.Economy.Production.GetRatePerHour(building);
             var capacity = _city.Economy.Production.GetCapacity(building);
             _city.Economy.Production.TryGetState(building.DefinitionId, out var state);
             var accumulated = state?.Accumulated ?? 0;
-            var eta = OfflineProductionCalculator.EstimateTimeToFill(rate, accumulated, capacity);
-            var etaText = eta == null
-                ? "—"
-                : eta.Value <= TimeSpan.Zero
-                    ? "cheio"
-                    : $"{eta.Value.TotalHours:0.0} h";
-
-            return
-                $"Recurso: {productionDef.Resource}\n" +
-                $"Produção: {rate:0.#}/h\n" +
-                $"Acumulado: {accumulated}/{capacity}\n" +
-                $"Tempo para lotar: {etaText}";
+            return $"Produção: {rate:0.#}/h · Acumulado {accumulated}/{capacity} ({productionDef.Resource})";
         }
     }
 }
