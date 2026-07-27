@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using Valgor.Core;
 using Valgor.UI;
 
 namespace Valgor.Scenes
@@ -8,8 +9,9 @@ namespace Valgor.Scenes
     public sealed class LoadingScreenController : MonoBehaviour
     {
         [SerializeField] private UIDocument document;
-        private ProgressBar? _progressBar;
-        private Label? _stage;
+        private ProgressBar _progressBar;
+        private Label _stage;
+        private Label _brandMessage;
 
         private void Awake()
         {
@@ -18,8 +20,11 @@ namespace Valgor.Scenes
             EnsureUi();
         }
 
-        public void SetProgress(float value)
+        public void SetProgress(float value) => SetProgress(value, null);
+
+        public void SetProgress(float value, string stageHint)
         {
+            if (document == null || document.rootVisualElement == null) return;
             EnsureUi();
             if (_progressBar != null)
             {
@@ -28,21 +33,37 @@ namespace Valgor.Scenes
 
             if (_stage != null)
             {
-                _stage.text = value >= 0.99f ? "Pronto" : $"Carregando… {(value * 100f):0}%";
+                if (!string.IsNullOrEmpty(stageHint))
+                {
+                    _stage.text = stageHint;
+                }
+                else
+                {
+                    _stage.text = value >= 0.99f
+                        ? "Pronto"
+                        : $"Carregando… {(value * 100f):0}%";
+                }
+            }
+        }
+
+        public void SetBrandMessage(string message)
+        {
+            if (document == null || document.rootVisualElement == null) return;
+            EnsureUi();
+            if (_brandMessage != null)
+            {
+                _brandMessage.text = message ?? string.Empty;
+            }
+
+            if (_stage != null && !string.IsNullOrEmpty(message))
+            {
+                _stage.text = message;
             }
         }
 
         private void EnsurePanelSettings()
         {
-            if (document.panelSettings != null)
-            {
-                return;
-            }
-
-            var settings = ScriptableObject.CreateInstance<PanelSettings>();
-            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            settings.referenceResolution = new Vector2Int(1920, 1080);
-            document.panelSettings = settings;
+            BetaUiPanels.ApplyTo(document);
         }
 
         private void EnsureUi()
@@ -52,22 +73,33 @@ namespace Valgor.Scenes
             {
                 _progressBar ??= root.Q<ProgressBar>("loading-progress");
                 _stage ??= root.Q<Label>("loading-stage");
+                _brandMessage ??= root.Q<Label>("loading-brand-message");
                 return;
             }
 
             root.Clear();
             root.style.flexGrow = 1;
-            root.style.backgroundColor = BetaVisualTheme.Background;
+            // Fundo medieval escuro (gradiente aproximado por camadas).
+            root.style.backgroundColor = new Color(0.03f, 0.035f, 0.05f, 1f);
             root.style.justifyContent = Justify.Center;
             root.style.alignItems = Align.Center;
 
+            var atmosphere = new VisualElement { name = "loading-atmosphere", pickingMode = PickingMode.Ignore };
+            atmosphere.style.position = Position.Absolute;
+            atmosphere.style.left = 0;
+            atmosphere.style.right = 0;
+            atmosphere.style.top = 0;
+            atmosphere.style.bottom = 0;
+            atmosphere.style.backgroundColor = new Color(0.08f, 0.06f, 0.03f, 0.35f);
+            root.Add(atmosphere);
+
             var panel = new VisualElement { name = "loading-root" };
-            panel.style.width = 480;
-            panel.style.paddingLeft = 28;
-            panel.style.paddingRight = 28;
-            panel.style.paddingTop = 24;
-            panel.style.paddingBottom = 24;
-            panel.style.backgroundColor = BetaVisualTheme.BackgroundPanel;
+            panel.style.width = 540;
+            panel.style.paddingLeft = 32;
+            panel.style.paddingRight = 32;
+            panel.style.paddingTop = 36;
+            panel.style.paddingBottom = 28;
+            panel.style.backgroundColor = new Color(0.05f, 0.055f, 0.09f, 0.96f);
             panel.style.borderTopWidth = 2;
             panel.style.borderBottomWidth = 2;
             panel.style.borderLeftWidth = 2;
@@ -76,29 +108,64 @@ namespace Valgor.Scenes
             panel.style.borderBottomColor = BetaVisualTheme.AgedGold;
             panel.style.borderLeftColor = BetaVisualTheme.AgedGold;
             panel.style.borderRightColor = BetaVisualTheme.AgedGold;
+            panel.style.alignItems = Align.Center;
             root.Add(panel);
 
+            // Brasão dourado provisório (losango + cruz).
+            var crest = new VisualElement { name = "loading-crest", pickingMode = PickingMode.Ignore };
+            crest.style.width = 72;
+            crest.style.height = 72;
+            crest.style.marginBottom = 14;
+            crest.style.backgroundColor = new Color(0.12f, 0.1f, 0.06f, 1f);
+            crest.style.borderTopWidth = 3;
+            crest.style.borderBottomWidth = 3;
+            crest.style.borderLeftWidth = 3;
+            crest.style.borderRightWidth = 3;
+            crest.style.borderTopColor = BetaVisualTheme.AgedGoldBright;
+            crest.style.borderBottomColor = BetaVisualTheme.AgedGoldBright;
+            crest.style.borderLeftColor = BetaVisualTheme.AgedGoldBright;
+            crest.style.borderRightColor = BetaVisualTheme.AgedGoldBright;
+            crest.style.justifyContent = Justify.Center;
+            crest.style.alignItems = Align.Center;
+            var crestMark = new Label("V");
+            crestMark.style.fontSize = 36;
+            crestMark.style.color = BetaVisualTheme.AgedGoldBright;
+            crestMark.style.unityFontStyleAndWeight = FontStyle.Bold;
+            crestMark.style.unityTextAlign = TextAnchor.MiddleCenter;
+            crest.Add(crestMark);
+            panel.Add(crest);
+
             var brand = new Label("VALGOR");
-            brand.style.fontSize = 36;
+            brand.style.fontSize = 46;
             brand.style.color = BetaVisualTheme.AgedGoldBright;
             brand.style.unityFontStyleAndWeight = FontStyle.Bold;
             brand.style.unityTextAlign = TextAnchor.MiddleCenter;
-            brand.style.marginBottom = 8;
+            brand.style.letterSpacing = 10;
+            brand.style.marginBottom = 4;
             panel.Add(brand);
 
-            var version = new Label(Valgor.Core.ValgorVersion.Display);
-            version.style.fontSize = 13;
-            version.style.color = BetaVisualTheme.TextMuted;
+            var version = new Label(ValgorVersion.Display);
+            version.name = "loading-version";
+            version.style.fontSize = 16;
+            version.style.color = BetaVisualTheme.AgedGold;
             version.style.unityTextAlign = TextAnchor.MiddleCenter;
             version.style.marginBottom = 18;
             panel.Add(version);
 
-            _progressBar = new ProgressBar { name = "loading-progress", title = "Carregando", value = 0 };
-            _progressBar.style.height = 28;
+            _brandMessage = new Label("Preparando o reino...") { name = "loading-brand-message" };
+            _brandMessage.style.fontSize = 15;
+            _brandMessage.style.color = BetaVisualTheme.TextMuted;
+            _brandMessage.style.unityTextAlign = TextAnchor.MiddleCenter;
+            _brandMessage.style.marginBottom = 18;
+            panel.Add(_brandMessage);
+
+            _progressBar = new ProgressBar { name = "loading-progress", title = string.Empty, value = 0 };
+            _progressBar.style.height = 26;
+            _progressBar.style.width = Length.Percent(100);
             panel.Add(_progressBar);
 
-            _stage = new Label("Carregando…") { name = "loading-stage" };
-            _stage.style.marginTop = 10;
+            _stage = new Label("Preparando o reino...") { name = "loading-stage" };
+            _stage.style.marginTop = 12;
             _stage.style.color = BetaVisualTheme.TextPrimary;
             _stage.style.unityTextAlign = TextAnchor.MiddleCenter;
             panel.Add(_stage);

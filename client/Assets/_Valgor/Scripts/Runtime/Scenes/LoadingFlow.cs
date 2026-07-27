@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using Valgor.Core;
@@ -6,10 +5,18 @@ using Valgor.Core;
 namespace Valgor.Scenes
 {
     /// <summary>
-    /// Orquestra o carregamento inicial: sessão → Loading → MainMenu.
+    /// Boot: sessão → Loading (splash ≤3s + loading) → MainMenu.
     /// </summary>
     public sealed class LoadingFlow
     {
+        private static readonly string[] SplashMessages =
+        {
+            "Preparando o reino...",
+            "Despertando os dragões...",
+            "Reunindo os heróis...",
+            "Fortificando a cidade..."
+        };
+
         private readonly ServiceRegistry _services;
         private readonly GameStateMachine _stateMachine;
         private readonly SceneLoader _sceneLoader;
@@ -18,35 +25,54 @@ namespace Valgor.Scenes
 
         public LoadingFlow(ServiceRegistry services)
         {
-            _services = services ?? throw new ArgumentNullException(nameof(services));
+            _services = services ?? throw new System.ArgumentNullException(nameof(services));
             _stateMachine = services.Get<GameStateMachine>();
             _sceneLoader = services.Get<SceneLoader>();
             _session = services.Get<GameSession>();
         }
 
-        public event Action<float, string> ProgressChanged;
+        public event System.Action<float, string> ProgressChanged;
 
         public IEnumerator Run()
         {
+            BetaPlayerSettings.ApplyRuntime();
             _stateMachine.TransitionTo(GameState.Bootstrapping);
             _session.Begin();
-            Report(0.05f, "session");
+            LocalPlayerProfile.ApplyToSession(_session);
+            Report(0.05f, SplashMessages[0]);
 
             yield return InitializeLocalization();
-            Report(0.2f, "localization");
+            Report(0.12f, SplashMessages[0]);
 
             _stateMachine.TransitionTo(GameState.Loading);
-            yield return LoadSceneWithProgress(SceneIds.Loading, 0.2f, 0.55f);
-            _loadingScreen = UnityEngine.Object.FindFirstObjectByType<LoadingScreenController>();
+            var splashStart = Time.realtimeSinceStartup;
+            yield return LoadSceneWithProgress(SceneIds.Loading, 0.12f, 0.35f);
+            _loadingScreen = Object.FindFirstObjectByType<LoadingScreenController>();
+            _loadingScreen?.SetBrandMessage(SplashMessages[0]);
 
-            Report(0.6f, "systems");
-            yield return null;
+            // Brand/splash ≤ 3 segundos.
+            const float splashBudget = 2.8f;
+            var slice = splashBudget / SplashMessages.Length;
+            for (var i = 0; i < SplashMessages.Length; i++)
+            {
+                var t = 0.35f + (0.45f * (i + 1) / SplashMessages.Length);
+                _loadingScreen?.SetBrandMessage(SplashMessages[i]);
+                Report(t, SplashMessages[i]);
+                yield return new WaitForSecondsRealtime(slice);
+            }
 
-            yield return LoadSceneWithProgress(SceneIds.MainMenu, 0.6f, 0.95f);
+            Report(0.85f, SplashMessages[^1]);
+            yield return LoadSceneWithProgress(SceneIds.MainMenu, 0.85f, 0.98f);
+            _loadingScreen = null;
+
+            var elapsed = Time.realtimeSinceStartup - splashStart;
+            if (elapsed < splashBudget)
+            {
+                yield return new WaitForSecondsRealtime(splashBudget - elapsed);
+            }
 
             _stateMachine.TransitionTo(GameState.MainMenu);
-            Report(1f, "ready");
-            _loadingScreen = null;
+            Report(1f, "Pronto");
         }
 
         private IEnumerator InitializeLocalization()
@@ -61,7 +87,8 @@ namespace Valgor.Scenes
         {
             void OnProgress(float value)
             {
-                Report(Mathf.Lerp(from, to, value), sceneName);
+                var msg = SplashMessages[Mathf.Clamp(Mathf.FloorToInt(value * SplashMessages.Length), 0, SplashMessages.Length - 1)];
+                Report(Mathf.Lerp(from, to, value), msg);
             }
 
             _sceneLoader.ProgressChanged += OnProgress;
@@ -79,8 +106,7 @@ namespace Valgor.Scenes
         {
             var clamped = Mathf.Clamp01(progress);
             ProgressChanged?.Invoke(clamped, stage);
-            _loadingScreen?.SetProgress(clamped);
-            Debug.Log($"[Valgor.LoadingFlow] {stage} ({clamped:P0})");
+            _loadingScreen?.SetProgress(clamped, stage);
         }
     }
 }

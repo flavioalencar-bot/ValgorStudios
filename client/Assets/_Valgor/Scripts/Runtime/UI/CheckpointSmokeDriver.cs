@@ -117,7 +117,7 @@ namespace Valgor.UI
         {
             if (!LocalPlayerProfile.HasProfile)
             {
-                if (!LocalPlayerProfile.Create("Checkpoint", out var error))
+                if (!LocalPlayerProfile.Create("BetaSmoke", out var error))
                 {
                     Debug.LogError($"[CheckpointSmoke] Falha ao criar perfil: {error}");
                     return;

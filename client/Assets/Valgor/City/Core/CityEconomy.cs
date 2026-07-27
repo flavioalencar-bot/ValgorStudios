@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Valgor.City.Data;
 using Valgor.City.Production;
+using Valgor.Core;
 
 namespace Valgor.City.Core
 {
@@ -47,11 +48,6 @@ namespace Valgor.City.Core
 
         public void ApplyOfflineAndPersist(IEnumerable<BuildingInstance> buildings)
         {
-            foreach (var building in buildings)
-            {
-                Production.RegisterBuilding(building);
-            }
-
             var snapshot = Repository.Load();
             if (snapshot != null)
             {
@@ -60,14 +56,30 @@ namespace Valgor.City.Core
                     Wallet.SetAmount(pair.Key, pair.Value);
                 }
 
-                foreach (var pair in snapshot.Buildings)
+                foreach (var building in buildings)
                 {
-                    Production.RestoreState(pair.Value);
+                    if (snapshot.BuildingProgress.TryGetValue(building.DefinitionId, out var progress))
+                    {
+                        building.ApplyPersisted(progress.Level, progress.State, progress.UpgradeCompletesAtUtc);
+                    }
                 }
             }
             else
             {
                 SeedStarterWallet();
+            }
+
+            foreach (var building in buildings)
+            {
+                Production.RegisterBuilding(building);
+            }
+
+            if (snapshot != null)
+            {
+                foreach (var pair in snapshot.Buildings)
+                {
+                    Production.RestoreState(pair.Value);
+                }
             }
 
             Tick.ForceApply();
@@ -83,6 +95,14 @@ namespace Valgor.City.Core
                 {
                     snapshot.Buildings[building.DefinitionId] = state;
                 }
+
+                snapshot.BuildingProgress[building.DefinitionId] = new BuildingProgressRecord
+                {
+                    DefinitionId = building.DefinitionId,
+                    Level = building.Level,
+                    State = building.State,
+                    UpgradeCompletesAtUtc = building.UpgradeCompletesAtUtc
+                };
             }
 
             foreach (ResourceType resource in Enum.GetValues(typeof(ResourceType)))
@@ -121,7 +141,7 @@ namespace Valgor.City.Core
             Wallet.Add(ResourceType.Stone, 2000);
             Wallet.Add(ResourceType.Iron, 1000);
             Wallet.Add(ResourceType.DragonEssence, 100);
-            Wallet.Add(ResourceType.Diamonds, 50);
+            LocalPlayerProfile.SeedStartingEnergy();
         }
     }
 }

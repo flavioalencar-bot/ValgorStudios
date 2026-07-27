@@ -115,6 +115,7 @@ namespace Valgor.UI
             _hint.style.color = BetaVisualTheme.AgedGoldBright;
             _hint.style.fontSize = 12;
             _hint.pickingMode = PickingMode.Ignore;
+            _hint.style.display = DisplayStyle.None; // evita rótulos técnicos no rodapé
             bar.Add(_hint);
         }
 

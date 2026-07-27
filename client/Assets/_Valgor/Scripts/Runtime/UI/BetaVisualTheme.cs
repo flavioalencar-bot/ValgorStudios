@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Valgor.UI
 {
     /// <summary>
-    /// Paleta provisória da Beta Técnica 0.1 (medieval-fantástico).
+    /// Paleta provisória da Beta 0.1 (medieval-fantástico).
     /// </summary>
     public static class BetaVisualTheme
     {

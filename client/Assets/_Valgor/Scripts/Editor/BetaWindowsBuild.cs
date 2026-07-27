@@ -6,6 +6,10 @@ using Valgor.Core;
 
 namespace Valgor.Editor
 {
+    /// <summary>
+    /// Build Windows da beta executável. Projeto fonte: client/ apenas.
+    /// Não usa builds/_unity-beta-project (obsoleto).
+    /// </summary>
     public static class BetaWindowsBuild
     {
         private static readonly string[] Scenes =
@@ -14,23 +18,23 @@ namespace Valgor.Editor
             "Assets/_Valgor/Scenes/Loading.unity",
             "Assets/_Valgor/Scenes/MainMenu.unity",
             "Assets/Valgor/City/Scenes/City.unity",
-            "Assets/_Valgor/Scenes/WorldMap.unity",
-            "Assets/Valgor/Heroes/Scenes/HeroesDemo.unity"
+            "Assets/Valgor/Heroes/Scenes/HeroesDemo.unity",
+            "Assets/_Valgor/Scenes/WorldMap.unity"
         };
 
-        [MenuItem("Valgor/Build/Windows Beta Técnica 0.1")]
+        [MenuItem("Valgor/Build/Windows Beta 0.1")]
         public static void BuildFromMenu()
         {
             var report = Build();
             EditorUtility.DisplayDialog(
-                "Valgor Beta Build",
+                "Valgor Beta 0.1",
                 report.summary.result == BuildResult.Succeeded
                     ? $"Build OK:\n{GetOutputExe()}"
                     : $"Build falhou: {report.summary.result}",
                 "OK");
         }
 
-        /// <summary>Entrada para Unity -batchmode -executeMethod Valgor.Editor.BetaWindowsBuild.BuildCli</summary>
+        /// <summary>Entrada CLI: -executeMethod Valgor.Editor.BetaWindowsBuild.BuildCli</summary>
         public static void BuildCli()
         {
             var report = Build();
@@ -38,6 +42,16 @@ namespace Valgor.Editor
             if (code != 0)
             {
                 Debug.LogError($"[Valgor] Build falhou: {report.summary.result}");
+                foreach (var step in report.steps)
+                {
+                    foreach (var msg in step.messages)
+                    {
+                        if (msg.type is LogType.Error or LogType.Exception)
+                        {
+                            Debug.LogError($"[Valgor] {msg.content}");
+                        }
+                    }
+                }
             }
             else
             {
@@ -49,6 +63,8 @@ namespace Valgor.Editor
 
         public static BuildReport Build()
         {
+            ApplyBetaPlayerSettings();
+
             var outputDir = GetOutputDir();
             Directory.CreateDirectory(outputDir);
             var exe = Path.Combine(outputDir, "Valgor.exe");
@@ -58,11 +74,29 @@ namespace Valgor.Editor
                 scenes = Scenes,
                 locationPathName = exe,
                 target = BuildTarget.StandaloneWindows64,
-                options = BuildOptions.CompressWithLz4HC
+                options = BuildOptions.Development |
+                          BuildOptions.AllowDebugging |
+                          BuildOptions.CompressWithLz4HC
             };
 
-            Debug.Log($"[Valgor] Building Windows Beta → {exe}");
+            Debug.Log($"[Valgor] Building Windows Beta 0.1 (Dev+ScriptDebug) → {exe}");
+            Debug.Log($"[Valgor] Scenes: {string.Join(" | ", Scenes)}");
             return BuildPipeline.BuildPlayer(options);
+        }
+
+        private static void ApplyBetaPlayerSettings()
+        {
+            PlayerSettings.companyName = "Valgor Studios";
+            PlayerSettings.productName = "Valgor";
+            PlayerSettings.bundleVersion = ValgorVersion.Bundle;
+            PlayerSettings.defaultScreenWidth = 1600;
+            PlayerSettings.defaultScreenHeight = 900;
+            PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
+            PlayerSettings.resizableWindow = true;
+            PlayerSettings.usePlayerLog = true;
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
+            // Mono é mais simples para Dev/script debugging em recovery builds.
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
         }
 
         public static string GetOutputDir()
