@@ -44,8 +44,8 @@ namespace Valgor.City.Buildings
                     byTargetLevel: new Dictionary<int, BuildingUpgradeRequirement>
                     {
                         [2] = BuildingsOnly(
-                            new BuildingLevelRequirement("farm", 1, "Fazenda"),
-                            new BuildingLevelRequirement("warehouse", 1, "Armazém")),
+                            new BuildingLevelRequirement("farm", 2, "Fazenda"),
+                            new BuildingLevelRequirement("warehouse", 2, "Armazém")),
                         [3] = BuildingsOnly(
                             new BuildingLevelRequirement("farm", 2, "Fazenda"),
                             new BuildingLevelRequirement("warehouse", 2, "Armazém")),

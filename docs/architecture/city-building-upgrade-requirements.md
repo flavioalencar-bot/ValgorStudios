@@ -26,13 +26,15 @@ Extensão do upgrade existente (sem novos edifícios). Um prédio só evolui qua
 |----------|-------------------|
 | **Fazenda** | Castelo ≥ N |
 | **Armazém** | Castelo ≥ N; Nv.2+ exige Fazenda (Nv.2 no catálogo para alvo 2–4; Nv.3 para alvo 5) |
-| **Castelo** | Fazenda e Armazém nos níveis do catálogo (sem gate de Castelo) |
+| **Castelo** | Sem gate de Castelo; alvo 2–3 exigem Fazenda Nv.2 + Armazém Nv.2; alvos 4+ sobem em paralelo no catálogo |
 
 ## Integração
 
+- `CityController.GetCastleLevel()` → **somente** nível do edifício `castle` persistido na cidade (não PlayerLevel / `BetaProgress`)
 - `CityController.CanUpgrade` / `GetUpgradeBlockReason` / `GetDependencyChecks` / `TryGetBuildingByDefinitionId`
 - Painel Atualizar: Pré-requisitos (vermelho se não cumprido + botão **Ir**) + Recursos; **Atualizar** desabilitado se bloqueado
 - **Ir** seleciona/centraliza o edifício exigido
+- `SyncBetaProgress` espelha Castelo cidade → beta (nunca o inverso na validação de upgrade)
 
 ## Outros (catálogo)
 

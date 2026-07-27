@@ -181,17 +181,38 @@ namespace Valgor.UI
             yield return Capture("ux-06-upgrade-panel");
             yield return Capture("ux-07-upgrade-requirements");
 
+            // Cenário 1: PlayerLevel alto (perfil) NÃO libera Fazenda — Castelo cidade Nv.1.
+            TrySelectCityBuilding("farm");
+            yield return new WaitForSecondsRealtime(0.8f);
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(1f);
+            TryCityUpgradeSelected();
+            yield return new WaitForSecondsRealtime(0.3f);
+            yield return Capture("ux-13-farm-blocked-by-city-castle");
+            InvokeCityPresenter("DebugGoToFirstUnmetRequirement");
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return Capture("ux-13b-prereq-go-castle");
+
+            // Cenário 2: Armazém bloqueado pela Fazenda.
             TrySelectCityBuilding("warehouse");
             yield return new WaitForSecondsRealtime(0.8f);
             InvokeCityPresenter("DebugOpenUpgradePanel");
             yield return new WaitForSecondsRealtime(1f);
             yield return Capture("ux-11-prereq-blocked");
-            // Tentativa bloqueada: não deve debitar recursos (gold permanece).
             TryCityUpgradeSelected();
             yield return new WaitForSecondsRealtime(0.3f);
             InvokeCityPresenter("DebugGoToFirstUnmetRequirement");
             yield return new WaitForSecondsRealtime(1.2f);
             yield return Capture("ux-12-prereq-go-farm");
+
+            // Cenário 3: Castelo bloqueado por Fazenda e Armazém ao mesmo tempo.
+            TrySelectCityBuilding("castle");
+            yield return new WaitForSecondsRealtime(0.8f);
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(1f);
+            TryCityUpgradeSelected();
+            yield return new WaitForSecondsRealtime(0.3f);
+            yield return Capture("ux-14-castle-blocked-by-farm-warehouse");
 
             TrySelectCityBuilding("farm");
             yield return new WaitForSecondsRealtime(0.8f);
@@ -209,7 +230,8 @@ namespace Valgor.UI
             InvokeCityPresenter("DebugOpenDetailsPanel");
             yield return new WaitForSecondsRealtime(0.8f);
 
-            TrySelectCityBuilding("castle");
+            // Construção: Mina Nv.0→1 (só Castelo ≥1) — Castelo/Fazenda/Armazém estão bloqueados.
+            TrySelectCityBuilding("mine");
             yield return new WaitForSecondsRealtime(0.5f);
             InvokeCityPresenter("DebugOpenUpgradePanel");
             yield return new WaitForSecondsRealtime(0.4f);

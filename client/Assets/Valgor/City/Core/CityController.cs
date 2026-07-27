@@ -200,23 +200,23 @@ namespace Valgor.City.Core
             return true;
         }
 
+        /// <summary>
+        /// Nível do Castelo na cidade (edifício persistido).
+        /// Pré-requisitos NÃO usam PlayerLevel / BetaProgress.
+        /// </summary>
         public int GetCastleLevel()
         {
-            var fromBuildings = 1;
-            foreach (var building in _buildings)
+            if (TryGetBuildingByDefinitionId("castle", out var castle))
             {
-                if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
-                {
-                    fromBuildings = Math.Max(1, building.Level);
-                    break;
-                }
+                return Math.Max(1, castle.Level);
             }
 
-            return Math.Max(fromBuildings, Valgor.Core.BetaProgress.CastleLevel);
+            return 1;
         }
 
         public void SyncBetaProgress()
         {
+            // Espelha o Castelo real da cidade → progresso beta (nunca o inverso nos pré-requisitos).
             Valgor.Core.BetaProgress.SyncCastleLevel(GetCastleLevel());
             foreach (var building in _buildings)
             {

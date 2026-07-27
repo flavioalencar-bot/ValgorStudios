@@ -321,16 +321,28 @@ Histórico completo: `git log --oneline` no repositório.
 - Catálogo data-driven: `BuildingUpgradeRequirement` / `BuildingLevelRequirement` / `BuildingUpgradeDefinition` / `BuildingRequirementCatalog` + `BuildingRequirementEvaluator`.
 - Regras iniciais: Fazenda (Castelo ≥ N); Armazém (Castelo ≥ N + Fazenda nos níveis do catálogo); Castelo (Fazenda + Armazém nos níveis do catálogo).
 - `CityController.CanUpgrade` / `GetUpgradeBlockReason` / `GetDependencyChecks` / `TryGetBuildingByDefinitionId`.
+- **Patch:** `GetCastleLevel()` usa só o nível do edifício Castelo na cidade (não PlayerLevel / `BetaProgress`); `SyncBetaProgress` espelha cidade → beta.
 - Painel Atualizar: Pré-requisitos (vermelho se falha + botão **Ir** → centraliza o prédio); **Atualizar** desabilitado se bloqueado; recursos não debitados se `TryUpgradeSelected` falha.
 - Doc: `docs/architecture/city-building-upgrade-requirements.md`.
 - Sem novos edifícios; sem reescrita do fluxo de upgrade; **sem** arquivos de outros repositórios.
-- `dotnet test tools/Valgor.GameLogic.Tests`: **125 aprovados / 0 falha / 125 total**.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **126 aprovados / 0 falha / 126 total**.
 - `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
-- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 15:11:43).
-- Evidência smoke: `ux-11-prereq-blocked` (Armazém bloqueado — pré-requisito Fazenda em vermelho + botão **Ir**; Atualizar desabilitado/bloqueado) e `ux-12-prereq-go-farm` (após **Ir**, Fazenda selecionada/focada).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 15:27:25).
+- Testes revalidados (2026-07-27 15:27): GameLogic **126/126**, Server **23/23**.
+- Evidência smoke (três cenários de bloqueio + Ir): painéis de upgrade com pré-requisitos.
 - Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs em `builds/windows/Valgor-Beta-0.1/evidence/` e versionados em `docs/releases/beta-0.1-evidence/ux-contextual/`:
-  - `ux-11-prereq-blocked.png`
-  - `ux-12-prereq-go-farm.png`
+  - `ux-13-farm-blocked-by-city-castle.png` — Fazenda bloqueada por Castelo cidade (+ `ux-13b-prereq-go-castle.png` após **Ir**)
+  - `ux-11-prereq-blocked.png` — Armazém bloqueado por Fazenda (+ `ux-12-prereq-go-farm.png` após **Ir**)
+  - `ux-14-castle-blocked-by-farm-warehouse.png` — Castelo bloqueado por Fazenda + Armazém
+
+## Patch GetCastleLevel real (2026-07-27)
+
+- `GetCastleLevel()` deixa de usar `max(cidade, BetaProgress)` - só o edifício Castelo persistido.
+- Ex.: PlayerLevel 20 + Castelo cidade Nv.3 → Fazenda 3→4 **bloqueada** (exige Castelo 4).
+- Catálogo Castelo→2 exige Fazenda Nv.2 + Armazém Nv.2 (bloqueio simultâneo no seed).
+- Testes: GameLogic **126/126**; Server **23/23**.
+- Build: `Valgor.exe` LastWriteTime=**2026-07-27 15:27:25** (Length=672256).
+- Evidências (ux-contextual): `ux-13-farm-blocked-by-city-castle.png`, `ux-13b-prereq-go-castle.png`, `ux-11-prereq-blocked.png`, `ux-12-prereq-go-farm.png`, `ux-14-castle-blocked-by-farm-warehouse.png`.
 
 ## Patch crítico — clique nos edifícios (2026-07-27)
 

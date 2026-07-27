@@ -15,6 +15,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Fixed
 
+- City: `GetCastleLevel()` nos pré-requisitos usa só o nível do edifício Castelo na cidade (ignora PlayerLevel / `BetaProgress`); evidências `ux-13` / `ux-11` / `ux-14`
 - City: botão **Detalhes** do menu contextual não abria o painel — o mesmo clique re-selecionava o prédio e fechava o modal; painel dedicado `BuildingDetailsPanel` + suppress do raycast 3D
 - UX contextual: tutorial não cobre painel de atualização (lado oposto + Recolher); menu afastado do prédio; indicadores verdes com ícone de recurso (quantidade só ao selecionar); painel upgrade com scroll/botões estáveis em 1600×900
 - City: seleção de edifícios quebrada com Input System only — `OnMouse*` não dispara; adicionado `CityBuildingPointerInput` (raycast), layer `Building`, colliders; tutorial overlay não bloqueia a cidade

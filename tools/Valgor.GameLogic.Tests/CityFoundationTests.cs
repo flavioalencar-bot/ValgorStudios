@@ -171,8 +171,8 @@ public sealed class BuildingRequirementCatalogTests
     {
         var req = BuildingRequirementCatalog.GetRequirement("castle", currentLevel: 1);
         Assert.Equal(0, req.MinimumCastleLevel);
-        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "farm" && b.MinimumLevel == 1);
-        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "warehouse" && b.MinimumLevel == 1);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "farm" && b.MinimumLevel == 2);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "warehouse" && b.MinimumLevel == 2);
     }
 
     [Fact]
@@ -233,5 +233,20 @@ public sealed class BuildingRequirementCatalogTests
         var farm = Assert.Single(checks, c => c.Label == "Fazenda");
         Assert.False(farm.Satisfied);
         Assert.Equal("farm", farm.JumpToDefinitionId);
+    }
+
+    [Fact]
+    public void Evaluator_BlocksFarmWhenCityCastleBelowTarget_EvenIfProfileWouldBeHigher()
+    {
+        // Simula Castelo cidade Nv.3; perfil alto NÃO entra no evaluator (só o nível injetado).
+        var farm = new BuildingInstance("farm", 3, BuildingState.Ready);
+        var reason = BuildingRequirementEvaluator.GetFirstBlockReason(
+            farm,
+            castleLevel: 3,
+            _ => 0);
+
+        Assert.NotNull(reason);
+        Assert.Contains("Castelo", reason);
+        Assert.Contains("4", reason);
     }
 }
