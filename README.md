@@ -11,7 +11,7 @@ Cliente Unity + backend .NET do ecossistema **Valgor**.
 ### O que funciona no executável
 
 - **Main Menu** offline (Jogar / Continuar / Configurações / Sair)
-- **City** com todos os edifícios atuais: seleção, menu contextual, Detalhes, Atualizar, pré-requisitos, botão Ir, coleta nos produtores, Torre com Dragões/Alimentar
+- **City** com todos os edifícios atuais (incl. **Muralha** evolutiva): seleção, menu contextual, Detalhes, Atualizar, pré-requisitos, botão Ir, coleta nos produtores, Torre com Dragões/Alimentar
 - **Heroes** (roster + preview Vortex)
 - **Dragons** via Torre / módulo existente (fome, vínculo, ninho)
 - **World Map** (nós, marcha, filtros) — regras estáveis; arte provisória

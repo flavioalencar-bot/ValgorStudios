@@ -429,3 +429,19 @@ Histórico completo: `git log --oneline` no repositório.
 - Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=**2026-07-27 17:47:21**).
 - Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs `art-01` ... `art-09` versionados em `docs/releases/beta-0.1-evidence/art-direction-p0/`.
 
+## Muralha evolutiva (2026-07-27)
+
+- Edifício `wall` / **Muralha**: catálogo, seed Lv.1, requisitos Castelo≥N (`DynamicCastle`), Detalhes/Atualizar, efeitos defesa/HP/resistência (exibição).
+- Visual: anel/portões em `CityEnvironmentBuilder.ApplyWallLevel` respondem ao nível; gatehouse selecionável em `(0, 14.8)`.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **143 aprovados / 0 falha / 143 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=**2026-07-27 18:07:10**).
+- Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs versionados em `docs/releases/beta-0.1-evidence/wall-building/`:
+  - `ux-31-wall-selected.png`
+  - `ux-32-wall-details.png`
+  - `ux-33-wall-upgrade.png`
+  - `ux-34-wall-blocked.png`
+  - `ux-35-wall-go.png`
+- Patch compile: `CityEnvironmentBuilder` — `UnityEngine.Object` explícito (ambiguidade com `System.Object` após `using System`).
+- Sem sistema de combate novo.
+- Situação City/Muralha: **VISÍVEL NO EXECUTÁVEL**.

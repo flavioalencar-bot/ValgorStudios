@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Valgor.City.Visual
@@ -19,10 +20,32 @@ namespace Valgor.City.Visual
             BuildDistrictPads(root);
             BuildPlaza(root);
             BuildRoads(root);
-            BuildWallRing(root);
-            BuildMainGate(root);
+            // Muralha/portões: ApplyWallLevel (nível do edifício "wall").
             BuildTrees(root);
             SoftenLighting();
+        }
+
+        /// <summary>
+        /// Reconstrói anel + portões conforme o nível da Muralha (único edifício lógico).
+        /// </summary>
+        public static void ApplyWallLevel(Transform cityRoot, int wallLevel)
+        {
+            if (cityRoot == null)
+            {
+                return;
+            }
+
+            var existing = cityRoot.Find("CityFortifications");
+            if (existing != null)
+            {
+                UnityEngine.Object.Destroy(existing.gameObject);
+            }
+
+            var root = new GameObject("CityFortifications").transform;
+            root.SetParent(cityRoot, false);
+            var level = Math.Max(0, wallLevel);
+            BuildWallRing(root, level);
+            BuildMainGate(root, level);
         }
 
         private static void BuildTerrain(Transform root)
@@ -111,17 +134,16 @@ namespace Valgor.City.Visual
             stone.transform.localPosition = pos;
         }
 
-        private static void BuildWallRing(Transform root)
+        private static void BuildWallRing(Transform root, int wallLevel)
         {
             var wall = CityVisualMaterials.StoneLight;
             var cap = CityVisualMaterials.StoneDark;
+            var height = wallLevel <= 0 ? 1.0f : 1.55f + Math.Min(wallLevel, 6) * 0.28f;
+            var thickness = wallLevel <= 0 ? 0.45f : 0.55f + Math.Min(wallLevel, 5) * 0.06f;
             const float radius = 16.5f;
-            const float height = 2.1f;
-            const float thickness = 0.65f;
             const int segments = 16;
             for (var i = 0; i < segments; i++)
             {
-                // Aberturas: sul (portão principal), eixos N/E/W menores.
                 if (i is 0 or 4 or 8 or 12)
                 {
                     continue;
@@ -135,44 +157,63 @@ namespace Valgor.City.Visual
                 var capGo = Part(PrimitiveType.Cube, root, $"WallCap_{i}", pos + Vector3.up * (height * 0.52f),
                     new Vector3(3.2f, 0.28f, thickness + 0.12f), cap, SurfaceKind.Stone);
                 capGo.transform.rotation = piece.transform.rotation;
+
+                if (wallLevel >= 3 && i % 3 == 1)
+                {
+                    var towerH = height + 0.85f;
+                    var tower = Part(PrimitiveType.Cube, root, $"WallTower_{i}",
+                        pos + Vector3.up * (height * 0.25f),
+                        new Vector3(1.1f, towerH, 1.1f), cap, SurfaceKind.Stone);
+                    tower.transform.rotation = piece.transform.rotation;
+                    Part(PrimitiveType.Cube, root, $"WallTowerRoof_{i}",
+                        pos + Vector3.up * (height * 0.25f + towerH * 0.55f),
+                        new Vector3(1.25f, 0.35f, 1.25f), CityVisualMaterials.RoofBlue, SurfaceKind.Roof);
+                }
             }
         }
 
-        private static void BuildMainGate(Transform root)
+        private static void BuildMainGate(Transform root, int wallLevel)
         {
-            // Um portão principal coerente (sul) — sem 4 portões “de debug”.
             var stone = CityVisualMaterials.StoneLight;
             var dark = CityVisualMaterials.StoneDark;
             var z = 16.5f;
-            Part(PrimitiveType.Cube, root, "GateL", new Vector3(-2.1f, 1.5f, z), new Vector3(1.4f, 3.0f, 1.4f), dark,
-                SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, "GateR", new Vector3(2.1f, 1.5f, z), new Vector3(1.4f, 3.0f, 1.4f), dark,
-                SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, "GateArch", new Vector3(0f, 3.2f, z), new Vector3(5.0f, 0.55f, 1.5f), stone,
-                SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, "GateGold", new Vector3(0f, 3.55f, z), new Vector3(1.4f, 0.18f, 0.45f),
-                CityVisualMaterials.Gold, SurfaceKind.Metal);
-            Part(PrimitiveType.Cube, root, "GateDoor", new Vector3(0f, 1.35f, z + 0.15f), new Vector3(2.4f, 2.5f, 0.25f),
+            var towerH = wallLevel <= 0 ? 2.2f : 2.6f + Math.Min(wallLevel, 5) * 0.25f;
+            Part(PrimitiveType.Cube, root, "GateL", new Vector3(-2.1f, towerH * 0.5f, z),
+                new Vector3(1.4f, towerH, 1.4f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, "GateR", new Vector3(2.1f, towerH * 0.5f, z),
+                new Vector3(1.4f, towerH, 1.4f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, "GateArch", new Vector3(0f, towerH + 0.2f, z),
+                new Vector3(5.0f, 0.55f, 1.5f), stone, SurfaceKind.Stone);
+            if (wallLevel >= 2)
+            {
+                Part(PrimitiveType.Cube, root, "GateGold", new Vector3(0f, towerH + 0.55f, z),
+                    new Vector3(1.4f, 0.18f, 0.45f), CityVisualMaterials.Gold, SurfaceKind.Metal);
+            }
+
+            Part(PrimitiveType.Cube, root, "GateDoor", new Vector3(0f, 1.35f, z + 0.15f),
+                new Vector3(2.4f, Math.Min(2.8f, towerH * 0.85f), 0.25f),
                 CityVisualMaterials.Wood, SurfaceKind.Wood);
 
-            // Tochas do portão (2 — legíveis).
-            Torch(root, new Vector3(-2.1f, 2.6f, z - 0.75f));
-            Torch(root, new Vector3(2.1f, 2.6f, z - 0.75f));
+            if (wallLevel >= 1)
+            {
+                Torch(root, new Vector3(-2.1f, towerH * 0.85f, z - 0.75f));
+                Torch(root, new Vector3(2.1f, towerH * 0.85f, z - 0.75f));
+            }
 
-            // Portões laterais menores (entrada simples, sem ouro espalhado).
-            SideGate(root, new Vector3(0f, 0f, -16.5f), false);
-            SideGate(root, new Vector3(16.5f, 0f, 0f), true);
-            SideGate(root, new Vector3(-16.5f, 0f, 0f), true);
+            SideGate(root, new Vector3(0f, 0f, -16.5f), false, wallLevel);
+            SideGate(root, new Vector3(16.5f, 0f, 0f), true, wallLevel);
+            SideGate(root, new Vector3(-16.5f, 0f, 0f), true, wallLevel);
         }
 
-        private static void SideGate(Transform root, Vector3 g, bool alongX)
+        private static void SideGate(Transform root, Vector3 g, bool alongX, int wallLevel)
         {
             var stone = CityVisualMaterials.StoneDark;
-            var left = alongX ? new Vector3(g.x, 1.0f, g.z - 1.35f) : new Vector3(g.x - 1.35f, 1.0f, g.z);
-            var right = alongX ? new Vector3(g.x, 1.0f, g.z + 1.35f) : new Vector3(g.x + 1.35f, 1.0f, g.z);
-            Part(PrimitiveType.Cube, root, "SideGateL", left, new Vector3(1.0f, 2.0f, 1.0f), stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, "SideGateR", right, new Vector3(1.0f, 2.0f, 1.0f), stone, SurfaceKind.Stone);
-            var arch = new Vector3(g.x, 2.15f, g.z);
+            var h = wallLevel <= 0 ? 1.6f : 1.9f + Math.Min(wallLevel, 4) * 0.15f;
+            var left = alongX ? new Vector3(g.x, h * 0.5f, g.z - 1.35f) : new Vector3(g.x - 1.35f, h * 0.5f, g.z);
+            var right = alongX ? new Vector3(g.x, h * 0.5f, g.z + 1.35f) : new Vector3(g.x + 1.35f, h * 0.5f, g.z);
+            Part(PrimitiveType.Cube, root, "SideGateL", left, new Vector3(1.0f, h, 1.0f), stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, "SideGateR", right, new Vector3(1.0f, h, 1.0f), stone, SurfaceKind.Stone);
+            var arch = new Vector3(g.x, h + 0.15f, g.z);
             Part(PrimitiveType.Cube, root, "SideGateArch", arch,
                 alongX ? new Vector3(1.0f, 0.35f, 2.9f) : new Vector3(2.9f, 0.35f, 1.0f), stone, SurfaceKind.Stone);
         }
@@ -213,7 +254,7 @@ namespace Valgor.City.Visual
 
         public static void ApplyDayLighting()
         {
-            var light = Object.FindFirstObjectByType<Light>();
+            var light = UnityEngine.Object.FindFirstObjectByType<Light>();
             if (light != null && light.type == LightType.Directional)
             {
                 light.color = new Color(1f, 0.9f, 0.72f);
@@ -235,7 +276,7 @@ namespace Valgor.City.Visual
 
         public static void ApplyNightLighting()
         {
-            var light = Object.FindFirstObjectByType<Light>();
+            var light = UnityEngine.Object.FindFirstObjectByType<Light>();
             if (light != null && light.type == LightType.Directional)
             {
                 light.color = new Color(0.5f, 0.58f, 0.85f);
@@ -311,7 +352,7 @@ namespace Valgor.City.Visual
             go.transform.SetParent(parent, false);
             go.transform.localPosition = position;
             go.transform.localScale = scale;
-            Object.Destroy(go.GetComponent<Collider>());
+            UnityEngine.Object.Destroy(go.GetComponent<Collider>());
             CityVisualMaterials.ApplySurface(go.GetComponent<Renderer>(), color, surface);
             return go;
         }

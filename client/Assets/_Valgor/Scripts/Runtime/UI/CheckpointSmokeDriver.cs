@@ -308,6 +308,21 @@ namespace Valgor.UI
             yield return CaptureSupportBuilding("market", "ux-29");
             yield return CaptureSupportBuilding("laboratory", "ux-30");
 
+            // Muralha (evolutiva): Detalhes + Atualizar (padrão Academia).
+            TrySelectCityBuilding("wall");
+            yield return new WaitForSecondsRealtime(0.9f);
+            yield return Capture("ux-31-wall-selected");
+            InvokeCityPresenter("DebugOpenDetailsPanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-32-wall-details");
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-33-wall-upgrade");
+            yield return Capture("ux-34-wall-blocked");
+            InvokeCityPresenter("DebugGoToFirstUnmetRequirement");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("ux-35-wall-go");
+
             TrySelectCityBuilding("farm");
             yield return new WaitForSecondsRealtime(0.8f);
             ForceFarmCollectable();

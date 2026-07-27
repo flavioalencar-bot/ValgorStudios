@@ -57,6 +57,13 @@ namespace Valgor.City.UI
                 sb.AppendLine($"Próximo benefício: eleva o teto acadêmico para Nv.{building.Level + 1}");
                 sb.AppendLine(DescribeRequirementsShort(city, building));
             }
+            else if (string.Equals(building.DefinitionId, "wall", System.StringComparison.Ordinal))
+            {
+                sb.AppendLine(SupportBuildingRules.BuildWallDetails(building.Level));
+                sb.AppendLine($"Próximo nível: {System.Math.Min(definition.MaxLevel, building.Level + 1)}");
+                sb.AppendLine($"Duração upgrade: {(int)definition.GetUpgradeDuration(building.Level).TotalSeconds}s");
+                sb.AppendLine(DescribeRequirementsShort(city, building));
+            }
             else if (string.Equals(building.DefinitionId, "arena", System.StringComparison.Ordinal))
             {
                 sb.AppendLine(SupportBuildingRules.BuildArenaDetails(building.Level));

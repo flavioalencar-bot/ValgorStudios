@@ -6,10 +6,28 @@ using Valgor.Core.Modules;
 namespace Valgor.City.Buildings
 {
     /// <summary>
-    /// Stats de exibição para Arena/Hospital/Templo/Mercado/Lab/Torre (sem sistemas novos).
+    /// Stats de exibição para Arena/Hospital/Templo/Mercado/Lab/Torre/Muralha (sem sistemas novos).
     /// </summary>
     public static class SupportBuildingRules
     {
+        public static string BuildWallDetails(int level)
+        {
+            var lv = Math.Max(0, level);
+            var sb = new StringBuilder();
+            sb.AppendLine("Função: defesa perimetral da cidade (combate completo na beta seguinte).");
+            sb.AppendLine($"Defesa da cidade: +{GetWallCityDefense(lv)}");
+            sb.AppendLine($"Durabilidade (HP): {GetWallHitPoints(lv):N0}");
+            sb.AppendLine($"Resistência / proteção: +{GetWallResistancePercent(lv)}%");
+            sb.Append(
+                $"Próximo benefício: defesa +{GetWallCityDefense(lv + 1)} · " +
+                $"HP {GetWallHitPoints(lv + 1):N0} · resistência +{GetWallResistancePercent(lv + 1)}%");
+            return sb.ToString();
+        }
+
+        public static int GetWallCityDefense(int level) => level <= 0 ? 0 : 25 * level;
+        public static int GetWallHitPoints(int level) => level <= 0 ? 0 : 500 + (350 * level);
+        public static int GetWallResistancePercent(int level) => level <= 0 ? 0 : 4 * level;
+
         public static string BuildArenaDetails(int level)
         {
             var lv = Math.Max(0, level);
@@ -120,6 +138,9 @@ namespace Valgor.City.Buildings
                 "market" => $"Trocas {GetMarketTradeCapacity(level + 1)} · taxa {GetMarketFeePercent(level + 1)}%",
                 "laboratory" => $"Tech +{GetLabTechBonusPercent(level + 1)}% · {GetLabProjectSlots(level + 1)} projetos",
                 "dragon-tower" => $"Vínculo +{GetDragonBondBonusPercent(level + 1)}% · recuperação +{GetDragonRecoveryBonusPercent(level + 1)}%",
+                "wall" =>
+                    $"Defesa +{GetWallCityDefense(level + 1)} · HP {GetWallHitPoints(level + 1):N0} · " +
+                    $"resistência +{GetWallResistancePercent(level + 1)}%",
                 _ => string.Empty
             };
     }

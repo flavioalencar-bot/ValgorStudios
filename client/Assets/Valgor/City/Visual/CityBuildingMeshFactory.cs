@@ -59,6 +59,9 @@ namespace Valgor.City.Visual
                 case "academy":
                     BuildAcademy(visual.transform, color);
                     break;
+                case "wall":
+                    BuildWallGatehouse(visual.transform, color);
+                    break;
                 case "institute":
                     BuildInstitute(visual.transform, color);
                     break;
@@ -300,6 +303,23 @@ namespace Valgor.City.Visual
 
             // Estante lateral (um volume).
             Part(PrimitiveType.Cube, root, new Vector3(-1.65f, 1.35f, 0f), new Vector3(0.22f, 1.5f, 1.6f), Wood, SurfaceKind.Wood);
+        }
+
+        /// <summary>Proxy selecionável no portão — o anel completo vive em CityEnvironmentBuilder.</summary>
+        private static void BuildWallGatehouse(Transform root, Color color)
+        {
+            var stone = Color.Lerp(Stone, color, 0.2f);
+            var dark = Color.Lerp(StoneDark, color, 0.15f);
+
+            Plinth(root, 4.2f, 2.4f);
+            Part(PrimitiveType.Cube, root, new Vector3(-1.55f, 1.4f, 0f), new Vector3(1.2f, 2.6f, 1.3f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(1.55f, 1.4f, 0f), new Vector3(1.2f, 2.6f, 1.3f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.85f, 0f), new Vector3(4.0f, 0.5f, 1.5f), stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.25f, 0.55f), new Vector3(1.7f, 2.2f, 0.2f), Door, SurfaceKind.Wood);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 3.2f, 0f), new Vector3(1.2f, 0.16f, 0.4f), Gold, SurfaceKind.Metal);
+            ConeRoof(root, new Vector3(-1.55f, 3.0f, 0f), 1.35f, 0.7f, RoofBlue);
+            ConeRoof(root, new Vector3(1.55f, 3.0f, 0f), 1.35f, 0.7f, RoofBlue);
+            SmallFlag(root, new Vector3(0f, 3.7f, 0f), Banner);
         }
 
         // ─── Demais (kits estáveis) ────────────────────────────────────

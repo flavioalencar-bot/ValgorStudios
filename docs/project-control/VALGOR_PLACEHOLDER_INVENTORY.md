@@ -41,7 +41,7 @@ Classificação: **P0** bloqueia apresentação · **P1** muito provisório · *
 |--------|--------|------------|-----------------|-----|-------------|--------|
 | Terreno/grama | Chão | Cube tint | Terrain paint | P2 | Baixo | OK |
 | Praça/caminhos | Leitura | Cubes | Cobble textures | P2 | Baixo | Zonas + portões |
-| Muralha | Limite | Segmentos | Wall kit | P2 | Baixo | Portões nas entradas |
+| Muralha | Limite + defesa | Edifício `wall` + anel visual por nível | Mesh final / segmentos | P1 | Médio | **Gameplay + visual por nível** |
 | Árvores | Atmosfera | Cilindro+esfera | Tree prefabs | P2 | Baixo | OK |
 | Indicadores coleta/upgrade | Feedback | Medalhão/chevron/badges | Ícones 2D finais | P2 | Baixo | **Ícones provisórios P0** |
 

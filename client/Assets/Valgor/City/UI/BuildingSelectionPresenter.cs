@@ -265,7 +265,8 @@ namespace Valgor.City.UI
                 };
             }
 
-            if (string.Equals(id, "academy", StringComparison.Ordinal))
+            if (string.Equals(id, "academy", StringComparison.Ordinal) ||
+                string.Equals(id, "wall", StringComparison.Ordinal))
             {
                 return new List<BuildingContextActionInfo>
                 {

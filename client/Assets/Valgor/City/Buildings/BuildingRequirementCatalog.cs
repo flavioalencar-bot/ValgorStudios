@@ -63,6 +63,9 @@ namespace Valgor.City.Buildings
                 // Fazenda → Nv.N: Castelo ≥ N.
                 ["farm"] = new BuildingUpgradeDefinition("farm", DynamicCastle()),
 
+                // Muralha → Nv.N: Castelo ≥ N (catálogo pronto para requisitos extras por nível).
+                ["wall"] = new BuildingUpgradeDefinition("wall", DynamicCastle()),
+
                 // Armazém → Nv.N: Castelo ≥ N; em níveis configurados, Fazenda no nível exigido.
                 ["warehouse"] = new BuildingUpgradeDefinition(
                     "warehouse",

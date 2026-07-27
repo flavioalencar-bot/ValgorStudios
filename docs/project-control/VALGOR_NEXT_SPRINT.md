@@ -11,6 +11,8 @@
 - [x] Pré-requisitos data-driven + Castelo real + Ir
 - [x] Consolidação visual Beta 0.1 (silhuetas, zonas, menu, atmosfera, inventário)
 - [x] Arte mínima P0: Castelo, Torre dos Dragões, Fazenda, Armazém, Academia
+- [x] Correção direção visual P0
+- [x] Muralha como edifício evolutivo (requisitos Castelo≥N, Detalhes/Atualizar, visual por nível)
 
 ---
 

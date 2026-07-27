@@ -159,6 +159,25 @@ public sealed class BuildingRequirementCatalogTests
     }
 
     [Fact]
+    public void Wall_RequiresOnlyCastleEqualToTargetLevel()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("wall", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Empty(req.RequiredBuildings);
+
+        var atZero = BuildingRequirementCatalog.GetRequirement("wall", currentLevel: 0);
+        Assert.Equal(1, atZero.MinimumCastleLevel);
+    }
+
+    [Fact]
+    public void Wall_IsInBuildingCatalog()
+    {
+        Assert.True(BuildingCatalog.TryGet("wall", out var def));
+        Assert.Equal("Muralha", def.DisplayName);
+        Assert.True(def.MaxLevel >= 1);
+    }
+
+    [Fact]
     public void Warehouse_Level2_RequiresFarm2()
     {
         var req = BuildingRequirementCatalog.GetRequirement("warehouse", currentLevel: 1);
@@ -370,5 +389,16 @@ public sealed class SupportBuildingRulesTests
     {
         Assert.False(string.IsNullOrWhiteSpace(SupportBuildingRules.DescribeUpgradeBenefit("dragon-tower", 1)));
         Assert.Contains("formação", SupportBuildingRules.BuildArenaDetails(1), System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Wall_StatsScaleWithLevel()
+    {
+        Assert.True(SupportBuildingRules.GetWallCityDefense(2) > SupportBuildingRules.GetWallCityDefense(1));
+        Assert.True(SupportBuildingRules.GetWallHitPoints(2) > SupportBuildingRules.GetWallHitPoints(1));
+        Assert.True(SupportBuildingRules.GetWallResistancePercent(2) > SupportBuildingRules.GetWallResistancePercent(1));
+        Assert.Equal(0, SupportBuildingRules.GetWallCityDefense(0));
+        Assert.Contains("Defesa", SupportBuildingRules.BuildWallDetails(1), System.StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("defesa", SupportBuildingRules.DescribeUpgradeBenefit("wall", 1), System.StringComparison.OrdinalIgnoreCase);
     }
 }

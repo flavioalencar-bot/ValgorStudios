@@ -29,7 +29,9 @@ namespace Valgor.City.Visual
             ["academy"] = new Vector2(10.2f, -3.8f),
             // Místico / marco (NE)
             ["temple"] = new Vector2(4.2f, 10.2f),
-            ["dragon-tower"] = new Vector2(8.6f, 8.6f)
+            ["dragon-tower"] = new Vector2(8.6f, 8.6f),
+            // Defesa — portão principal (sul da muralha)
+            ["wall"] = new Vector2(0f, 14.8f)
         };
 
         public static Vector3 WorldPosition(string buildingId)
@@ -46,6 +48,7 @@ namespace Valgor.City.Visual
         {
             "castle" => new Color(0.52f, 0.5f, 0.46f),
             "dragon-tower" => new Color(0.32f, 0.26f, 0.34f),
+            "wall" => new Color(0.5f, 0.48f, 0.44f),
             "farm" => new Color(0.4f, 0.5f, 0.28f),
             "lumbermill" => new Color(0.45f, 0.3f, 0.16f),
             "quarry" => new Color(0.55f, 0.54f, 0.5f),

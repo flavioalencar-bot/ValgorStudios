@@ -21,7 +21,8 @@ namespace Valgor.City.Buildings
                 ["temple"] = Create("temple", "Templo", 12, gold: 220, food: 40, wood: 100, stone: 50, iron: 20, essence: 10),
                 ["dragon-tower"] = Create("dragon-tower", "Torre dos Dragões", 10, gold: 400, food: 80, wood: 180, stone: 120, iron: 60, essence: 25),
                 ["arena"] = Create("arena", "Arena", 12, gold: 280, food: 40, wood: 130, stone: 80, iron: 40, essence: 0),
-                ["laboratory"] = Create("laboratory", "Laboratório", 12, gold: 350, food: 40, wood: 160, stone: 100, iron: 50, essence: 15)
+                ["laboratory"] = Create("laboratory", "Laboratório", 12, gold: 350, food: 40, wood: 160, stone: 100, iron: 50, essence: 15),
+                ["wall"] = Create("wall", "Muralha", 15, gold: 160, food: 20, wood: 80, stone: 140, iron: 40, essence: 0)
             };
 
         public static BuildingDefinition Get(string id) => Definitions[id];

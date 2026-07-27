@@ -31,7 +31,8 @@ namespace Valgor.City
             ("temple", BuildingState.Available, 0),
             ("dragon-tower", BuildingState.Ready, 1),
             ("arena", BuildingState.Available, 0),
-            ("laboratory", BuildingState.Available, 0)
+            ("laboratory", BuildingState.Available, 0),
+            ("wall", BuildingState.Ready, 1)
         };
 
         public bool IsLoaded { get; private set; }
@@ -50,12 +51,36 @@ namespace Valgor.City
             GameBootstrap.Services?.Register<IResourceModule>(new CityResourceModule(Economy.Wallet));
             CityEnvironmentBuilder.Build(transform);
             CreateBuildings();
+            ApplyWallFortifications();
+            Controller.BuildingChanged += ApplyWallFortifications;
             Controller.SyncBetaProgress();
             Economy.ApplyOfflineAndPersist(Controller.Buildings);
             Controller.SyncBetaProgress();
             Controller.RefreshPresentation();
             CreateHud();
             ConfigureCamera();
+        }
+
+        private void OnDestroy()
+        {
+            if (Controller != null)
+            {
+                Controller.BuildingChanged -= ApplyWallFortifications;
+            }
+        }
+
+        private int _lastWallVisualLevel = int.MinValue;
+
+        private void ApplyWallFortifications()
+        {
+            var level = Controller != null ? Controller.GetBuildingLevel("wall") : 1;
+            if (level == _lastWallVisualLevel)
+            {
+                return;
+            }
+
+            _lastWallVisualLevel = level;
+            CityEnvironmentBuilder.ApplyWallLevel(transform, level);
         }
 
         private void Update() => Controller.Tick();

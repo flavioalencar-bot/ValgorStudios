@@ -430,7 +430,8 @@ namespace Valgor.City.Core
                 ["temple"] = (0, BuildingState.Available),
                 ["dragon-tower"] = (1, BuildingState.Ready),
                 ["arena"] = (0, BuildingState.Available),
-                ["laboratory"] = (0, BuildingState.Available)
+                ["laboratory"] = (0, BuildingState.Available),
+                ["wall"] = (1, BuildingState.Ready)
             };
 
             foreach (var building in _buildings)
