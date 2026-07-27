@@ -58,7 +58,7 @@ Contratos em `Valgor.Core.Modules`:
 - `IBuildingModule`
 - `IResourceModule`
 - `IDragonModule` / `IDragonGateway` — implementação em `Assets/Valgor/Dragons` (`DragonService`)
-- `IHeroesGateway` — implementação pelo agente de heróis
+- `IHeroesGateway` — implementação em `Assets/Valgor/Heroes` (mesmo agente único do monorepo; D022)
 
 ## City Foundation
 
@@ -72,6 +72,6 @@ Contratos em `Valgor.Core.Modules`:
 
 Lógica pura coberta em `tools/Valgor.GameLogic.Tests` (máquina de estados, sessão, registry, SceneIds).
 
-## Limite
+## Limite do assembly Game Core
 
-Não inclui catálogo/facções/poderes/skins de heróis.
+O assembly Core **não** embute catálogo/facções/poderes/skins de heróis — esses vivem em `Assets/Valgor/Heroes/**` e são consumidos via `IHeroesGateway`. Um único agente pode editar ambos; não duplicar a lógica no Core.

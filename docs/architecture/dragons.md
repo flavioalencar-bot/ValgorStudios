@@ -8,7 +8,7 @@ Primeira versão funcional: ninho na Torre dos Dragões, estados, alimentação 
 
 ## Limite
 
-Não altera o módulo interno de heróis (`Assets/Valgor/Heroes/**`). Integração apenas via `IHeroesGateway` e `IDragonGateway`.
+Fronteira de módulo: não reimplementar heróis dentro de Dragons. Integração via `IHeroesGateway` e `IDragonGateway`. O agente único (D022) pode editar `Heroes/**` e `Dragons/**`, sem duplicar lógica entre pastas.
 
 ## Entidades
 

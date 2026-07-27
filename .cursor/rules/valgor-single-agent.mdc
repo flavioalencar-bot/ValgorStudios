@@ -1,0 +1,36 @@
+---
+description: Valgor — agente único; fonte da verdade e anti-regressão
+alwaysApply: true
+---
+
+# Valgor — Agente Único
+
+Apenas **este** agente trabalha no monorepo. O agente dedicado de heróis foi descontinuado (D022).
+
+## Antes de alterar código
+
+Ler a fonte da verdade:
+
+- `docs/project-control/VALGOR_PRODUCT_MASTER.md`
+- `docs/project-control/VALGOR_IMPLEMENTATION_STATUS.md`
+- `docs/project-control/VALGOR_DECISIONS_LOG.md`
+- `docs/project-control/VALGOR_NEXT_SPRINT.md`
+- `docs/project-control/VALGOR_SINGLE_AGENT.md`
+- `CHANGELOG.md` / `README.md` (estado real da beta)
+
+Chat **não** é prova técnica.
+
+## Responsabilidade integral
+
+Game Core, City, Heroes (incl. Vortex/heroínas/poderes), Dragons, World Map, save, backend, admin, builds, docs, testes, `production/`.
+
+## Anti-conflito
+
+- Não duplicar heróis fora de `Assets/Valgor/Heroes/**` (`IHeroesGateway`).
+- Não duplicar dragões fora de `Assets/Valgor/Dragons/**` (`IDragonGateway`).
+- Não reverter modelos aprovados para dummy (Vortex).
+- Sem alianças/PvP/SvS/gacha/shooter na Beta 0.1 salvo decisão nova.
+- Bloqueio visual crítico → congelar features novas.
+- Prioridade atual: `VALGOR_NEXT_SPRINT.md`.
+
+Comunicar em **português do Brasil**.

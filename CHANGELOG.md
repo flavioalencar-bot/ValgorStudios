@@ -7,6 +7,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Changed
+
+- Governança: **agente único** assume o monorepo (Game Core + City + Heroes + Dragons + Map + backend + docs); segundo agente de heróis descontinuado — `docs/project-control/VALGOR_SINGLE_AGENT.md`, decisão D022
+
 ### Added
 
 - UX contextual de edifícios na City: menu ancorado ao prédio (`BuildingContextMenu`), presenter, positioner e painéis de ação (Detalhes/Atualizar/Coletar/Produzir/Treinar/Pesquisar/Abrir/Enviar)
