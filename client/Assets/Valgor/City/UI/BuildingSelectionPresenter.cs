@@ -56,7 +56,7 @@ namespace Valgor.City.UI
             panelRoot.Add(_actionPanel);
 
             _city.Selection.SelectionChanged += OnSelectionChanged;
-            _city.BuildingChanged += RefreshCurrent;
+            _city.BuildingChanged += OnBuildingChanged;
             ResolveCamera();
         }
 
@@ -95,6 +95,12 @@ namespace Valgor.City.UI
         public void RefreshCurrent()
         {
             if (_current == null)
+            {
+                return;
+            }
+
+            // Evita NRE se a view foi destruída (ex.: tick de produção no Awake da City).
+            if (!TryGetWorldAnchor(_current, out _))
             {
                 return;
             }
@@ -165,7 +171,19 @@ namespace Valgor.City.UI
         public void Dispose()
         {
             _city.Selection.SelectionChanged -= OnSelectionChanged;
-            _city.BuildingChanged -= RefreshCurrent;
+            _city.BuildingChanged -= OnBuildingChanged;
+        }
+
+        private void OnBuildingChanged()
+        {
+            var feedback = _city.LastUpgradeFeedback;
+            if (!string.IsNullOrEmpty(feedback) &&
+                feedback.IndexOf("→ Nv.", StringComparison.Ordinal) >= 0)
+            {
+                BetaMissions.Notify(MissionEvent.UpgradeComplete);
+            }
+
+            RefreshCurrent();
         }
 
         private void OnSelectionChanged(BuildingInstance? selected)
@@ -192,6 +210,11 @@ namespace Valgor.City.UI
             }
 
             _current = selected;
+            if (string.Equals(selected.DefinitionId, "castle", StringComparison.Ordinal))
+            {
+                BetaMissions.Notify(MissionEvent.SelectCastle);
+            }
+
             OpenContextFor(selected, refocusCamera: true);
         }
 
@@ -405,6 +428,11 @@ namespace Valgor.City.UI
                 ? $"{fedName} alimentado."
                 : lastError;
             _feedback.style.display = DisplayStyle.Flex;
+            if (fedName != null)
+            {
+                BetaMissions.Notify(MissionEvent.FeedDragon);
+            }
+
             _city.Persist();
             RefreshCurrent();
         }
@@ -413,6 +441,13 @@ namespace Valgor.City.UI
         {
             var amount = _city.CollectSelected();
             _feedback.text = amount > 0 ? $"+{amount} coletado!" : "Nada para coletar agora.";
+            if (amount > 0 &&
+                _current != null &&
+                string.Equals(_current.DefinitionId, "farm", StringComparison.Ordinal))
+            {
+                BetaMissions.Notify(MissionEvent.CollectFarm);
+            }
+
             if (_actionPanel.style.display != DisplayStyle.Flex)
             {
                 _openPanelAction = BuildingContextAction.Details;
@@ -828,7 +863,7 @@ namespace Valgor.City.UI
 
         private bool TryGetWorldAnchor(BuildingInstance building, out Vector3 anchor)
         {
-            if (_city.TryGetView(building, out var view))
+            if (_city.TryGetView(building, out var view) && view != null)
             {
                 // Offset lateral + altura — menu não cobre o centro visual do prédio.
                 anchor = view.transform.position + Vector3.up * 2.8f + view.transform.right * 1.35f;

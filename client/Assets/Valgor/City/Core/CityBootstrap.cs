@@ -55,6 +55,7 @@ namespace Valgor.City
             Controller.BuildingChanged += ApplyWallFortifications;
             Controller.SyncBetaProgress();
             Economy.ApplyOfflineAndPersist(Controller.Buildings);
+            Economy.ApplyPendingMissionRewards();
             Controller.SyncBetaProgress();
             Controller.RefreshPresentation();
             CreateHud();
@@ -122,7 +123,11 @@ namespace Valgor.City
             }
         }
 
-        private void Update() => Controller.Tick();
+        private void Update()
+        {
+            Economy.ApplyPendingMissionRewards();
+            Controller.Tick();
+        }
 
         private void OnEnable() => Enter();
 
@@ -139,6 +144,7 @@ namespace Valgor.City
         public void Enter()
         {
             IsLoaded = true;
+            Economy.ApplyPendingMissionRewards();
             BetaJourneyGuide.NotifyReturnedToCity();
             PlayerPrefs.Save();
             if (BetaFocusHints.TryConsumeBuildingFocus(out var buildingId))

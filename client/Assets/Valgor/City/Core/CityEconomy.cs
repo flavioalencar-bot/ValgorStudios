@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using Valgor.City.Data;
 using Valgor.City.Production;
 using Valgor.Core;
@@ -126,6 +127,25 @@ namespace Valgor.City.Core
             }
 
             Repository.Save(snapshot);
+        }
+
+        /// <summary>
+        /// Consome diamantes enfileirados por missões (BetaNavigationBar) e grava na carteira da cidade.
+        /// </summary>
+        public void ApplyPendingMissionRewards()
+        {
+            const string key = "valgor.missions.v1.pendingDiamonds";
+            var pending = PlayerPrefs.GetInt(key, 0);
+            if (pending <= 0)
+            {
+                return;
+            }
+
+            Wallet.Add(ResourceType.Diamonds, pending);
+            PlayerPrefs.DeleteKey(key);
+            PlayerPrefs.Save();
+            PersistWallet();
+            Debug.Log($"[Valgor] Missão: +{pending} diamantes aplicados à carteira.");
         }
 
         private void SeedStarterWallet()

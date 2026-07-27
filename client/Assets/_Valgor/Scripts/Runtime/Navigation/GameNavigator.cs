@@ -57,6 +57,7 @@ namespace Valgor.Navigation
             yield return _sceneLoader.LoadAsync(SceneIds.WorldMap, LoadSceneMode.Single);
             _stateMachine.TransitionTo(GameState.WorldMap);
             LocalPlayerProfile.LastScene = SceneIds.WorldMap;
+            BetaMissions.Notify(MissionEvent.OpenWorldMap);
             Valgor.UI.BetaJourneyGuide.NotifyWorldMapOpened();
 
             if (_services.TryGet<IWorldMapModule>(out var world))

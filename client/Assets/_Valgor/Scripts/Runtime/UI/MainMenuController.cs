@@ -29,9 +29,9 @@ namespace Valgor.UI
 
         private static readonly string[] IntroTitles =
         {
-            "Vortex",
-            "Vortex",
-            "Vortex",
+            "O reino partido",
+            "A cidade natal",
+            "Heróis e muralhas",
             "Vortex"
         };
 
@@ -42,6 +42,8 @@ namespace Valgor.UI
             "Reúna seus heróis e fortaleça suas defesas.",
             "Eu sou Vortex. Lutarei ao seu lado."
         };
+
+        private bool _menuDiagLogged;
 
         private void Awake()
         {
@@ -56,6 +58,11 @@ namespace Valgor.UI
             BetaPlayerSettings.ApplyRuntime();
             LocalPlayerProfile.ApplyToSession(GameBootstrap.Game?.Session);
             RefreshHomeMode();
+            if (!_menuDiagLogged)
+            {
+                _menuDiagLogged = true;
+                SaveDiagnostics.LogSnapshot("main-menu");
+            }
         }
 
         private void EnsurePanelSettings() => BetaUiPanels.ApplyTo(document);
@@ -71,23 +78,62 @@ namespace Valgor.UI
 
             root.Clear();
             root.style.flexGrow = 1;
-            root.style.backgroundColor = new Color(0.03f, 0.035f, 0.05f, 1f);
+            root.style.backgroundColor = new Color(0.04f, 0.035f, 0.045f, 1f);
             root.style.justifyContent = Justify.Center;
             root.style.alignItems = Align.Center;
-            root.style.paddingLeft = 48;
-            root.style.paddingRight = 48;
+            root.style.paddingLeft = 16;
+            root.style.paddingRight = 16;
+            root.style.paddingTop = 12;
+            root.style.paddingBottom = 12;
 
-            var veil = new VisualElement { pickingMode = PickingMode.Ignore };
-            veil.style.position = Position.Absolute;
-            veil.style.left = 0;
-            veil.style.right = 0;
-            veil.style.top = 0;
-            veil.style.bottom = 0;
-            veil.style.backgroundColor = new Color(0.1f, 0.07f, 0.03f, 0.28f);
-            root.Add(veil);
+            // Atmosfera medieval — véus em camadas (não só preto plano).
+            var veilWarm = new VisualElement { pickingMode = PickingMode.Ignore };
+            veilWarm.style.position = Position.Absolute;
+            veilWarm.style.left = 0;
+            veilWarm.style.right = 0;
+            veilWarm.style.top = 0;
+            veilWarm.style.bottom = 0;
+            veilWarm.style.backgroundColor = new Color(0.14f, 0.09f, 0.04f, 0.42f);
+            root.Add(veilWarm);
+
+            var veilCool = new VisualElement { pickingMode = PickingMode.Ignore };
+            veilCool.style.position = Position.Absolute;
+            veilCool.style.left = 0;
+            veilCool.style.right = 0;
+            veilCool.style.top = 0;
+            veilCool.style.height = Length.Percent(42);
+            veilCool.style.backgroundColor = new Color(0.05f, 0.07f, 0.12f, 0.55f);
+            root.Add(veilCool);
+
+            var goldVignetteTop = new VisualElement { pickingMode = PickingMode.Ignore };
+            goldVignetteTop.style.position = Position.Absolute;
+            goldVignetteTop.style.left = Length.Percent(10);
+            goldVignetteTop.style.right = Length.Percent(10);
+            goldVignetteTop.style.top = 0;
+            goldVignetteTop.style.height = 80;
+            goldVignetteTop.style.backgroundColor = new Color(0.45f, 0.34f, 0.12f, 0.18f);
+            root.Add(goldVignetteTop);
+
+            var goldVignetteBottom = new VisualElement { pickingMode = PickingMode.Ignore };
+            goldVignetteBottom.style.position = Position.Absolute;
+            goldVignetteBottom.style.left = Length.Percent(8);
+            goldVignetteBottom.style.right = Length.Percent(8);
+            goldVignetteBottom.style.bottom = 0;
+            goldVignetteBottom.style.height = 96;
+            goldVignetteBottom.style.backgroundColor = new Color(0.38f, 0.28f, 0.1f, 0.16f);
+            root.Add(goldVignetteBottom);
+
+            var scroll = new ScrollView(ScrollViewMode.Vertical);
+            scroll.name = "main-menu-scroll";
+            scroll.style.width = Length.Percent(92);
+            scroll.style.maxWidth = 560;
+            scroll.style.maxHeight = Length.Percent(90);
+            scroll.style.flexGrow = 0;
+            scroll.style.flexShrink = 1;
+            root.Add(scroll);
 
             var card = new VisualElement { name = "main-menu-root" };
-            card.style.width = 560;
+            card.style.width = Length.Percent(100);
             card.style.paddingLeft = 36;
             card.style.paddingRight = 36;
             card.style.paddingTop = 32;
@@ -102,7 +148,7 @@ namespace Valgor.UI
             card.style.borderLeftColor = BetaVisualTheme.AgedGold;
             card.style.borderRightColor = BetaVisualTheme.AgedGold;
             card.style.alignItems = Align.Center;
-            root.Add(card);
+            scroll.Add(card);
 
             var crest = new VisualElement { pickingMode = PickingMode.Ignore };
             crest.style.width = 56;
@@ -369,6 +415,7 @@ namespace Valgor.UI
         {
             LocalPlayerProfile.WipeAllForNewJourney();
             GameBootstrap.Game?.Session?.ClearAuthentication();
+            SaveDiagnostics.LogSnapshot("wipe-new-journey");
             OpenNameEntry();
         }
 
@@ -392,6 +439,7 @@ namespace Valgor.UI
 
             LocalPlayerProfile.ApplyToSession(GameBootstrap.Game?.Session);
             PlayerPrefs.Save();
+            SaveDiagnostics.LogSnapshot("new-game");
             _feedback.text = $"Bem-vindo, {LocalPlayerProfile.DisplayName}.";
             _firstAccessPanel.style.display = DisplayStyle.None;
             BeginIntro();

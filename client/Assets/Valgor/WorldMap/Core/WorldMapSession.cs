@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Valgor.City.Data;
+using Valgor.Core;
 using Valgor.Core.Modules;
 using Valgor.WorldMap.Camera;
 using Valgor.WorldMap.Creatures;
@@ -283,6 +284,9 @@ namespace Valgor.WorldMap.Core
             }
 
             Changed?.Invoke();
+#if UNITY_5_3_OR_NEWER
+            BetaMissions.Notify(MissionEvent.SendMarch);
+#endif
             return true;
         }
 
@@ -654,6 +658,9 @@ namespace Valgor.WorldMap.Core
                     : "recursos";
                 LastDepositMessage = $"+{deposited} {resourceName} depositados na cidade!";
                 RewardDeposited?.Invoke();
+#if UNITY_5_3_OR_NEWER
+                BetaMissions.Notify(MissionEvent.ReceiveReward);
+#endif
             }
         }
 

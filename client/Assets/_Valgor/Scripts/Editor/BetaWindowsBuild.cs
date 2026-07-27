@@ -74,7 +74,8 @@ namespace Valgor.Editor
                 scenes = Scenes,
                 locationPathName = exe,
                 target = BuildTarget.StandaloneWindows64,
-                options = BuildOptions.Development | BuildOptions.CompressWithLz4HC
+                // Sem BuildOptions.Development — remove watermark "Development Build" da validação.
+                options = BuildOptions.CompressWithLz4HC
             };
 
             Debug.Log($"[Valgor] Building Windows {ValgorVersion.Display} → {exe}");

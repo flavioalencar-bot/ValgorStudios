@@ -60,12 +60,19 @@ namespace Valgor.Heroes.Tests
         [Test]
         public void Pending_Name_Uses_Title()
         {
-            var hero = ScriptableObject.CreateInstance<HeroDefinitionSO>();
-            hero.Id = "HERO_CONSORTE_002";
-            hero.DisplayName = "Lyra";
-            hero.Title = "A Consorte de Valgor";
-            Assert.AreEqual("A Consorte de Valgor", hero.ResolveDisplayName());
-            Object.DestroyImmediate(hero);
+            var pending = ScriptableObject.CreateInstance<HeroDefinitionSO>();
+            pending.Id = "HERO_CONSORTE_002";
+            pending.DisplayName = "A definir";
+            pending.Title = "A Consorte de Valgor";
+            Assert.AreEqual("A Consorte de Valgor", pending.ResolveDisplayName());
+            Object.DestroyImmediate(pending);
+
+            var named = ScriptableObject.CreateInstance<HeroDefinitionSO>();
+            named.Id = "HERO_LYRA_TEST";
+            named.DisplayName = "Lyra";
+            named.Title = "A Consorte de Valgor";
+            Assert.AreEqual("Lyra", named.ResolveDisplayName());
+            Object.DestroyImmediate(named);
         }
 
         private static FactionConfigSO CreateConfig()

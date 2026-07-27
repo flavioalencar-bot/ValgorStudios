@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Valgor.Core;
 using Valgor.Heroes.Data;
 using Valgor.Heroes.Factions;
 using Valgor.Heroes.Preview360;
@@ -272,7 +273,8 @@ namespace Valgor.Heroes.UI
                 (string.Equals(hero.Id, "HERO_VORTEX_000", StringComparison.Ordinal) ||
                  string.Equals(hero.ResolveDisplayName(), "Vortex", StringComparison.OrdinalIgnoreCase)))
             {
-                Valgor.UI.BetaJourneyGuide.NotifyVortexViewed();
+                BetaMissions.Notify(MissionEvent.ViewVortex);
+                BetaJourneyGuide.NotifyVortexViewed();
             }
         }
 

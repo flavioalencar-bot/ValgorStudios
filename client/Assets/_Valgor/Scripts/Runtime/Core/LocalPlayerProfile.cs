@@ -96,12 +96,16 @@ namespace Valgor.Core
             return true;
         }
 
-        /// <summary>Energia inicial 100/100 para a Beta 0.1.</summary>
+        /// <summary>Energia inicial 100/100 — snapshot completo (evita FormatException no World Map).</summary>
         public static void SeedStartingEnergy()
         {
             const string energy = "valgor.worldmap.energy.v1";
+            var inv = System.Globalization.CultureInfo.InvariantCulture;
             PlayerPrefs.SetInt(energy + ".current", 100);
             PlayerPrefs.SetInt(energy + ".max", 100);
+            PlayerPrefs.SetString(energy + ".updated", DateTime.UtcNow.ToString("O", inv));
+            PlayerPrefs.SetString(energy + ".interval", "60");
+            PlayerPrefs.SetInt(energy + ".regen", 1);
         }
 
         public static void MarkIntroDone()
@@ -186,9 +190,16 @@ namespace Valgor.Core
             PlayerPrefs.DeleteKey("valgor.dragons.v3.meta");
             PlayerPrefs.DeleteKey("valgor.worldmap.v1.meta");
             PlayerPrefs.DeleteKey("valgor.worldmap.energy.v1.current");
+            PlayerPrefs.DeleteKey("valgor.worldmap.energy.v1.max");
+            PlayerPrefs.DeleteKey("valgor.worldmap.energy.v1.updated");
+            PlayerPrefs.DeleteKey("valgor.worldmap.energy.v1.interval");
+            PlayerPrefs.DeleteKey("valgor.worldmap.energy.v1.regen");
             PlayerPrefs.DeleteKey("valgor.worldmap.camera.v1.saved");
+            PlayerPrefs.DeleteKey("valgor.worldmap.camera.v2.saved");
             PlayerPrefs.DeleteKey("valgor.worldmap.filters.v1.cities");
+            PlayerPrefs.DeleteKey("valgor.missions.v1.pendingDiamonds");
             BetaProgress.Wipe();
+            BetaMissions.Wipe();
             PlayerPrefs.Save();
         }
 

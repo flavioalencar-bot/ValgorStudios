@@ -497,10 +497,10 @@ namespace Valgor.WorldMap.UI
 
             var builder = new StringBuilder();
             builder.AppendLine(definition.DisplayName);
-            builder.AppendLine($"Tipo: {definition.Kind}");
-            builder.AppendLine($"Status: {selected.Status}");
+            builder.AppendLine($"Tipo: {FriendlyNodeKind(definition.Kind)}");
+            builder.AppendLine($"Status: {FriendlyNodeStatus(selected.Status)}");
             builder.AppendLine(definition.Description);
-            builder.AppendLine($"Região: {definition.RegionId}");
+            builder.AppendLine($"Região: {FriendlyRegion(definition.RegionId)}");
             builder.AppendLine($"Deslocamento estimado: {FormatDuration(travel)}");
 
             switch (definition)
@@ -512,11 +512,11 @@ namespace Valgor.WorldMap.UI
                     builder.AppendLine($"População: {village.Population}");
                     break;
                 case WorldResourceNode resource:
-                    builder.AppendLine($"Recurso: {resource.ResourceType}");
+                    builder.AppendLine($"Recurso: {FriendlyResourceType(resource.ResourceType)}");
                     builder.AppendLine($"Nível: {resource.Level}");
                     builder.AppendLine($"Taxa: {resource.GetGatherRatePerHour():0.#}/h");
                     builder.AppendLine($"Acumulado: {selected.RemainingAmount} / {resource.MaxAmount}");
-                    builder.AppendLine($"Estado recurso: {selected.ResourceState}");
+                    builder.AppendLine($"Estado: {FriendlyResourceState(selected.ResourceState)}");
                     if (selected.RespawnAt.HasValue)
                     {
                         var left = selected.RespawnAt.Value - _map.Session.Clock.UtcNow;
@@ -546,18 +546,16 @@ namespace Valgor.WorldMap.UI
 
                     break;
                 case WorldCreatureNode creature:
-                    builder.AppendLine($"Código do nó: {creature.CreatureCode}");
                     if (_map.Session.TryGetCreature(creature.Id, out var instance) &&
                         WorldCreatureCatalog.TryGet(creature.Id, out var creatureDef))
                     {
-                        builder.AppendLine($"Estado: {instance.State}");
+                        builder.AppendLine($"Estado: {FriendlyCreatureState(instance.State)}");
                         builder.AppendLine($"Tipo: {creatureDef.Type}");
                         builder.AppendLine($"Nível: {creatureDef.Level}");
                         builder.AppendLine($"Poder recomendado: {creatureDef.RecommendedPower}");
                         builder.AppendLine($"Seu poder: {_map.Session.GetAttackerPower()} (Vortex {_map.Session.GetHeroMarchPower()} + dragões)");
                         builder.AppendLine($"Custo de energia: {_map.Session.EnergyCosts.ResolveCreature(creature.Id)}");
                         builder.AppendLine($"Respawn: {creatureDef.RespawnDuration.TotalHours:0.#} h");
-                        builder.AppendLine($"Posição: ({creatureDef.X:0.#}, {creatureDef.Z:0.#})");
                         if (instance.RespawnAtUtc.HasValue)
                         {
                             var left = instance.RespawnAtUtc.Value - _map.Session.Clock.UtcNow;
@@ -574,7 +572,6 @@ namespace Valgor.WorldMap.UI
 
                     break;
                 case WorldDragonNode dragon:
-                    builder.AppendLine($"Código do nó: {dragon.DragonCode}");
                     if (_map.Session.Dragons.TryGetStatusByWorldCode(
                             dragon.DragonCode,
                             out var dragonName,
@@ -588,7 +585,7 @@ namespace Valgor.WorldMap.UI
                     builder.AppendLine($"Poder em missão: {_map.Session.Dragons.GetProvisionalDragonPower()}");
                     break;
                 case WorldLandmarkNode landmark:
-                    builder.AppendLine($"Marco: {landmark.LandmarkCode}");
+                    builder.AppendLine($"Marco: {landmark.DisplayName}");
                     break;
             }
 
@@ -757,5 +754,76 @@ namespace Valgor.WorldMap.UI
 
             return $"{span.TotalMinutes:0.0} min";
         }
+
+        private static string FriendlyRegion(string regionId)
+        {
+            if (WorldTerritoryCatalog.TryGetByRegion(regionId, out var territory))
+            {
+                return territory.DisplayName;
+            }
+
+            return regionId switch
+            {
+                "forest" => "Floresta",
+                "mountains" => "Montanhas",
+                "coast" => "Costa",
+                "desert" => "Deserto",
+                "ruins" => "Ruínas",
+                "portal" => "Portal",
+                _ => string.IsNullOrEmpty(regionId) ? "Desconhecida" : regionId
+            };
+        }
+
+        private static string FriendlyNodeKind(WorldNodeKind kind) => kind switch
+        {
+            WorldNodeKind.City => "Cidade",
+            WorldNodeKind.Village => "Aldeia",
+            WorldNodeKind.Resource => "Recurso",
+            WorldNodeKind.Creature => "Criatura",
+            WorldNodeKind.Dragon => "Dragão",
+            WorldNodeKind.Landmark => "Marco",
+            _ => kind.ToString()
+        };
+
+        private static string FriendlyNodeStatus(WorldNodeStatus status) => status switch
+        {
+            WorldNodeStatus.Available => "Disponível",
+            WorldNodeStatus.Locked => "Bloqueado",
+            WorldNodeStatus.Depleted => "Esgotado",
+            WorldNodeStatus.Occupied => "Ocupado",
+            WorldNodeStatus.Respawning => "Renascendo",
+            WorldNodeStatus.Cleared => "Limpo",
+            _ => status.ToString()
+        };
+
+        private static string FriendlyResourceType(ResourceType resource) => resource switch
+        {
+            ResourceType.Gold => "Ouro",
+            ResourceType.Food => "Comida",
+            ResourceType.Wood => "Madeira",
+            ResourceType.Stone => "Pedra",
+            ResourceType.Iron => "Ferro",
+            ResourceType.DragonEssence => "Essência de Dragão",
+            ResourceType.Diamonds => "Diamantes",
+            _ => resource.ToString()
+        };
+
+        private static string FriendlyResourceState(ResourceNodeState state) => state switch
+        {
+            ResourceNodeState.Available => "Disponível",
+            ResourceNodeState.Occupied => "Ocupado",
+            ResourceNodeState.Depleted => "Esgotado",
+            ResourceNodeState.Respawning => "Renascendo",
+            _ => state.ToString()
+        };
+
+        private static string FriendlyCreatureState(WorldCreatureState state) => state switch
+        {
+            WorldCreatureState.Available => "Disponível",
+            WorldCreatureState.Engaged => "Em combate",
+            WorldCreatureState.Defeated => "Derrotado",
+            WorldCreatureState.Respawning => "Renascendo",
+            _ => state.ToString()
+        };
     }
 }

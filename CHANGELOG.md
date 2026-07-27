@@ -7,7 +7,15 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Patch de recuperacao Beta 0.2 (P0/P1):** energia World Map, menu/nav, missoes minimas, save diagnostics, build sem watermark Development
+
 ## [Unreleased]
+
+### Fixed
+
+- **Patch de recuperacao Beta 0.2 (P0/P1):** energia World Map, menu/nav, missoes minimas, save diagnostics, build sem watermark Development
 
 ### Added
 

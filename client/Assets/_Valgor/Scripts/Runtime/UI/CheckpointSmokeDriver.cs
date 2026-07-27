@@ -56,6 +56,8 @@ namespace Valgor.UI
             yield return new WaitForSecondsRealtime(1.2f);
             yield return Capture("00-main-menu");
             yield return Capture("vis-01-main-menu");
+            // Splash/Loading já passou quando o smoke chega ao menu — tenta captura residual se a cena ainda existir.
+            yield return TryCaptureSplashIfPresent();
 
             EnsureLocalProfile();
             LocalPlayerProfile.MarkIntroDone();
@@ -70,6 +72,11 @@ namespace Valgor.UI
             yield return Capture("01-city");
             yield return Capture("vis-02-city-full");
             yield return Capture("art-01-city-full");
+            TryOpenMissionsPanel();
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("08-missions-panel");
+            TryOpenMissionsPanel(); // toggle fecha
+            yield return new WaitForSecondsRealtime(0.3f);
             TrySelectCityBuilding("castle");
             yield return new WaitForSecondsRealtime(1f);
             yield return Capture("vis-03-castle");
@@ -118,7 +125,7 @@ namespace Valgor.UI
 
             yield return Navigate(n => n.GoToHeroes());
             yield return WaitForScene(SceneIds.Heroes, 90f);
-            Debug.Log("[CheckpointSmoke] HeroesDemo OK");
+            Debug.Log("[CheckpointSmoke] HeroesDemo OK — Vortex selecionado por padrão no OnEnable");
             yield return new WaitForSecondsRealtime(3.5f);
             yield return Capture("02-heroes-vortex");
             yield return Capture("vis-10-heroes");
@@ -131,7 +138,7 @@ namespace Valgor.UI
 
             yield return Navigate(n => n.GoToWorldMap());
             yield return WaitForScene(SceneIds.WorldMap, 90f);
-            Debug.Log("[CheckpointSmoke] WorldMap OK");
+            Debug.Log("[CheckpointSmoke] WorldMap OK — energia deve carregar sem throw");
             yield return new WaitForSecondsRealtime(2.5f);
             yield return Capture("04-worldmap");
             yield return Capture("vis-12-worldmap");
@@ -146,9 +153,27 @@ namespace Valgor.UI
             yield return Navigate(n => n.GoToCity());
             yield return WaitForScene(SceneIds.City, 90f);
             yield return Capture("07-city-return");
-            Debug.Log("[CheckpointSmoke] Jornada mínima concluída.");
+            Debug.Log($"[CheckpointSmoke] Jornada mínima concluída. missões chapter={BetaMissions.ActiveChapter}");
             yield return new WaitForSecondsRealtime(0.8f);
             Application.Quit(0);
+        }
+
+        private IEnumerator TryCaptureSplashIfPresent()
+        {
+            for (var i = 0; i < SceneManager.sceneCount; i++)
+            {
+                var scene = SceneManager.GetSceneAt(i);
+                if (scene.IsValid() &&
+                    (string.Equals(scene.name, SceneIds.Loading, StringComparison.Ordinal) ||
+                     string.Equals(scene.name, "Splash", StringComparison.OrdinalIgnoreCase)))
+                {
+                    Debug.Log($"[CheckpointSmoke] Splash/Loading residual: {scene.name}");
+                    yield return Capture("00-splash");
+                    yield break;
+                }
+            }
+
+            Debug.Log("[CheckpointSmoke] Splash/Loading já encerrado — captura 00-splash omitida.");
         }
 
         private IEnumerator Capture(string name)
@@ -400,6 +425,34 @@ namespace Valgor.UI
             InvokeCityPresenter("DebugGoToFirstUnmetRequirement");
             yield return new WaitForSecondsRealtime(1.0f);
             yield return Capture($"{prefix}-{definitionId}-go");
+        }
+
+        private static void TryOpenMissionsPanel()
+        {
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (mb == null || !string.Equals(mb.GetType().Name, "BetaNavigationBar", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var flags = System.Reflection.BindingFlags.Instance |
+                            System.Reflection.BindingFlags.Public |
+                            System.Reflection.BindingFlags.NonPublic;
+                var method = mb.GetType().GetMethod("ToggleMissions", flags);
+                if (method == null)
+                {
+                    Debug.LogWarning("[CheckpointSmoke] BetaNavigationBar.ToggleMissions ausente.");
+                    return;
+                }
+
+                method.Invoke(mb, null);
+                Debug.Log("[CheckpointSmoke] Missões: ToggleMissions");
+                return;
+            }
+
+            Debug.LogWarning("[CheckpointSmoke] BetaNavigationBar não encontrado — 08-missions-panel pode ficar vazio.");
+            Debug.Log($"[CheckpointSmoke] missões chapter={BetaMissions.ActiveChapter} claimed={BetaMissions.ClaimedMask}");
         }
 
         private static void InvokeCityController(string methodName)

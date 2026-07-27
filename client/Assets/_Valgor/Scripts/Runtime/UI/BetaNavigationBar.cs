@@ -8,12 +8,13 @@ using Valgor.Navigation;
 namespace Valgor.UI
 {
     /// <summary>
-    /// Barra de navegação inferior única da beta (sem duplicar botões laterais da City).
+    /// Barra de navegação inferior — apenas cenas de gameplay (não Splash/Loading/Menu).
     /// </summary>
     public sealed class BetaNavigationBar : MonoBehaviour
     {
         private UIDocument _document = null!;
-        private Label _hint = null!;
+        private VisualElement _missionsPanel = null!;
+        private Label _missionsBody = null!;
 
         public static void Ensure()
         {
@@ -36,24 +37,14 @@ namespace Valgor.UI
 
         private void Update()
         {
-            if (_hint == null || GameBootstrap.Game == null)
+            if (_document == null || GameBootstrap.Game == null)
             {
                 return;
             }
 
             var state = GameBootstrap.Game.StateMachine.Current;
-            _hint.text = state switch
-            {
-                GameState.PlayerCity => "Cidade",
-                GameState.MainMenu => "Menu",
-                GameState.Heroes => "Heróis",
-                GameState.WorldMap => "Mapa",
-                GameState.Loading or GameState.Bootstrapping => string.Empty,
-                _ => string.Empty
-            };
-
-            var hideOnBoot = state is GameState.Bootstrapping or GameState.Loading;
-            _document.rootVisualElement.style.display = hideOnBoot ? DisplayStyle.None : DisplayStyle.Flex;
+            var show = state is GameState.PlayerCity or GameState.Heroes or GameState.WorldMap;
+            _document.rootVisualElement.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private void Build()
@@ -83,53 +74,162 @@ namespace Valgor.UI
             bar.Add(NavButton("Cidade", () =>
             {
                 PlayerPrefs.Save();
+                HideMissions();
                 Run(n => n.GoToCity());
             }));
             bar.Add(NavButton("Heróis", () =>
             {
                 PlayerPrefs.Save();
+                HideMissions();
                 Run(n => n.GoToHeroes());
             }));
             bar.Add(NavButton("Dragões", () =>
             {
                 PlayerPrefs.Save();
+                HideMissions();
                 Run(n => n.GoToDragonTower());
             }));
             bar.Add(NavButton("Mapa", () =>
             {
                 PlayerPrefs.Save();
+                HideMissions();
+                BetaMissions.Notify(MissionEvent.OpenWorldMap);
                 Run(n => n.GoToWorldMap());
             }));
-            bar.Add(NavButton("Missões", () =>
-            {
-                // Feedback jogável — sem log técnico na experiência do jogador.
-                var root = _document.rootVisualElement;
-                var toast = root.Q("missions-toast") ?? new Label("Missões em breve.") { name = "missions-toast" };
-                toast.style.position = Position.Absolute;
-                toast.style.left = Length.Percent(50);
-                toast.style.bottom = 80;
-                toast.style.translate = new Translate(Length.Percent(-50), 0);
-                toast.style.color = BetaVisualTheme.AgedGoldBright;
-                toast.style.fontSize = 14;
-                toast.style.backgroundColor = new Color(0.08f, 0.09f, 0.1f, 0.92f);
-                toast.style.paddingLeft = 12;
-                toast.style.paddingRight = 12;
-                toast.style.paddingTop = 8;
-                toast.style.paddingBottom = 8;
-                if (toast.parent == null)
-                {
-                    root.Add(toast);
-                }
-            }));
+            bar.Add(NavButton("Missões", ToggleMissions));
 
-            _hint = new Label();
-            _hint.style.position = Position.Absolute;
-            _hint.style.right = 16;
-            _hint.style.color = BetaVisualTheme.AgedGoldBright;
-            _hint.style.fontSize = 12;
-            _hint.pickingMode = PickingMode.Ignore;
-            _hint.style.display = DisplayStyle.None; // evita rótulos técnicos no rodapé
-            bar.Add(_hint);
+            BuildMissionsPanel(root);
+        }
+
+        private void BuildMissionsPanel(VisualElement root)
+        {
+            _missionsPanel = new VisualElement { name = "missions-panel" };
+            _missionsPanel.style.display = DisplayStyle.None;
+            _missionsPanel.style.position = Position.Absolute;
+            _missionsPanel.style.left = Length.Percent(50);
+            _missionsPanel.style.bottom = 76;
+            _missionsPanel.style.translate = new Translate(Length.Percent(-50), 0);
+            _missionsPanel.style.width = 420;
+            _missionsPanel.style.maxHeight = 420;
+            _missionsPanel.style.backgroundColor = BetaVisualTheme.BackgroundPanel;
+            _missionsPanel.style.borderTopWidth = 2;
+            _missionsPanel.style.borderBottomWidth = 2;
+            _missionsPanel.style.borderLeftWidth = 2;
+            _missionsPanel.style.borderRightWidth = 2;
+            _missionsPanel.style.borderTopColor = BetaVisualTheme.AgedGold;
+            _missionsPanel.style.borderBottomColor = BetaVisualTheme.AgedGold;
+            _missionsPanel.style.borderLeftColor = BetaVisualTheme.AgedGold;
+            _missionsPanel.style.borderRightColor = BetaVisualTheme.AgedGold;
+            _missionsPanel.style.paddingLeft = 16;
+            _missionsPanel.style.paddingRight = 16;
+            _missionsPanel.style.paddingTop = 14;
+            _missionsPanel.style.paddingBottom = 12;
+
+            var title = new Label("Missões — Capítulo do Comandante");
+            title.style.color = BetaVisualTheme.AgedGoldBright;
+            title.style.fontSize = 16;
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            title.style.marginBottom = 8;
+            _missionsPanel.Add(title);
+
+            var scroll = new ScrollView();
+            scroll.style.maxHeight = 300;
+            _missionsBody = new Label { name = "missions-body" };
+            _missionsBody.style.whiteSpace = WhiteSpace.Normal;
+            _missionsBody.style.color = BetaVisualTheme.TextPrimary;
+            _missionsBody.style.fontSize = 13;
+            scroll.Add(_missionsBody);
+            _missionsPanel.Add(scroll);
+
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.justifyContent = Justify.SpaceBetween;
+            row.style.marginTop = 10;
+            row.Add(NavButton("Recolher", ClaimCurrentReward));
+            row.Add(NavButton("Fechar", HideMissions));
+            _missionsPanel.Add(row);
+
+            root.Add(_missionsPanel);
+        }
+
+        private void ToggleMissions()
+        {
+            if (_missionsPanel.style.display == DisplayStyle.Flex)
+            {
+                HideMissions();
+                return;
+            }
+
+            RefreshMissionsBody();
+            _missionsPanel.style.display = DisplayStyle.Flex;
+        }
+
+        private void HideMissions()
+        {
+            if (_missionsPanel != null)
+            {
+                _missionsPanel.style.display = DisplayStyle.None;
+            }
+        }
+
+        private void RefreshMissionsBody()
+        {
+            var lines = new System.Text.StringBuilder();
+            for (var i = 0; i < BetaMissions.MissionCount; i++)
+            {
+                var state = BetaMissions.IsClaimed(i)
+                    ? "Recolhida"
+                    : BetaMissions.IsComplete(i)
+                        ? "Concluída — pronta"
+                        : i == BetaMissions.ActiveChapter
+                            ? "Em andamento"
+                            : "Bloqueada";
+                lines.AppendLine($"{i + 1}. {BetaMissions.Titles[i]} [{state}]");
+                lines.AppendLine($"   {BetaMissions.Objectives[i]}");
+                lines.AppendLine($"   Recompensa: {BetaMissions.DiamondRewards[i]} diamantes");
+                lines.AppendLine();
+            }
+
+            _missionsBody.text = lines.ToString().TrimEnd();
+        }
+
+        private void ClaimCurrentReward()
+        {
+            for (var i = 0; i < BetaMissions.MissionCount; i++)
+            {
+                if (!BetaMissions.CanClaim(i))
+                {
+                    continue;
+                }
+
+                if (!BetaMissions.TryClaim(i, out var diamonds, out var error))
+                {
+                    Debug.LogWarning("[Valgor] Missão: " + error);
+                    RefreshMissionsBody();
+                    return;
+                }
+
+                GrantDiamonds(diamonds);
+                Debug.Log($"[Valgor] Missão recompensa: +{diamonds} diamantes ({BetaMissions.Titles[i]})");
+                RefreshMissionsBody();
+                return;
+            }
+
+            RefreshMissionsBody();
+        }
+
+        private static void GrantDiamonds(int amount)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            // Runtime não referencia Valgor.City — fila diamantes para a City consumir.
+            var pending = PlayerPrefs.GetInt("valgor.missions.v1.pendingDiamonds", 0) + amount;
+            PlayerPrefs.SetInt("valgor.missions.v1.pendingDiamonds", pending);
+            PlayerPrefs.Save();
+            Debug.Log($"[Valgor] Missão: +{amount} diamantes enfileirados (pendente={pending}).");
         }
 
         private Button NavButton(string text, Action action)
@@ -140,7 +240,7 @@ namespace Valgor.UI
             button.style.paddingRight = 18;
             button.style.paddingTop = 10;
             button.style.paddingBottom = 10;
-            button.style.minWidth = 96;
+            button.style.minWidth = 88;
             button.style.backgroundColor = BetaVisualTheme.ButtonFace;
             button.style.color = BetaVisualTheme.TextPrimary;
             button.style.borderTopColor = BetaVisualTheme.ButtonBorder;
