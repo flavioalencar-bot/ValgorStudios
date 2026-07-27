@@ -25,7 +25,7 @@ Extensão do upgrade existente (sem novos edifícios). Um prédio só evolui qua
 | Edifício | Evoluir para Nv.N |
 |----------|-------------------|
 | **Fazenda** | Castelo ≥ N |
-| **Armazém** | Castelo ≥ N; em níveis do catálogo, Fazenda no nível exigido |
+| **Armazém** | Castelo ≥ N; Nv.2+ exige Fazenda (Nv.2 no catálogo para alvo 2–4; Nv.3 para alvo 5) |
 | **Castelo** | Fazenda e Armazém nos níveis do catálogo (sem gate de Castelo) |
 
 ## Integração

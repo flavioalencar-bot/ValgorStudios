@@ -159,11 +159,11 @@ public sealed class BuildingRequirementCatalogTests
     }
 
     [Fact]
-    public void Warehouse_Level2_RequiresFarm1()
+    public void Warehouse_Level2_RequiresFarm2()
     {
         var req = BuildingRequirementCatalog.GetRequirement("warehouse", currentLevel: 1);
         Assert.Equal(2, req.MinimumCastleLevel);
-        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "farm" && b.MinimumLevel == 1);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "farm" && b.MinimumLevel == 2);
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public sealed class BuildingRequirementCatalogTests
         var ok = BuildingRequirementEvaluator.MeetsAll(
             warehouse,
             castleLevel: 2,
-            id => id == "farm" ? 1 : 0);
+            id => id == "farm" ? 2 : 0);
 
         Assert.True(ok);
     }

@@ -69,7 +69,7 @@ namespace Valgor.City.Buildings
                     defaultRequirement: DynamicCastle(),
                     byTargetLevel: new Dictionary<int, BuildingUpgradeRequirement>
                     {
-                        [2] = WithBuildings(2, new BuildingLevelRequirement("farm", 1, "Fazenda")),
+                        [2] = WithBuildings(2, new BuildingLevelRequirement("farm", 2, "Fazenda")),
                         [3] = WithBuildings(3, new BuildingLevelRequirement("farm", 2, "Fazenda")),
                         [4] = WithBuildings(4, new BuildingLevelRequirement("farm", 2, "Fazenda")),
                         [5] = WithBuildings(5, new BuildingLevelRequirement("farm", 3, "Fazenda"))

@@ -1,4 +1,4 @@
-﻿# VALGOR — Matriz de Implementação e Auditoria de Aderência
+# VALGOR — Matriz de Implementação e Auditoria de Aderência
 
 **Documento:** `docs/project-control/VALGOR_IMPLEMENTATION_STATUS.md`  
 **Auditoria:** 2026-07-27  
@@ -326,10 +326,11 @@ Histórico completo: `git log --oneline` no repositório.
 - Sem novos edifícios; sem reescrita do fluxo de upgrade; **sem** arquivos de outros repositórios.
 - `dotnet test tools/Valgor.GameLogic.Tests`: **125 aprovados / 0 falha / 125 total**.
 - `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
-- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 15:06:01).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 15:11:43).
+- Evidência smoke: `ux-11-prereq-blocked` (Armazém bloqueado — pré-requisito Fazenda em vermelho + botão **Ir**; Atualizar desabilitado/bloqueado) e `ux-12-prereq-go-farm` (após **Ir**, Fazenda selecionada/focada).
 - Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs em `builds/windows/Valgor-Beta-0.1/evidence/` e versionados em `docs/releases/beta-0.1-evidence/ux-contextual/`:
   - `ux-11-prereq-blocked.png`
-  - `ux-12-prereq-go-castle.png`
+  - `ux-12-prereq-go-farm.png`
 
 ## Patch crítico — clique nos edifícios (2026-07-27)
 

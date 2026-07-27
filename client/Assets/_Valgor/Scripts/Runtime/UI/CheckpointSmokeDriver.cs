@@ -181,14 +181,17 @@ namespace Valgor.UI
             yield return Capture("ux-06-upgrade-panel");
             yield return Capture("ux-07-upgrade-requirements");
 
-            TrySelectCityBuilding("farm");
+            TrySelectCityBuilding("warehouse");
             yield return new WaitForSecondsRealtime(0.8f);
             InvokeCityPresenter("DebugOpenUpgradePanel");
             yield return new WaitForSecondsRealtime(1f);
             yield return Capture("ux-11-prereq-blocked");
+            // Tentativa bloqueada: não deve debitar recursos (gold permanece).
+            TryCityUpgradeSelected();
+            yield return new WaitForSecondsRealtime(0.3f);
             InvokeCityPresenter("DebugGoToFirstUnmetRequirement");
             yield return new WaitForSecondsRealtime(1.2f);
-            yield return Capture("ux-12-prereq-go-castle");
+            yield return Capture("ux-12-prereq-go-farm");
 
             TrySelectCityBuilding("farm");
             yield return new WaitForSecondsRealtime(0.8f);
