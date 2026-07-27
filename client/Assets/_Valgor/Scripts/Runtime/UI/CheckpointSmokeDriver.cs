@@ -75,8 +75,7 @@ namespace Valgor.UI
             yield return Capture("vis-03-castle");
             yield return Capture("vis-07-building-selected");
             yield return Capture("art-02-castle");
-            yield return Capture("art-07-building-selected");
-            yield return Capture("art-08-context-panel");
+            yield return Capture("art-08-building-selected");
             TrySelectCityBuilding("dragon-tower");
             yield return new WaitForSecondsRealtime(0.9f);
             yield return Capture("vis-06-dragon-tower");
@@ -96,6 +95,10 @@ namespace Valgor.UI
             yield return Capture("vis-05-military");
             TrySelectCityBuilding("castle");
             yield return new WaitForSecondsRealtime(0.5f);
+            // Visão com iluminação quente (dia reforçado).
+            InvokeCityVisualLighting("ApplyDayLighting");
+            yield return new WaitForSecondsRealtime(0.5f);
+            yield return Capture("art-07-lighting");
             InvokeCityPresenter("DebugOpenDetailsPanel");
             yield return new WaitForSecondsRealtime(0.7f);
             yield return Capture("vis-08-details");
@@ -103,7 +106,7 @@ namespace Valgor.UI
             yield return new WaitForSecondsRealtime(0.7f);
             yield return Capture("vis-09-upgrade");
 
-            // Noite provisória (evidência de iluminação).
+            // Noite provisória (evidência extra).
             InvokeCityVisualLighting("ApplyNightLighting");
             yield return new WaitForSecondsRealtime(0.6f);
             yield return Capture("art-09-city-night");

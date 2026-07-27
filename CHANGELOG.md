@@ -7,6 +7,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Fixed
+
+- City: direção visual P0 — UV/tiling em espaço de mundo, caminhos de pedra (não tábuas), horizonte/névoa sem fundo azul, Castelo dominante, Torre circular legível, telhados/cercas/plantações proporcionados; evidências `art-direction-p0/`
+
 ### Added
 
 - City: arte mínima P0 — Castelo, Torre dos Dragões, Fazenda, Armazém, Academia (modulares reconhecíveis); materiais com noise; indicadores medalhão/chevron; evidências `art-01`…`art-09`

@@ -420,3 +420,12 @@ Histórico completo: `git log --oneline` no repositório.
 - Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs `art-01` ... `art-09` versionados em `docs/releases/beta-0.1-evidence/art-minimal-p0/`.
 - Patch compile: `CheckpointSmokeDriver` chama `CityEnvironmentBuilder` via reflection (evita ciclo Valgor.Runtime vs Valgor.City).
 
+## Correção direção visual City P0 (2026-07-27)
+
+- Correção P0 sem novos sistemas: tiling world-space nos materiais, caminhos de pedra, fill de horizonte sem bordas azuis, silhuetas mais limpas (castelo / torre dos dragões / fazenda / armazém / academia); IDs e colliders preservados.
+- Evidências: `docs/releases/beta-0.1-evidence/art-direction-p0/` (`art-01` ... `art-09`).
+- `dotnet test tools/Valgor.GameLogic.Tests`: **140 aprovados / 0 falha / 140 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=**2026-07-27 17:47:21**).
+- Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs `art-01` ... `art-09` versionados em `docs/releases/beta-0.1-evidence/art-direction-p0/`.
+
