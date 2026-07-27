@@ -433,11 +433,13 @@ Histórico completo: `git log --oneline` no repositório.
 
 - Edifício `wall` / **Muralha**: catálogo, seed Lv.1, requisitos Castelo≥N (`DynamicCastle`), Detalhes/Atualizar, efeitos defesa/HP/resistência (exibição).
 - Visual: anel/portões em `CityEnvironmentBuilder.ApplyWallLevel` respondem ao nível; gatehouse selecionável em `(0, 14.8)`.
+- Clique: segmentos/portões com proxies de seleção selecionam a muralha como um único `definitionId` `wall`; highlight do anel completo; log `Building clicked: wall` (smoke: `[CheckpointSmoke] Clique proxy muralha`).
 - `dotnet test tools/Valgor.GameLogic.Tests`: **143 aprovados / 0 falha / 143 total**.
 - `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
-- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=**2026-07-27 18:07:10**).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=**2026-07-27 18:24:10**).
 - Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs versionados em `docs/releases/beta-0.1-evidence/wall-building/`:
   - `ux-31-wall-selected.png`
+  - `ux-31b-wall-segment-click.png`
   - `ux-32-wall-details.png`
   - `ux-33-wall-upgrade.png`
   - `ux-34-wall-blocked.png`

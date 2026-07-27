@@ -7,6 +7,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Fixed
+
+- City: Muralha clicável — colliders nos segmentos/portões + `BuildingSelectionClickProxy` → `wall`; destaque da fortificação inteira; log `Building clicked: wall`
+
 ### Added
 
 - City: **Muralha** como edifício evolutivo (`wall`) — Detalhes/Atualizar, requisitos Castelo≥N, efeitos de defesa/HP/resistência exibidos, visual do anel/portões por nível; evidências `ux-31`…`ux-35`

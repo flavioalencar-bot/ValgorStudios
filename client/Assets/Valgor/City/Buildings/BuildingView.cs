@@ -70,6 +70,12 @@ namespace Valgor.City.Buildings
                 _label.gameObject.SetActive(selected);
             }
 
+            if (Instance != null &&
+                string.Equals(Instance.DefinitionId, "wall", StringComparison.Ordinal))
+            {
+                CityEnvironmentBuilder.SetFortificationsHighlighted(selected);
+            }
+
             RefreshCollectableLabel();
         }
 
@@ -443,5 +449,19 @@ namespace Valgor.City.Buildings
         public void Bind(Action onClick) => _onClick = onClick;
 
         public void NotifyClicked() => _onClick?.Invoke();
+    }
+
+    /// <summary>
+    /// Encaminha clique de colliders satélite (ex.: segmentos da Muralha) para o BuildingView lógico.
+    /// </summary>
+    public sealed class BuildingSelectionClickProxy : MonoBehaviour
+    {
+        private BuildingView? _target;
+
+        public BuildingView? Target => _target;
+
+        public void Bind(BuildingView target) => _target = target;
+
+        public void NotifyClicked() => _target?.NotifyClicked();
     }
 }

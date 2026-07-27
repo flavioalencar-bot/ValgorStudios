@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using Valgor.City.Buildings;
 using Valgor.City.Camera;
 using Valgor.City.Data;
@@ -60,6 +61,7 @@ namespace Valgor.City.Core
                     return;
                 }
 
+                Debug.Log($"Building clicked: {instance.DefinitionId}");
                 Selection.Select(instance);
             };
             view.CollectRequested += () =>

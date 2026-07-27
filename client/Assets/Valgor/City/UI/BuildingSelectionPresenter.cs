@@ -794,7 +794,8 @@ namespace Valgor.City.UI
             {
                 if (hit.collider != null &&
                     (hit.collider.GetComponentInParent<BuildingView>() != null ||
-                     hit.collider.GetComponentInParent<BuildingCollectableClickProxy>() != null))
+                     hit.collider.GetComponentInParent<BuildingCollectableClickProxy>() != null ||
+                     hit.collider.GetComponentInParent<BuildingSelectionClickProxy>() != null))
                 {
                     return;
                 }

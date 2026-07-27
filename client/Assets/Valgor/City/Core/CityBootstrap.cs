@@ -69,18 +69,57 @@ namespace Valgor.City
             }
         }
 
+        private BuildingView? _wallView;
         private int _lastWallVisualLevel = int.MinValue;
 
         private void ApplyWallFortifications()
         {
             var level = Controller != null ? Controller.GetBuildingLevel("wall") : 1;
-            if (level == _lastWallVisualLevel)
+            if (level != _lastWallVisualLevel)
+            {
+                _lastWallVisualLevel = level;
+                CityEnvironmentBuilder.ApplyWallLevel(transform, level);
+            }
+
+            BindWallSelectionProxies();
+        }
+
+        private void BindWallSelectionProxies()
+        {
+            if (_wallView == null)
             {
                 return;
             }
 
-            _lastWallVisualLevel = level;
-            CityEnvironmentBuilder.ApplyWallLevel(transform, level);
+            var fort = CityEnvironmentBuilder.FindFortifications(transform);
+            if (fort == null)
+            {
+                return;
+            }
+
+            var buildingLayer = LayerMask.NameToLayer("Building");
+            var colliders = fort.GetComponentsInChildren<Collider>(true);
+            for (var i = 0; i < colliders.Length; i++)
+            {
+                var col = colliders[i];
+                if (col == null)
+                {
+                    continue;
+                }
+
+                if (buildingLayer >= 0)
+                {
+                    col.gameObject.layer = buildingLayer;
+                }
+
+                var proxy = col.GetComponent<BuildingSelectionClickProxy>();
+                if (proxy == null)
+                {
+                    proxy = col.gameObject.AddComponent<BuildingSelectionClickProxy>();
+                }
+
+                proxy.Bind(_wallView);
+            }
         }
 
         private void Update() => Controller.Tick();
@@ -160,7 +199,10 @@ namespace Valgor.City
                 var bounds = CityBuildingMeshFactory.Build(layout.Id, slotObject.transform, identity);
                 var box = slotObject.AddComponent<BoxCollider>();
                 box.center = bounds.center;
-                box.size = Vector3.Max(bounds.size, new Vector3(2.2f, 2.2f, 2.2f));
+                var minSize = layout.Id == "wall"
+                    ? new Vector3(4.5f, 3.5f, 3.0f)
+                    : new Vector3(2.2f, 2.2f, 2.2f);
+                box.size = Vector3.Max(bounds.size, minSize);
 
                 var buildingLayer = LayerMask.NameToLayer("Building");
                 if (buildingLayer >= 0)
@@ -171,6 +213,11 @@ namespace Valgor.City
                 var view = slotObject.AddComponent<BuildingView>();
                 view.Initialize(instance, definition, labelHeight: bounds.max.y + 0.6f);
                 Controller.Add(slot, instance, definition, view);
+
+                if (layout.Id == "wall")
+                {
+                    _wallView = view;
+                }
 
                 if (layout.Id == "dragon-tower")
                 {

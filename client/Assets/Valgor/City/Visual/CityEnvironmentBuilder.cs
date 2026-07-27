@@ -25,8 +25,12 @@ namespace Valgor.City.Visual
             SoftenLighting();
         }
 
+        private static Renderer[] _fortRenderers = System.Array.Empty<Renderer>();
+        private static Color[] _fortBaseColors = System.Array.Empty<Color>();
+
         /// <summary>
         /// Reconstrói anel + portões conforme o nível da Muralha (único edifício lógico).
+        /// Mantém colliders nos segmentos para seleção via BuildingSelectionClickProxy.
         /// </summary>
         public static void ApplyWallLevel(Transform cityRoot, int wallLevel)
         {
@@ -38,6 +42,7 @@ namespace Valgor.City.Visual
             var existing = cityRoot.Find("CityFortifications");
             if (existing != null)
             {
+                existing.name = "CityFortifications_PendingDestroy";
                 UnityEngine.Object.Destroy(existing.gameObject);
             }
 
@@ -46,6 +51,64 @@ namespace Valgor.City.Visual
             var level = Math.Max(0, wallLevel);
             BuildWallRing(root, level);
             BuildMainGate(root, level);
+            CacheFortificationRenderers(root);
+        }
+
+        public static Transform? FindFortifications(Transform cityRoot) =>
+            cityRoot != null ? cityRoot.Find("CityFortifications") : null;
+
+        public static void SetFortificationsHighlighted(bool selected)
+        {
+            if (_fortRenderers.Length == 0 || _fortBaseColors.Length != _fortRenderers.Length)
+            {
+                return;
+            }
+
+            var gold = new Color(0.86f, 0.72f, 0.38f);
+            for (var i = 0; i < _fortRenderers.Length; i++)
+            {
+                var renderer = _fortRenderers[i];
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                var color = selected
+                    ? Color.Lerp(_fortBaseColors[i], gold, 0.42f)
+                    : _fortBaseColors[i];
+                CityVisualMaterials.Apply(renderer, color);
+            }
+        }
+
+        private static void CacheFortificationRenderers(Transform root)
+        {
+            _fortRenderers = root.GetComponentsInChildren<Renderer>();
+            _fortBaseColors = new Color[_fortRenderers.Length];
+            for (var i = 0; i < _fortRenderers.Length; i++)
+            {
+                _fortBaseColors[i] = ReadRendererColor(_fortRenderers[i]);
+            }
+        }
+
+        private static Color ReadRendererColor(Renderer renderer)
+        {
+            var material = renderer.sharedMaterial;
+            if (material == null)
+            {
+                return Color.gray;
+            }
+
+            if (material.HasProperty("_BaseColor"))
+            {
+                return material.GetColor("_BaseColor");
+            }
+
+            if (material.HasProperty("_Color"))
+            {
+                return material.GetColor("_Color");
+            }
+
+            return material.color;
         }
 
         private static void BuildTerrain(Transform root)
@@ -151,21 +214,21 @@ namespace Valgor.City.Visual
 
                 var angle = i * (360f / segments) * Mathf.Deg2Rad;
                 var pos = new Vector3(Mathf.Sin(angle) * radius, height * 0.5f, Mathf.Cos(angle) * radius);
-                var piece = Part(PrimitiveType.Cube, root, $"Wall_{i}", pos,
+                var piece = FortPart(PrimitiveType.Cube, root, $"Wall_{i}", pos,
                     new Vector3(3.2f, height, thickness), wall, SurfaceKind.Stone);
                 piece.transform.LookAt(new Vector3(0f, height * 0.5f, 0f));
-                var capGo = Part(PrimitiveType.Cube, root, $"WallCap_{i}", pos + Vector3.up * (height * 0.52f),
+                var capGo = FortPart(PrimitiveType.Cube, root, $"WallCap_{i}", pos + Vector3.up * (height * 0.52f),
                     new Vector3(3.2f, 0.28f, thickness + 0.12f), cap, SurfaceKind.Stone);
                 capGo.transform.rotation = piece.transform.rotation;
 
                 if (wallLevel >= 3 && i % 3 == 1)
                 {
                     var towerH = height + 0.85f;
-                    var tower = Part(PrimitiveType.Cube, root, $"WallTower_{i}",
+                    var tower = FortPart(PrimitiveType.Cube, root, $"WallTower_{i}",
                         pos + Vector3.up * (height * 0.25f),
                         new Vector3(1.1f, towerH, 1.1f), cap, SurfaceKind.Stone);
                     tower.transform.rotation = piece.transform.rotation;
-                    Part(PrimitiveType.Cube, root, $"WallTowerRoof_{i}",
+                    FortPart(PrimitiveType.Cube, root, $"WallTowerRoof_{i}",
                         pos + Vector3.up * (height * 0.25f + towerH * 0.55f),
                         new Vector3(1.25f, 0.35f, 1.25f), CityVisualMaterials.RoofBlue, SurfaceKind.Roof);
                 }
@@ -178,19 +241,19 @@ namespace Valgor.City.Visual
             var dark = CityVisualMaterials.StoneDark;
             var z = 16.5f;
             var towerH = wallLevel <= 0 ? 2.2f : 2.6f + Math.Min(wallLevel, 5) * 0.25f;
-            Part(PrimitiveType.Cube, root, "GateL", new Vector3(-2.1f, towerH * 0.5f, z),
+            FortPart(PrimitiveType.Cube, root, "GateL", new Vector3(-2.1f, towerH * 0.5f, z),
                 new Vector3(1.4f, towerH, 1.4f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, "GateR", new Vector3(2.1f, towerH * 0.5f, z),
+            FortPart(PrimitiveType.Cube, root, "GateR", new Vector3(2.1f, towerH * 0.5f, z),
                 new Vector3(1.4f, towerH, 1.4f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, "GateArch", new Vector3(0f, towerH + 0.2f, z),
+            FortPart(PrimitiveType.Cube, root, "GateArch", new Vector3(0f, towerH + 0.2f, z),
                 new Vector3(5.0f, 0.55f, 1.5f), stone, SurfaceKind.Stone);
             if (wallLevel >= 2)
             {
-                Part(PrimitiveType.Cube, root, "GateGold", new Vector3(0f, towerH + 0.55f, z),
+                FortPart(PrimitiveType.Cube, root, "GateGold", new Vector3(0f, towerH + 0.55f, z),
                     new Vector3(1.4f, 0.18f, 0.45f), CityVisualMaterials.Gold, SurfaceKind.Metal);
             }
 
-            Part(PrimitiveType.Cube, root, "GateDoor", new Vector3(0f, 1.35f, z + 0.15f),
+            FortPart(PrimitiveType.Cube, root, "GateDoor", new Vector3(0f, 1.35f, z + 0.15f),
                 new Vector3(2.4f, Math.Min(2.8f, towerH * 0.85f), 0.25f),
                 CityVisualMaterials.Wood, SurfaceKind.Wood);
 
@@ -211,10 +274,10 @@ namespace Valgor.City.Visual
             var h = wallLevel <= 0 ? 1.6f : 1.9f + Math.Min(wallLevel, 4) * 0.15f;
             var left = alongX ? new Vector3(g.x, h * 0.5f, g.z - 1.35f) : new Vector3(g.x - 1.35f, h * 0.5f, g.z);
             var right = alongX ? new Vector3(g.x, h * 0.5f, g.z + 1.35f) : new Vector3(g.x + 1.35f, h * 0.5f, g.z);
-            Part(PrimitiveType.Cube, root, "SideGateL", left, new Vector3(1.0f, h, 1.0f), stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, "SideGateR", right, new Vector3(1.0f, h, 1.0f), stone, SurfaceKind.Stone);
+            FortPart(PrimitiveType.Cube, root, "SideGateL", left, new Vector3(1.0f, h, 1.0f), stone, SurfaceKind.Stone);
+            FortPart(PrimitiveType.Cube, root, "SideGateR", right, new Vector3(1.0f, h, 1.0f), stone, SurfaceKind.Stone);
             var arch = new Vector3(g.x, h + 0.15f, g.z);
-            Part(PrimitiveType.Cube, root, "SideGateArch", arch,
+            FortPart(PrimitiveType.Cube, root, "SideGateArch", arch,
                 alongX ? new Vector3(1.0f, 0.35f, 2.9f) : new Vector3(2.9f, 0.35f, 1.0f), stone, SurfaceKind.Stone);
         }
 
@@ -345,16 +408,31 @@ namespace Valgor.City.Visual
             Vector3 position,
             Vector3 scale,
             Color color,
-            SurfaceKind surface = SurfaceKind.Stone)
+            SurfaceKind surface = SurfaceKind.Stone,
+            bool keepCollider = false)
         {
             var go = GameObject.CreatePrimitive(type);
             go.name = name;
             go.transform.SetParent(parent, false);
             go.transform.localPosition = position;
             go.transform.localScale = scale;
-            UnityEngine.Object.Destroy(go.GetComponent<Collider>());
+            if (!keepCollider)
+            {
+                UnityEngine.Object.Destroy(go.GetComponent<Collider>());
+            }
+
             CityVisualMaterials.ApplySurface(go.GetComponent<Renderer>(), color, surface);
             return go;
         }
+
+        private static GameObject FortPart(
+            PrimitiveType type,
+            Transform parent,
+            string name,
+            Vector3 position,
+            Vector3 scale,
+            Color color,
+            SurfaceKind surface = SurfaceKind.Stone) =>
+            Part(type, parent, name, position, scale, color, surface, keepCollider: true);
     }
 }

@@ -94,6 +94,13 @@ namespace Valgor.City.Input
                 return;
             }
 
+            var selectProxy = hit.collider.GetComponentInParent<BuildingSelectionClickProxy>();
+            if (selectProxy != null)
+            {
+                selectProxy.NotifyClicked();
+                return;
+            }
+
             var view = hit.collider.GetComponentInParent<BuildingView>();
             view?.NotifyClicked();
         }

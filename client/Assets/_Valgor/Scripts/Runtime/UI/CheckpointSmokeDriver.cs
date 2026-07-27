@@ -312,6 +312,9 @@ namespace Valgor.UI
             TrySelectCityBuilding("wall");
             yield return new WaitForSecondsRealtime(0.9f);
             yield return Capture("ux-31-wall-selected");
+            TryClickWallSegmentProxy();
+            yield return new WaitForSecondsRealtime(0.7f);
+            yield return Capture("ux-31b-wall-segment-click");
             InvokeCityPresenter("DebugOpenDetailsPanel");
             yield return new WaitForSecondsRealtime(0.8f);
             yield return Capture("ux-32-wall-details");
@@ -560,6 +563,39 @@ namespace Valgor.UI
             }
 
             Debug.LogWarning($"[CheckpointSmoke] Não foi possível selecionar {definitionId}.");
+        }
+
+        /// <summary>Simula clique em segmento da muralha (proxy → BuildingView wall).</summary>
+        private static void TryClickWallSegmentProxy()
+        {
+            var proxies = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+            for (var i = 0; i < proxies.Length; i++)
+            {
+                var mb = proxies[i];
+                if (mb == null ||
+                    !string.Equals(mb.GetType().Name, "BuildingSelectionClickProxy", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var targetProp = mb.GetType().GetProperty("Target");
+                var target = targetProp?.GetValue(mb);
+                var instanceProp = target?.GetType().GetProperty("Instance");
+                var instance = instanceProp?.GetValue(target);
+                var defIdProp = instance?.GetType().GetProperty("DefinitionId");
+                var defId = defIdProp?.GetValue(instance) as string;
+                if (!string.Equals(defId, "wall", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var notify = mb.GetType().GetMethod("NotifyClicked");
+                notify?.Invoke(mb, null);
+                Debug.Log("[CheckpointSmoke] Clique proxy muralha → wall");
+                return;
+            }
+
+            Debug.LogWarning("[CheckpointSmoke] Nenhum BuildingSelectionClickProxy da muralha encontrado.");
         }
 
         private static void TrySelectFirstWorldNode()
