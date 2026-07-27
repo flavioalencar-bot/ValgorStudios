@@ -52,8 +52,7 @@ namespace Valgor.UI
             Debug.Log("[CheckpointSmoke] Aguardando MainMenu…");
             yield return WaitForScene(SceneIds.MainMenu, 120f);
             Debug.Log("[CheckpointSmoke] MainMenu OK");
-            yield return new WaitForSecondsRealtime(2f);
-            yield return Capture("01-mainmenu");
+            yield return new WaitForSecondsRealtime(1.5f);
 
             EnsureLocalProfile();
             LocalPlayerProfile.TutorialStep = LocalPlayerProfile.TutorialSteps.Complete;
@@ -64,31 +63,27 @@ namespace Valgor.UI
             yield return WaitForScene(SceneIds.City, 90f);
             Debug.Log("[CheckpointSmoke] City OK");
             yield return new WaitForSecondsRealtime(3f);
-            yield return Capture("02-city-clean");
-
-            TrySelectCityBuilding("castle");
-            yield return new WaitForSecondsRealtime(1.5f);
-            yield return Capture("03-city-building-selected");
+            yield return Capture("01-city");
 
             yield return Navigate(n => n.GoToHeroes());
             yield return WaitForScene(SceneIds.Heroes, 90f);
             Debug.Log("[CheckpointSmoke] HeroesDemo OK");
             yield return new WaitForSecondsRealtime(4f);
-            yield return Capture("04-heroes-vortex");
-
-            yield return Navigate(n => n.GoToCity());
-            yield return WaitForScene(SceneIds.City, 90f);
-            Debug.Log("[CheckpointSmoke] Return City OK");
-            yield return new WaitForSecondsRealtime(2f);
+            yield return Capture("02-heroes-vortex");
 
             yield return Navigate(n => n.GoToWorldMap());
             yield return WaitForScene(SceneIds.WorldMap, 90f);
             Debug.Log("[CheckpointSmoke] WorldMap OK");
             yield return new WaitForSecondsRealtime(3f);
-            yield return Capture("05-worldmap");
+            yield return Capture("03-worldmap");
 
             TrySelectFirstWorldNode();
-            yield return new WaitForSecondsRealtime(2f);
+            yield return new WaitForSecondsRealtime(1.5f);
+            yield return Capture("04-worldmap-node-selected");
+
+            TryExpandWorldMapFilters();
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Capture("05-worldmap-filters-open");
 
             yield return Navigate(n => n.GoToCity());
             yield return WaitForScene(SceneIds.City, 90f);
@@ -110,7 +105,12 @@ namespace Valgor.UI
             ScreenCapture.CaptureScreenshot(path);
             Debug.Log($"[CheckpointSmoke] Captura: {path}");
             yield return new WaitForEndOfFrame();
-            yield return new WaitForSecondsRealtime(1.25f);
+            // ScreenCapture é assíncrono no player — aguarda flush do PNG.
+            yield return new WaitForSecondsRealtime(2.5f);
+            for (var i = 0; i < 20 && !File.Exists(path); i++)
+            {
+                yield return new WaitForSecondsRealtime(0.25f);
+            }
         }
 
         private static void EnsureLocalProfile()
@@ -203,6 +203,27 @@ namespace Valgor.UI
             }
 
             Debug.LogWarning("[CheckpointSmoke] Nenhum WorldNodeView encontrado.");
+        }
+
+        private static void TryExpandWorldMapFilters()
+        {
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (mb == null || !string.Equals(mb.GetType().Name, "WorldMapHudController", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var field = mb.GetType().GetField("_filterPanel",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                var panel = field?.GetValue(mb);
+                var expand = panel?.GetType().GetMethod("Expand");
+                expand?.Invoke(panel, null);
+                Debug.Log("[CheckpointSmoke] Filtros expandidos.");
+                return;
+            }
+
+            Debug.LogWarning("[CheckpointSmoke] Filtros não encontrados.");
         }
     }
 }

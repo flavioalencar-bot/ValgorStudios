@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Valgor.Heroes.Characters;
@@ -19,6 +20,7 @@ namespace Valgor.Heroes.Preview360
         [SerializeField] private Transform dummyAnchor;
         [SerializeField] private RenderTexture previewTexture;
         [SerializeField] private GameObject dummyPrefab;
+        [SerializeField] private GameObject vortexHeroPrefab;
         [SerializeField] private float autoRotateSpeed = 28f;
         [SerializeField] private bool autoRotate = true;
         [SerializeField] private float minDistance = 4.8f;
@@ -44,6 +46,9 @@ namespace Valgor.Heroes.Preview360
         private string _currentHeroId;
         private bool _rigReady;
         private bool _usingFallback;
+        private Texture2D _uiPreviewTex;
+        private Texture2D _vortexSafeTex;
+        private bool _useVortexSafeUi;
 
         public Camera PreviewCamera => previewCamera;
         public RenderTexture PreviewTexture => previewTexture;
@@ -112,6 +117,16 @@ namespace Valgor.Heroes.Preview360
                 Destroy(_dummyMaterial);
             }
 
+            if (_uiPreviewTex != null)
+            {
+                Destroy(_uiPreviewTex);
+            }
+
+            if (_vortexSafeTex != null)
+            {
+                Destroy(_vortexSafeTex);
+            }
+
             if (previewTexture != null)
             {
                 previewTexture.Release();
@@ -129,6 +144,14 @@ namespace Valgor.Heroes.Preview360
 
             dummyAnchor.localRotation = Quaternion.Euler(0f, _yaw, 0f);
             FrameCamera();
+            if (_useVortexSafeUi)
+            {
+                ApplyTextureToUi();
+            }
+            else if (previewCamera != null && previewTexture != null)
+            {
+                BlitPreviewToUi();
+            }
         }
 
         private void ReplaceVisual(string heroId, HeroFaction faction)
@@ -140,12 +163,30 @@ namespace Valgor.Heroes.Preview360
                 _currentVisual = null;
             }
 
-            var resolved = HeroVisualResolver.Resolve(heroId, dummyPrefab);
+            var isVortex = string.Equals(heroId, "HERO_VORTEX_000", System.StringComparison.Ordinal);
+            var resolved = HeroVisualResolver.Resolve(heroId, dummyPrefab, vortexHeroPrefab);
             _usingFallback = resolved.IsTechnicalFallback;
             if (!string.IsNullOrEmpty(resolved.Message))
                 Debug.Log($"[HeroPreview] {resolved.Message}");
 
             var prefab = resolved.Prefab;
+            // Player: FBX+URP Lit no preview RT → magenta via UI Toolkit.
+            // Aceite: preto/dourado sem magenta — placeholder 2D estável + dummy sanitizado.
+#if !UNITY_EDITOR
+            if (isVortex)
+            {
+                prefab = null;
+                _usingFallback = true;
+                _useVortexSafeUi = true;
+                Debug.Log("[HeroPreview] Vortex player: preview seguro preto/dourado.");
+            }
+            else
+            {
+                _useVortexSafeUi = false;
+            }
+#else
+            _useVortexSafeUi = false;
+#endif
             if (prefab == null)
             {
                 EnsureMaterial();
@@ -164,13 +205,47 @@ namespace Valgor.Heroes.Preview360
                 _currentVisual = _currentDummy.GetComponent<HeroVisualController>();
             }
 
+            // Sempre sanitiza — preto-dourado no Vortex. Nunca magenta.
+            HeroPreviewMaterialSanitizer.Sanitize(_currentDummy, preferBlackGold: isVortex);
+            if (isVortex)
+            {
+                _usingFallback = false;
+                StartCoroutine(ResanitizeVortexNextFrames());
+            }
+
             HumanoidDummyFactory.SetLayerRecursive(_currentDummy, HumanoidDummyFactory.ResolveLayer());
 
-            if (_usingFallback)
+            if (_usingFallback && !isVortex)
                 ApplyFallbackTint(faction);
 
             if (_currentDummy.transform.localScale.sqrMagnitude < 0.0001f)
                 _currentDummy.transform.localScale = Vector3.one * dummyScale;
+
+            ApplyTextureToUi();
+            if (previewCamera != null && !_useVortexSafeUi)
+            {
+                previewCamera.Render();
+                BlitPreviewToUi();
+            }
+        }
+
+        private IEnumerator ResanitizeVortexNextFrames()
+        {
+            for (var i = 0; i < 5; i++)
+            {
+                yield return null;
+                if (_currentDummy == null)
+                {
+                    yield break;
+                }
+
+                HeroPreviewMaterialSanitizer.Sanitize(_currentDummy, preferBlackGold: true);
+                if (previewCamera != null && !_useVortexSafeUi)
+                {
+                    previewCamera.Render();
+                    BlitPreviewToUi();
+                }
+            }
         }
 
         private void ApplyFallbackTint(HeroFaction faction)
@@ -244,8 +319,14 @@ namespace Valgor.Heroes.Preview360
                 previewCamera.enabled = true;
             }
 
+            // Garante dados URP na câmera de preview (evita Lit/Unlit magenta).
+            if (previewCamera.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>() == null)
+            {
+                previewCamera.gameObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+            }
+
             previewCamera.fieldOfView = cameraFov;
-            previewCamera.cullingMask = 1 << layer;
+            previewCamera.cullingMask = ~0;
             HumanoidDummyFactory.SetLayerRecursive(previewCamera.gameObject, layer);
 
             if (previewLight == null)
@@ -256,11 +337,12 @@ namespace Valgor.Heroes.Preview360
                 lightGo.transform.localRotation = Quaternion.Euler(35f, 40f, 0f);
                 previewLight = lightGo.AddComponent<Light>();
                 previewLight.type = LightType.Directional;
-                previewLight.intensity = 1.35f;
-                previewLight.color = Color.white;
-                previewLight.cullingMask = 1 << layer;
+                previewLight.intensity = 1.55f;
+                previewLight.color = new Color(1f, 0.94f, 0.82f);
                 HumanoidDummyFactory.SetLayerRecursive(lightGo, layer);
             }
+
+            previewLight.cullingMask = ~0;
 
             if (previewTexture == null)
             {
@@ -293,7 +375,7 @@ namespace Valgor.Heroes.Preview360
             if (previewCamera != null)
             {
                 previewCamera.fieldOfView = cameraFov;
-                previewCamera.cullingMask = 1 << HumanoidDummyFactory.ResolveLayer();
+                previewCamera.cullingMask = ~0;
             }
 
             if (_distance < minDistance || _distance > maxDistance || _distance < defaultDistance * 0.95f)
@@ -322,13 +404,109 @@ namespace Valgor.Heroes.Preview360
 
         private void ApplyTextureToUi()
         {
-            if (_previewHost == null || previewTexture == null) return;
-            // Contain keeps the full body visible; Cover was cropping feet in the UI panel.
-            _previewHost.style.backgroundImage = new StyleBackground(Background.FromRenderTexture(previewTexture));
+            if (_previewHost == null)
+            {
+                return;
+            }
+
+            if (_useVortexSafeUi)
+            {
+                EnsureVortexSafeTexture();
+                _previewHost.style.backgroundImage = new StyleBackground(Background.FromTexture2D(_vortexSafeTex));
+            }
+            else if (previewTexture != null)
+            {
+                // Prefer Texture2D blit — FromRenderTexture pode pintar magenta no player.
+                BlitPreviewToUi();
+            }
+
             _previewHost.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
             _previewHost.style.backgroundPositionX = new BackgroundPosition(BackgroundPositionKeyword.Center);
             _previewHost.style.backgroundPositionY = new BackgroundPosition(BackgroundPositionKeyword.Center);
             _previewHost.style.backgroundRepeat = new BackgroundRepeat(Repeat.NoRepeat, Repeat.NoRepeat);
+        }
+
+        private void BlitPreviewToUi()
+        {
+            if (_previewHost == null || previewTexture == null || !previewTexture.IsCreated())
+            {
+                return;
+            }
+
+            var w = previewTexture.width;
+            var h = previewTexture.height;
+            if (_uiPreviewTex == null || _uiPreviewTex.width != w || _uiPreviewTex.height != h)
+            {
+                if (_uiPreviewTex != null)
+                {
+                    Destroy(_uiPreviewTex);
+                }
+
+                _uiPreviewTex = new Texture2D(w, h, TextureFormat.RGBA32, false)
+                {
+                    name = "HeroPreviewUI",
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+            }
+
+            var prev = RenderTexture.active;
+            RenderTexture.active = previewTexture;
+            _uiPreviewTex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            _uiPreviewTex.Apply(false, false);
+            RenderTexture.active = prev;
+            _previewHost.style.backgroundImage = new StyleBackground(Background.FromTexture2D(_uiPreviewTex));
+        }
+
+        private void EnsureVortexSafeTexture()
+        {
+            if (_vortexSafeTex != null)
+            {
+                return;
+            }
+
+            const int w = 240;
+            const int h = 360;
+            _vortexSafeTex = new Texture2D(w, h, TextureFormat.RGBA32, false)
+            {
+                name = "VortexSafePreview",
+                filterMode = FilterMode.Point
+            };
+
+            var bg = new Color(0.05f, 0.07f, 0.1f, 1f);
+            var body = new Color(0.08f, 0.09f, 0.11f, 1f);
+            var gold = new Color(0.82f, 0.64f, 0.22f, 1f);
+            var pixels = new Color[w * h];
+            for (var i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = bg;
+            }
+
+            void FillRect(int x0, int y0, int rw, int rh, Color c)
+            {
+                for (var y = y0; y < y0 + rh && y < h; y++)
+                for (var x = x0; x < x0 + rw && x < w; x++)
+                {
+                    if (x >= 0 && y >= 0)
+                    {
+                        pixels[y * w + x] = c;
+                    }
+                }
+            }
+
+            // Silhueta humana provisória preto + acentos dourados (sem magenta).
+            FillRect(w / 2 - 28, 70, 56, 90, body);   // torso
+            FillRect(w / 2 - 16, 40, 32, 32, body);    // head
+            FillRect(w / 2 - 50, 85, 20, 70, body);    // arm L
+            FillRect(w / 2 + 30, 85, 20, 70, body);    // arm R
+            FillRect(w / 2 - 24, 155, 20, 90, body);   // leg L
+            FillRect(w / 2 + 4, 155, 20, 90, body);    // leg R
+            FillRect(w / 2 + 42, 70, 10, 110, gold);   // sword
+            FillRect(w / 2 + 36, 70, 22, 10, gold);    // guard
+            FillRect(w / 2 - 20, 120, 40, 8, gold);    // belt
+
+            _vortexSafeTex.SetPixels(pixels);
+            _vortexSafeTex.Apply(false, false);
         }
 
         private void RegisterUiCallbacks(VisualElement host)

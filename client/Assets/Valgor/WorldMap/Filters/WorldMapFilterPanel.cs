@@ -4,12 +4,13 @@ using UnityEngine.UIElements;
 namespace Valgor.WorldMap.Filters
 {
     /// <summary>
-    /// Painel UI Toolkit de filtros do mapa mundial.
+    /// Painel de filtros recolhível do mapa mundial.
     /// </summary>
     public sealed class WorldMapFilterPanel
     {
         private readonly WorldMapFilterService _filters;
         private readonly VisualElement _root;
+        private readonly VisualElement _body;
         private Toggle _cities = null!;
         private Toggle _villages = null!;
         private Toggle _resources = null!;
@@ -19,6 +20,7 @@ namespace Valgor.WorldMap.Filters
         private Toggle _occupied = null!;
         private Toggle _available = null!;
         private bool _suppress;
+        private bool _expanded;
 
         public WorldMapFilterPanel(WorldMapFilterService filters, VisualElement parent)
         {
@@ -30,21 +32,38 @@ namespace Valgor.WorldMap.Filters
 
             _root = new VisualElement();
             _root.style.position = Position.Absolute;
-            _root.style.right = 18;
-            _root.style.top = 70;
-            _root.style.width = 200;
-            _root.style.paddingLeft = 10;
-            _root.style.paddingRight = 10;
-            _root.style.paddingTop = 8;
-            _root.style.paddingBottom = 8;
-            _root.style.backgroundColor = new UnityEngine.Color(0.04f, 0.08f, 0.06f, 0.92f);
+            _root.style.right = 14;
+            _root.style.top = 56;
+            _root.style.width = 188;
+            _root.style.paddingLeft = 8;
+            _root.style.paddingRight = 8;
+            _root.style.paddingTop = 6;
+            _root.style.paddingBottom = 6;
+            _root.style.backgroundColor = new UnityEngine.Color(0.08f, 0.1f, 0.12f, 0.92f);
             parent.Add(_root);
+
+            var header = new VisualElement();
+            header.style.flexDirection = FlexDirection.Row;
+            header.style.justifyContent = Justify.SpaceBetween;
+            header.style.alignItems = Align.Center;
+            _root.Add(header);
 
             var title = new Label("Filtros");
             title.style.color = UnityEngine.Color.white;
-            title.style.fontSize = 15;
-            title.style.marginBottom = 4;
-            _root.Add(title);
+            title.style.fontSize = 13;
+            header.Add(title);
+
+            var toggle = new Button { text = "Abrir" };
+            toggle.style.paddingLeft = 8;
+            toggle.style.paddingRight = 8;
+            toggle.style.paddingTop = 3;
+            toggle.style.paddingBottom = 3;
+            toggle.style.fontSize = 11;
+            header.Add(toggle);
+
+            _body = new VisualElement();
+            _body.style.display = DisplayStyle.None;
+            _root.Add(_body);
 
             _cities = AddToggle("Cidades", value => _filters.SetShowCities(value));
             _villages = AddToggle("Vilarejos", value => _filters.SetShowVillages(value));
@@ -55,19 +74,33 @@ namespace Valgor.WorldMap.Filters
             _occupied = AddToggle("Ocupados", value => _filters.SetShowOccupied(value));
             _available = AddToggle("Disponíveis", value => _filters.SetShowAvailable(value));
 
-            var clear = new Button(() => _filters.ClearFilters()) { text = "Limpar filtros" };
-            clear.style.marginTop = 8;
+            var clear = new Button(() => _filters.ClearFilters()) { text = "Limpar" };
+            clear.style.marginTop = 6;
             clear.style.paddingLeft = 8;
             clear.style.paddingRight = 8;
-            clear.style.paddingTop = 5;
-            clear.style.paddingBottom = 5;
-            _root.Add(clear);
+            clear.style.paddingTop = 4;
+            clear.style.paddingBottom = 4;
+            clear.style.fontSize = 11;
+            _body.Add(clear);
+
+            toggle.clicked += () =>
+            {
+                _expanded = !_expanded;
+                _body.style.display = _expanded ? DisplayStyle.Flex : DisplayStyle.None;
+                toggle.text = _expanded ? "Fechar" : "Abrir";
+            };
 
             _filters.Changed += SyncFromState;
             SyncFromState();
         }
 
         public VisualElement Root => _root;
+
+        public void Expand()
+        {
+            _expanded = true;
+            _body.style.display = DisplayStyle.Flex;
+        }
 
         public void SyncFromState()
         {
@@ -89,6 +122,7 @@ namespace Valgor.WorldMap.Filters
             var toggle = new Toggle(label);
             toggle.style.marginTop = 2;
             toggle.style.color = UnityEngine.Color.white;
+            toggle.style.fontSize = 11;
             toggle.RegisterValueChangedCallback(evt =>
             {
                 if (_suppress)
@@ -98,7 +132,7 @@ namespace Valgor.WorldMap.Filters
 
                 onChanged(evt.newValue);
             });
-            _root.Add(toggle);
+            _body.Add(toggle);
             return toggle;
         }
     }

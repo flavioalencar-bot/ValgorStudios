@@ -32,30 +32,32 @@ namespace Valgor.City.Visual
 
         private static void BuildTerrain(Transform root)
         {
-            Flat(root, "Grass", Vector3.zero, new Vector3(42f, 0.08f, 42f), new Color(0.3f, 0.42f, 0.26f))
+            Flat(root, "Grass", Vector3.zero, new Vector3(38f, 0.08f, 38f), new Color(0.28f, 0.4f, 0.24f))
                 .transform.localPosition = new Vector3(0f, -0.04f, 0f);
 
-            Flat(root, "OuterRing", Vector3.zero, new Vector3(32f, 0.06f, 32f), new Color(0.34f, 0.38f, 0.3f))
+            Flat(root, "OuterRing", Vector3.zero, new Vector3(30f, 0.06f, 30f), new Color(0.32f, 0.36f, 0.28f))
                 .transform.localPosition = new Vector3(0f, -0.01f, 0f);
         }
 
         private static void BuildPlaza(Transform root)
         {
-            Flat(root, "Plaza", Vector3.zero, new Vector3(10f, 0.12f, 10f), new Color(0.5f, 0.46f, 0.4f))
+            Flat(root, "Plaza", Vector3.zero, new Vector3(9f, 0.12f, 9f), new Color(0.48f, 0.44f, 0.38f))
                 .transform.localPosition = new Vector3(0f, 0.02f, 0f);
 
-            Flat(root, "PlazaRim", Vector3.zero, new Vector3(11.5f, 0.1f, 11.5f), new Color(0.4f, 0.36f, 0.32f))
+            Flat(root, "PlazaRim", Vector3.zero, new Vector3(10.5f, 0.1f, 10.5f), new Color(0.4f, 0.36f, 0.32f))
                 .transform.localPosition = new Vector3(0f, 0.01f, 0f);
         }
 
         private static void BuildRoads(Transform root)
         {
-            var road = new Color(0.38f, 0.35f, 0.31f);
-            Flat(root, "RoadNS", Vector3.zero, new Vector3(2.4f, 0.09f, 26f), road)
+            var road = new Color(0.4f, 0.36f, 0.3f);
+            Flat(root, "RoadNS", Vector3.zero, new Vector3(2.1f, 0.09f, 24f), road)
                 .transform.localPosition = new Vector3(0f, 0.03f, 0f);
-            Flat(root, "RoadEW", Vector3.zero, new Vector3(26f, 0.09f, 2.4f), road)
+            Flat(root, "RoadEW", Vector3.zero, new Vector3(24f, 0.09f, 2.1f), road)
                 .transform.localPosition = new Vector3(0f, 0.03f, 0f);
-            Flat(root, "RoadNE", new Vector3(5f, 0.03f, 5f), new Vector3(2f, 0.09f, 12f), road)
+            Flat(root, "RoadNE", new Vector3(4.5f, 0.03f, 4.5f), new Vector3(1.8f, 0.09f, 11f), road)
+                .transform.localRotation = Quaternion.Euler(0f, 45f, 0f);
+            Flat(root, "RoadToTower", new Vector3(3.5f, 0.03f, 3.5f), new Vector3(1.6f, 0.09f, 9f), road)
                 .transform.localRotation = Quaternion.Euler(0f, 45f, 0f);
         }
 
@@ -88,9 +90,10 @@ namespace Valgor.City.Visual
             var leaf = new Color(0.24f, 0.46f, 0.24f);
             Vector3[] spots =
             {
-                new(-13f, 0f, -7f), new(-12f, 0f, 7f), new(13f, 0f, -6f),
-                new(12f, 0f, 6f), new(-7f, 0f, 13f), new(7f, 0f, -13f),
-                new(-14f, 0f, 0f), new(14f, 0f, 1f)
+                new(-12f, 0f, -6f), new(-11f, 0f, 6f), new(12f, 0f, -5f),
+                new(11f, 0f, 5f), new(-6f, 0f, 12f), new(6f, 0f, -12f),
+                new(-13f, 0f, 0f), new(13f, 0f, 1f),
+                new(-5f, 0f, -8f), new(5f, 0f, 8f), new(-9f, 0f, -11f), new(8f, 0f, 11f)
             };
 
             for (var i = 0; i < spots.Length; i++)

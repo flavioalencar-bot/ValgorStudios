@@ -20,12 +20,12 @@ namespace Valgor.City.Visual
             ["lumbermill"] = new Vector2(-11f, 4f),
             ["quarry"] = new Vector2(-7f, 10f),
             ["mine"] = new Vector2(0f, 11f),
-            ["dragon-tower"] = new Vector2(9f, 9f),
-            ["arena"] = new Vector2(11f, 2f),
-            ["academy"] = new Vector2(11f, -4f),
-            ["temple"] = new Vector2(6f, 11f),
-            ["institute"] = new Vector2(-3f, -11.5f),
-            ["laboratory"] = new Vector2(3f, -11.5f)
+            ["dragon-tower"] = new Vector2(7.2f, 7.2f),
+            ["arena"] = new Vector2(10f, 1.5f),
+            ["academy"] = new Vector2(10f, -4f),
+            ["temple"] = new Vector2(5f, 10f),
+            ["institute"] = new Vector2(-3f, -10.5f),
+            ["laboratory"] = new Vector2(3f, -10.5f)
         };
 
         public static Vector3 WorldPosition(string buildingId)

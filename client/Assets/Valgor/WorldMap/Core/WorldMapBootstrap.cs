@@ -12,6 +12,7 @@ using Valgor.WorldMap.Nodes;
 using Valgor.WorldMap.Simulation;
 using Valgor.WorldMap.Territory;
 using Valgor.WorldMap.UI;
+using Valgor.WorldMap.Visual;
 
 namespace Valgor.WorldMap
 {
@@ -31,6 +32,7 @@ namespace Valgor.WorldMap
             CreateTerrain();
             CreateRegions();
             CreateNodes();
+            CreateMarchArmy();
             CreateHud();
             ConfigureCamera();
             Controller.ApplyNodeVisibility();
@@ -66,7 +68,7 @@ namespace Valgor.WorldMap
             IHeroesGateway heroes = GameBootstrap.Services != null &&
                                     GameBootstrap.Services.TryGet<IHeroesGateway>(out var gateway)
                 ? gateway
-                : new ProvisionalHeroesGateway();
+                : new BetaHeroesGateway();
 
             var clock = ResolveSimulationClock();
             var settings = WorldMapSettings.Default;
@@ -151,24 +153,35 @@ namespace Valgor.WorldMap
 
         private void CreateTerrain()
         {
-            var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            ground.name = "WorldTerrain";
-            ground.transform.localScale = new Vector3(6f, 1f, 6f);
-            ground.GetComponent<Renderer>().material.color = new Color(0.12f, 0.2f, 0.14f);
+            WorldMapEnvironmentBuilder.Build(transform);
         }
 
         private void CreateRegions()
         {
             var root = new GameObject("Regions").transform;
+            root.SetParent(transform, false);
             foreach (var pair in WorldMapCatalog.All)
             {
                 var definition = pair.Value;
                 var instance = new RegionInstance(definition.Id, definition.DefaultStatus);
-                var marker = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                marker.transform.SetParent(root);
-                marker.transform.position = new Vector3(definition.X, 0.15f, definition.Z);
-                marker.transform.localScale = new Vector3(5.5f, 0.12f, 5.5f);
-                var view = marker.AddComponent<RegionNodeView>();
+
+                // Root com escala 1 — evita TextMesh gigante/deformado.
+                var regionRoot = new GameObject("Region_" + definition.Id);
+                regionRoot.transform.SetParent(root, false);
+                regionRoot.transform.position = new Vector3(definition.X, 0f, definition.Z);
+
+                var disc = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                disc.name = "Disc";
+                disc.transform.SetParent(regionRoot.transform, false);
+                disc.transform.localPosition = Vector3.up * 0.04f;
+                disc.transform.localScale = new Vector3(2.0f, 0.035f, 2.0f);
+                Destroy(disc.GetComponent<Collider>());
+
+                var hit = regionRoot.AddComponent<BoxCollider>();
+                hit.center = new Vector3(0f, 0.1f, 0f);
+                hit.size = new Vector3(2.0f, 0.3f, 2.0f);
+
+                var view = regionRoot.AddComponent<RegionNodeView>();
                 view.Initialize(instance, definition);
                 Controller.AddRegion(instance, definition, view);
 
@@ -176,7 +189,7 @@ namespace Valgor.WorldMap
                     WorldTerritoryCatalog.TryGetByRegion(definition.Id, out var territory) &&
                     Session.TryGetTerritory(territory.Id, out var runtime))
                 {
-                    var overlay = marker.AddComponent<WorldTerritoryOverlay>();
+                    var overlay = disc.AddComponent<WorldTerritoryOverlay>();
                     overlay.Initialize(territory.Id, runtime.State, view);
                     Controller.AddTerritoryOverlay(territory.Id, overlay);
                 }
@@ -186,18 +199,31 @@ namespace Valgor.WorldMap
         private void CreateNodes()
         {
             var root = new GameObject("WorldNodes").transform;
+            root.SetParent(transform, false);
             foreach (var pair in Session.Nodes)
             {
                 var instance = pair.Value;
                 var definition = Session.GetDefinition(instance.DefinitionId);
-                var primitive = GameObject.CreatePrimitive(PrimitiveFor(definition.Kind));
-                primitive.transform.SetParent(root);
-                primitive.transform.position = new Vector3(definition.X, 0.7f, definition.Z);
-                primitive.transform.localScale = ScaleFor(definition.Kind);
-                var view = primitive.AddComponent<WorldNodeView>();
-                view.Initialize(instance, definition);
+                var slot = new GameObject($"Node_{definition.Id}");
+                slot.transform.SetParent(root, false);
+                slot.transform.position = new Vector3(definition.X, 0f, definition.Z);
+
+                var color = WorldNodeMeshFactory.ColorFor(definition.Kind, instance.Status);
+                var bounds = WorldNodeMeshFactory.Build(definition.Kind, slot.transform, color);
+                var box = slot.AddComponent<BoxCollider>();
+                box.center = bounds.center;
+                box.size = Vector3.Max(bounds.size, new Vector3(1.5f, 1.5f, 1.5f));
+
+                var view = slot.AddComponent<WorldNodeView>();
+                view.Initialize(instance, definition, labelHeight: bounds.max.y + 0.5f);
                 Controller.AddNode(instance, definition, view);
             }
+        }
+
+        private void CreateMarchArmy()
+        {
+            var army = MarchArmyView.Create(transform);
+            Controller.BindMarchArmy(army);
         }
 
         private void CreateHud()
@@ -222,27 +248,9 @@ namespace Valgor.WorldMap
 
             var controller = camera.GetComponent<WorldMapCameraController>() ??
                              camera.gameObject.AddComponent<WorldMapCameraController>();
+            WorldMapEnvironmentBuilder.ApplyCameraAtmosphere(camera);
             Controller.BindCamera(controller);
         }
-
-        private static PrimitiveType PrimitiveFor(WorldNodeKind kind) => kind switch
-        {
-            WorldNodeKind.City => PrimitiveType.Cube,
-            WorldNodeKind.Village => PrimitiveType.Capsule,
-            WorldNodeKind.Resource => PrimitiveType.Cylinder,
-            WorldNodeKind.Creature => PrimitiveType.Sphere,
-            WorldNodeKind.Dragon => PrimitiveType.Cube,
-            WorldNodeKind.Landmark => PrimitiveType.Cylinder,
-            _ => PrimitiveType.Cube
-        };
-
-        private static Vector3 ScaleFor(WorldNodeKind kind) => kind switch
-        {
-            WorldNodeKind.City => new Vector3(2.4f, 2.2f, 2.4f),
-            WorldNodeKind.Dragon => new Vector3(2.6f, 1.8f, 2.6f),
-            WorldNodeKind.Landmark => new Vector3(1.4f, 2.4f, 1.4f),
-            _ => new Vector3(1.8f, 1.2f, 1.8f)
-        };
     }
 
     internal static class ResourceWalletResolver

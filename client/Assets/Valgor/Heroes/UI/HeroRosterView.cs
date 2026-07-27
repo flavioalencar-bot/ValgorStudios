@@ -35,7 +35,7 @@ namespace Valgor.Heroes.UI
             HeroId = hero.Id;
             _name.text = hero.ResolveDisplayName();
             _rarity.text = hero.Rarity.ToString();
-            _meta.text = $"{HeroFactionIds.ToId(hero.Faction)} · {hero.ClassName} · Nv {level} · ★{stars} · Frag {fragments} · Skin {activeSkinId ?? hero.DefaultSkinId}";
+            _meta.text = $"{HeroFactionIds.ToDisplayName(hero.Faction)} · {hero.ClassName} · Nv {level} · ★{stars} · Frag {fragments} · Skin {activeSkinId ?? hero.DefaultSkinId}";
         }
     }
 

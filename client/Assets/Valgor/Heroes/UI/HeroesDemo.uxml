@@ -40,7 +40,7 @@
       </ui:ScrollView>
 
       <ui:VisualElement class="hero-preview-section">
-        <ui:Label text="PREVIEW 360° (dummy técnico)" class="section-label section-label--tight" />
+        <ui:Label name="preview-label" text="PREVIEW 360°" class="section-label section-label--tight" />
         <ui:Label text="Arraste para girar · scroll para zoom · cor por facção." class="power-note power-note--tight" />
         <ui:VisualElement name="hero-preview-panel" class="hero-preview-panel">
           <ui:VisualElement name="hero-preview-image" class="hero-preview-image" />

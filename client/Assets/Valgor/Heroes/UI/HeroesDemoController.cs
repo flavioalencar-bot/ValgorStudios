@@ -38,6 +38,8 @@ namespace Valgor.Heroes.UI
         private readonly SpecialPowerStateMachine _machine = new();
         private double _demoTime;
 
+        private Label _previewLabel;
+
         public HeroCatalogSO Catalog
         {
             get => catalog;
@@ -95,6 +97,7 @@ namespace Valgor.Heroes.UI
             _powerTimer = root.Q<Label>("power-timer");
             _activateButton = root.Q<Button>("activate-special");
             _powerFill = root.Q<VisualElement>("power-fill");
+            _previewLabel = root.Q<Label>("preview-label");
 
             BindFilter(root, "filter-all", null);
             BindFilter(root, "filter-rosa", HeroFaction.RosaDeSangue);
@@ -114,14 +117,19 @@ namespace Valgor.Heroes.UI
 
             EnsureRuntimes();
             RebuildRoster();
-            if (_selected == null && catalog != null && catalog.Heroes.Count > 0)
+            if (catalog != null && catalog.Heroes.Count > 0)
             {
-                SelectHero(catalog.Heroes[0]);
-            }
-            else if (_selected != null)
-            {
-                RefreshDetail();
-                UpdatePreview(hero: _selected);
+                HeroDefinitionSO pick = null;
+                foreach (var hero in catalog.Heroes)
+                {
+                    if (hero != null && string.Equals(hero.Id, "HERO_VORTEX_000", StringComparison.Ordinal))
+                    {
+                        pick = hero;
+                        break;
+                    }
+                }
+
+                SelectHero(pick != null ? pick : catalog.Heroes[0]);
             }
         }
 
@@ -186,26 +194,72 @@ namespace Valgor.Heroes.UI
                 card.AddToClassList("hero-card--selected");
             }
 
+            var portrait = new VisualElement();
+            portrait.AddToClassList("hero-card__portrait");
+            portrait.style.backgroundColor = PortraitColor(hero);
+            var portraitMark = new Label(Initials(hero.ResolveDisplayName()));
+            portraitMark.AddToClassList("hero-card__portrait-mark");
+            portrait.Add(portraitMark);
+            card.Add(portrait);
+
             var name = new Label(hero.ResolveDisplayName());
             name.AddToClassList("hero-card__name");
             var title = new Label(hero.Title);
             title.AddToClassList("hero-card__title");
-            var rarity = new Label(hero.Rarity.ToString());
+            var rarity = new Label(RarityLabel(hero.Rarity));
             rarity.AddToClassList("hero-card__rarity");
-            var faction = new Label(HeroFactionIds.ToId(hero.Faction));
+            var stars = new Label(StarsFor(hero.Rarity));
+            stars.AddToClassList("hero-card__stars");
+            var faction = new Label(HeroFactionIds.ToDisplayName(hero.Faction));
             faction.AddToClassList("hero-card__faction");
-            var powerName = hero.SpecialPower != null ? hero.SpecialPower.DisplayName : "—";
-            var power = new Label(powerName);
-            power.AddToClassList("hero-card__power");
+            var level = new Label("Nv.1");
+            level.AddToClassList("hero-card__level");
 
             card.Add(name);
             card.Add(title);
             card.Add(rarity);
+            card.Add(stars);
             card.Add(faction);
-            card.Add(power);
+            card.Add(level);
             card.clicked += () => SelectHero(hero);
             return card;
         }
+
+        private static string Initials(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return "?";
+            var parts = name.Trim().Split(' ');
+            if (parts.Length == 1) return parts[0].Substring(0, 1).ToUpperInvariant();
+            return (parts[0][0].ToString() + parts[^1][0]).ToUpperInvariant();
+        }
+
+        private static Color PortraitColor(HeroDefinitionSO hero) => hero.Faction switch
+        {
+            HeroFaction.GuardaDaOrdem => new Color(0.18f, 0.22f, 0.32f),
+            HeroFaction.AsasDoAmanhecer => new Color(0.28f, 0.24f, 0.16f),
+            HeroFaction.RosaDeSangue => new Color(0.32f, 0.14f, 0.18f),
+            _ => new Color(0.22f, 0.24f, 0.28f)
+        };
+
+        private static string RarityLabel(HeroRarity rarity) => rarity switch
+        {
+            HeroRarity.Comum => "Comum",
+            HeroRarity.Rara => "Rara",
+            HeroRarity.Epica => "Épica",
+            HeroRarity.Lendaria => "Lendária",
+            HeroRarity.Mitica => "Mítica",
+            _ => rarity.ToString()
+        };
+
+        private static string StarsFor(HeroRarity rarity) => rarity switch
+        {
+            HeroRarity.Comum => "★",
+            HeroRarity.Rara => "★★",
+            HeroRarity.Epica => "★★★",
+            HeroRarity.Lendaria => "★★★★",
+            HeroRarity.Mitica => "★★★★★",
+            _ => "★"
+        };
 
         private void SelectHero(HeroDefinitionSO hero)
         {
@@ -219,6 +273,19 @@ namespace Valgor.Heroes.UI
         {
             if (previewController == null || hero == null) return;
             previewController.ShowHero(hero.Id, hero.Faction);
+            if (_previewLabel != null)
+            {
+                if (string.Equals(hero.Id, "HERO_VORTEX_000", StringComparison.Ordinal))
+                {
+                    _previewLabel.text = "PREVIEW 360° — preto/dourado";
+                }
+                else
+                {
+                    _previewLabel.text = previewController.UsingTechnicalFallback
+                        ? "PREVIEW 360° (fallback técnico)"
+                        : "PREVIEW 360° — modelo real";
+                }
+            }
         }
 
         private void RefreshDetail()
@@ -229,10 +296,14 @@ namespace Valgor.Heroes.UI
             if (_detailTitle != null) _detailTitle.text = _selected.Title;
             if (_detailMeta != null)
             {
+                var marchLine = string.Equals(_selected.Id, "HERO_VORTEX_000", System.StringComparison.Ordinal)
+                    ? "\nFormação de marcha: Vortex · Poder 280"
+                    : "\nFormação de marcha (beta): Vortex é o líder";
                 _detailMeta.text =
-                    $"{_selected.Rarity} · {HeroFactionIds.ToId(_selected.Faction)} · {_selected.ClassName}\n" +
+                    $"{RarityLabel(_selected.Rarity)} · {HeroFactionIds.ToDisplayName(_selected.Faction)} · {_selected.ClassName}\n" +
                     $"{_selected.Role} · {_selected.Position}\n" +
-                    $"Arma: {_selected.WeaponId} · Elemento: {_selected.ElementId}";
+                    $"Arma: {_selected.WeaponId} · Elemento: {_selected.ElementId}" +
+                    marchLine;
             }
 
             if (_detailPower != null && _selected.SpecialPower != null)

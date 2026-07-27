@@ -32,6 +32,14 @@ namespace Valgor.Heroes.Data
             _ => string.Empty
         };
 
+        public static string ToDisplayName(HeroFaction faction) => faction switch
+        {
+            HeroFaction.RosaDeSangue => "Rosa de Sangue",
+            HeroFaction.AsasDoAmanhecer => "Asas do Amanhecer",
+            HeroFaction.GuardaDaOrdem => "Guarda da Ordem",
+            _ => "—"
+        };
+
         public static HeroFaction FromId(string id)
         {
             if (id == RosaDeSangue) return HeroFaction.RosaDeSangue;

@@ -6,13 +6,13 @@ namespace Valgor.City.Camera
     [RequireComponent(typeof(UnityEngine.Camera))]
     public sealed class CityCameraController : MonoBehaviour
     {
-        [SerializeField] private float minZoom = 8f;
-        [SerializeField] private float maxZoom = 18f;
+        [SerializeField] private float minZoom = 9f;
+        [SerializeField] private float maxZoom = 16f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
-        [SerializeField] private float initialZoom = 11.5f;
+        [SerializeField] private float initialZoom = 14.5f;
 
-        private readonly CityBounds _bounds = new(-16f, 16f, -16f, 16f);
+        private readonly CityBounds _bounds = new(-18f, 18f, -18f, 18f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
         private float _lastPinchDistance;
@@ -23,9 +23,9 @@ namespace Valgor.City.Camera
             _camera = GetComponent<UnityEngine.Camera>();
             _camera.orthographic = true;
             _camera.orthographicSize = initialZoom;
-            // Isométrica centrada na praça / castelo, com margem para HUD inferior.
-            transform.rotation = Quaternion.Euler(35f, 45f, 0f);
-            transform.position = new Vector3(-11.5f, 14.5f, -11.5f);
+            // Enquadra castelo + Torre dos Dragões (NE) com margem para HUD.
+            transform.rotation = Quaternion.Euler(42f, 45f, 0f);
+            transform.position = new Vector3(-15.5f, 19.5f, -15.5f);
             ClampPosition();
         }
 

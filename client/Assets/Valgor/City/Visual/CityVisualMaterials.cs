@@ -1,28 +1,16 @@
 using UnityEngine;
+using Valgor.Core;
 
 namespace Valgor.City.Visual
 {
     /// <summary>
-    /// Materiais URP/Built-in seguros para placeholders da cidade.
+    /// Materiais seguros para placeholders (nunca magenta no URP).
     /// </summary>
     public static class CityVisualMaterials
     {
         public static void Apply(Renderer renderer, Color color)
         {
-            if (renderer == null) return;
-            var material = renderer.material;
-            if (material.HasProperty("_BaseColor"))
-            {
-                material.SetColor("_BaseColor", color);
-            }
-            else if (material.HasProperty("_Color"))
-            {
-                material.SetColor("_Color", color);
-            }
-            else
-            {
-                material.color = color;
-            }
+            RuntimeSafeMaterials.Apply(renderer, color);
         }
 
         public static Color MixState(Color identity, BuildingStateTint tint) => tint switch

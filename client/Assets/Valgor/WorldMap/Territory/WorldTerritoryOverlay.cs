@@ -1,10 +1,11 @@
 using UnityEngine;
+using Valgor.City.Visual;
 using Valgor.WorldMap.Nodes;
 
 namespace Valgor.WorldMap.Territory
 {
     /// <summary>
-    /// Overlay visual de território sobre a região (fundação técnica).
+    /// Overlay visual de território sobre o disco da região.
     /// </summary>
     [RequireComponent(typeof(Renderer))]
     public sealed class WorldTerritoryOverlay : MonoBehaviour
@@ -38,7 +39,8 @@ namespace Valgor.WorldMap.Territory
             }
 
             var color = WorldTerritoryColorResolver.Resolve(State);
-            _renderer.material.color = new Color(color.R, color.G, color.B, color.A);
+            // Opaco tintado — URP Lit sem alpha pipeline evita “branco lavado”.
+            CityVisualMaterials.Apply(_renderer, new Color(color.R, color.G, color.B, 1f));
         }
     }
 }

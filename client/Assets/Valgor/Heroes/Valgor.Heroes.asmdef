@@ -2,8 +2,10 @@
   "name": "Valgor.Heroes",
   "rootNamespace": "Valgor.Heroes",
   "references": [
+    "Valgor.Runtime",
     "Unity.Addressables",
     "Unity.ResourceManager",
+    "Unity.RenderPipelines.Universal.Runtime",
     "UnityEngine.UIElementsModule"
   ],
   "includePlatforms": [],

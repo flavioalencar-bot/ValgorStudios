@@ -22,14 +22,25 @@ namespace Valgor.Heroes.Characters
     /// </summary>
     public static class HeroVisualResolver
     {
-        public static HeroVisualResolveResult Resolve(string heroId, GameObject technicalDummyPrefab)
+        public static HeroVisualResolveResult Resolve(
+            string heroId,
+            GameObject technicalDummyPrefab,
+            GameObject vortexHeroPrefab = null)
         {
             if (heroId == VortexAssetPaths.HeroId)
             {
-                GameObject vortex = null;
+                GameObject vortex = vortexHeroPrefab;
 #if UNITY_EDITOR
-                vortex = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(VortexAssetPaths.HeroPrefab);
+                if (vortex == null)
+                {
+                    vortex = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(VortexAssetPaths.HeroPrefab);
+                }
 #endif
+                if (vortex == null)
+                {
+                    vortex = Resources.Load<GameObject>("Valgor/Vortex_Hero");
+                }
+
                 if (vortex != null)
                 {
                     var visual = vortex.GetComponent<HeroVisualController>();
@@ -59,7 +70,6 @@ namespace Valgor.Heroes.Characters
             {
                 if (!string.IsNullOrEmpty(UnityEditor.AssetDatabase.AssetPathToGUID(path)))
                 {
-                    // GUID exists only if asset is imported; also check file on disk.
                     if (System.IO.File.Exists(path))
                         return true;
                 }
@@ -67,8 +77,12 @@ namespace Valgor.Heroes.Characters
                 if (System.IO.File.Exists(path))
                     return true;
             }
-#endif
+
             return false;
+#else
+            // Player: modelo incluso via referência de cena / Resources.
+            return true;
+#endif
         }
     }
 }

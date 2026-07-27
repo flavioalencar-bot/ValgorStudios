@@ -6,12 +6,13 @@ namespace Valgor.WorldMap.Camera
     [RequireComponent(typeof(UnityEngine.Camera))]
     public sealed class WorldMapCameraController : MonoBehaviour
     {
-        [SerializeField] private float minZoom = 8f;
+        [SerializeField] private float minZoom = 12f;
         [SerializeField] private float maxZoom = 28f;
         [SerializeField] private float zoomSpeed = 0.02f;
-        [SerializeField] private float panSpeed = 0.03f;
+        [SerializeField] private float panSpeed = 0.028f;
+        [SerializeField] private float initialZoom = 18f;
 
-        private readonly WorldMapBounds _bounds = new();
+        private readonly WorldMapBounds _bounds = new(-20f, 20f, -18f, 20f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
         private bool _panning;
@@ -22,10 +23,13 @@ namespace Valgor.WorldMap.Camera
         {
             _camera = GetComponent<UnityEngine.Camera>();
             _camera.orthographic = true;
+            _camera.clearFlags = CameraClearFlags.SolidColor;
+            _camera.backgroundColor = new Color(0.2f, 0.3f, 0.36f);
             transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             if (!_poseApplied)
             {
-                transform.position = new Vector3(0f, 30f, 0f);
+                transform.position = new Vector3(0f, 28f, 0f);
+                _camera.orthographicSize = initialZoom;
                 Clamp();
             }
         }
@@ -98,12 +102,9 @@ namespace Valgor.WorldMap.Camera
         private void Clamp()
         {
             var clamped = _bounds.ClampPosition(new MapPosition(transform.position.x, transform.position.y, transform.position.z));
-            transform.position = new Vector3(clamped.X, clamped.Y, clamped.Z);
+            transform.position = new Vector3(clamped.X, Mathf.Max(20f, clamped.Y), clamped.Z);
         }
 
-        /// <summary>
-        /// Centraliza a câmera no ponto e aplica zoom dentro dos limites configurados.
-        /// </summary>
         public void FocusOn(float x, float z, float? orthographicSize = null)
         {
             transform.position = new Vector3(x, transform.position.y, z);
