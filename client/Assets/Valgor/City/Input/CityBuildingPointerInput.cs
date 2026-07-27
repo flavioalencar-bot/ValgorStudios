@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using Valgor.City.Buildings;
 using Valgor.City.Camera;
+using Valgor.City.UI;
 
 namespace Valgor.City.Input
 {
@@ -13,9 +14,17 @@ namespace Valgor.City.Input
     [DefaultExecutionOrder(50)]
     public sealed class CityBuildingPointerInput : MonoBehaviour
     {
+        private static float _suppressUntilUnscaled;
+
         private UnityEngine.Camera _camera = null!;
         private int _buildingLayer = -1;
         private LayerMask _mask;
+
+        /// <summary>Bloqueia raycast 3D após clique em menu/UI (evita fechar o painel no mesmo frame).</summary>
+        public static void SuppressWorldClicks(float seconds = 0.3f) =>
+            _suppressUntilUnscaled = Mathf.Max(_suppressUntilUnscaled, Time.unscaledTime + seconds);
+
+        public static bool IsWorldClickSuppressed => Time.unscaledTime < _suppressUntilUnscaled;
 
         private void Awake()
         {
@@ -35,12 +44,19 @@ namespace Valgor.City.Input
                 }
             }
 
-            if (TryGetPointerRelease(out var screenPos) &&
-                !CityCameraController.ShouldSuppressBuildingClick &&
-                !IsOverBlockingUi(screenPos))
+            if (!TryGetPointerRelease(out var screenPos))
             {
-                TrySelectAtScreen(screenPos);
+                return;
             }
+
+            if (IsWorldClickSuppressed ||
+                CityCameraController.ShouldSuppressBuildingClick ||
+                IsOverBlockingUi(screenPos))
+            {
+                return;
+            }
+
+            TrySelectAtScreen(screenPos);
         }
 
         private static bool TryGetPointerRelease(out Vector2 screenPos)
@@ -100,17 +116,47 @@ namespace Valgor.City.Input
                 }
 
                 var panelPos = RuntimePanelUtils.ScreenToPanel(root.panel, screenPos);
+
+                // Menu contextual / painéis modais: bloquear mesmo se Pick falhar no frame do clique.
+                if (HitsNamedPanel(root, panelPos, global::Valgor.City.UI.BuildingContextMenu.RootName) ||
+                    HitsNamedPanel(root, panelPos, global::Valgor.City.UI.BuildingDetailsPanel.RootName) ||
+                    HitsNamedPanel(root, panelPos, "building-action-panel"))
+                {
+                    return true;
+                }
+
                 var picked = root.panel.Pick(panelPos);
-                if (picked == null || picked.pickingMode == PickingMode.Ignore)
+                if (picked == null)
                 {
                     continue;
                 }
 
-                // Decorativos / labels com Ignore não chegam aqui; botões e painéis bloqueiam.
-                return true;
+                for (var el = picked; el != null; el = el.parent)
+                {
+                    if (el is Button || el.pickingMode == PickingMode.Position)
+                    {
+                        if (el.pickingMode == PickingMode.Ignore && el is not Button)
+                        {
+                            continue;
+                        }
+
+                        return true;
+                    }
+                }
             }
 
             return false;
+        }
+
+        private static bool HitsNamedPanel(VisualElement root, Vector2 panelPos, string name)
+        {
+            var el = root.Q(name);
+            if (el == null || el.style.display == DisplayStyle.None)
+            {
+                return false;
+            }
+
+            return el.worldBound.Contains(panelPos);
         }
     }
 }

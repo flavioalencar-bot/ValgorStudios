@@ -11,6 +11,7 @@ using Valgor.City.Data;
 using Valgor.City.Production;
 using Valgor.Core;
 using Valgor.Core.Modules;
+using Valgor.City.Input;
 using Valgor.UI;
 
 namespace Valgor.City.UI
@@ -25,6 +26,7 @@ namespace Valgor.City.UI
         private readonly IDragonGateway? _dragons;
         private readonly VisualElement _panelRoot;
         private readonly BuildingContextMenu _contextMenu;
+        private readonly BuildingDetailsPanel _detailsPanel;
         private readonly VisualElement _actionPanel;
         private readonly Label _actionTitle;
         private readonly VisualElement _actionBodyHost;
@@ -35,6 +37,7 @@ namespace Valgor.City.UI
         private UnityEngine.Camera? _camera;
         private BuildingInstance? _current;
         private BuildingContextAction? _openPanelAction;
+        private float _ignoreOutsideClickUntil;
 
         public BuildingSelectionPresenter(
             CityController city,
@@ -48,6 +51,7 @@ namespace Valgor.City.UI
             _goToWorldMap = goToWorldMap;
 
             _contextMenu = new BuildingContextMenu(panelRoot);
+            _detailsPanel = new BuildingDetailsPanel(panelRoot);
             _actionPanel = BuildActionPanel(out _actionTitle, out _actionBodyHost, out _actionButtons, out _feedback);
             panelRoot.Add(_actionPanel);
 
@@ -72,7 +76,7 @@ namespace Valgor.City.UI
                         _panelRoot,
                         _camera,
                         anchor,
-                        reserveRightPanel: _actionPanel.style.display == DisplayStyle.Flex);
+                        reserveRightPanel: IsAnyPanelOpen());
                 }
             }
 
@@ -84,6 +88,9 @@ namespace Valgor.City.UI
 
             HandleOutsideClick();
         }
+
+        private bool IsAnyPanelOpen() =>
+            _detailsPanel.IsVisible || _actionPanel.style.display == DisplayStyle.Flex;
 
         public void RefreshCurrent()
         {
@@ -130,6 +137,18 @@ namespace Valgor.City.UI
 
         private void OnSelectionChanged(BuildingInstance? selected)
         {
+            // Re-clique no mesmo prédio (fallthrough do Input System após Detalhes) — não fecha o painel.
+            if (selected != null && ReferenceEquals(selected, _current))
+            {
+                OpenContextFor(selected, refocusCamera: false);
+                if (_openPanelAction.HasValue)
+                {
+                    OpenActionPanel(_openPanelAction.Value);
+                }
+
+                return;
+            }
+
             _openPanelAction = null;
             HideActionPanel();
             if (selected == null)
@@ -167,7 +186,7 @@ namespace Valgor.City.UI
                     _panelRoot,
                     _camera,
                     anchor,
-                    reserveRightPanel: _actionPanel.style.display == DisplayStyle.Flex);
+                    reserveRightPanel: IsAnyPanelOpen());
             }
         }
 
@@ -263,6 +282,10 @@ namespace Valgor.City.UI
                 return;
             }
 
+            // Impede que o mesmo release do mouse selecione o prédio de novo e feche o painel.
+            CityBuildingPointerInput.SuppressWorldClicks(0.35f);
+            _ignoreOutsideClickUntil = Time.unscaledTime + 0.35f;
+
             switch (action)
             {
                 case BuildingContextAction.Collect:
@@ -271,6 +294,9 @@ namespace Valgor.City.UI
                 case BuildingContextAction.Send:
                     ExecuteSend();
                     break;
+                case BuildingContextAction.Details:
+                case BuildingContextAction.Open:
+                case BuildingContextAction.Upgrade:
                 default:
                     _openPanelAction = action;
                     OpenActionPanel(action);
@@ -314,16 +340,27 @@ namespace Valgor.City.UI
             var definition = _city.GetDefinition(_current);
             _actionButtons.Clear();
             _actionBodyHost.Clear();
-            _actionTitle.text = ActionTitle(action, definition);
             _feedback.text = string.Empty;
+
+            if (action is BuildingContextAction.Details or BuildingContextAction.Open)
+            {
+                _actionPanel.style.display = DisplayStyle.None;
+                var model = BuildingDetailsViewModel.From(
+                    _city,
+                    _current,
+                    definition,
+                    openMode: action == BuildingContextAction.Open);
+                _detailsPanel.Show(model, HideActionPanel);
+                BetaJourneyGuide.NotifyCityModalOpen(true, panelOnRight: true);
+                Debug.Log($"[Valgor] Painel Detalhes aberto: {definition.DisplayName}");
+                return;
+            }
+
+            _detailsPanel.Hide();
+            _actionTitle.text = ActionTitle(action, definition);
 
             switch (action)
             {
-                case BuildingContextAction.Details:
-                case BuildingContextAction.Open:
-                    AppendBodyText(BuildDetailsBody(_current, definition, openMode: action == BuildingContextAction.Open));
-                    AddPanelButton("Fechar", HideActionPanel);
-                    break;
                 case BuildingContextAction.Upgrade:
                     RebuildUpgradeBody(_current);
                     AddPanelButton(
@@ -339,6 +376,9 @@ namespace Valgor.City.UI
             }
 
             _actionPanel.style.display = DisplayStyle.Flex;
+            _actionPanel.style.visibility = Visibility.Visible;
+            _actionPanel.style.opacity = 1f;
+            _actionPanel.BringToFront();
             BetaJourneyGuide.NotifyCityModalOpen(true, panelOnRight: true);
         }
 
@@ -579,7 +619,9 @@ namespace Valgor.City.UI
                 return;
             }
 
-            if (CityCameraController.ShouldSuppressBuildingClick)
+            if (CityCameraController.ShouldSuppressBuildingClick ||
+                CityBuildingPointerInput.IsWorldClickSuppressed ||
+                Time.unscaledTime < _ignoreOutsideClickUntil)
             {
                 return;
             }
@@ -592,6 +634,7 @@ namespace Valgor.City.UI
 
             var pos = mouse.position.ReadValue();
             if (IsScreenOverElement(_contextMenu.Root, pos) ||
+                IsScreenOverElement(_detailsPanel.Root, pos) ||
                 (_actionPanel.style.display == DisplayStyle.Flex && IsScreenOverElement(_actionPanel, pos)))
             {
                 return;
@@ -644,6 +687,7 @@ namespace Valgor.City.UI
         private void HideActionPanel()
         {
             _openPanelAction = null;
+            _detailsPanel.Hide();
             _actionPanel.style.display = DisplayStyle.None;
             _actionButtons.Clear();
             _actionBodyHost.Clear();
