@@ -68,14 +68,17 @@ namespace Valgor.City.UI
                 EnsureCamera();
                 if (_camera != null)
                 {
-                    _contextMenu.Reposition(_panelRoot, _camera, anchor);
+                    _contextMenu.Reposition(
+                        _panelRoot,
+                        _camera,
+                        anchor,
+                        reserveRightPanel: _actionPanel.style.display == DisplayStyle.Flex);
                 }
             }
 
             if (_openPanelAction == BuildingContextAction.Upgrade &&
                 _actionPanel.style.display == DisplayStyle.Flex)
             {
-                // Mantém requisitos/tempo atualizados durante construção.
                 RebuildUpgradeBody(_current);
             }
 
@@ -160,7 +163,11 @@ namespace Valgor.City.UI
             _contextMenu.Show(title, actions, OnContextAction);
             if (TryGetWorldAnchor(building, out var anchor) && _camera != null)
             {
-                _contextMenu.Reposition(_panelRoot, _camera, anchor);
+                _contextMenu.Reposition(
+                    _panelRoot,
+                    _camera,
+                    anchor,
+                    reserveRightPanel: _actionPanel.style.display == DisplayStyle.Flex);
             }
         }
 
@@ -332,6 +339,7 @@ namespace Valgor.City.UI
             }
 
             _actionPanel.style.display = DisplayStyle.Flex;
+            BetaJourneyGuide.NotifyCityModalOpen(true, panelOnRight: true);
         }
 
         private void RebuildUpgradeBody(BuildingInstance building)
@@ -607,7 +615,8 @@ namespace Valgor.City.UI
         {
             if (_city.TryGetView(building, out var view))
             {
-                anchor = view.transform.position + Vector3.up * 2.4f;
+                // Offset lateral + altura — menu não cobre o centro visual do prédio.
+                anchor = view.transform.position + Vector3.up * 2.8f + view.transform.right * 1.35f;
                 return true;
             }
 
@@ -638,6 +647,7 @@ namespace Valgor.City.UI
             _actionPanel.style.display = DisplayStyle.None;
             _actionButtons.Clear();
             _actionBodyHost.Clear();
+            BetaJourneyGuide.NotifyCityModalOpen(false);
         }
 
         private void AppendBodyText(string text)
@@ -744,9 +754,11 @@ namespace Valgor.City.UI
             var panel = new VisualElement { name = "building-action-panel" };
             panel.style.position = Position.Absolute;
             panel.style.right = 16;
-            panel.style.top = 64;
-            panel.style.width = 340;
-            panel.style.maxHeight = 520;
+            panel.style.top = 56;
+            panel.style.bottom = 80;
+            panel.style.width = 360;
+            panel.style.maxWidth = 380;
+            panel.style.maxHeight = 760;
             panel.style.paddingLeft = 14;
             panel.style.paddingRight = 14;
             panel.style.paddingTop = 12;
@@ -761,17 +773,23 @@ namespace Valgor.City.UI
             panel.style.borderLeftColor = BetaVisualTheme.AgedGold;
             panel.style.borderRightColor = BetaVisualTheme.AgedGold;
             panel.style.display = DisplayStyle.None;
+            panel.style.flexDirection = FlexDirection.Column;
             panel.pickingMode = PickingMode.Position;
 
             title = new Label();
             title.style.color = BetaVisualTheme.AgedGoldBright;
-            title.style.fontSize = 15;
+            title.style.fontSize = 16;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
             title.style.marginBottom = 8;
+            title.style.flexShrink = 0;
+            title.style.whiteSpace = WhiteSpace.Normal;
             panel.Add(title);
 
-            var scroll = new ScrollView();
-            scroll.style.maxHeight = 320;
+            var scroll = new ScrollView(ScrollViewMode.Vertical);
+            scroll.style.flexGrow = 1;
+            scroll.style.flexShrink = 1;
+            scroll.style.minHeight = 120;
+            scroll.style.maxHeight = StyleKeyword.None;
             bodyHost = new VisualElement { name = "action-body-host" };
             scroll.Add(bodyHost);
             panel.Add(scroll);
@@ -780,9 +798,12 @@ namespace Valgor.City.UI
             feedback.style.color = BetaVisualTheme.AgedGoldBright;
             feedback.style.marginTop = 8;
             feedback.style.whiteSpace = WhiteSpace.Normal;
+            feedback.style.flexShrink = 0;
             panel.Add(feedback);
 
             buttons = new VisualElement { name = "action-panel-buttons" };
+            buttons.style.flexShrink = 0;
+            buttons.style.marginTop = 4;
             panel.Add(buttons);
             return panel;
         }

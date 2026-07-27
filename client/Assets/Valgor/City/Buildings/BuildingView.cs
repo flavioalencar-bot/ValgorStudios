@@ -15,12 +15,15 @@ namespace Valgor.City.Buildings
         private TextMesh _label = null!;
         private TextMesh? _bubbleLabel;
         private GameObject? _collectableMarker;
+        private Renderer? _resourceIconRenderer;
         private GameObject? _upgradeArrow;
         private GameObject? _constructionRoot;
         private Transform? _progressFill;
         private TextMesh? _progressLabel;
         private bool _selected;
         private float _labelHeight = 3.2f;
+        private long _collectAmount;
+        private ResourceType? _collectResource;
 
         public event Action<BuildingView>? Clicked;
         public event Action? CollectRequested;
@@ -61,24 +64,40 @@ namespace Valgor.City.Buildings
             {
                 _label.gameObject.SetActive(selected);
             }
+
+            RefreshCollectableLabel();
         }
 
         public void SetCollectable(long amount, ResourceType? resource)
         {
+            _collectAmount = amount;
+            _collectResource = resource;
             var show = amount > 0;
             if (_collectableMarker != null)
             {
                 _collectableMarker.SetActive(show);
+                if (show && resource.HasValue && _resourceIconRenderer != null)
+                {
+                    CityVisualMaterials.Apply(_resourceIconRenderer, ResourceIconColor(resource.Value));
+                }
             }
 
-            if (_bubbleLabel != null)
+            RefreshCollectableLabel();
+        }
+
+        private void RefreshCollectableLabel()
+        {
+            if (_bubbleLabel == null)
             {
-                _bubbleLabel.gameObject.SetActive(show);
-                if (show)
-                {
-                    var prefix = resource.HasValue ? ShortResource(resource.Value) + " " : string.Empty;
-                    _bubbleLabel.text = prefix + FormatAmount(amount);
-                }
+                return;
+            }
+
+            // Sem abreviações técnicas no mundo: quantidade só com prédio selecionado.
+            var showAmount = _selected && _collectAmount > 0;
+            _bubbleLabel.gameObject.SetActive(showAmount);
+            if (showAmount)
+            {
+                _bubbleLabel.text = FormatAmount(_collectAmount);
             }
         }
 
@@ -210,22 +229,34 @@ namespace Valgor.City.Buildings
             var marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             marker.name = "CollectableMarker";
             marker.transform.SetParent(transform, false);
-            marker.transform.localPosition = Vector3.up * (_labelHeight + 0.85f);
-            marker.transform.localScale = Vector3.one * 0.55f;
-            CityVisualMaterials.Apply(marker.GetComponent<Renderer>(), new Color(0.22f, 0.78f, 0.38f));
+            marker.transform.localPosition = Vector3.up * (_labelHeight + 0.95f);
+            marker.transform.localScale = Vector3.one * 0.78f;
+            CityVisualMaterials.Apply(marker.GetComponent<Renderer>(), new Color(0.18f, 0.72f, 0.34f));
+
+            // Ícone de recurso (cubo colorido) — sem texto técnico no mundo.
+            var icon = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            icon.name = "ResourceIcon";
+            icon.transform.SetParent(marker.transform, false);
+            icon.transform.localPosition = Vector3.zero;
+            icon.transform.localScale = Vector3.one * 0.42f;
+            icon.transform.localRotation = Quaternion.Euler(35f, 45f, 0f);
+            Destroy(icon.GetComponent<Collider>());
+            _resourceIconRenderer = icon.GetComponent<Renderer>();
+            CityVisualMaterials.Apply(_resourceIconRenderer, new Color(0.95f, 0.85f, 0.35f));
 
             var amountObject = new GameObject("Amount");
             amountObject.transform.SetParent(marker.transform, false);
-            amountObject.transform.localPosition = Vector3.up * 0.95f;
+            amountObject.transform.localPosition = Vector3.up * 1.05f;
             amountObject.transform.localRotation = Quaternion.Euler(30f, 45f, 0f);
-            amountObject.transform.localScale = Vector3.one * 0.35f;
+            amountObject.transform.localScale = Vector3.one * 0.28f;
             _bubbleLabel = amountObject.AddComponent<TextMesh>();
             _bubbleLabel.anchor = TextAnchor.MiddleCenter;
             _bubbleLabel.alignment = TextAlignment.Center;
-            _bubbleLabel.characterSize = 0.22f;
-            _bubbleLabel.fontSize = 64;
+            _bubbleLabel.characterSize = 0.2f;
+            _bubbleLabel.fontSize = 56;
             _bubbleLabel.color = new Color(0.95f, 0.92f, 0.8f);
-            _bubbleLabel.text = "0";
+            _bubbleLabel.text = string.Empty;
+            amountObject.SetActive(false);
 
             var click = marker.AddComponent<BuildingCollectableClickProxy>();
             click.Bind(() => NotifyCollectRequested());
@@ -238,7 +269,7 @@ namespace Valgor.City.Buildings
             arrow.name = "UpgradeArrow";
             arrow.transform.SetParent(transform, false);
             arrow.transform.localPosition = Vector3.up * (_labelHeight + 1.55f);
-            arrow.transform.localScale = new Vector3(0.18f, 0.28f, 0.18f);
+            arrow.transform.localScale = new Vector3(0.22f, 0.34f, 0.22f);
             Destroy(arrow.GetComponent<Collider>());
             CityVisualMaterials.Apply(arrow.GetComponent<Renderer>(), new Color(0.35f, 0.95f, 0.45f));
 
@@ -300,27 +331,27 @@ namespace Valgor.City.Buildings
             return root;
         }
 
-        private static string ShortResource(ResourceType resource) => resource switch
+        private static Color ResourceIconColor(ResourceType resource) => resource switch
         {
-            ResourceType.Gold => "Ouro",
-            ResourceType.Food => "Comida",
-            ResourceType.Wood => "Mad",
-            ResourceType.Stone => "Pedra",
-            ResourceType.Iron => "Ferro",
-            ResourceType.DragonEssence => "Ess",
-            _ => resource.ToString()
+            ResourceType.Gold => new Color(0.95f, 0.82f, 0.28f),
+            ResourceType.Food => new Color(0.45f, 0.85f, 0.35f),
+            ResourceType.Wood => new Color(0.55f, 0.38f, 0.22f),
+            ResourceType.Stone => new Color(0.62f, 0.62f, 0.66f),
+            ResourceType.Iron => new Color(0.55f, 0.58f, 0.7f),
+            ResourceType.DragonEssence => new Color(0.45f, 0.35f, 0.85f),
+            _ => new Color(0.35f, 0.85f, 0.45f)
         };
 
         private static string FormatAmount(long amount)
         {
             if (amount >= 1_000_000)
             {
-                return (amount / 1_000_000f).ToString("0.0") + "M";
+                return (amount / 1_000_000f).ToString("0.#") + "M";
             }
 
-            if (amount >= 1_000)
+            if (amount >= 10_000)
             {
-                return (amount / 1_000f).ToString("0.0") + "K";
+                return (amount / 1_000f).ToString("0.#") + "K";
             }
 
             return amount.ToString();

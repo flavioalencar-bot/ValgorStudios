@@ -14,14 +14,16 @@ namespace Valgor.City.UI
         private readonly float _gapFromBuilding;
         private readonly float _bottomNavReserve;
         private readonly float _topHudReserve;
+        private readonly float _sidePanelReserve;
 
         public BuildingContextMenuPositioner(
-            float menuWidth = 168f,
-            float menuEstimatedHeight = 280f,
+            float menuWidth = 200f,
+            float menuEstimatedHeight = 200f,
             float margin = 16f,
-            float gapFromBuilding = 18f,
+            float gapFromBuilding = 52f,
             float bottomNavReserve = 72f,
-            float topHudReserve = 56f)
+            float topHudReserve = 56f,
+            float sidePanelReserve = 360f)
         {
             _menuWidth = menuWidth;
             _menuEstimatedHeight = menuEstimatedHeight;
@@ -29,6 +31,7 @@ namespace Valgor.City.UI
             _gapFromBuilding = gapFromBuilding;
             _bottomNavReserve = bottomNavReserve;
             _topHudReserve = topHudReserve;
+            _sidePanelReserve = sidePanelReserve;
         }
 
         public void Apply(
@@ -36,7 +39,8 @@ namespace Valgor.City.UI
             VisualElement root,
             UnityEngine.Camera camera,
             Vector3 worldAnchor,
-            float measuredHeight = -1f)
+            float measuredHeight = -1f,
+            bool reserveRightPanel = false)
         {
             if (menu == null || root == null || camera == null)
             {
@@ -46,27 +50,34 @@ namespace Valgor.City.UI
             var screen = camera.WorldToScreenPoint(worldAnchor);
             if (screen.z < 0f)
             {
-                // Atrás da câmera — centraliza com segurança.
                 Place(menu, root.layout.width * 0.5f - _menuWidth * 0.5f, root.layout.height * 0.4f);
                 return;
             }
 
-            // UI Toolkit: Y cresce para baixo; ScreenPoint Y cresce para cima.
             var panelH = root.resolvedStyle.height > 1f ? root.resolvedStyle.height : Screen.height;
             var panelW = root.resolvedStyle.width > 1f ? root.resolvedStyle.width : Screen.width;
             var uiX = screen.x * (panelW / Mathf.Max(1f, Screen.width));
             var uiY = (Screen.height - screen.y) * (panelH / Mathf.Max(1f, Screen.height));
 
             var height = measuredHeight > 0f ? measuredHeight : _menuEstimatedHeight;
-            var preferRight = uiX < panelW * 0.55f;
+            // Prefere lado com mais espaço; se painel modal à direita, força menu à esquerda do prédio.
+            var spaceRight = panelW - uiX;
+            var spaceLeft = uiX;
+            var preferRight = spaceRight >= spaceLeft + 24f;
+            if (reserveRightPanel)
+            {
+                preferRight = false;
+            }
+
             var left = preferRight
                 ? uiX + _gapFromBuilding
                 : uiX - _menuWidth - _gapFromBuilding;
 
-            var top = uiY - height * 0.35f;
+            // Ligeiramente acima do centro visual — não cobre o corpo do prédio.
+            var top = uiY - height * 0.75f;
 
             var minLeft = _margin;
-            var maxLeft = panelW - _menuWidth - _margin;
+            var maxLeft = panelW - _menuWidth - _margin - (reserveRightPanel ? _sidePanelReserve : 0f);
             var minTop = _topHudReserve + _margin;
             var maxTop = panelH - height - _bottomNavReserve - _margin;
 

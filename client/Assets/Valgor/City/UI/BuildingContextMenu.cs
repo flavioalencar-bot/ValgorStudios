@@ -109,7 +109,11 @@ namespace Valgor.City.UI
             _onAction = null;
         }
 
-        public void Reposition(VisualElement panelRoot, UnityEngine.Camera camera, Vector3 worldAnchor)
+        public void Reposition(
+            VisualElement panelRoot,
+            UnityEngine.Camera camera,
+            Vector3 worldAnchor,
+            bool reserveRightPanel = false)
         {
             if (!IsVisible)
             {
@@ -121,7 +125,7 @@ namespace Valgor.City.UI
                 var height = _root.resolvedStyle.height > 1f
                     ? _root.resolvedStyle.height
                     : -1f;
-                _positioner.Apply(_root, panelRoot, camera, worldAnchor, height);
+                _positioner.Apply(_root, panelRoot, camera, worldAnchor, height, reserveRightPanel);
             });
         }
 

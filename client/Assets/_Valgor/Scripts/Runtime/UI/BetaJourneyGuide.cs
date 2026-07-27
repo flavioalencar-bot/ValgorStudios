@@ -5,11 +5,18 @@ using Valgor.Core;
 namespace Valgor.UI
 {
     /// <summary>
-    /// Tutorial mínimo da Beta 0.1 (canto) — guia a jornada inicial.
+    /// Tutorial mínimo da Beta 0.1 — posicionamento dinâmico e recolhível.
     /// </summary>
     public static class BetaJourneyGuide
     {
         public const string OverlayName = "beta-journey-guide";
+        private const string ContentName = "guide-content";
+        private const string CollapseName = "guide-collapse";
+
+        private static bool _cityModalOpen;
+        private static bool _panelOnRight = true;
+        private static bool _collapsed;
+        private static System.Action? _lastOnPrimary;
 
         public static void AttachOrRefresh(VisualElement root, System.Action onPrimary = null)
         {
@@ -24,6 +31,7 @@ namespace Valgor.UI
                 return;
             }
 
+            _lastOnPrimary = onPrimary;
             var overlay = root.Q(OverlayName) ?? BuildOverlay();
             if (overlay.parent != root)
             {
@@ -31,6 +39,40 @@ namespace Valgor.UI
             }
 
             Refresh(overlay, onPrimary);
+            ApplyLayout(overlay);
+        }
+
+        /// <summary>
+        /// Painel modal da cidade aberto — move o tutorial para o lado oposto e evita sobreposição.
+        /// </summary>
+        public static void NotifyCityModalOpen(bool open, bool panelOnRight = true)
+        {
+            _cityModalOpen = open;
+            _panelOnRight = panelOnRight;
+            if (open)
+            {
+                _collapsed = false;
+            }
+
+            var overlay = FindOverlay();
+            if (overlay == null)
+            {
+                return;
+            }
+
+            ApplyLayout(overlay);
+            Refresh(overlay, _lastOnPrimary);
+        }
+
+        public static void SetCollapsed(bool collapsed)
+        {
+            _collapsed = collapsed;
+            var overlay = FindOverlay();
+            if (overlay != null)
+            {
+                ApplyLayout(overlay);
+                Refresh(overlay, _lastOnPrimary);
+            }
         }
 
         public static void NotifyCastleSelected()
@@ -122,14 +164,58 @@ namespace Valgor.UI
             }
         }
 
+        private static VisualElement? FindOverlay()
+        {
+            var docs = Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
+            for (var i = 0; i < docs.Length; i++)
+            {
+                var overlay = docs[i]?.rootVisualElement?.Q(OverlayName);
+                if (overlay != null)
+                {
+                    return overlay;
+                }
+            }
+
+            return null;
+        }
+
+        private static void ApplyLayout(VisualElement overlay)
+        {
+            // Área segura: HUD topo ~56, nav inferior ~72, margem 16.
+            overlay.style.top = 72;
+            overlay.style.bottom = StyleKeyword.Auto;
+            overlay.style.width = _collapsed ? 132 : 280;
+            overlay.style.maxWidth = _collapsed ? 140 : 300;
+
+            var preferLeft = _cityModalOpen && _panelOnRight;
+            if (preferLeft)
+            {
+                overlay.style.left = 16;
+                overlay.style.right = StyleKeyword.Auto;
+            }
+            else
+            {
+                overlay.style.right = 16;
+                overlay.style.left = StyleKeyword.Auto;
+            }
+
+            var content = overlay.Q(ContentName);
+            if (content != null)
+            {
+                content.style.display = _collapsed ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
+            var collapse = overlay.Q<Button>(CollapseName);
+            if (collapse != null)
+            {
+                collapse.text = _collapsed ? "Guia ▾" : "Recolher";
+            }
+        }
+
         private static VisualElement BuildOverlay()
         {
             var overlay = new VisualElement { name = OverlayName };
             overlay.style.position = Position.Absolute;
-            overlay.style.right = 16;
-            overlay.style.top = 72;
-            overlay.style.width = 300;
-            overlay.style.maxWidth = 320;
             overlay.style.paddingLeft = 12;
             overlay.style.paddingRight = 12;
             overlay.style.paddingTop = 10;
@@ -143,15 +229,26 @@ namespace Valgor.UI
             overlay.style.borderBottomColor = BetaVisualTheme.AgedGold;
             overlay.style.borderLeftColor = BetaVisualTheme.AgedGold;
             overlay.style.borderRightColor = BetaVisualTheme.AgedGold;
-            // Só o botão captura pointer — o restante da cidade permanece clicável.
             overlay.pickingMode = PickingMode.Ignore;
+
+            var collapse = new Button { name = CollapseName, text = "Recolher" };
+            collapse.pickingMode = PickingMode.Position;
+            StyleButton(collapse);
+            collapse.style.marginBottom = 6;
+            collapse.style.alignSelf = Align.FlexEnd;
+            collapse.clicked += () => SetCollapsed(!_collapsed);
+            overlay.Add(collapse);
+
+            var content = new VisualElement { name = ContentName };
+            content.pickingMode = PickingMode.Ignore;
+            overlay.Add(content);
 
             var title = new Label { name = "guide-title" };
             title.pickingMode = PickingMode.Ignore;
             title.style.color = BetaVisualTheme.AgedGoldBright;
             title.style.fontSize = 13;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            overlay.Add(title);
+            content.Add(title);
 
             var body = new Label { name = "guide-body" };
             body.pickingMode = PickingMode.Ignore;
@@ -159,13 +256,13 @@ namespace Valgor.UI
             body.style.fontSize = 12;
             body.style.whiteSpace = WhiteSpace.Normal;
             body.style.marginTop = 4;
-            overlay.Add(body);
+            content.Add(body);
 
             var row = new VisualElement { name = "guide-row" };
             row.pickingMode = PickingMode.Ignore;
             row.style.flexDirection = FlexDirection.Row;
             row.style.marginTop = 8;
-            overlay.Add(row);
+            content.Add(row);
 
             var primary = new Button { name = "guide-primary", text = "Entendi" };
             primary.pickingMode = PickingMode.Position;
@@ -175,15 +272,29 @@ namespace Valgor.UI
             return overlay;
         }
 
-        private static void Refresh(VisualElement overlay, System.Action onPrimary)
+        private static void Refresh(VisualElement overlay, System.Action? onPrimary)
         {
             var step = LocalPlayerProfile.TutorialStep;
             GetCopy(step, out var title, out var body, out var primaryLabel);
-            overlay.Q<Label>("guide-title").text = title;
-            overlay.Q<Label>("guide-body").text = body;
+            var titleLabel = overlay.Q<Label>("guide-title");
+            var bodyLabel = overlay.Q<Label>("guide-body");
+            if (titleLabel != null)
+            {
+                titleLabel.text = title;
+            }
+
+            if (bodyLabel != null)
+            {
+                bodyLabel.text = body;
+            }
 
             var primary = overlay.Q<Button>("guide-primary");
             var row = overlay.Q("guide-row");
+            if (primary == null || row == null)
+            {
+                return;
+            }
+
             var index = row.IndexOf(primary);
             primary.RemoveFromHierarchy();
             var fresh = new Button { name = "guide-primary", text = primaryLabel };
@@ -201,9 +312,11 @@ namespace Valgor.UI
                 else
                 {
                     Refresh(overlay, onPrimary);
+                    ApplyLayout(overlay);
                 }
             };
             row.Insert(index < 0 ? 0 : index, fresh);
+            ApplyLayout(overlay);
         }
 
         private static void GetCopy(int step, out string title, out string body, out string primary)

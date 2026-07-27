@@ -321,3 +321,11 @@ Histórico completo: `git log --oneline` no repositório.
 - Causa: `activeInputHandler = Input System only` → `OnMouse*` não dispara no Player.
 - Correção: `CityBuildingPointerInput` (raycast), layer `Building`, colliders nos slots; tutorial overlay `pickingMode` só no botão.
 - Sprint UX **não** avançada (somente interação de seleção).
+
+## Ajuste visual UX contextual (2026-07-27)
+
+- Tutorial dinâmico (lado oposto ao painel) + botão Recolher.
+- Menu contextual com gap maior / âncora lateral.
+- Indicadores: ícone colorido, sem abreviações; quantidade só com seleção.
+- Painel Atualizar: coluna flex + scroll + botões fixos (cabimento 1600×900).
+- Sem novos edifícios.
