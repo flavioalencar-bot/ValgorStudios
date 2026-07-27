@@ -183,6 +183,15 @@ namespace Valgor.UI
 
             TrySelectCityBuilding("farm");
             yield return new WaitForSecondsRealtime(0.8f);
+            InvokeCityPresenter("DebugOpenUpgradePanel");
+            yield return new WaitForSecondsRealtime(1f);
+            yield return Capture("ux-11-prereq-blocked");
+            InvokeCityPresenter("DebugGoToFirstUnmetRequirement");
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return Capture("ux-12-prereq-go-castle");
+
+            TrySelectCityBuilding("farm");
+            yield return new WaitForSecondsRealtime(0.8f);
             ForceFarmCollectable();
             yield return new WaitForSecondsRealtime(0.6f);
             yield return Capture("ux-03-farm-collectable");

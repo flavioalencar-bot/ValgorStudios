@@ -118,6 +118,24 @@ namespace Valgor.City.UI
             OpenActionPanel(BuildingContextAction.Upgrade);
         }
 
+        /// <summary>API de smoke/QA: clica no primeiro pré-requisito não cumprido (botão Ir).</summary>
+        public void DebugGoToFirstUnmetRequirement()
+        {
+            if (_current == null)
+            {
+                return;
+            }
+
+            foreach (var check in _city.GetDependencyChecks(_current))
+            {
+                if (!check.Satisfied && !string.IsNullOrEmpty(check.JumpToDefinitionId))
+                {
+                    GoToRequirementBuilding(check.JumpToDefinitionId!);
+                    return;
+                }
+            }
+        }
+
         public void DebugOpenDetailsPanel()
         {
             if (_current == null)
@@ -363,9 +381,12 @@ namespace Valgor.City.UI
             {
                 case BuildingContextAction.Upgrade:
                     RebuildUpgradeBody(_current);
+                    var canConfirmUpgrade = _city.CanUpgrade(_current, definition) &&
+                                            string.IsNullOrEmpty(_city.GetUpgradeBlockReason(_current, definition));
                     AddPanelButton(
                         _current.State == BuildingState.Available && _current.Level <= 0 ? "Construir" : "Atualizar",
-                        ExecuteUpgrade);
+                        ExecuteUpgrade,
+                        enabled: canConfirmUpgrade);
                     AddPanelButton("Concluir Agora", ExecuteInstantComplete);
                     AddPanelButton("Fechar", HideActionPanel);
                     break;
@@ -404,7 +425,14 @@ namespace Valgor.City.UI
                     ? $"Em andamento — resta {FormatRemaining(building.UpgradeCompletesAtUtc.Value)}\n"
                     : string.Empty) +
                 $"Construtor: {_city.GetActiveConstructionCount()}/{CityController.ConstructionQueueSlots}\n" +
-                "Requisitos:");
+                "Pré-requisitos:");
+
+            foreach (var dep in _city.GetDependencyChecks(building))
+            {
+                _actionBodyHost.Add(BuildDependencyRow(dep));
+            }
+
+            AppendBodyText("Recursos:");
 
             foreach (var req in _city.GetUpgradeRequirements(building))
             {
@@ -416,6 +444,86 @@ namespace Valgor.City.UI
                     ? building.UpgradeCompletesAtUtc.Value - _city.Economy.Clock.UtcNow
                     : duration);
             AppendBodyText($"\nConcluir Agora: {diamonds} diamante(s) · saldo {_city.Economy.Wallet.Get(ResourceType.Diamonds)}");
+        }
+
+        private VisualElement BuildDependencyRow(BuildingDependencyCheck check)
+        {
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems = Align.Center;
+            row.style.justifyContent = Justify.SpaceBetween;
+            row.style.marginTop = 3;
+            row.style.paddingLeft = 6;
+            row.style.paddingRight = 6;
+            row.style.paddingTop = 4;
+            row.style.paddingBottom = 4;
+            row.style.backgroundColor = new Color(0.12f, 0.12f, 0.14f, 0.85f);
+
+            var name = new Label(check.Label);
+            name.style.color = BetaVisualTheme.TextPrimary;
+            name.style.fontSize = 12;
+            name.style.flexGrow = 1;
+            name.style.flexShrink = 1;
+
+            var detail = new Label(check.Detail);
+            detail.style.fontSize = 11;
+            detail.style.color = check.Satisfied
+                ? new Color(0.45f, 0.85f, 0.5f)
+                : new Color(0.9f, 0.35f, 0.32f);
+            detail.style.unityTextAlign = TextAnchor.MiddleRight;
+            detail.style.flexGrow = 1;
+            detail.style.flexShrink = 1;
+
+            var mark = new Label(check.Satisfied ? "✓" : "✗");
+            mark.style.fontSize = 13;
+            mark.style.marginLeft = 8;
+            mark.style.color = detail.style.color;
+            mark.style.unityFontStyleAndWeight = FontStyle.Bold;
+
+            row.Add(name);
+            row.Add(detail);
+            row.Add(mark);
+
+            if (!check.Satisfied && !string.IsNullOrEmpty(check.JumpToDefinitionId))
+            {
+                var targetId = check.JumpToDefinitionId!;
+                var go = new Button(() => GoToRequirementBuilding(targetId)) { text = "Ir" };
+                go.style.marginLeft = 8;
+                go.style.paddingLeft = 10;
+                go.style.paddingRight = 10;
+                go.style.paddingTop = 4;
+                go.style.paddingBottom = 4;
+                go.style.fontSize = 12;
+                go.style.backgroundColor = BetaVisualTheme.ButtonFace;
+                go.style.color = BetaVisualTheme.TextPrimary;
+                go.style.borderTopWidth = 1;
+                go.style.borderBottomWidth = 1;
+                go.style.borderLeftWidth = 1;
+                go.style.borderRightWidth = 1;
+                go.style.borderTopColor = BetaVisualTheme.ButtonBorder;
+                go.style.borderBottomColor = BetaVisualTheme.ButtonBorder;
+                go.style.borderLeftColor = BetaVisualTheme.ButtonBorder;
+                go.style.borderRightColor = BetaVisualTheme.ButtonBorder;
+                row.Add(go);
+            }
+
+            return row;
+        }
+
+        private void GoToRequirementBuilding(string definitionId)
+        {
+            CityBuildingPointerInput.SuppressWorldClicks(0.35f);
+            _ignoreOutsideClickUntil = Time.unscaledTime + 0.35f;
+
+            if (!_city.TryGetBuildingByDefinitionId(definitionId, out var target))
+            {
+                _feedback.text = "Edifício exigido não encontrado na cidade.";
+                return;
+            }
+
+            HideActionPanel();
+            _openPanelAction = null;
+            _city.Selection.Select(target);
         }
 
         private static VisualElement BuildRequirementRow(UpgradeResourceRequirement req)
@@ -704,16 +812,21 @@ namespace Valgor.City.UI
             _actionBodyHost.Add(label);
         }
 
-        private void AddPanelButton(string text, Action action)
+        private void AddPanelButton(string text, Action action, bool enabled = true)
         {
             var button = new Button(action) { text = text };
+            button.SetEnabled(enabled);
             button.style.marginTop = 8;
             button.style.paddingLeft = 12;
             button.style.paddingRight = 12;
             button.style.paddingTop = 8;
             button.style.paddingBottom = 8;
-            button.style.backgroundColor = BetaVisualTheme.ButtonFace;
-            button.style.color = BetaVisualTheme.TextPrimary;
+            button.style.backgroundColor = enabled
+                ? BetaVisualTheme.ButtonFace
+                : new Color(0.18f, 0.18f, 0.2f, 0.9f);
+            button.style.color = enabled
+                ? BetaVisualTheme.TextPrimary
+                : new Color(0.55f, 0.55f, 0.58f);
             button.style.borderTopWidth = 1;
             button.style.borderBottomWidth = 1;
             button.style.borderLeftWidth = 1;
@@ -723,6 +836,7 @@ namespace Valgor.City.UI
             button.style.borderLeftColor = BetaVisualTheme.ButtonBorder;
             button.style.borderRightColor = BetaVisualTheme.ButtonBorder;
             button.style.fontSize = 13;
+            button.style.opacity = enabled ? 1f : 0.55f;
             _actionButtons.Add(button);
         }
 

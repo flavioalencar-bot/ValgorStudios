@@ -27,6 +27,9 @@
     <Compile Include="..\..\client\Assets\Valgor\City\Buildings\BuildingCatalog.cs" Link="City\BuildingCatalog.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Buildings\WarehouseRules.cs" Link="City\WarehouseRules.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Buildings\BuildingUpgradeRequirements.cs" Link="City\BuildingUpgradeRequirements.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Buildings\BuildingRequirementModels.cs" Link="City\BuildingRequirementModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Buildings\BuildingRequirementCatalog.cs" Link="City\BuildingRequirementCatalog.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Buildings\BuildingRequirementEvaluator.cs" Link="City\BuildingRequirementEvaluator.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Data\ProductionModels.cs" Link="City\ProductionModels.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Data\IGameClock.cs" Link="City\IGameClock.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Core\BuildingSelectionService.cs" Link="City\BuildingSelectionService.cs" />

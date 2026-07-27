@@ -20,7 +20,9 @@ O edifício é a interface principal. Não há menu central de construções.
 
 ### Painel Atualizar
 
-Nome, níveis, benefício, duração, requisitos (Ouro/Comida/Madeira/Pedra/Ferro/Essência com ✓/✗), botões **Atualizar**, **Concluir Agora** (diamantes), **Fechar**.
+Nome, níveis, benefício, duração, **pré-requisitos** (Castelo / prédios / pesquisa com ✓/✗), requisitos de recursos (Ouro/Comida/Madeira/Pedra/Ferro/Essência com ✓/✗), botões **Atualizar**, **Concluir Agora** (diamantes), **Fechar**.
+
+Ver `city-building-upgrade-requirements.md` para o catálogo data-driven (Fazenda/Armazém/Castelo + botão **Ir**).
 
 ### Mundo
 
@@ -36,7 +38,8 @@ Nome, níveis, benefício, duração, requisitos (Ouro/Comida/Madeira/Pedra/Ferr
 | `BuildingContextMenu` | Botões circulares Valgor |
 | `BuildingContextMenuPositioner` | World→UI com área segura |
 | `BuildingSelectionPresenter` | Orquestra seleção/câmera/menu/painel |
-| `BuildingUpgradeRequirements` | Requisitos + custo Concluir Agora |
+| `BuildingUpgradeRequirements` | Custos de recursos + Concluir Agora |
+| `BuildingRequirementCatalog` / `Evaluator` | Pré-requisitos Castelo/prédios/unlock |
 | `WarehouseRules` | Capacidade/proteção |
 
 ## Evidências smoke

@@ -237,18 +237,21 @@ namespace Valgor.City.Core
                 return false;
             }
 
-            if (GetActiveConstructionCount() >= ConstructionQueueSlots &&
-                building.State != BuildingState.Upgrading)
+            if (building.State == BuildingState.Upgrading)
             {
                 return false;
             }
 
-            if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
+            if (GetActiveConstructionCount() >= ConstructionQueueSlots)
             {
-                return true;
+                return false;
             }
 
-            return building.Level < GetCastleLevel();
+            return BuildingRequirementEvaluator.MeetsAll(
+                building,
+                GetCastleLevel(),
+                GetBuildingLevel,
+                HasUnlock);
         }
 
         public string? GetUpgradeBlockReason(BuildingInstance building, BuildingDefinition definition)
@@ -268,14 +271,52 @@ namespace Valgor.City.Core
                 return "Fila de construção cheia (1/1).";
             }
 
-            if (!string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal) &&
-                building.Level >= GetCastleLevel())
+            var dependencyBlock = BuildingRequirementEvaluator.GetFirstBlockReason(
+                building,
+                GetCastleLevel(),
+                GetBuildingLevel,
+                HasUnlock);
+            if (dependencyBlock != null)
             {
-                return $"Requer Castelo Nv.{building.Level + 1}";
+                return dependencyBlock;
+            }
+
+            if (!HasUpgradeFunds(building, definition))
+            {
+                return "Recursos insuficientes.";
             }
 
             return null;
         }
+
+        public IReadOnlyList<BuildingDependencyCheck> GetDependencyChecks(BuildingInstance building) =>
+            BuildingRequirementEvaluator.Evaluate(building, GetCastleLevel(), GetBuildingLevel, HasUnlock);
+
+        public int GetBuildingLevel(string definitionId)
+        {
+            return TryGetBuildingByDefinitionId(definitionId, out var building)
+                ? Math.Max(0, building.Level)
+                : 0;
+        }
+
+        public bool TryGetBuildingByDefinitionId(string definitionId, out BuildingInstance building)
+        {
+            foreach (var candidate in _buildings)
+            {
+                if (string.Equals(candidate.DefinitionId, definitionId, StringComparison.Ordinal))
+                {
+                    building = candidate;
+                    return true;
+                }
+            }
+
+            building = null!;
+            return false;
+        }
+
+        private static bool HasUnlock(string unlockKey) =>
+            string.Equals(unlockKey, BuildingRequirementCatalog.UnlockGatherResearch, StringComparison.Ordinal) &&
+            Valgor.Core.BetaProgress.ResearchGatherBoost;
 
         public BuildingInstance? GetActiveConstruction()
         {

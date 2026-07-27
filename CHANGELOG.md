@@ -7,6 +7,12 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Added
+
+- City: pré-requisitos data-driven de evolução (`BuildingRequirementCatalog` + `BuildingRequirementEvaluator`) — Castelo/prédios/pesquisa; painel Atualizar com Pré-requisitos (vermelho + **Ir**), Recursos e **Atualizar** bloqueado quando inválido
+- Regras iniciais: Fazenda→Castelo N; Armazém→Castelo N + Fazenda; Castelo→Fazenda/Armazém do catálogo
+- Doc: `docs/architecture/city-building-upgrade-requirements.md`
+
 ### Fixed
 
 - City: botão **Detalhes** do menu contextual não abria o painel — o mesmo clique re-selecionava o prédio e fechava o modal; painel dedicado `BuildingDetailsPanel` + suppress do raycast 3D

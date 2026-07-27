@@ -1,4 +1,4 @@
-# VALGOR — Matriz de Implementação e Auditoria de Aderência
+﻿# VALGOR — Matriz de Implementação e Auditoria de Aderência
 
 **Documento:** `docs/project-control/VALGOR_IMPLEMENTATION_STATUS.md`  
 **Auditoria:** 2026-07-27  
@@ -315,6 +315,21 @@ Histórico completo: `git log --oneline` no repositório.
   - `ux-10-upgrade-complete.png`
 - Situação City/upgrade contextual: **VISÍVEL NO EXECUTÁVEL** (primeira entrega validada).
 - Limitações restantes: demais edifícios fora do escopo; arte ainda silhueta; Concluir Agora / gemas e fila de construção além do MVP conforme sprint.
+
+## Pré-requisitos de evolução (2026-07-27)
+
+- Catálogo data-driven: `BuildingUpgradeRequirement` / `BuildingLevelRequirement` / `BuildingUpgradeDefinition` / `BuildingRequirementCatalog` + `BuildingRequirementEvaluator`.
+- Regras iniciais: Fazenda (Castelo ≥ N); Armazém (Castelo ≥ N + Fazenda nos níveis do catálogo); Castelo (Fazenda + Armazém nos níveis do catálogo).
+- `CityController.CanUpgrade` / `GetUpgradeBlockReason` / `GetDependencyChecks` / `TryGetBuildingByDefinitionId`.
+- Painel Atualizar: Pré-requisitos (vermelho se falha + botão **Ir** → centraliza o prédio); **Atualizar** desabilitado se bloqueado; recursos não debitados se `TryUpgradeSelected` falha.
+- Doc: `docs/architecture/city-building-upgrade-requirements.md`.
+- Sem novos edifícios; sem reescrita do fluxo de upgrade; **sem** arquivos de outros repositórios.
+- `dotnet test tools/Valgor.GameLogic.Tests`: **125 aprovados / 0 falha / 125 total**.
+- `dotnet test server/Valgor.sln`: **23 aprovados / 0 falha / 23 total** (Domain 15 + Application 4 + Api 4).
+- Build: `C:\Valgor_Studio\builds\windows\Valgor-Beta-0.1\Valgor.exe` (Length=672256, LastWriteTime=2026-07-27 15:06:01).
+- Smoke: `scripts/capture-checkpoint-evidence.ps1` exit 0; PNGs em `builds/windows/Valgor-Beta-0.1/evidence/` e versionados em `docs/releases/beta-0.1-evidence/ux-contextual/`:
+  - `ux-11-prereq-blocked.png`
+  - `ux-12-prereq-go-castle.png`
 
 ## Patch crítico — clique nos edifícios (2026-07-27)
 

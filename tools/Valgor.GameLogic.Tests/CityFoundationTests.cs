@@ -147,3 +147,91 @@ public sealed class BuildingUpgradeRequirementsTests
         Assert.Equal(2, BuildingUpgradeRequirements.InstantCompleteDiamondCost(TimeSpan.FromSeconds(6)));
     }
 }
+
+public sealed class BuildingRequirementCatalogTests
+{
+    [Fact]
+    public void Farm_RequiresOnlyCastleEqualToTargetLevel()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("farm", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Empty(req.RequiredBuildings);
+    }
+
+    [Fact]
+    public void Warehouse_Level2_RequiresFarm1()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("warehouse", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "farm" && b.MinimumLevel == 1);
+    }
+
+    [Fact]
+    public void Castle_Level2_RequiresFarmAndWarehouse()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("castle", currentLevel: 1);
+        Assert.Equal(0, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "farm" && b.MinimumLevel == 1);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "warehouse" && b.MinimumLevel == 1);
+    }
+
+    [Fact]
+    public void DragonTower_Level2_RequiresGatherResearch()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("dragon-tower", currentLevel: 1);
+        Assert.Contains(req.RequiredUnlocks, u => u.UnlockKey == BuildingRequirementCatalog.UnlockGatherResearch);
+    }
+
+    [Fact]
+    public void Evaluator_BlocksWhenCastleTooLow()
+    {
+        var farm = new BuildingInstance("farm", 1, BuildingState.Ready);
+        var reason = BuildingRequirementEvaluator.GetFirstBlockReason(
+            farm,
+            castleLevel: 1,
+            _ => 0);
+
+        Assert.NotNull(reason);
+        Assert.Contains("Castelo", reason);
+    }
+
+    [Fact]
+    public void Evaluator_BlocksMissingUnlock()
+    {
+        var tower = new BuildingInstance("dragon-tower", 1, BuildingState.Ready);
+        var reason = BuildingRequirementEvaluator.GetFirstBlockReason(
+            tower,
+            castleLevel: 2,
+            id => id == "warehouse" ? 1 : 0,
+            _ => false);
+
+        Assert.NotNull(reason);
+        Assert.Contains("Coleta", reason);
+    }
+
+    [Fact]
+    public void Evaluator_PassesWhenDependenciesMet()
+    {
+        var warehouse = new BuildingInstance("warehouse", 1, BuildingState.Ready);
+        var ok = BuildingRequirementEvaluator.MeetsAll(
+            warehouse,
+            castleLevel: 2,
+            id => id == "farm" ? 1 : 0);
+
+        Assert.True(ok);
+    }
+
+    [Fact]
+    public void Evaluator_UnmetBuilding_ExposesJumpTarget()
+    {
+        var castle = new BuildingInstance("castle", 1, BuildingState.Ready);
+        var checks = BuildingRequirementEvaluator.Evaluate(
+            castle,
+            castleLevel: 1,
+            _ => 0);
+
+        var farm = Assert.Single(checks, c => c.Label == "Fazenda");
+        Assert.False(farm.Satisfied);
+        Assert.Equal("farm", farm.JumpToDefinitionId);
+    }
+}
