@@ -7,6 +7,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Castelo Tier 1:** visual alinhado à referência oficial (brasão na porta/bandeiras); acentos preservados no tint de seleção
+
 ### Added
 
 - **Beta 0.2.1** pasta isolada `Valgor-Beta-0.2.1` (preserva 0.1 e 0.2); script `build-windows-beta-0.2.1.ps1`; revalidaÃ§Ã£o P0/P1

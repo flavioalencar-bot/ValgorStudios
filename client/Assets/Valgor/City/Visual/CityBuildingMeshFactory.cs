@@ -27,7 +27,8 @@ namespace Valgor.City.Visual
             switch (buildingId)
             {
                 case "castle":
-                    BuildCastle(visual.transform, color);
+                    // Visual separado da lógica — Tier 1 pela referência oficial.
+                    CastleTierVisual.Build(visual.transform, color, visualTier: 1);
                     break;
                 case "dragon-tower":
                     BuildDragonTower(visual.transform, color);
@@ -79,60 +80,7 @@ namespace Valgor.City.Visual
             return Encapsulate(visual.transform);
         }
 
-        // ─── P0: Castelo (dominante, proporções medievais) ──────────────
-
-        private static void BuildCastle(Transform root, Color color)
-        {
-            var stone = Color.Lerp(Stone, color, 0.18f);
-            var dark = Color.Lerp(StoneDark, color, 0.12f);
-
-            // Escadaria / praça frontal.
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.08f, 4.0f), new Vector3(5.0f, 0.14f, 3.4f),
-                CityVisualMaterials.Path, SurfaceKind.Path);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.22f, 2.85f), new Vector3(3.6f, 0.2f, 1.1f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.4f, 2.35f), new Vector3(3.2f, 0.2f, 0.9f), stone, SurfaceKind.Stone);
-
-            // Base larga do pátio.
-            Plinth(root, 6.2f, 5.6f);
-
-            // Muralhas laterais (volumes contínuos — menos blocos).
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.15f, -2.35f), new Vector3(5.6f, 2.1f, 0.55f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(-2.75f, 1.15f, 0f), new Vector3(0.55f, 2.1f, 4.6f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(2.75f, 1.15f, 0f), new Vector3(0.55f, 2.1f, 4.6f), dark, SurfaceKind.Stone);
-            // Frente aberta no portão (alas).
-            Part(PrimitiveType.Cube, root, new Vector3(-2.05f, 1.15f, 2.35f), new Vector3(1.6f, 2.1f, 0.55f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(2.05f, 1.15f, 2.35f), new Vector3(1.6f, 2.1f, 0.55f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.35f, 2.35f), new Vector3(2.6f, 0.4f, 0.55f), stone, SurfaceKind.Stone);
-
-            // Keep / torre central dominante.
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.4f, -0.2f), new Vector3(3.0f, 4.2f, 2.8f), stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 4.7f, -0.2f), new Vector3(2.4f, 0.85f, 2.2f), dark, SurfaceKind.Stone);
-            ConeRoof(root, new Vector3(0f, 5.85f, -0.2f), 2.5f, 1.35f, RoofBlue);
-            SmallFlag(root, new Vector3(0f, 7.35f, -0.2f), Gold);
-
-            // Quatro torres de canto (menores que o keep).
-            CornerKeep(root, -2.55f, -2.15f, 3.6f, stone, RoofBlue);
-            CornerKeep(root, 2.55f, -2.15f, 3.6f, stone, RoofBlue);
-            CornerKeep(root, -2.55f, 1.95f, 3.2f, dark, RoofRed);
-            CornerKeep(root, 2.55f, 1.95f, 3.2f, dark, RoofRed);
-
-            // Portão frontal.
-            Part(PrimitiveType.Cube, root, new Vector3(-1.25f, 1.35f, 2.55f), new Vector3(0.7f, 2.5f, 0.7f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(1.25f, 1.35f, 2.55f), new Vector3(0.7f, 2.5f, 0.7f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.15f, 2.72f), new Vector3(1.55f, 2.0f, 0.22f), Door, SurfaceKind.Wood);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.75f, 2.6f), new Vector3(1.0f, 0.16f, 0.35f), Gold, SurfaceKind.Metal);
-
-            // Ameias só no keep (contínuas).
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 4.55f, 1.05f), new Vector3(2.6f, 0.35f, 0.28f), stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 4.55f, -1.4f), new Vector3(2.6f, 0.35f, 0.28f), stone, SurfaceKind.Stone);
-        }
-
-        private static void CornerKeep(Transform root, float x, float z, float height, Color stone, Color roof)
-        {
-            Part(PrimitiveType.Cube, root, new Vector3(x, height * 0.5f, z), new Vector3(1.15f, height, 1.15f), stone, SurfaceKind.Stone);
-            ConeRoof(root, new Vector3(x, height + 0.15f, z), 1.35f, 0.85f, roof);
-            SmallFlag(root, new Vector3(x, height + 1.15f, z), Banner);
-        }
+        // ─── Castelo: ver CastleTierVisual (Tier 1 = referência oficial) ─
 
         // ─── P0: Torre dos Dragões (circular, distinta do Castelo) ──────
 

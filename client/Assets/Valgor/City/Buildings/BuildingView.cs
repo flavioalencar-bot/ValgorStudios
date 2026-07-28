@@ -191,6 +191,8 @@ namespace Valgor.City.Buildings
             return $"{definition.DisplayName}\nNv.{Math.Max(0, Instance.Level)}";
         }
 
+        private bool[] _lockAccent = Array.Empty<bool>();
+
         private void CacheRenderers()
         {
             _renderers = _visual != null
@@ -198,11 +200,42 @@ namespace Valgor.City.Buildings
                 : GetComponentsInChildren<Renderer>();
             _identityColors = new Color[_renderers.Length];
             _baseColors = new Color[_renderers.Length];
+            _lockAccent = new bool[_renderers.Length];
             for (var i = 0; i < _renderers.Length; i++)
             {
                 _identityColors[i] = ReadColor(_renderers[i]);
                 _baseColors[i] = _identityColors[i];
+                _lockAccent[i] = IsAccentRenderer(_renderers[i]);
             }
+        }
+
+        private static bool IsAccentRenderer(Renderer renderer)
+        {
+            if (renderer == null)
+            {
+                return false;
+            }
+
+            for (var t = renderer.transform; t != null; t = t.parent)
+            {
+                var n = t.name;
+                if (n.StartsWith("Accent_", StringComparison.Ordinal)
+                    || n.Contains("LionCrest", StringComparison.Ordinal)
+                    || n.Contains("CrestBanner", StringComparison.Ordinal)
+                    || n.Contains("GateEagle", StringComparison.Ordinal)
+                    || n.Contains("BannerCloth", StringComparison.Ordinal)
+                    || n.Contains("MainGate", StringComparison.Ordinal))
+                {
+                    return true;
+                }
+
+                if (t.name == "Visual" || t.name.StartsWith("Slot_", StringComparison.Ordinal))
+                {
+                    break;
+                }
+            }
+
+            return false;
         }
 
         private void ApplyStateTint()
@@ -210,7 +243,9 @@ namespace Valgor.City.Buildings
             var tint = CityLayout.ToTint(Instance.State);
             for (var i = 0; i < _renderers.Length; i++)
             {
-                _baseColors[i] = CityVisualMaterials.MixState(_identityColors[i], tint);
+                _baseColors[i] = _lockAccent[i]
+                    ? _identityColors[i]
+                    : CityVisualMaterials.MixState(_identityColors[i], tint);
             }
 
             ApplyColors();
@@ -220,7 +255,7 @@ namespace Valgor.City.Buildings
         {
             for (var i = 0; i < _renderers.Length; i++)
             {
-                var color = _selected
+                var color = _selected && !_lockAccent[i]
                     ? Color.Lerp(_baseColors[i], new Color(0.86f, 0.72f, 0.38f), 0.42f)
                     : _baseColors[i];
                 CityVisualMaterials.Apply(_renderers[i], color);
