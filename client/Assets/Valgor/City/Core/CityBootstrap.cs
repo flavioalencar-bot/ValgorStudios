@@ -56,6 +56,7 @@ namespace Valgor.City
             Controller.SyncBetaProgress();
             Economy.ApplyOfflineAndPersist(Controller.Buildings);
             Economy.ApplyPendingMissionRewards();
+            Controller.SyncCastleVisuals(animate: false);
             Controller.SyncBetaProgress();
             Controller.RefreshPresentation();
             CreateHud();
@@ -202,7 +203,7 @@ namespace Valgor.City
                 slot.Initialize($"slot-{index + 1}", layout.Id, instance);
 
                 var identity = CityLayout.IdentityColor(layout.Id);
-                var bounds = CityBuildingMeshFactory.Build(layout.Id, slotObject.transform, identity);
+                var bounds = CityBuildingMeshFactory.Build(layout.Id, slotObject.transform, identity, layout.Level);
                 var box = slotObject.AddComponent<BoxCollider>();
                 box.center = bounds.center;
                 var minSize = layout.Id == "wall"

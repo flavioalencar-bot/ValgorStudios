@@ -56,6 +56,50 @@ namespace Valgor.City.Buildings
             RefreshStatusBadges();
         }
 
+        /// <summary>
+        /// Sincroniza o visual real do Castelo com o nível atual (só definitionId=castle).
+        /// </summary>
+        public void SyncCastleVisual(bool animate = false)
+        {
+            if (Instance == null ||
+                !string.Equals(Instance.DefinitionId, "castle", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _visual ??= transform.Find("Visual");
+            if (_visual == null)
+            {
+                return;
+            }
+
+            if (!CastleRealVisualLoader.Sync(_visual, Instance.Level, animate, out var detail, out var deferred))
+            {
+                Debug.LogWarning($"[Valgor.City] SyncCastleVisual failed: {detail}");
+                if (CastleRealVisualLoader.FindAttachedTier(_visual) <= 0)
+                {
+                    CastleTierVisual.Build(_visual, Color.white, visualTier: 1);
+                }
+            }
+
+            if (deferred)
+            {
+                return;
+            }
+
+            RecacheAfterCastleVisualSwap();
+        }
+
+        public void RecacheAfterCastleVisualSwap()
+        {
+            CacheRenderers();
+            ApplyStateTint();
+            if (_selected && _visual != null)
+            {
+                _visual.localScale = Vector3.one * 1.08f;
+            }
+        }
+
         public void SetSelected(bool selected)
         {
             _selected = selected;
@@ -225,8 +269,7 @@ namespace Valgor.City.Buildings
                     || n.Contains("GateEagle", StringComparison.Ordinal)
                     || n.Contains("BannerCloth", StringComparison.Ordinal)
                     || n.Contains("MainGate", StringComparison.Ordinal)
-                    || string.Equals(n, "Castle_Tier1_Real", StringComparison.Ordinal)
-                    || n.StartsWith("Castle_Tier1", StringComparison.Ordinal))
+                    || CastleRealVisualLoader.IsRealCastleRenderer(t))
                 {
                     return true;
                 }

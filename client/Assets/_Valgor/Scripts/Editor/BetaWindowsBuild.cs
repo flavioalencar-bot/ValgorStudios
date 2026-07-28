@@ -22,12 +22,12 @@ namespace Valgor.Editor
             "Assets/_Valgor/Scenes/WorldMap.unity"
         };
 
-        [MenuItem("Valgor/Build/Windows Beta 0.2.2")]
+        [MenuItem("Valgor/Build/Windows Beta 0.2.3")]
         public static void BuildFromMenu()
         {
             var report = Build();
             EditorUtility.DisplayDialog(
-                "Valgor Beta 0.2.2",
+                "Valgor Beta 0.2.3",
                 report.summary.result == BuildResult.Succeeded
                     ? $"Build OK:\n{GetOutputExe()}"
                     : $"Build falhou: {report.summary.result}",

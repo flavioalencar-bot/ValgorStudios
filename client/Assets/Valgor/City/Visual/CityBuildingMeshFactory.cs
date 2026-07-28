@@ -19,7 +19,7 @@ namespace Valgor.City.Visual
         private static Color Grass => CityVisualMaterials.Vegetation;
         private static Color Dirt => CityVisualMaterials.Dirt;
 
-        public static Bounds Build(string buildingId, Transform parent, Color color)
+        public static Bounds Build(string buildingId, Transform parent, Color color, int buildingLevel = 1)
         {
             var visual = new GameObject("Visual");
             visual.transform.SetParent(parent, false);
@@ -27,8 +27,8 @@ namespace Valgor.City.Visual
             switch (buildingId)
             {
                 case "castle":
-                    // Asset real (Resources) → fallback procedural se falhar.
-                    if (!CastleRealVisualLoader.TryAttach(visual.transform, out var castleDetail))
+                    // Asset real por faixa de nível → fallback procedural se falhar.
+                    if (!CastleRealVisualLoader.TryAttach(visual.transform, buildingLevel, out var castleDetail))
                     {
                         Debug.LogWarning($"[Valgor.City] Castle real missing ({castleDetail}) — procedural fallback.");
                         CastleTierVisual.Build(visual.transform, color, visualTier: 1);

@@ -146,6 +146,10 @@ namespace Valgor.City.Core
                 view.RefreshStateColor();
                 view.RefreshLabel(definition);
                 view.SetConstructionProgress(0f, string.Empty, false);
+                if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
+                {
+                    view.SyncCastleVisual(animate: true);
+                }
             }
 
             LastUpgradeFeedback = $"{GetDefinition(building).DisplayName} → Nv.{building.Level} (concluído agora)";
@@ -449,11 +453,24 @@ namespace Valgor.City.Core
             // Perfil alto permanece; Castelo beta não pode inflar GetCastleLevel (só cidade).
             Valgor.Core.BetaProgress.CastleLevel = 1;
             _economy.Persist(_buildings);
+            SyncCastleVisuals(animate: false);
             RefreshPresentation();
             BuildingChanged?.Invoke();
         }
 
         public void RefreshPresentation() => RefreshWorldIndicators();
+
+        /// <summary>Após load/save — alinha visual do Castelo à faixa de nível sem animação.</summary>
+        public void SyncCastleVisuals(bool animate = false)
+        {
+            foreach (var pair in _views)
+            {
+                if (string.Equals(pair.Key.DefinitionId, "castle", StringComparison.Ordinal))
+                {
+                    pair.Value.SyncCastleVisual(animate);
+                }
+            }
+        }
 
         private void AdvanceConstruction()
         {
@@ -487,6 +504,10 @@ namespace Valgor.City.Core
                     view.RefreshStateColor();
                     view.RefreshLabel(definition);
                     view.SetConstructionProgress(0f, string.Empty, false);
+                    if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
+                    {
+                        view.SyncCastleVisual(animate: true);
+                    }
                 }
 
                 LastUpgradeFeedback = $"{_definitions[building].DisplayName} → Nv.{building.Level}";

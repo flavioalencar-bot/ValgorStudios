@@ -1,0 +1,303 @@
+{
+  "generated_utc": "2026-07-28T21:21:30.272414+00:00",
+  "level_bands": {
+    "1-5": "Castle_Tier1",
+    "6-10": "Castle_Tier2",
+    "11-15": "Castle_Tier3",
+    "16-20": "Castle_Tier4",
+    "21-25": "Castle_Tier5",
+    "26-30": "Castle_Tier6"
+  },
+  "target_footprints_m": {
+    "1": 7.5,
+    "2": 8.1,
+    "3": 8.7,
+    "4": 9.4,
+    "5": 10.1,
+    "6": 10.8
+  },
+  "tiers": [
+    {
+      "tier": 1,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier1.glb",
+      "ok": true,
+      "error": null,
+      "mesh_count": 1,
+      "object_names": [
+        "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b"
+      ],
+      "loose_geometry": false,
+      "source_bytes": 10235652,
+      "source_mtime": "2026-07-28T18:12:33.884649",
+      "raw_size": [
+        0.983642578125,
+        0.943206787109375,
+        0.631134033203125
+      ],
+      "scale_factor": 7.624720774385704,
+      "final_footprint": 7.5,
+      "final_height": 4.812220573425293,
+      "pivot": "base center, min Z=0 (Blender); Unity Y-up after FBX",
+      "orientation": "FBX axis_up=Y axis_forward=-Z; gate target Unity +Z",
+      "materials": [
+        "M_Castle_Tier1_Atlas"
+      ],
+      "roughness": 0.5,
+      "smoothness": 0.5,
+      "textures": [
+        {
+          "name": "medieval+fortress+3d+model_basecolor.jpg",
+          "size": [
+            4096,
+            4096
+          ],
+          "packed": true,
+          "has_data": true,
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier1_BaseColor.jpg",
+          "bytes": 2792482
+        }
+      ],
+      "texture_ok": true,
+      "fbx": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Models\\Castle_Tier1.fbx",
+      "fbx_bytes": 9936124,
+      "within_progressive_target": true,
+      "glb_valid_magic": true,
+      "embedded_base_color": true
+    },
+    {
+      "tier": 2,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier2.glb",
+      "ok": true,
+      "error": null,
+      "mesh_count": 1,
+      "object_names": [
+        "tripo_node_02b5425b-7c85-42d6-9066-5f61461d0267"
+      ],
+      "loose_geometry": false,
+      "source_bytes": 11028808,
+      "source_mtime": "2026-07-28T18:13:15.691319",
+      "raw_size": [
+        0.9809874296188354,
+        0.9198302030563354,
+        0.88372802734375
+      ],
+      "scale_factor": 8.256986537684046,
+      "final_footprint": 8.100000381469727,
+      "final_height": 7.296930313110352,
+      "pivot": "base center, min Z=0 (Blender); Unity Y-up after FBX",
+      "orientation": "FBX axis_up=Y axis_forward=-Z; gate target Unity +Z",
+      "materials": [
+        "M_Castle_Tier2_Atlas"
+      ],
+      "roughness": 0.5,
+      "smoothness": 0.5,
+      "textures": [
+        {
+          "name": "fantasy+castle+3d+model_basecolor.jpg",
+          "size": [
+            4096,
+            4096
+          ],
+          "packed": true,
+          "has_data": true,
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier2_BaseColor.jpg",
+          "bytes": 3277142
+        }
+      ],
+      "texture_ok": true,
+      "fbx": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Models\\Castle_Tier2.fbx",
+      "fbx_bytes": 10766732,
+      "within_progressive_target": true,
+      "glb_valid_magic": true,
+      "embedded_base_color": true
+    },
+    {
+      "tier": 3,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier3.glb",
+      "ok": true,
+      "error": null,
+      "mesh_count": 1,
+      "object_names": [
+        "tripo_node_a06798ce-53d9-4d1e-a5e1-cb0946cb0353"
+      ],
+      "loose_geometry": false,
+      "source_bytes": 10973640,
+      "source_mtime": "2026-07-28T18:13:38.687244",
+      "raw_size": [
+        0.980682373046875,
+        0.823455810546875,
+        0.89434814453125
+      ],
+      "scale_factor": 8.871373891395674,
+      "final_footprint": 8.699999809265137,
+      "final_height": 7.934096813201904,
+      "pivot": "base center, min Z=0 (Blender); Unity Y-up after FBX",
+      "orientation": "FBX axis_up=Y axis_forward=-Z; gate target Unity +Z",
+      "materials": [
+        "M_Castle_Tier3_Atlas"
+      ],
+      "roughness": 0.5,
+      "smoothness": 0.5,
+      "textures": [
+        {
+          "name": "fantasy+castle+3d+model_basecolor.jpg",
+          "size": [
+            4096,
+            4096
+          ],
+          "packed": true,
+          "has_data": true,
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier3_BaseColor.jpg",
+          "bytes": 3223028
+        }
+      ],
+      "texture_ok": true,
+      "fbx": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Models\\Castle_Tier3.fbx",
+      "fbx_bytes": 10693724,
+      "within_progressive_target": true,
+      "glb_valid_magic": true,
+      "embedded_base_color": true
+    },
+    {
+      "tier": 4,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier4.glb",
+      "ok": true,
+      "error": null,
+      "mesh_count": 1,
+      "object_names": [
+        "tripo_node_eec32a6f-f992-4cf0-bc04-20c1fd1c9834"
+      ],
+      "loose_geometry": false,
+      "source_bytes": 10917588,
+      "source_mtime": "2026-07-28T18:14:02.303362",
+      "raw_size": [
+        0.7335205078125,
+        0.98272705078125,
+        0.8057861328125
+      ],
+      "scale_factor": 9.565219551580647,
+      "final_footprint": 9.40000057220459,
+      "final_height": 7.707521438598633,
+      "pivot": "base center, min Z=0 (Blender); Unity Y-up after FBX",
+      "orientation": "FBX axis_up=Y axis_forward=-Z; gate target Unity +Z",
+      "materials": [
+        "M_Castle_Tier4_Atlas"
+      ],
+      "roughness": 0.5,
+      "smoothness": 0.5,
+      "textures": [
+        {
+          "name": "medieval+castle+3d+model_basecolor.jpg",
+          "size": [
+            4096,
+            4096
+          ],
+          "packed": true,
+          "has_data": true,
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier4_BaseColor.jpg",
+          "bytes": 3010385
+        }
+      ],
+      "texture_ok": true,
+      "fbx": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Models\\Castle_Tier4.fbx",
+      "fbx_bytes": 10551916,
+      "within_progressive_target": true,
+      "glb_valid_magic": true,
+      "embedded_base_color": true
+    },
+    {
+      "tier": 5,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier5.glb",
+      "ok": true,
+      "error": null,
+      "mesh_count": 1,
+      "object_names": [
+        "tripo_node_fc2b65ea-c12d-4836-8525-6905f9c55de5"
+      ],
+      "loose_geometry": false,
+      "source_bytes": 11406624,
+      "source_mtime": "2026-07-28T18:14:25.108773",
+      "raw_size": [
+        0.979705810546875,
+        0.981842041015625,
+        0.835693359375
+      ],
+      "scale_factor": 10.28678705747055,
+      "final_footprint": 10.100000381469727,
+      "final_height": 8.596599578857422,
+      "pivot": "base center, min Z=0 (Blender); Unity Y-up after FBX",
+      "orientation": "FBX axis_up=Y axis_forward=-Z; gate target Unity +Z",
+      "materials": [
+        "M_Castle_Tier5_Atlas"
+      ],
+      "roughness": 0.5,
+      "smoothness": 0.5,
+      "textures": [
+        {
+          "name": "medieval+castle+3d+model_basecolor.jpg",
+          "size": [
+            4096,
+            4096
+          ],
+          "packed": true,
+          "has_data": true,
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier5_BaseColor.jpg",
+          "bytes": 3413064
+        }
+      ],
+      "texture_ok": true,
+      "fbx": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Models\\Castle_Tier5.fbx",
+      "fbx_bytes": 11112140,
+      "within_progressive_target": true,
+      "glb_valid_magic": true,
+      "embedded_base_color": true
+    },
+    {
+      "tier": 6,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier6.glb",
+      "ok": true,
+      "error": null,
+      "mesh_count": 1,
+      "object_names": [
+        "tripo_node_6a588e5c-4ca4-41c9-9c1f-f88dcce37966"
+      ],
+      "loose_geometry": false,
+      "source_bytes": 11253408,
+      "source_mtime": "2026-07-28T18:14:36.874971",
+      "raw_size": [
+        0.9786376357078552,
+        0.98309326171875,
+        0.972808837890625
+      ],
+      "scale_factor": 10.98573291115664,
+      "final_footprint": 10.800000190734863,
+      "final_height": 10.687018394470215,
+      "pivot": "base center, min Z=0 (Blender); Unity Y-up after FBX",
+      "orientation": "FBX axis_up=Y axis_forward=-Z; gate target Unity +Z",
+      "materials": [
+        "M_Castle_Tier6_Atlas"
+      ],
+      "roughness": 0.5,
+      "smoothness": 0.5,
+      "textures": [
+        {
+          "name": "medieval+castle+3d+model_basecolor.jpg",
+          "size": [
+            4096,
+            4096
+          ],
+          "packed": true,
+          "has_data": true,
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier6_BaseColor.jpg",
+          "bytes": 3155324
+        }
+      ],
+      "texture_ok": true,
+      "fbx": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Models\\Castle_Tier6.fbx",
+      "fbx_bytes": 10868204,
+      "within_progressive_target": true,
+      "glb_valid_magic": true,
+      "embedded_base_color": true
+    }
+  ]
+}
