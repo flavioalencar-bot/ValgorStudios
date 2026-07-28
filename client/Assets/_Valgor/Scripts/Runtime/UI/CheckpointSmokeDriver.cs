@@ -82,6 +82,15 @@ namespace Valgor.UI
             yield return Capture("vis-03-castle");
             yield return Capture("vis-07-building-selected");
             yield return Capture("art-02-castle");
+            yield return Capture("city-castle-tier1");
+            if (TryForceCastleVisualLevel(26))
+            {
+                yield return new WaitForSecondsRealtime(0.6f);
+                yield return Capture("city-castle-tier6");
+                TryForceCastleVisualLevel(1);
+                yield return new WaitForSecondsRealtime(0.3f);
+            }
+
             yield return Capture("art-08-building-selected");
             TrySelectCityBuilding("dragon-tower");
             yield return new WaitForSecondsRealtime(0.9f);
@@ -616,6 +625,68 @@ namespace Valgor.UI
             }
 
             Debug.LogWarning($"[CheckpointSmoke] Não foi possível selecionar {definitionId}.");
+        }
+
+        /// <summary>
+        /// Troca só o visual do Castelo para a faixa do nível (captura Tier6 sem alterar save).
+        /// Usa reflexão — Valgor.Runtime não referencia Assembly-CSharp da City.
+        /// </summary>
+        private static bool TryForceCastleVisualLevel(int buildingLevel)
+        {
+            Type? loaderType = null;
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                loaderType = asm.GetType("Valgor.City.Visual.CastleRealVisualLoader");
+                if (loaderType != null)
+                {
+                    break;
+                }
+            }
+
+            var tryAttach = loaderType?.GetMethod(
+                "TryAttach",
+                new[] { typeof(Transform), typeof(int), typeof(string).MakeByRefType() });
+            if (tryAttach == null)
+            {
+                Debug.LogWarning("[CheckpointSmoke] CastleRealVisualLoader.TryAttach não encontrado.");
+                return false;
+            }
+
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (mb == null || !string.Equals(mb.GetType().Name, "BuildingView", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var instance = mb.GetType().GetProperty("Instance")?.GetValue(mb);
+                var defId = instance?.GetType().GetProperty("DefinitionId")?.GetValue(instance) as string;
+                if (!string.Equals(defId, "castle", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var visual = mb.transform.Find("Visual");
+                if (visual == null)
+                {
+                    return false;
+                }
+
+                var args = new object[] { visual, buildingLevel, string.Empty };
+                var ok = tryAttach.Invoke(null, args) is true;
+                if (!ok)
+                {
+                    Debug.LogWarning($"[CheckpointSmoke] Force castle visual failed: {args[2]}");
+                    return false;
+                }
+
+                mb.GetType().GetMethod("RecacheAfterCastleVisualSwap")?.Invoke(mb, null);
+                Debug.Log($"[CheckpointSmoke] Castle visual → level {buildingLevel} ({args[2]})");
+                return true;
+            }
+
+            Debug.LogWarning("[CheckpointSmoke] BuildingView castle não encontrado.");
+            return false;
         }
 
         /// <summary>Simula clique em segmento da muralha (proxy → BuildingView wall).</summary>

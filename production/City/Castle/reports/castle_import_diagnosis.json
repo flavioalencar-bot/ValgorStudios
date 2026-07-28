@@ -1,0 +1,1888 @@
+{
+  "tiers": [
+    {
+      "tier": 1,
+      "glb": {
+        "label": "glb_t1",
+        "object_count": 1,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b",
+            "verts": 121895,
+            "polys": 209465,
+            "loops": 628395,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b_material"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 628395,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.17212,
+                0.91016
+              ],
+              [
+                0.17188,
+                0.91016
+              ],
+              [
+                0.17188,
+                0.90967
+              ],
+              [
+                0.17188,
+                0.91016
+              ],
+              [
+                0.17212,
+                0.91016
+              ],
+              [
+                0.17188,
+                0.91113
+              ],
+              [
+                0.17188,
+                0.90967
+              ],
+              [
+                0.17188,
+                0.91016
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b_material",
+            "use_nodes": true,
+            "images": [
+              "medieval+fortress+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "medieval+fortress+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "medieval+fortress+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b",
+            "type": "MESH",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -0.4918212890625,
+            -0.4716033935546875,
+            0.0
+          ],
+          "max": [
+            0.4918212890625,
+            0.4716033935546875,
+            0.631134033203125
+          ],
+          "size": [
+            0.983642578125,
+            0.943206787109375,
+            0.631134033203125
+          ],
+          "footprint": 0.983642578125,
+          "height": 0.631134033203125
+        },
+        "bytes": 10235652
+      },
+      "fbx_staging": {
+        "label": "fbx_t1",
+        "object_count": 2,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b",
+            "verts": 121895,
+            "polys": 209465,
+            "loops": 628395,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "M_Castle_Tier1_Atlas"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 628395,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.17212,
+                0.91016
+              ],
+              [
+                0.17188,
+                0.91016
+              ],
+              [
+                0.17188,
+                0.90967
+              ],
+              [
+                0.17188,
+                0.91016
+              ],
+              [
+                0.17212,
+                0.91016
+              ],
+              [
+                0.17188,
+                0.91113
+              ],
+              [
+                0.17188,
+                0.90967
+              ],
+              [
+                0.17188,
+                0.91016
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "M_Castle_Tier1_Atlas",
+            "use_nodes": true,
+            "images": [
+              "medieval+fortress+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "medieval+fortress+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "medieval+fortress+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b",
+            "type": "MESH",
+            "parent": "Castle_Tier1",
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Castle_Tier1",
+            "type": "EMPTY",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              90.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -3.75,
+            -3.595844030380249,
+            -2.71478683089299e-07
+          ],
+          "max": [
+            3.75,
+            3.5958445072174072,
+            4.812221050262451
+          ],
+          "size": [
+            7.5,
+            7.191688537597656,
+            4.812221527099609
+          ],
+          "footprint": 7.5,
+          "height": 4.812221527099609
+        },
+        "bytes": 9936124
+      },
+      "issues": []
+    },
+    {
+      "tier": 2,
+      "glb": {
+        "label": "glb_t2",
+        "object_count": 1,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_02b5425b-7c85-42d6-9066-5f61461d0267",
+            "verts": 124131,
+            "polys": 210205,
+            "loops": 630615,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "tripo_node_02b5425b-7c85-42d6-9066-5f61461d0267_material"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 630615,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.05713,
+                0.99146
+              ],
+              [
+                0.05786,
+                0.99048
+              ],
+              [
+                0.05762,
+                0.99121
+              ],
+              [
+                0.05762,
+                0.99121
+              ],
+              [
+                0.05786,
+                0.99048
+              ],
+              [
+                0.05811,
+                0.99097
+              ],
+              [
+                0.05786,
+                0.99048
+              ],
+              [
+                0.05713,
+                0.99146
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "tripo_node_02b5425b-7c85-42d6-9066-5f61461d0267_material",
+            "use_nodes": true,
+            "images": [
+              "fantasy+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "fantasy+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "fantasy+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_02b5425b-7c85-42d6-9066-5f61461d0267",
+            "type": "MESH",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -0.4904937148094177,
+            -0.4599151015281677,
+            0.0
+          ],
+          "max": [
+            0.4904937148094177,
+            0.4599151015281677,
+            0.88372802734375
+          ],
+          "size": [
+            0.9809874296188354,
+            0.9198302030563354,
+            0.88372802734375
+          ],
+          "footprint": 0.9809874296188354,
+          "height": 0.88372802734375
+        },
+        "bytes": 11028808
+      },
+      "fbx_staging": {
+        "label": "fbx_t2",
+        "object_count": 2,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_02b5425b-7c85-42d6-9066-5f61461d0267",
+            "verts": 124131,
+            "polys": 210205,
+            "loops": 630615,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "M_Castle_Tier2_Atlas"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 630615,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.05713,
+                0.99146
+              ],
+              [
+                0.05786,
+                0.99048
+              ],
+              [
+                0.05762,
+                0.99121
+              ],
+              [
+                0.05762,
+                0.99121
+              ],
+              [
+                0.05786,
+                0.99048
+              ],
+              [
+                0.05811,
+                0.99097
+              ],
+              [
+                0.05786,
+                0.99048
+              ],
+              [
+                0.05713,
+                0.99146
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "M_Castle_Tier2_Atlas",
+            "use_nodes": true,
+            "images": [
+              "fantasy+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "fantasy+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "fantasy+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_02b5425b-7c85-42d6-9066-5f61461d0267",
+            "type": "MESH",
+            "parent": "Castle_Tier2",
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Castle_Tier2",
+            "type": "EMPTY",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              90.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -4.050000190734863,
+            -3.7975127696990967,
+            -2.867042496745853e-07
+          ],
+          "max": [
+            4.050000190734863,
+            3.797513246536255,
+            7.29693078994751
+          ],
+          "size": [
+            8.100000381469727,
+            7.595026016235352,
+            7.296931266784668
+          ],
+          "footprint": 8.100000381469727,
+          "height": 7.296931266784668
+        },
+        "bytes": 10766732
+      },
+      "issues": []
+    },
+    {
+      "tier": 3,
+      "glb": {
+        "label": "glb_t3",
+        "object_count": 1,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_a06798ce-53d9-4d1e-a5e1-cb0946cb0353",
+            "verts": 125918,
+            "polys": 207045,
+            "loops": 621135,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "tripo_node_a06798ce-53d9-4d1e-a5e1-cb0946cb0353_material"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 621135,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.29834,
+                0.11206
+              ],
+              [
+                0.302,
+                0.12207
+              ],
+              [
+                0.2981,
+                0.11719
+              ],
+              [
+                0.2981,
+                0.11719
+              ],
+              [
+                0.302,
+                0.12207
+              ],
+              [
+                0.29468,
+                0.11621
+              ],
+              [
+                0.29834,
+                0.11206
+              ],
+              [
+                0.2981,
+                0.11719
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "tripo_node_a06798ce-53d9-4d1e-a5e1-cb0946cb0353_material",
+            "use_nodes": true,
+            "images": [
+              "fantasy+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "fantasy+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "fantasy+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_a06798ce-53d9-4d1e-a5e1-cb0946cb0353",
+            "type": "MESH",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -0.4903411865234375,
+            -0.4117279052734375,
+            0.0
+          ],
+          "max": [
+            0.4903411865234375,
+            0.4117279052734375,
+            0.89434814453125
+          ],
+          "size": [
+            0.980682373046875,
+            0.823455810546875,
+            0.89434814453125
+          ],
+          "footprint": 0.980682373046875,
+          "height": 0.89434814453125
+        },
+        "bytes": 10973640
+      },
+      "fbx_staging": {
+        "label": "fbx_t3",
+        "object_count": 2,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_a06798ce-53d9-4d1e-a5e1-cb0946cb0353",
+            "verts": 125918,
+            "polys": 207045,
+            "loops": 621135,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "M_Castle_Tier3_Atlas"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 621135,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.29834,
+                0.11206
+              ],
+              [
+                0.302,
+                0.12207
+              ],
+              [
+                0.2981,
+                0.11719
+              ],
+              [
+                0.2981,
+                0.11719
+              ],
+              [
+                0.302,
+                0.12207
+              ],
+              [
+                0.29468,
+                0.11621
+              ],
+              [
+                0.29834,
+                0.11206
+              ],
+              [
+                0.2981,
+                0.11719
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "M_Castle_Tier3_Atlas",
+            "use_nodes": true,
+            "images": [
+              "fantasy+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "fantasy+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "fantasy+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_a06798ce-53d9-4d1e-a5e1-cb0946cb0353",
+            "type": "MESH",
+            "parent": "Castle_Tier3",
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Castle_Tier3",
+            "type": "EMPTY",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              90.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -4.349999904632568,
+            -3.652592182159424,
+            -2.757630568339664e-07
+          ],
+          "max": [
+            4.349999904632568,
+            3.652592897415161,
+            7.9340972900390625
+          ],
+          "size": [
+            8.699999809265137,
+            7.305185317993164,
+            7.934097766876221
+          ],
+          "footprint": 8.699999809265137,
+          "height": 7.934097766876221
+        },
+        "bytes": 10693724
+      },
+      "issues": []
+    },
+    {
+      "tier": 4,
+      "glb": {
+        "label": "glb_t4",
+        "object_count": 1,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_eec32a6f-f992-4cf0-bc04-20c1fd1c9834",
+            "verts": 130821,
+            "polys": 212195,
+            "loops": 636585,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "tripo_node_eec32a6f-f992-4cf0-bc04-20c1fd1c9834_material"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 636585,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.19556,
+                0.7627
+              ],
+              [
+                0.19751,
+                0.76538
+              ],
+              [
+                0.19556,
+                0.76367
+              ],
+              [
+                0.19556,
+                0.7627
+              ],
+              [
+                0.19556,
+                0.76367
+              ],
+              [
+                0.19482,
+                0.76172
+              ],
+              [
+                0.19751,
+                0.76538
+              ],
+              [
+                0.19556,
+                0.7627
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "tripo_node_eec32a6f-f992-4cf0-bc04-20c1fd1c9834_material",
+            "use_nodes": true,
+            "images": [
+              "medieval+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "medieval+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "medieval+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_eec32a6f-f992-4cf0-bc04-20c1fd1c9834",
+            "type": "MESH",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -0.36676025390625,
+            -0.491363525390625,
+            0.0
+          ],
+          "max": [
+            0.36676025390625,
+            0.491363525390625,
+            0.8057861328125
+          ],
+          "size": [
+            0.7335205078125,
+            0.98272705078125,
+            0.8057861328125
+          ],
+          "footprint": 0.98272705078125,
+          "height": 0.8057861328125
+        },
+        "bytes": 10917588
+      },
+      "fbx_staging": {
+        "label": "fbx_t4",
+        "object_count": 2,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_eec32a6f-f992-4cf0-bc04-20c1fd1c9834",
+            "verts": 130821,
+            "polys": 212195,
+            "loops": 636585,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "M_Castle_Tier4_Atlas"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 636585,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.19556,
+                0.7627
+              ],
+              [
+                0.19751,
+                0.76538
+              ],
+              [
+                0.19556,
+                0.76367
+              ],
+              [
+                0.19556,
+                0.7627
+              ],
+              [
+                0.19556,
+                0.76367
+              ],
+              [
+                0.19482,
+                0.76172
+              ],
+              [
+                0.19751,
+                0.76538
+              ],
+              [
+                0.19556,
+                0.7627
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "M_Castle_Tier4_Atlas",
+            "use_nodes": true,
+            "images": [
+              "medieval+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "medieval+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "medieval+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_eec32a6f-f992-4cf0-bc04-20c1fd1c9834",
+            "type": "MESH",
+            "parent": "Castle_Tier4",
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Castle_Tier4",
+            "type": "EMPTY",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              90.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -3.5081424713134766,
+            -4.700000286102295,
+            -3.54840153704572e-07
+          ],
+          "max": [
+            3.5081424713134766,
+            4.700000762939453,
+            7.707521915435791
+          ],
+          "size": [
+            7.016284942626953,
+            9.400001525878906,
+            7.707522392272949
+          ],
+          "footprint": 9.400001525878906,
+          "height": 7.707522392272949
+        },
+        "bytes": 10551916
+      },
+      "issues": []
+    },
+    {
+      "tier": 5,
+      "glb": {
+        "label": "glb_t5",
+        "object_count": 1,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_fc2b65ea-c12d-4836-8525-6905f9c55de5",
+            "verts": 130044,
+            "polys": 216305,
+            "loops": 648915,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "tripo_node_fc2b65ea-c12d-4836-8525-6905f9c55de5_material"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 648915,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.72876,
+                0.61255
+              ],
+              [
+                0.72949,
+                0.6123
+              ],
+              [
+                0.72949,
+                0.61255
+              ],
+              [
+                0.72949,
+                0.61255
+              ],
+              [
+                0.72949,
+                0.6123
+              ],
+              [
+                0.73071,
+                0.61206
+              ],
+              [
+                0.72949,
+                0.6123
+              ],
+              [
+                0.72876,
+                0.61255
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "tripo_node_fc2b65ea-c12d-4836-8525-6905f9c55de5_material",
+            "use_nodes": true,
+            "images": [
+              "medieval+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "medieval+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "medieval+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_fc2b65ea-c12d-4836-8525-6905f9c55de5",
+            "type": "MESH",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -0.4898529052734375,
+            -0.4909210205078125,
+            0.0
+          ],
+          "max": [
+            0.4898529052734375,
+            0.4909210205078125,
+            0.835693359375
+          ],
+          "size": [
+            0.979705810546875,
+            0.981842041015625,
+            0.835693359375
+          ],
+          "footprint": 0.981842041015625,
+          "height": 0.835693359375
+        },
+        "bytes": 11406624
+      },
+      "fbx_staging": {
+        "label": "fbx_t5",
+        "object_count": 2,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_fc2b65ea-c12d-4836-8525-6905f9c55de5",
+            "verts": 130044,
+            "polys": 216305,
+            "loops": 648915,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "M_Castle_Tier5_Atlas"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 648915,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.72876,
+                0.61255
+              ],
+              [
+                0.72949,
+                0.6123
+              ],
+              [
+                0.72949,
+                0.61255
+              ],
+              [
+                0.72949,
+                0.61255
+              ],
+              [
+                0.72949,
+                0.6123
+              ],
+              [
+                0.73071,
+                0.61206
+              ],
+              [
+                0.72949,
+                0.6123
+              ],
+              [
+                0.72876,
+                0.61255
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "M_Castle_Tier5_Atlas",
+            "use_nodes": true,
+            "images": [
+              "medieval+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "medieval+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "medieval+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_fc2b65ea-c12d-4836-8525-6905f9c55de5",
+            "type": "MESH",
+            "parent": "Castle_Tier5",
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Castle_Tier5",
+            "type": "EMPTY",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              90.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -5.039012432098389,
+            -5.050000190734863,
+            -3.8126441381791665e-07
+          ],
+          "max": [
+            5.039012432098389,
+            5.0500006675720215,
+            8.596599578857422
+          ],
+          "size": [
+            10.078024864196777,
+            10.100000381469727,
+            8.596599578857422
+          ],
+          "footprint": 10.100000381469727,
+          "height": 8.596599578857422
+        },
+        "bytes": 11112140
+      },
+      "issues": []
+    },
+    {
+      "tier": 6,
+      "glb": {
+        "label": "glb_t6",
+        "object_count": 1,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_6a588e5c-4ca4-41c9-9c1f-f88dcce37966",
+            "verts": 136211,
+            "polys": 211155,
+            "loops": 633465,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "tripo_node_6a588e5c-4ca4-41c9-9c1f-f88dcce37966_material"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 633465,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.49414,
+                0.94775
+              ],
+              [
+                0.49438,
+                0.948
+              ],
+              [
+                0.49316,
+                0.94873
+              ],
+              [
+                0.49438,
+                0.948
+              ],
+              [
+                0.49414,
+                0.94775
+              ],
+              [
+                0.49536,
+                0.94702
+              ],
+              [
+                0.49414,
+                0.94775
+              ],
+              [
+                0.49316,
+                0.94873
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "tripo_node_6a588e5c-4ca4-41c9-9c1f-f88dcce37966_material",
+            "use_nodes": true,
+            "images": [
+              "medieval+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "medieval+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "medieval+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_6a588e5c-4ca4-41c9-9c1f-f88dcce37966",
+            "type": "MESH",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -0.4893188178539276,
+            -0.491546630859375,
+            0.0
+          ],
+          "max": [
+            0.4893188178539276,
+            0.491546630859375,
+            0.972808837890625
+          ],
+          "size": [
+            0.9786376357078552,
+            0.98309326171875,
+            0.972808837890625
+          ],
+          "footprint": 0.98309326171875,
+          "height": 0.972808837890625
+        },
+        "bytes": 11253408
+      },
+      "fbx_staging": {
+        "label": "fbx_t6",
+        "object_count": 2,
+        "mesh_count": 1,
+        "meshes": [
+          {
+            "name": "tripo_node_6a588e5c-4ca4-41c9-9c1f-f88dcce37966",
+            "verts": 136211,
+            "polys": 211155,
+            "loops": 633465,
+            "submesh_material_indices": [
+              0
+            ],
+            "material_slot_count": 1,
+            "material_slots": [
+              "M_Castle_Tier6_Atlas"
+            ],
+            "uv_layers": [
+              "UVMap"
+            ],
+            "uv0_present": true,
+            "uv0_nonzero_loops": 633465,
+            "uv0_ok": true,
+            "uv0_sample": [
+              [
+                0.49414,
+                0.94775
+              ],
+              [
+                0.49438,
+                0.948
+              ],
+              [
+                0.49316,
+                0.94873
+              ],
+              [
+                0.49438,
+                0.948
+              ],
+              [
+                0.49414,
+                0.94775
+              ],
+              [
+                0.49536,
+                0.94702
+              ],
+              [
+                0.49414,
+                0.94775
+              ],
+              [
+                0.49316,
+                0.94873
+              ]
+            ],
+            "uv1_present": false,
+            "has_custom_normals": true,
+            "tangent_calc_ok": true,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "materials": [
+          {
+            "name": "M_Castle_Tier6_Atlas",
+            "use_nodes": true,
+            "images": [
+              "medieval+castle+3d+model_basecolor.jpg"
+            ],
+            "principled": {
+              "base_color_linked": "medieval+castle+3d+model_basecolor.jpg",
+              "roughness": 0.5,
+              "metallic": 0.0
+            }
+          }
+        ],
+        "images": [
+          {
+            "name": "medieval+castle+3d+model_basecolor.jpg",
+            "size": [
+              4096,
+              4096
+            ],
+            "packed": true,
+            "has_data": true
+          }
+        ],
+        "hierarchy": [
+          {
+            "name": "tripo_node_6a588e5c-4ca4-41c9-9c1f-f88dcce37966",
+            "type": "MESH",
+            "parent": "Castle_Tier6",
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              0.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Castle_Tier6",
+            "type": "EMPTY",
+            "parent": null,
+            "loc": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "rot_euler_deg": [
+              90.0,
+              -0.0,
+              0.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ],
+        "bounds": {
+          "min": [
+            -5.375525951385498,
+            -5.400000095367432,
+            -4.076886739312613e-07
+          ],
+          "max": [
+            5.375525951385498,
+            5.400001049041748,
+            10.687018394470215
+          ],
+          "size": [
+            10.751051902770996,
+            10.80000114440918,
+            10.687018394470215
+          ],
+          "footprint": 10.80000114440918,
+          "height": 10.687018394470215
+        },
+        "bytes": 10868204
+      },
+      "issues": []
+    }
+  ]
+}

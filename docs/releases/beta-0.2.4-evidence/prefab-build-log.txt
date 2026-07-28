@@ -1,0 +1,10 @@
+﻿ok=6
+6/6 tiers | importer=glTFast | source=original Tripo GLB (no Blender re-export)
+Copied 6/6 ORIGINAL Tripo GLBs (no Blender bake) → Assets/Valgor/City/Art/Castle/Models
+T1: OK — Assets/Valgor/City/Art/Castle/Models/Castle_Tier1.glb → Resources OK | scale=7,625 fp≈7,5m | slots=1 submeshes=1 renderers=1 | kept=1 convertedFallback=0 (glTFast materials preferred)
+T2: OK — Assets/Valgor/City/Art/Castle/Models/Castle_Tier2.glb → Resources OK | scale=8,257 fp≈8,1m | slots=1 submeshes=1 renderers=1 | kept=1 convertedFallback=0 (glTFast materials preferred)
+T3: OK — Assets/Valgor/City/Art/Castle/Models/Castle_Tier3.glb → Resources OK | scale=8,871 fp≈8,7m | slots=1 submeshes=1 renderers=1 | kept=1 convertedFallback=0 (glTFast materials preferred)
+T4: OK — Assets/Valgor/City/Art/Castle/Models/Castle_Tier4.glb → Resources OK | scale=9,565 fp≈9,4m | slots=1 submeshes=1 renderers=1 | kept=1 convertedFallback=0 (glTFast materials preferred)
+T5: OK — Assets/Valgor/City/Art/Castle/Models/Castle_Tier5.glb → Resources OK | scale=10,287 fp≈10,1m | slots=1 submeshes=1 renderers=1 | kept=1 convertedFallback=0 (glTFast materials preferred)
+T6: OK — Assets/Valgor/City/Art/Castle/Models/Castle_Tier6.glb → Resources OK | scale=10,986 fp≈10,8m | slots=1 submeshes=1 renderers=1 | kept=1 convertedFallback=0 (glTFast materials preferred)
+

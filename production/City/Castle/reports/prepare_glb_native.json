@@ -1,0 +1,191 @@
+{
+  "generated_utc": "2026-07-28T21:49:59.599629+00:00",
+  "tiers": [
+    {
+      "tier": 1,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier1.glb",
+      "ok": true,
+      "uv_ok_pre": true,
+      "materials_pre": [
+        "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b_material"
+      ],
+      "materials_post": [
+        "M_Castle_Tier1_Mat0"
+      ],
+      "mesh_count": 1,
+      "scale_factor": 7.624720774385704,
+      "final_footprint": 7.5,
+      "final_height": 4.812220573425293,
+      "textures": [
+        {
+          "name": "medieval+fortress+3d+model_basecolor.jpg",
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier1_BaseColor.jpg",
+          "bytes": 1309768,
+          "size": [
+            4096,
+            4096
+          ]
+        }
+      ],
+      "glb": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Glb\\Castle_Tier1.glb",
+      "glb_bytes": 10238044,
+      "importer_target": "Unity glTFast (com.unity.cloud.gltfast) \u2014 native GLB, no FBX",
+      "note": "Mesh/UV/BaseColor preserved; only uniform scale + base pivot applied"
+    },
+    {
+      "tier": 2,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier2.glb",
+      "ok": true,
+      "uv_ok_pre": true,
+      "materials_pre": [
+        "tripo_node_02b5425b-7c85-42d6-9066-5f61461d0267_material"
+      ],
+      "materials_post": [
+        "M_Castle_Tier2_Mat0"
+      ],
+      "mesh_count": 1,
+      "scale_factor": 8.256986537684046,
+      "final_footprint": 8.100000381469727,
+      "final_height": 7.296930313110352,
+      "textures": [
+        {
+          "name": "fantasy+castle+3d+model_basecolor.jpg",
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier2_BaseColor.jpg",
+          "bytes": 1634981,
+          "size": [
+            4096,
+            4096
+          ]
+        }
+      ],
+      "glb": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Glb\\Castle_Tier2.glb",
+      "glb_bytes": 11029916,
+      "importer_target": "Unity glTFast (com.unity.cloud.gltfast) \u2014 native GLB, no FBX",
+      "note": "Mesh/UV/BaseColor preserved; only uniform scale + base pivot applied"
+    },
+    {
+      "tier": 3,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier3.glb",
+      "ok": true,
+      "uv_ok_pre": true,
+      "materials_pre": [
+        "tripo_node_a06798ce-53d9-4d1e-a5e1-cb0946cb0353_material"
+      ],
+      "materials_post": [
+        "M_Castle_Tier3_Mat0"
+      ],
+      "mesh_count": 1,
+      "scale_factor": 8.871373891395674,
+      "final_footprint": 8.699999809265137,
+      "final_height": 7.934096813201904,
+      "textures": [
+        {
+          "name": "fantasy+castle+3d+model_basecolor.jpg",
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier3_BaseColor.jpg",
+          "bytes": 1660919,
+          "size": [
+            4096,
+            4096
+          ]
+        }
+      ],
+      "glb": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Glb\\Castle_Tier3.glb",
+      "glb_bytes": 10975128,
+      "importer_target": "Unity glTFast (com.unity.cloud.gltfast) \u2014 native GLB, no FBX",
+      "note": "Mesh/UV/BaseColor preserved; only uniform scale + base pivot applied"
+    },
+    {
+      "tier": 4,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier4.glb",
+      "ok": true,
+      "uv_ok_pre": true,
+      "materials_pre": [
+        "tripo_node_eec32a6f-f992-4cf0-bc04-20c1fd1c9834_material"
+      ],
+      "materials_post": [
+        "M_Castle_Tier4_Mat0"
+      ],
+      "mesh_count": 1,
+      "scale_factor": 9.565219551580647,
+      "final_footprint": 9.40000057220459,
+      "final_height": 7.707521438598633,
+      "textures": [
+        {
+          "name": "medieval+castle+3d+model_basecolor.jpg",
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier4_BaseColor.jpg",
+          "bytes": 1516828,
+          "size": [
+            4096,
+            4096
+          ]
+        }
+      ],
+      "glb": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Glb\\Castle_Tier4.glb",
+      "glb_bytes": 10918316,
+      "importer_target": "Unity glTFast (com.unity.cloud.gltfast) \u2014 native GLB, no FBX",
+      "note": "Mesh/UV/BaseColor preserved; only uniform scale + base pivot applied"
+    },
+    {
+      "tier": 5,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier5.glb",
+      "ok": true,
+      "uv_ok_pre": true,
+      "materials_pre": [
+        "tripo_node_fc2b65ea-c12d-4836-8525-6905f9c55de5_material"
+      ],
+      "materials_post": [
+        "M_Castle_Tier5_Mat0"
+      ],
+      "mesh_count": 1,
+      "scale_factor": 10.28678705747055,
+      "final_footprint": 10.100000381469727,
+      "final_height": 8.596599578857422,
+      "textures": [
+        {
+          "name": "medieval+castle+3d+model_basecolor.jpg",
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier5_BaseColor.jpg",
+          "bytes": 1718790,
+          "size": [
+            4096,
+            4096
+          ]
+        }
+      ],
+      "glb": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Glb\\Castle_Tier5.glb",
+      "glb_bytes": 11408624,
+      "importer_target": "Unity glTFast (com.unity.cloud.gltfast) \u2014 native GLB, no FBX",
+      "note": "Mesh/UV/BaseColor preserved; only uniform scale + base pivot applied"
+    },
+    {
+      "tier": 6,
+      "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier6.glb",
+      "ok": true,
+      "uv_ok_pre": true,
+      "materials_pre": [
+        "tripo_node_6a588e5c-4ca4-41c9-9c1f-f88dcce37966_material"
+      ],
+      "materials_post": [
+        "M_Castle_Tier6_Mat0"
+      ],
+      "mesh_count": 1,
+      "scale_factor": 10.98573291115664,
+      "final_footprint": 10.800000190734863,
+      "final_height": 10.687018394470215,
+      "textures": [
+        {
+          "name": "medieval+castle+3d+model_basecolor.jpg",
+          "path": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\Castle_Tier6_BaseColor.jpg",
+          "bytes": 1605121,
+          "size": [
+            4096,
+            4096
+          ]
+        }
+      ],
+      "glb": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Glb\\Castle_Tier6.glb",
+      "glb_bytes": 11255156,
+      "importer_target": "Unity glTFast (com.unity.cloud.gltfast) \u2014 native GLB, no FBX",
+      "note": "Mesh/UV/BaseColor preserved; only uniform scale + base pivot applied"
+    }
+  ]
+}

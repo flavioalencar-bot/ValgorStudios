@@ -177,7 +177,8 @@ namespace Valgor.City.Visual
             instance.name = RealChildNameForTier(tier);
             instance.transform.localPosition = Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
-            instance.transform.localScale = Vector3.one;
+            // Preserva escala do prefab (footprint progressivo no root do Visual).
+            // NÃO forçar Vector3.one — isso esmagava o Tripo (~1 m) na City.
 
             foreach (var col in instance.GetComponentsInChildren<Collider>(true))
             {

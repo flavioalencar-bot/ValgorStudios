@@ -298,9 +298,16 @@ namespace Valgor.City.Buildings
 
         private void ApplyColors()
         {
+            // Castelo real: nunca RuntimeSafeMaterials / recolor genérico.
+            if (Instance != null &&
+                string.Equals(Instance.DefinitionId, "castle", StringComparison.Ordinal))
+            {
+                return;
+            }
+
             for (var i = 0; i < _renderers.Length; i++)
             {
-                // Assets reais texturizados (ex.: Castle_Tier1) — não sobrescrever materiais.
+                // Assets reais texturizados (ex.: Castle_Tier*) — não sobrescrever materiais.
                 if (_lockAccent[i])
                 {
                     continue;
