@@ -7,6 +7,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Castelo Tier 1:** materiais URP/Lit + BaseMap; BuildingView nao apaga texturas do asset real
+
 ### Added
 
 - **Beta 0.2.2:** Castelo Tier 1 asset real (GLB/FBX), pasta isolada `Valgor-Beta-0.2.2`, fallback procedural so se o asset falhar

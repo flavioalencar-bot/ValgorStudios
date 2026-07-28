@@ -224,7 +224,9 @@ namespace Valgor.City.Buildings
                     || n.Contains("CrestBanner", StringComparison.Ordinal)
                     || n.Contains("GateEagle", StringComparison.Ordinal)
                     || n.Contains("BannerCloth", StringComparison.Ordinal)
-                    || n.Contains("MainGate", StringComparison.Ordinal))
+                    || n.Contains("MainGate", StringComparison.Ordinal)
+                    || string.Equals(n, "Castle_Tier1_Real", StringComparison.Ordinal)
+                    || n.StartsWith("Castle_Tier1", StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -255,7 +257,13 @@ namespace Valgor.City.Buildings
         {
             for (var i = 0; i < _renderers.Length; i++)
             {
-                var color = _selected && !_lockAccent[i]
+                // Assets reais texturizados (ex.: Castle_Tier1) — não sobrescrever materiais.
+                if (_lockAccent[i])
+                {
+                    continue;
+                }
+
+                var color = _selected
                     ? Color.Lerp(_baseColors[i], new Color(0.86f, 0.72f, 0.38f), 0.42f)
                     : _baseColors[i];
                 CityVisualMaterials.Apply(_renderers[i], color);

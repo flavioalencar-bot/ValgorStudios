@@ -1,0 +1,101 @@
+{
+  "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier1.glb",
+  "source_bytes": 11800384,
+  "materials": [
+    {
+      "name": "tripo_node_77644c99-38ad-4ddc-9326-2cd139352915_material",
+      "use_nodes": true,
+      "sockets": {
+        "Base Color": {
+          "linked": {
+            "node": "Image Texture",
+            "type": "TEX_IMAGE",
+            "image": "fantasy+castle+3d+model_basecolor.jpg"
+          },
+          "default": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1.0
+          ]
+        },
+        "Metallic": {
+          "linked": null,
+          "default": 0.0
+        },
+        "Roughness": {
+          "linked": null,
+          "default": 0.5
+        },
+        "Specular IOR Level": {
+          "linked": null,
+          "default": 0.5
+        },
+        "Normal": {
+          "linked": null,
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Alpha": {
+          "linked": null,
+          "default": 1.0
+        },
+        "Emission Color": {
+          "linked": null,
+          "default": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "Emission Strength": {
+          "linked": null,
+          "default": 0.0
+        },
+        "Coat Weight": {
+          "linked": null,
+          "default": 0.0
+        }
+      },
+      "tex_nodes": [
+        {
+          "node": "Image Texture",
+          "image": "fantasy+castle+3d+model_basecolor.jpg",
+          "colorspace": "sRGB"
+        }
+      ]
+    }
+  ],
+  "images": [
+    {
+      "name": "fantasy+castle+3d+model_basecolor.jpg",
+      "size": [
+        4096,
+        4096
+      ],
+      "channels": 4,
+      "colorspace": "sRGB",
+      "filepath": "",
+      "packed": true,
+      "has_data": true,
+      "exported": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Textures\\fantasy_castle_3d_model_basecolor.jpg",
+      "exported_bytes": 21381815
+    }
+  ],
+  "meshes": [
+    {
+      "name": "tripo_node_77644c99-38ad-4ddc-9326-2cd139352915",
+      "slots": [
+        {
+          "index": 0,
+          "material": "tripo_node_77644c99-38ad-4ddc-9326-2cd139352915_material"
+        }
+      ],
+      "materials_count": 1
+    }
+  ]
+}
