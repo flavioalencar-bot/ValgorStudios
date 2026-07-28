@@ -1,0 +1,47 @@
+{
+  "objects": [
+    {
+      "name": "tripo_node_77644c99-38ad-4ddc-9326-2cd139352915",
+      "type": "MESH",
+      "loc": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dims": [
+        0.98016357421875,
+        0.96270751953125,
+        0.648529052734375
+      ]
+    }
+  ],
+  "mesh_count": 1,
+  "bounds_min": [
+    -0.490081787109375,
+    -0.481353759765625,
+    0.0
+  ],
+  "bounds_max": [
+    0.490081787109375,
+    0.481353759765625,
+    0.648529052734375
+  ],
+  "size": [
+    0.98016357421875,
+    0.96270751953125,
+    0.648529052734375
+  ],
+  "materials": [
+    {
+      "name": "tripo_node_77644c99-38ad-4ddc-9326-2cd139352915_material",
+      "images": [
+        "fantasy+castle+3d+model_basecolor.jpg"
+      ]
+    }
+  ],
+  "material_count": 1,
+  "image_count": 1,
+  "images": [
+    "fantasy+castle+3d+model_basecolor.jpg"
+  ]
+}

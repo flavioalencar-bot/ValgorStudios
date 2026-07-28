@@ -1,0 +1,40 @@
+{
+  "generated_utc": "2026-07-28T14:53:23.758776+00:00",
+  "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier1.glb",
+  "source_bytes": 11800384,
+  "raw_size_blender": [
+    0.98016357421875,
+    0.96270751953125,
+    0.648529052734375
+  ],
+  "scale_factor": 7.651784046329161,
+  "final_size_blender_xyz": [
+    7.5,
+    7.366429805755615,
+    4.962404251098633
+  ],
+  "final_footprint": 7.5,
+  "final_height": 4.962404251098633,
+  "pivot": "base center, min Z = 0 (Blender); Unity Y-up after FBX",
+  "orientation": {
+    "blender_up": "Z",
+    "unity_export": "axis_up=Y axis_forward=-Z",
+    "gate_target_unity": "+Z",
+    "extra_yaw_deg": 0,
+    "note": "If gate faces wrong way in City, set yaw 90/180 in loader or re-run with yaw."
+  },
+  "within_footprint_rules": true,
+  "within_height_rules": true,
+  "materials": [
+    {
+      "name": "M_Castle_Atlas",
+      "images": [
+        "fantasy+castle+3d+model_basecolor.jpg"
+      ]
+    }
+  ],
+  "textures_exported": [],
+  "staging_fbx": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Models\\Castle_Tier1.fbx",
+  "staging_glb": "C:\\Valgor_Studio\\production\\City\\Castle\\unity_staging\\Models\\Castle_Tier1.glb",
+  "mesh_count": 1
+}

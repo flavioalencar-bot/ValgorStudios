@@ -1,0 +1,56 @@
+{
+    "demo":  "0.3",
+    "slice":  "castle-tier1",
+    "definition_id":  "castle",
+    "blocked":  false,
+    "blocked_reason":  "",
+    "status":  "STAGED — ready for Unity import",
+    "procedural_fallback":  {
+                                "type":  "runtime",
+                                "builder":  "Valgor.City.Visual.CastleTierVisual",
+                                "commit_note":  "e539a42 — aproximação; NÃO é arte final",
+                                "replace_target":  "filho Visual do BuildingSlot castle"
+                            },
+    "source_expected":  [
+                            "production/City/Castle/source/Castle_Tier1.glb",
+                            "production/City/Castle/source/Castle_Tier1.fbx"
+                        ],
+    "source_present":  [
+                           "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier1.glb"
+                       ],
+    "staging_models":  "production/City/Castle/unity_staging/Models",
+    "unity_target_models":  "client/Assets/Valgor/City/Art/Castle/Models",
+    "unity_target_prefab":  "client/Assets/Valgor/City/Art/Castle/Prefabs/Castle_Tier1_Visual.prefab",
+    "reference_png":  "docs/references/city/castle_tier1_reference.png",
+    "scale":  {
+                  "unit":  "Unity meters",
+                  "footprint_xz_min":  5.5,
+                  "footprint_xz_max":  9.0,
+                  "height_max":  12.0,
+                  "pivot":  "base center on ground (Y=0)",
+                  "forward":  "+Z (main gate)"
+              },
+    "materials":  {
+                      "convention_doc":  "production/City/Castle/MATERIALS.md",
+                      "expected_slots":  [
+                                             "Stone",
+                                             "Roof",
+                                             "Wood",
+                                             "MetalGold",
+                                             "Banner",
+                                             "Crest",
+                                             "EmissiveWindow"
+                                         ]
+                  },
+    "do_not_replace_approved":  true,
+    "do_not_alter_city_until_asset":  true,
+    "next_unity_steps":  [
+                             "Drop Castle_Tier1.glb|.fbx into production/City/Castle/source/",
+                             "Run validate_castle_tier1_source.py (blocked=false when valid)",
+                             "Copy approved model into unity_staging/Models/",
+                             "Import into client/Assets/Valgor/City/Art/Castle/Models/ (somente sob ordem)",
+                             "Build Castle_Tier1_Visual prefab — root = Visual child only",
+                             "Wire loader: prefer prefab/FBX; fallback CastleTierVisual.Build",
+                             "Preserve definitionId castle, Slot, BuildingView, collider, save"
+                         ]
+}

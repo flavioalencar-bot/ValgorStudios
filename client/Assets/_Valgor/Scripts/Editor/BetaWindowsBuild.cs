@@ -22,12 +22,12 @@ namespace Valgor.Editor
             "Assets/_Valgor/Scenes/WorldMap.unity"
         };
 
-        [MenuItem("Valgor/Build/Windows Beta 0.2.1")]
+        [MenuItem("Valgor/Build/Windows Beta 0.2.2")]
         public static void BuildFromMenu()
         {
             var report = Build();
             EditorUtility.DisplayDialog(
-                "Valgor Beta 0.2.1",
+                "Valgor Beta 0.2.2",
                 report.summary.result == BuildResult.Succeeded
                     ? $"Build OK:\n{GetOutputExe()}"
                     : $"Build falhou: {report.summary.result}",
@@ -64,6 +64,14 @@ namespace Valgor.Editor
         public static BuildReport Build()
         {
             ApplyBetaPlayerSettings();
+            if (!CastleTier1PrefabBuilder.Build(out var castleMsg))
+            {
+                Debug.LogWarning($"[Valgor] Castle Tier1 prefab: {castleMsg}");
+            }
+            else
+            {
+                Debug.Log($"[Valgor] Castle Tier1 prefab: {castleMsg}");
+            }
 
             var outputDir = GetOutputDir();
             Directory.CreateDirectory(outputDir);

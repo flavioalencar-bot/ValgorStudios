@@ -27,8 +27,12 @@ namespace Valgor.City.Visual
             switch (buildingId)
             {
                 case "castle":
-                    // Visual separado da lógica — Tier 1 pela referência oficial.
-                    CastleTierVisual.Build(visual.transform, color, visualTier: 1);
+                    // Asset real (Resources) → fallback procedural se falhar.
+                    if (!CastleRealVisualLoader.TryAttach(visual.transform, out var castleDetail))
+                    {
+                        Debug.LogWarning($"[Valgor.City] Castle real missing ({castleDetail}) — procedural fallback.");
+                        CastleTierVisual.Build(visual.transform, color, visualTier: 1);
+                    }
                     break;
                 case "dragon-tower":
                     BuildDragonTower(visual.transform, color);
