@@ -1,4 +1,4 @@
-# Changelog
+ï»¿# Changelog
 
 Todas as mudan?as relevantes deste reposit?rio s?o documentadas neste arquivo.
 
@@ -6,6 +6,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/),
 e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
+
+### Added
+
+- **Polish visual modais de evolucao:** preview 3D RenderTexture, icones Valgor, molduras/botoes refinados; build `Valgor-QA-Building-Upgrade-Visual`
 
 ### Added
 
@@ -21,7 +25,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Changed
 
-- **Castelo Tier 1:** visual alinhado ÿ referÿncia oficial (brasÿo na porta/bandeiras); acentos preservados no tint de seleÿÿo
+- **Castelo Tier 1:** visual alinhado Ã¿ referÃ¿ncia oficial (brasÃ¿o na porta/bandeiras); acentos preservados no tint de seleÃ¿Ã¿o
 
 ### Added
 
@@ -139,7 +143,7 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 ### Added
 
 - Pipeline do her?i real **Vortex** (`Assets/Valgor/Heroes/Characters/Vortex/`): pastas, import profile, validators, menus `Valgor/Heroes/Vortex/*`, prefab shell `Vortex_Hero`, Animator Controller, materiais URP placeholder, Addressable key `heroes/HERO_VORTEX_000/prefab`, fallback t?cnico at? o FBX final, postprocessor de auto-build
-- Preview 360° resolve Vortex via `HeroVisualResolver` (prefab real ou fallback) e dispara anima??o/VFX de poder especial no bot?o da demo
+- Preview 360Â° resolve Vortex via `HeroVisualResolver` (prefab real ou fallback) e dispara anima??o/VFX de poder especial no bot?o da demo
 
 ### Added (anterior)
 
@@ -193,3 +197,4 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 - Hash de senha PBKDF2 (SHA-256, 100k itera??es)
 - JWT com valida??o de issuer, audience e lifetime
 - MediatR 12.4.1 (licen?a Apache-2.0) ? sem depend?ncia comercial
+
