@@ -17,7 +17,7 @@ namespace Valgor.City.UI
 
         private static BuildingPreviewRenderer? _shared;
 
-        private Camera _camera = null!;
+        private UnityEngine.Camera _camera = null!;
         private Light _light = null!;
         private Transform _anchor = null!;
         private RenderTexture _rt = null!;
@@ -122,7 +122,7 @@ namespace Valgor.City.UI
 
             var camGo = new GameObject("PreviewCamera");
             camGo.transform.SetParent(transform, false);
-            _camera = camGo.AddComponent<Camera>();
+            _camera = camGo.AddComponent<UnityEngine.Camera>();
             _camera.clearFlags = CameraClearFlags.SolidColor;
             _camera.backgroundColor = new Color(0.09f, 0.1f, 0.12f, 0f);
             _camera.orthographic = false;
@@ -325,7 +325,7 @@ namespace Valgor.City.UI
             _ => new Color(0.55f, 0.52f, 0.48f)
         };
 
-        private readonly struct Framing
+        private struct Framing
         {
             public float DistanceMul;
             public float MinDistance;
