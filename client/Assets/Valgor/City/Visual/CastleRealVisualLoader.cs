@@ -183,10 +183,13 @@ namespace Valgor.City.Visual
 
             var instance = UnityEngine.Object.Instantiate(prefab, visualRoot, false);
             instance.name = RealChildNameForTier(tier);
-            instance.transform.localPosition = Vector3.zero;
+            var presentation = CastleTierPresentation.ForTier(tier);
+            instance.transform.localPosition = presentation.LocalOffset;
             instance.transform.localRotation = Quaternion.identity;
-            // Preserva escala do prefab (footprint progressivo no root do Visual).
-            // NÃO forçar Vector3.one — isso esmagava o Tripo (~1 m) na City.
+            // Escala do prefab (footprint) × multiplicador de apresentação por tier.
+            instance.transform.localScale = Vector3.Scale(
+                instance.transform.localScale,
+                Vector3.one * presentation.LocalScaleMultiplier);
 
             foreach (var col in instance.GetComponentsInChildren<Collider>(true))
             {
@@ -195,6 +198,7 @@ namespace Valgor.City.Visual
 
             detail =
                 $"ok Tier{tier} prefab={prefab.name} " +
+                $"scaleMul={presentation.LocalScaleMultiplier:0.##} " +
                 $"renderers={instance.GetComponentsInChildren<Renderer>(true).Length}";
             Debug.Log($"[Valgor.City] Castle real visual attached: {detail}");
             return true;

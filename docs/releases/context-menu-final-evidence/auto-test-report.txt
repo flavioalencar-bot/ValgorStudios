@@ -1,0 +1,21 @@
+City Progression QA AutoTest
+started=2026-07-29T18:39:54.8919221Z
+compiledIn=True active=True
+[start] level=1 (want 1) tierAttached=1 tierResolved=1 (want 1) OK
+evolve→5 expectTier=1
+[tier1-nv5] level=5 (want 5) tierAttached=1 tierResolved=1 (want 1) OK
+evolve→6 expectTier=2
+[tier2-nv6] level=6 (want 6) tierAttached=2 tierResolved=2 (want 2) OK
+evolve→11 expectTier=3
+[tier3-nv11] level=11 (want 11) tierAttached=3 tierResolved=3 (want 3) OK
+evolve→16 expectTier=4
+[tier4-nv16] level=16 (want 16) tierAttached=4 tierResolved=4 (want 4) OK
+evolve→21 expectTier=5
+[tier5-nv21] level=21 (want 21) tierAttached=5 tierResolved=5 (want 5) OK
+evolve→26 expectTier=6
+[tier6-nv26] level=26 (want 26) tierAttached=6 tierResolved=6 (want 6) OK
+evolve→30 expectTier=6
+[tier6-nv30-max] level=30 (want 30) tierAttached=6 tierResolved=6 (want 6) OK
+[reload] level=30 (want 30) tierAttached=6 tierResolved=6 (want 6) OK
+[reset-reload] level=1 (want 1) tierAttached=1 tierResolved=1 (want 1) OK
+[final] level=30 (want 30) tierAttached=6 tierResolved=6 (want 6) OK

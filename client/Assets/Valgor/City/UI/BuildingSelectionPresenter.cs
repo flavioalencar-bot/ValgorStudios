@@ -69,7 +69,7 @@ namespace Valgor.City.UI
                 return;
             }
 
-            if (TryGetWorldAnchor(_current, out var anchor))
+            if (_city.TryGetView(_current, out var liveView) && liveView != null)
             {
                 EnsureCamera();
                 if (_camera != null)
@@ -77,7 +77,7 @@ namespace Valgor.City.UI
                     _contextMenu.Reposition(
                         _panelRoot,
                         _camera,
-                        anchor,
+                        liveView.GetScreenRect(_camera),
                         reserveRightPanel: IsAnyPanelOpen());
                 }
             }
@@ -235,18 +235,24 @@ namespace Valgor.City.UI
             if (refocusCamera)
             {
                 EnsureCamera();
-                _cameraController?.FocusOn(view.transform.position, 0.35f);
+                float? ortho = null;
+                if (string.Equals(definition.Id, "castle", StringComparison.Ordinal))
+                {
+                    ortho = Valgor.City.Visual.CastleTierPresentation
+                        .ForBuildingLevel(building.Level).FocusOrthoSize;
+                }
+
+                _cameraController?.FocusOn(view.transform.position, 0.35f, ortho);
             }
 
-            var title = $"{definition.DisplayName}  ·  Nv.{Math.Max(0, building.Level)}";
             var actions = BuildActions(building, definition);
-            _contextMenu.Show(title, actions, OnContextAction, _openPanelAction);
-            if (TryGetWorldAnchor(building, out var anchor) && _camera != null)
+            _contextMenu.Show(actions, OnContextAction, _openPanelAction);
+            if (_camera != null)
             {
                 _contextMenu.Reposition(
                     _panelRoot,
                     _camera,
-                    anchor,
+                    view.GetScreenRect(_camera),
                     reserveRightPanel: IsAnyPanelOpen());
             }
         }
@@ -354,12 +360,22 @@ namespace Valgor.City.UI
 
         private BuildingContextActionInfo UpgradeAction(BuildingInstance building, BuildingDefinition definition)
         {
+            if (building.Level >= definition.MaxLevel &&
+                building.State != BuildingState.Available)
+            {
+                return new BuildingContextActionInfo(
+                    BuildingContextAction.Upgrade,
+                    "Nível Máximo",
+                    enabled: false,
+                    disabledReason: "Este edifício atingiu o nível máximo.",
+                    icon: BuildingContextIcon.Crown);
+            }
+
             var upgradeLabel = building.State == BuildingState.Available && building.Level <= 0
                 ? "Construir"
                 : "Atualizar";
             var canUpgrade = _city.CanUpgrade(building, definition) &&
                              string.IsNullOrEmpty(_city.GetUpgradeBlockReason(building, definition));
-            // Ainda mostra o botão se só faltar recurso — painel explica.
             var softEnable = building.State != BuildingState.Upgrading &&
                              building.CanUpgrade(definition) &&
                              (_city.GetActiveConstructionCount() < CityController.ConstructionQueueSlots ||
@@ -368,7 +384,8 @@ namespace Valgor.City.UI
                 BuildingContextAction.Upgrade,
                 upgradeLabel,
                 softEnable || canUpgrade,
-                _city.GetUpgradeBlockReason(building, definition));
+                _city.GetUpgradeBlockReason(building, definition),
+                BuildingContextIcon.Upgrade);
         }
 
         private void OnContextAction(BuildingContextAction action)
@@ -378,7 +395,6 @@ namespace Valgor.City.UI
                 return;
             }
 
-            // Impede que o mesmo release do mouse selecione o prédio de novo e feche o painel.
             CityBuildingPointerInput.SuppressWorldClicks(0.35f);
             _ignoreOutsideClickUntil = Time.unscaledTime + 0.35f;
 
@@ -396,9 +412,22 @@ namespace Valgor.City.UI
                 case BuildingContextAction.Decoration:
                     ExecuteDecorationPlaceholder();
                     break;
+                case BuildingContextAction.Upgrade:
+                {
+                    var definition = _city.GetDefinition(_current);
+                    if (_current.Level >= definition.MaxLevel)
+                    {
+                        _toast.Show("Este edifício atingiu o nível máximo.");
+                        return;
+                    }
+
+                    _openPanelAction = action;
+                    _contextMenu.SetSelectedAction(action);
+                    OpenActionPanel(action);
+                    break;
+                }
                 case BuildingContextAction.Details:
                 case BuildingContextAction.Open:
-                case BuildingContextAction.Upgrade:
                 default:
                     _openPanelAction = action;
                     _contextMenu.SetSelectedAction(action);

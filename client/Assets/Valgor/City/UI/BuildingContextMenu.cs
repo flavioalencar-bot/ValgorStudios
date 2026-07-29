@@ -7,16 +7,15 @@ using Valgor.UI;
 namespace Valgor.City.UI
 {
     /// <summary>
-    /// Menu contextual premium: botões circulares com ícone + label (inspiração Last Z).
+    /// Menu contextual premium: botões circulares flutuantes (sem painel preto pesado).
     /// </summary>
     public sealed class BuildingContextMenu
     {
         public const string RootName = "building-context-menu";
-        private const float ButtonSize = 68f;
-        private const float ButtonRadius = 34f;
+        private const float ButtonSize = 64f;
+        private const float ButtonRadius = 32f;
 
         private readonly VisualElement _root;
-        private readonly Label _title;
         private readonly VisualElement _actionsHost;
         private readonly BuildingContextMenuPositioner _positioner;
         private Action<BuildingContextAction>? _onAction;
@@ -25,46 +24,28 @@ namespace Valgor.City.UI
 
         public BuildingContextMenu(VisualElement parent)
         {
-            _positioner = new BuildingContextMenuPositioner(
-                menuWidth: 280f,
-                menuEstimatedHeight: 130f,
-                gapFromBuilding: 58f,
-                topHudReserve: 64f);
+            _positioner = new BuildingContextMenuPositioner();
 
             _root = new VisualElement { name = RootName };
             _root.style.position = Position.Absolute;
-            _root.style.minWidth = 180;
-            _root.style.maxWidth = 340;
-            _root.style.paddingLeft = 10;
-            _root.style.paddingRight = 10;
+            _root.style.minWidth = 160;
+            _root.style.maxWidth = 320;
+            _root.style.paddingLeft = 8;
+            _root.style.paddingRight = 8;
             _root.style.paddingTop = 8;
-            _root.style.paddingBottom = 10;
-            // Fundo suave — não “caixa de protótipo”.
-            _root.style.backgroundColor = new Color(0.05f, 0.06f, 0.08f, 0.55f);
-            _root.style.borderTopWidth = 1;
-            _root.style.borderBottomWidth = 1;
-            _root.style.borderLeftWidth = 1;
-            _root.style.borderRightWidth = 1;
-            _root.style.borderTopColor = new Color(0.85f, 0.7f, 0.35f, 0.35f);
-            _root.style.borderBottomColor = new Color(0.85f, 0.7f, 0.35f, 0.35f);
-            _root.style.borderLeftColor = new Color(0.85f, 0.7f, 0.35f, 0.35f);
-            _root.style.borderRightColor = new Color(0.85f, 0.7f, 0.35f, 0.35f);
-            _root.style.borderTopLeftRadius = 18;
-            _root.style.borderTopRightRadius = 18;
-            _root.style.borderBottomLeftRadius = 18;
-            _root.style.borderBottomRightRadius = 18;
+            _root.style.paddingBottom = 8;
+            // Fundo quase invisível — botões flutuantes.
+            _root.style.backgroundColor = new Color(0.04f, 0.05f, 0.07f, 0.22f);
+            _root.style.borderTopWidth = 0;
+            _root.style.borderBottomWidth = 0;
+            _root.style.borderLeftWidth = 0;
+            _root.style.borderRightWidth = 0;
+            _root.style.borderTopLeftRadius = 16;
+            _root.style.borderTopRightRadius = 16;
+            _root.style.borderBottomLeftRadius = 16;
+            _root.style.borderBottomRightRadius = 16;
             _root.pickingMode = PickingMode.Position;
             _root.style.display = DisplayStyle.None;
-
-            _title = new Label();
-            _title.style.color = BetaVisualTheme.AgedGoldBright;
-            _title.style.fontSize = 12;
-            _title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            _title.style.marginBottom = 6;
-            _title.style.unityTextAlign = TextAnchor.MiddleCenter;
-            _title.style.letterSpacing = 0.5f;
-            _title.pickingMode = PickingMode.Ignore;
-            _root.Add(_title);
 
             _actionsHost = new VisualElement { name = "context-actions" };
             _actionsHost.style.flexDirection = FlexDirection.Row;
@@ -79,14 +60,12 @@ namespace Valgor.City.UI
         public bool IsVisible => _root.style.display == DisplayStyle.Flex;
 
         public void Show(
-            string title,
             IReadOnlyList<BuildingContextActionInfo> actions,
             Action<BuildingContextAction> onAction,
             BuildingContextAction? selectedAction = null)
         {
             _onAction = onAction;
             _selectedAction = selectedAction;
-            _title.text = title;
             _actionsHost.Clear();
             _buttons.Clear();
 
@@ -119,7 +98,7 @@ namespace Valgor.City.UI
         public void Reposition(
             VisualElement panelRoot,
             UnityEngine.Camera camera,
-            Vector3 worldAnchor,
+            Rect buildingScreenRect,
             bool reserveRightPanel = false)
         {
             if (!IsVisible)
@@ -129,17 +108,13 @@ namespace Valgor.City.UI
 
             _root.schedule.Execute(() =>
             {
-                var height = _root.resolvedStyle.height > 1f
-                    ? _root.resolvedStyle.height
-                    : -1f;
-                var width = _root.resolvedStyle.width > 1f
-                    ? _root.resolvedStyle.width
-                    : -1f;
+                var height = _root.resolvedStyle.height > 1f ? _root.resolvedStyle.height : -1f;
+                var width = _root.resolvedStyle.width > 1f ? _root.resolvedStyle.width : -1f;
                 _positioner.Apply(
                     _root,
                     panelRoot,
                     camera,
-                    worldAnchor,
+                    buildingScreenRect,
                     height,
                     reserveRightPanel,
                     measuredWidth: width);
@@ -151,21 +126,20 @@ namespace Valgor.City.UI
             var captured = info;
             var column = new VisualElement();
             column.style.alignItems = Align.Center;
-            column.style.marginLeft = 6;
-            column.style.marginRight = 6;
+            column.style.marginLeft = 8;
+            column.style.marginRight = 8;
             column.style.marginTop = 2;
             column.style.marginBottom = 2;
-            column.style.width = ButtonSize + 8f;
+            column.style.width = ButtonSize + 12f;
 
-            // Sombra suave atrás do círculo.
             var shadow = new VisualElement();
             shadow.pickingMode = PickingMode.Ignore;
             shadow.style.position = Position.Absolute;
             shadow.style.width = ButtonSize;
             shadow.style.height = ButtonSize;
-            shadow.style.left = 4;
-            shadow.style.top = 4;
-            shadow.style.backgroundColor = new Color(0f, 0f, 0f, 0.45f);
+            shadow.style.left = 6;
+            shadow.style.top = 5;
+            shadow.style.backgroundColor = new Color(0f, 0f, 0f, 0.4f);
             shadow.style.borderTopLeftRadius = ButtonRadius;
             shadow.style.borderTopRightRadius = ButtonRadius;
             shadow.style.borderBottomLeftRadius = ButtonRadius;
@@ -183,7 +157,7 @@ namespace Valgor.City.UI
                 ApplySelectedStyles();
                 _onAction?.Invoke(captured.Action);
             });
-            button.name = $"ctx-btn-{captured.Action}";
+            button.name = $"ctx-btn-{captured.Action}-{captured.Label}";
             button.text = string.Empty;
             button.style.width = ButtonSize;
             button.style.height = ButtonSize;
@@ -195,8 +169,6 @@ namespace Valgor.City.UI
             button.style.paddingRight = 0;
             button.style.paddingTop = 0;
             button.style.paddingBottom = 0;
-            button.style.marginTop = 0;
-            button.style.marginBottom = 0;
             button.style.alignItems = Align.Center;
             button.style.justifyContent = Justify.Center;
             button.style.borderTopWidth = 2;
@@ -207,10 +179,9 @@ namespace Valgor.City.UI
 
             var icon = new Label(IconGlyph(captured.Icon));
             icon.pickingMode = PickingMode.Ignore;
-            icon.style.fontSize = 26;
+            icon.style.fontSize = captured.Icon == BuildingContextIcon.Crown ? 24 : 22;
             icon.style.unityTextAlign = TextAnchor.MiddleCenter;
             icon.style.unityFontStyleAndWeight = FontStyle.Bold;
-            icon.style.marginTop = -2;
             button.Add(icon);
 
             var label = new Label(ShortLabel(captured.Label));
@@ -222,23 +193,36 @@ namespace Valgor.City.UI
             label.style.whiteSpace = WhiteSpace.NoWrap;
             label.style.color = BetaVisualTheme.TextPrimary;
 
-            if (!captured.Enabled && !string.IsNullOrEmpty(captured.DisabledReason))
+            var tip = !string.IsNullOrEmpty(captured.DisabledReason)
+                ? captured.DisabledReason
+                : null;
+            if (!string.IsNullOrEmpty(tip))
             {
-                button.tooltip = captured.DisabledReason;
-                label.tooltip = captured.DisabledReason;
+                button.tooltip = tip;
+                label.tooltip = tip;
             }
 
             var view = new ContextButtonView(captured, column, button, icon, label, shadow);
-            ApplyButtonVisual(view, hovered: false);
+            ApplyButtonVisual(view, hovered: false, pressed: false);
 
             button.RegisterCallback<MouseEnterEvent>(_ =>
             {
                 if (captured.Enabled)
                 {
-                    ApplyButtonVisual(view, hovered: true);
+                    ApplyButtonVisual(view, hovered: true, pressed: false);
                 }
             });
-            button.RegisterCallback<MouseLeaveEvent>(_ => ApplyButtonVisual(view, hovered: false));
+            button.RegisterCallback<MouseLeaveEvent>(_ =>
+                ApplyButtonVisual(view, hovered: false, pressed: false));
+            button.RegisterCallback<MouseDownEvent>(_ =>
+            {
+                if (captured.Enabled)
+                {
+                    ApplyButtonVisual(view, hovered: true, pressed: true);
+                }
+            });
+            button.RegisterCallback<MouseUpEvent>(_ =>
+                ApplyButtonVisual(view, hovered: true, pressed: false));
 
             button.SetEnabled(captured.Enabled);
             column.Add(button);
@@ -250,26 +234,45 @@ namespace Valgor.City.UI
         {
             for (var i = 0; i < _buttons.Count; i++)
             {
-                ApplyButtonVisual(_buttons[i], hovered: false);
+                ApplyButtonVisual(_buttons[i], hovered: false, pressed: false);
             }
         }
 
-        private void ApplyButtonVisual(ContextButtonView view, bool hovered)
+        private void ApplyButtonVisual(ContextButtonView view, bool hovered, bool pressed)
         {
             var info = view.Info;
             var selected = _selectedAction.HasValue && _selectedAction.Value == info.Action;
+            var maxLevel = string.Equals(info.Label, "Nível Máximo", StringComparison.Ordinal);
 
             Color face;
             Color border;
             Color iconColor;
             Color labelColor;
 
-            if (!info.Enabled)
+            if (!info.Enabled || maxLevel)
             {
-                face = new Color(0.16f, 0.14f, 0.14f, 0.92f);
-                border = new Color(0.55f, 0.28f, 0.26f, 0.95f);
-                iconColor = new Color(0.7f, 0.48f, 0.45f, 0.9f);
-                labelColor = new Color(0.72f, 0.5f, 0.48f, 0.95f);
+                // Dourado/cinza nobre para nível máximo; vermelho suave para demais bloqueios.
+                if (maxLevel)
+                {
+                    face = new Color(0.22f, 0.2f, 0.14f, 0.95f);
+                    border = new Color(0.72f, 0.62f, 0.38f, 0.95f);
+                    iconColor = new Color(0.88f, 0.78f, 0.48f, 0.95f);
+                    labelColor = new Color(0.82f, 0.74f, 0.52f, 0.95f);
+                }
+                else
+                {
+                    face = new Color(0.16f, 0.14f, 0.14f, 0.92f);
+                    border = new Color(0.55f, 0.28f, 0.26f, 0.95f);
+                    iconColor = new Color(0.7f, 0.48f, 0.45f, 0.9f);
+                    labelColor = new Color(0.72f, 0.5f, 0.48f, 0.95f);
+                }
+            }
+            else if (pressed)
+            {
+                face = new Color(0.1f, 0.12f, 0.16f, 0.98f);
+                border = BetaVisualTheme.AgedGoldBright;
+                iconColor = BetaVisualTheme.AgedGoldBright;
+                labelColor = BetaVisualTheme.AgedGoldBright;
             }
             else if (selected)
             {
@@ -312,12 +315,15 @@ namespace Valgor.City.UI
             view.Button.style.borderBottomColor = border;
             view.Button.style.borderLeftColor = border;
             view.Button.style.borderRightColor = border;
-            // Relevo leve.
-            view.Button.style.borderBottomWidth = selected || hovered ? 3 : 2;
-            view.Button.style.borderTopWidth = selected || hovered ? 3 : 2;
+            var thick = selected || hovered || pressed ? 3 : 2;
+            view.Button.style.borderBottomWidth = thick;
+            view.Button.style.borderTopWidth = thick;
             view.Icon.style.color = iconColor;
             view.Label.style.color = labelColor;
-            view.Shadow.style.opacity = hovered || selected ? 0.85f : 0.55f;
+            view.Shadow.style.opacity = hovered || selected || pressed ? 0.9f : 0.5f;
+            view.Button.style.scale = pressed
+                ? new Scale(new Vector2(0.94f, 0.94f))
+                : new Scale(Vector2.one);
         }
 
         private static string ShortLabel(string label)
@@ -327,16 +333,16 @@ namespace Valgor.City.UI
                 return string.Empty;
             }
 
-            return label.Length <= 10 ? label : label[..9] + "…";
+            return label.Length <= 12 ? label : label[..11] + "…";
         }
 
-        /// <summary>Glyphs ASCII/Unicode básicos — renderizam no font default do Unity.</summary>
         private static string IconGlyph(BuildingContextIcon icon) =>
             icon switch
             {
                 BuildingContextIcon.Brush => "✎",
                 BuildingContextIcon.Info => "i",
                 BuildingContextIcon.Upgrade => "▲",
+                BuildingContextIcon.Crown => "♛",
                 BuildingContextIcon.Collect => "◆",
                 BuildingContextIcon.Open => "►",
                 BuildingContextIcon.Feed => "+",

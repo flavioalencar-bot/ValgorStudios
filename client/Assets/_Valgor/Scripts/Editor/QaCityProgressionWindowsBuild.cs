@@ -55,7 +55,7 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
-        public static BuildReport Build()
+        public static BuildReport Build(string? folderNameOverride = null)
         {
             var previousBundle = PlayerSettings.bundleVersion;
             PlayerSettings.companyName = "Valgor Studios";
@@ -75,7 +75,7 @@ namespace Valgor.Editor
                     Debug.LogWarning($"[Valgor] Castle tiers: {castleMsg}");
                 }
 
-                var outputDir = GetOutputDir();
+                var outputDir = GetOutputDir(folderNameOverride);
                 Directory.CreateDirectory(outputDir);
                 var exe = Path.Combine(outputDir, "Valgor.exe");
 
@@ -85,7 +85,6 @@ namespace Valgor.Editor
                     locationPathName = exe,
                     target = BuildTarget.StandaloneWindows64,
                     options = BuildOptions.CompressWithLz4HC,
-                    // Define só nesta build — duplo clique ativa QA sem argumento CLI.
                     extraScriptingDefines = new[] { CityProgressionQa.ScriptingDefine }
                 };
 
@@ -100,13 +99,32 @@ namespace Valgor.Editor
             }
         }
 
-        public static string GetOutputDir()
+        /// <summary>CLI pasta polished: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildPolishedCli</summary>
+        public static void BuildPolishedCli()
+        {
+            var report = Build("Valgor-QA-City-Progression-Polished");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA City Progression Polished Build OK: {GetOutputExe("Valgor-QA-City-Progression-Polished")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Polished Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
+        public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             var repoRoot = Path.GetFullPath(Path.Combine(clientRoot, ".."));
-            return Path.Combine(repoRoot, "builds", "windows", BuildFolderName);
+            var folder = string.IsNullOrEmpty(folderNameOverride) ? BuildFolderName : folderNameOverride;
+            return Path.Combine(repoRoot, "builds", "windows", folder);
         }
 
-        public static string GetOutputExe() => Path.Combine(GetOutputDir(), "Valgor.exe");
+        public static string GetOutputExe(string? folderNameOverride = null) =>
+            Path.Combine(GetOutputDir(folderNameOverride), "Valgor.exe");
     }
 }

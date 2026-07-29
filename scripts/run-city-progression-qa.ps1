@@ -24,9 +24,20 @@ Write-Host "Save QA: city-progression-qa"
 Write-Host "Banner: MODO HOMOLOGACAO - ativo por define nesta build (duplo clique OK)"
 
 $workDir = Split-Path $Exe
-$evidence = "C:\Valgor_Studio\docs\releases\city-progression-qa-evidence"
+# Builds polished / context-menu escrevem em context-menu-final-evidence;
+# builds QA base usam city-progression-qa-evidence.
+$evidenceCandidates = @(
+  "C:\Valgor_Studio\docs\releases\context-menu-final-evidence",
+  "C:\Valgor_Studio\docs\releases\city-progression-qa-evidence"
+)
+$evidence = $evidenceCandidates[0]
 $report = Join-Path $evidence "auto-test-report.txt"
-if ($AutoTest -and (Test-Path $report)) { Remove-Item $report -Force }
+if ($AutoTest) {
+  foreach ($dir in $evidenceCandidates) {
+    $candidate = Join-Path $dir "auto-test-report.txt"
+    if (Test-Path $candidate) { Remove-Item $candidate -Force }
+  }
+}
 
 $proc = Start-Process -FilePath $Exe -ArgumentList $argList -WorkingDirectory $workDir -PassThru
 
@@ -48,8 +59,17 @@ if (-not $proc.HasExited) {
   Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
 }
 
-if (-not (Test-Path $report)) {
-  Write-Host "AutoTest: report nao encontrado em $report"
+$report = $null
+foreach ($dir in $evidenceCandidates) {
+  $candidate = Join-Path $dir "auto-test-report.txt"
+  if (Test-Path $candidate) {
+    $evidence = $dir
+    $report = $candidate
+    break
+  }
+}
+if (-not $report) {
+  Write-Host "AutoTest: report nao encontrado em $($evidenceCandidates -join ' | ')"
   exit 1
 }
 

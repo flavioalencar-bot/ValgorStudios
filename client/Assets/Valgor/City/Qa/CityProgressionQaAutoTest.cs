@@ -16,7 +16,7 @@ namespace Valgor.City.Qa
     public sealed class CityProgressionQaAutoTest : MonoBehaviour
     {
         public const string EvidenceDir =
-            @"C:\Valgor_Studio\docs\releases\city-progression-qa-evidence";
+            @"C:\Valgor_Studio\docs\releases\context-menu-final-evidence";
 
         private CityProgressionQaController _qa = null!;
         private CityController _city = null!;
@@ -40,33 +40,35 @@ namespace Valgor.City.Qa
             // Banner + recursos QA no HUD
             _qa.TopUpNow();
             var hud = FindFirstObjectByType<CityProgressionQaHud>();
-            hud?.OpenPanel();
-            yield return new WaitForSecondsRealtime(0.5f);
-            yield return Capture("00-banner-resources-qa-panel");
-
             // Garante estado inicial Nv.1
             _qa.RequestResetTo1();
             yield return new WaitForSecondsRealtime(0.5f);
-            yield return Capture("01-castle-nv1-tier1");
+            _city.TrySelectByDefinitionId("castle");
+            yield return new WaitForSecondsRealtime(0.45f);
+            yield return Capture("tier1-menu");
             AssertLevelTier(1, 1, "start");
 
-            yield return EvolveAndCapture(5, 1, "02-castle-nv5-tier1");
-            yield return EvolveAndCapture(6, 2, "03-castle-nv6-tier2");
-            yield return EvolveAndCapture(11, 3, "04-castle-nv11-tier3");
-            yield return EvolveAndCapture(16, 4, "05-castle-nv16-tier4");
-            yield return EvolveAndCapture(21, 5, "06-castle-nv21-tier5");
-            yield return EvolveAndCapture(26, 6, "07-castle-nv26-tier6");
-            yield return EvolveAndCapture(30, 6, "08-castle-nv30-tier6");
+            yield return EvolveAndCapture(5, 1, "tier1-nv5");
+            yield return EvolveAndCapture(6, 2, "tier2-nv6");
+            yield return EvolveAndCapture(11, 3, "tier3-nv11");
+            yield return EvolveAndCapture(16, 4, "tier4-nv16");
+            yield return EvolveAndCapture(21, 5, "tier5-nv21");
+            yield return EvolveAndCapture(26, 6, "tier6-nv26");
+            yield return EvolveAndCapture(30, 6, "tier6-nv30-max");
 
-            // Painel QA aberto
+            // Decoração toast + nível máximo
+            InvokeDecoration();
+            yield return new WaitForSecondsRealtime(0.7f);
+            yield return Capture("menu-decoration-toast");
+            yield return Capture("menu-nivel-maximo");
+
             hud?.OpenPanel();
             yield return new WaitForSecondsRealtime(0.4f);
-            yield return Capture("09-qa-panel");
+            yield return Capture("qa-panel");
 
             _qa.RequestSave();
             yield return new WaitForSecondsRealtime(0.3f);
 
-            // Recarrega
             _qa.RequestReload();
             while (_qa.IsBusy)
             {
@@ -74,10 +76,11 @@ namespace Valgor.City.Qa
             }
 
             yield return new WaitForSecondsRealtime(0.5f);
-            yield return Capture("10-reload-nv30");
+            _city.TrySelectByDefinitionId("castle");
+            yield return new WaitForSecondsRealtime(0.4f);
+            yield return Capture("reload-nv30-menu");
             AssertLevelTier(30, 6, "reload");
 
-            // Voltar Nv.1 no save QA
             _qa.RequestResetTo1();
             yield return new WaitForSecondsRealtime(0.4f);
             _qa.RequestSave();
@@ -88,9 +91,8 @@ namespace Valgor.City.Qa
             }
 
             AssertLevelTier(1, 1, "reset-reload");
-            yield return Capture("11-reset-nv1");
+            yield return Capture("reset-nv1");
 
-            // Restaura Nv.30 para evidência final de save (re-evolve rápido)
             yield return _qa.EvolveCastleToLevel(30);
             _city.SyncCastleVisuals(animate: false);
             yield return new WaitForSecondsRealtime(0.35f);
@@ -101,6 +103,23 @@ namespace Valgor.City.Qa
             File.WriteAllText(path, _report.ToString());
             Debug.Log($"[Valgor.QA] AutoTest DONE — report={path}");
             Application.Quit(0);
+        }
+
+        private static void InvokeDecoration()
+        {
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (mb == null || !string.Equals(mb.GetType().Name, "CityHudController", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var presenterProp = mb.GetType().GetProperty("Presenter");
+                var presenter = presenterProp?.GetValue(mb);
+                var method = presenter?.GetType().GetMethod("DebugShowDecorationPlaceholder");
+                method?.Invoke(presenter, null);
+                return;
+            }
         }
 
         private IEnumerator EvolveAndCapture(int level, int expectTier, string captureName)

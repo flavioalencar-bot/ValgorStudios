@@ -33,7 +33,8 @@ namespace Valgor.City.UI
         Send,
         Train,
         Research,
-        Produce
+        Produce,
+        Crown
     }
 
     public readonly struct BuildingContextActionInfo

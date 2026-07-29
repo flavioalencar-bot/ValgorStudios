@@ -198,11 +198,16 @@ namespace Valgor.City.Camera
             _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize - amount, minZoom, maxZoom);
         }
 
-        public void FocusOn(Vector3 worldTarget, float duration = 0.35f)
+        public void FocusOn(Vector3 worldTarget, float duration = 0.35f, float? orthographicSize = null)
         {
             if (_camera == null)
             {
                 _camera = GetComponent<UnityEngine.Camera>();
+            }
+
+            if (orthographicSize.HasValue)
+            {
+                _camera.orthographicSize = Mathf.Clamp(orthographicSize.Value, minZoom, maxZoom);
             }
 
             var lookPoint = ProjectLookPointOnGround();

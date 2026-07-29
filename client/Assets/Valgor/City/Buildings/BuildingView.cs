@@ -88,26 +88,37 @@ namespace Valgor.City.Buildings
             }
 
             RecacheAfterCastleVisualSwap();
+            ApplyCastlePresentationLabelHeight();
+        }
+
+        private void ApplyCastlePresentationLabelHeight()
+        {
+            if (Instance == null ||
+                !string.Equals(Instance.DefinitionId, "castle", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            var presentation = CastleTierPresentation.ForBuildingLevel(Instance.Level);
+            _labelHeight = presentation.LabelHeight;
+            if (_label != null)
+            {
+                _label.transform.localPosition = Vector3.up * (_labelHeight + 0.35f);
+            }
         }
 
         public void RecacheAfterCastleVisualSwap()
         {
             CacheRenderers();
             ApplyStateTint();
-            if (_selected && _visual != null)
-            {
-                _visual.localScale = Vector3.one * 1.08f;
-            }
+            ApplyCastlePresentationLabelHeight();
         }
 
         public void SetSelected(bool selected)
         {
             _selected = selected;
             ApplyColors();
-            if (_visual != null)
-            {
-                _visual.localScale = selected ? Vector3.one * 1.08f : Vector3.one;
-            }
+            // Seleção não muda escala — collider e silhueta permanecem estáveis.
 
             if (_label != null)
             {
@@ -224,15 +235,106 @@ namespace Valgor.City.Buildings
         {
             if (Instance.State == BuildingState.Upgrading)
             {
-                return $"{definition.DisplayName}\nNv.{Instance.Level} → {Instance.Level + 1}";
+                return $"{definition.DisplayName} · Nv.{Instance.Level}→{Instance.Level + 1}";
             }
 
             if (Instance.State == BuildingState.Available && Instance.Level <= 0)
             {
-                return $"{definition.DisplayName}\nConstruir";
+                return $"{definition.DisplayName} · Construir";
             }
 
-            return $"{definition.DisplayName}\nNv.{Math.Max(0, Instance.Level)}";
+            return $"{definition.DisplayName} · Nv.{Math.Max(0, Instance.Level)}";
+        }
+
+        /// <summary>Bounds world do visual (ou collider) para posicionar o menu fora da silhueta.</summary>
+        public Bounds GetWorldBounds()
+        {
+            var renderers = _visual != null
+                ? _visual.GetComponentsInChildren<Renderer>()
+                : GetComponentsInChildren<Renderer>();
+            var has = false;
+            var bounds = new Bounds(transform.position, Vector3.one * 0.5f);
+            for (var i = 0; i < renderers.Length; i++)
+            {
+                var r = renderers[i];
+                if (r == null || !r.enabled || !r.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                // Ignora labels/badges 3D.
+                var n = r.gameObject.name;
+                if (n is "Name" or "LabelPlate" or "CollectableMarker" or "Rim" or "ResourceIcon"
+                    or "LockedBadge" or "ReadyBadge" or "ConstructionOverlay" or "Amount")
+                {
+                    continue;
+                }
+
+                var parentName = r.transform.parent != null ? r.transform.parent.name : string.Empty;
+                if (parentName is "Name" or "CollectableMarker" or "LockedBadge" or "ReadyBadge")
+                {
+                    continue;
+                }
+
+                if (!has)
+                {
+                    bounds = r.bounds;
+                    has = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(r.bounds);
+                }
+            }
+
+            if (!has)
+            {
+                var col = GetComponent<Collider>();
+                if (col != null)
+                {
+                    return col.bounds;
+                }
+            }
+
+            return bounds;
+        }
+
+        public Rect GetScreenRect(UnityEngine.Camera camera)
+        {
+            var b = GetWorldBounds();
+            var corners = new[]
+            {
+                new Vector3(b.min.x, b.min.y, b.min.z),
+                new Vector3(b.min.x, b.min.y, b.max.z),
+                new Vector3(b.min.x, b.max.y, b.min.z),
+                new Vector3(b.min.x, b.max.y, b.max.z),
+                new Vector3(b.max.x, b.min.y, b.min.z),
+                new Vector3(b.max.x, b.min.y, b.max.z),
+                new Vector3(b.max.x, b.max.y, b.min.z),
+                new Vector3(b.max.x, b.max.y, b.max.z)
+            };
+
+            var min = new Vector2(float.MaxValue, float.MaxValue);
+            var max = new Vector2(float.MinValue, float.MinValue);
+            for (var i = 0; i < corners.Length; i++)
+            {
+                var sp = camera.WorldToScreenPoint(corners[i]);
+                if (sp.z < 0f)
+                {
+                    continue;
+                }
+
+                min = Vector2.Min(min, new Vector2(sp.x, sp.y));
+                max = Vector2.Max(max, new Vector2(sp.x, sp.y));
+            }
+
+            if (min.x > max.x)
+            {
+                var c = camera.WorldToScreenPoint(b.center);
+                return new Rect(c.x - 40f, c.y - 40f, 80f, 80f);
+            }
+
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
 
         private bool[] _lockAccent = Array.Empty<bool>();
@@ -331,7 +433,7 @@ namespace Valgor.City.Buildings
             plate.name = "LabelPlate";
             plate.transform.SetParent(labelObject.transform, false);
             plate.transform.localPosition = Vector3.zero;
-            plate.transform.localScale = new Vector3(2.4f, 0.55f, 0.08f);
+            plate.transform.localScale = new Vector3(2.8f, 0.38f, 0.08f);
             Destroy(plate.GetComponent<Collider>());
             CityVisualMaterials.Apply(plate.GetComponent<Renderer>(), new Color(0.12f, 0.11f, 0.1f, 0.92f));
 

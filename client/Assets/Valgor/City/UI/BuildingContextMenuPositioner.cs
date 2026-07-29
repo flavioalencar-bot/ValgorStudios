@@ -4,31 +4,31 @@ using UnityEngine.UIElements;
 namespace Valgor.City.UI
 {
     /// <summary>
-    /// Posiciona o menu contextual perto do edifício, sem cobri-lo e dentro da área segura.
+    /// Posiciona o menu fora da silhueta do edifício (preferência: abaixo → lados).
     /// </summary>
     public sealed class BuildingContextMenuPositioner
     {
         private readonly float _menuWidth;
         private readonly float _menuEstimatedHeight;
         private readonly float _margin;
-        private readonly float _gapFromBuilding;
+        private readonly float _gap;
         private readonly float _bottomNavReserve;
         private readonly float _topHudReserve;
         private readonly float _sidePanelReserve;
 
         public BuildingContextMenuPositioner(
-            float menuWidth = 280f,
-            float menuEstimatedHeight = 130f,
-            float margin = 16f,
-            float gapFromBuilding = 58f,
-            float bottomNavReserve = 72f,
-            float topHudReserve = 64f,
+            float menuWidth = 260f,
+            float menuEstimatedHeight = 110f,
+            float margin = 14f,
+            float gap = 16f,
+            float bottomNavReserve = 78f,
+            float topHudReserve = 72f,
             float sidePanelReserve = 360f)
         {
             _menuWidth = menuWidth;
             _menuEstimatedHeight = menuEstimatedHeight;
             _margin = margin;
-            _gapFromBuilding = gapFromBuilding;
+            _gap = gap;
             _bottomNavReserve = bottomNavReserve;
             _topHudReserve = topHudReserve;
             _sidePanelReserve = sidePanelReserve;
@@ -38,7 +38,7 @@ namespace Valgor.City.UI
             VisualElement menu,
             VisualElement root,
             UnityEngine.Camera camera,
-            Vector3 worldAnchor,
+            Rect buildingScreenRect,
             float measuredHeight = -1f,
             bool reserveRightPanel = false,
             float measuredWidth = -1f)
@@ -48,55 +48,100 @@ namespace Valgor.City.UI
                 return;
             }
 
-            var width = measuredWidth > 0f ? measuredWidth : _menuWidth;
-            var screen = camera.WorldToScreenPoint(worldAnchor);
-            if (screen.z < 0f)
-            {
-                Place(menu, root.layout.width * 0.5f - width * 0.5f, root.layout.height * 0.4f);
-                return;
-            }
+            var width = measuredWidth > 1f ? measuredWidth : _menuWidth;
+            var height = measuredHeight > 1f ? measuredHeight : _menuEstimatedHeight;
 
             var panelH = root.resolvedStyle.height > 1f ? root.resolvedStyle.height : Screen.height;
             var panelW = root.resolvedStyle.width > 1f ? root.resolvedStyle.width : Screen.width;
-            var uiX = screen.x * (panelW / Mathf.Max(1f, Screen.width));
-            var uiY = (Screen.height - screen.y) * (panelH / Mathf.Max(1f, Screen.height));
 
-            var height = measuredHeight > 0f ? measuredHeight : _menuEstimatedHeight;
-            var spaceRight = panelW - uiX;
-            var spaceLeft = uiX;
-            var preferRight = spaceRight >= spaceLeft + 24f;
-            if (reserveRightPanel)
-            {
-                preferRight = false;
-            }
-
-            // Prefere acima do edifício; se não couber, lado com mais espaço.
-            var topAbove = uiY - height - _gapFromBuilding * 0.35f;
-            float left;
-            float top;
-            if (topAbove >= _topHudReserve + _margin)
-            {
-                left = uiX - width * 0.5f;
-                top = topAbove;
-            }
-            else
-            {
-                left = preferRight
-                    ? uiX + _gapFromBuilding
-                    : uiX - width - _gapFromBuilding;
-                top = uiY - height * 0.55f;
-            }
+            // Converte rect de pixels de tela → coordenadas do painel UI.
+            var sx = panelW / Mathf.Max(1f, Screen.width);
+            var sy = panelH / Mathf.Max(1f, Screen.height);
+            var bLeft = buildingScreenRect.xMin * sx;
+            var bRight = buildingScreenRect.xMax * sx;
+            var bTop = (Screen.height - buildingScreenRect.yMax) * sy;
+            var bBottom = (Screen.height - buildingScreenRect.yMin) * sy;
+            var bCenterX = (bLeft + bRight) * 0.5f;
+            var bCenterY = (bTop + bBottom) * 0.5f;
 
             var minLeft = _margin;
             var maxLeft = panelW - width - _margin - (reserveRightPanel ? _sidePanelReserve : 0f);
             var minTop = _topHudReserve + _margin;
             var maxTop = panelH - height - _bottomNavReserve - _margin;
 
-            left = Mathf.Clamp(left, minLeft, Mathf.Max(minLeft, maxLeft));
-            top = Mathf.Clamp(top, minTop, Mathf.Max(minTop, maxTop));
+            var gap = _gap;
+            // 1) Abaixo do edifício (com folga extra para não tocar a base).
+            var belowTop = bBottom + gap + 10f;
+            var belowLeft = bCenterX - width * 0.5f;
+            if (InSafe(belowLeft, belowTop, minLeft, maxLeft, minTop, maxTop) &&
+                !OverlapsCenter(belowLeft, belowTop, width, height, bCenterX, bCenterY, bLeft, bRight, bTop, bBottom))
+            {
+                Place(menu, Clamp(belowLeft, minLeft, maxLeft), Clamp(belowTop, minTop, maxTop));
+                return;
+            }
 
-            Place(menu, left, top);
+            // 2) Direita.
+            var rightLeft = bRight + _gap;
+            var rightTop = bCenterY - height * 0.5f;
+            if (!reserveRightPanel &&
+                InSafe(rightLeft, rightTop, minLeft, maxLeft, minTop, maxTop) &&
+                !OverlapsCenter(rightLeft, rightTop, width, height, bCenterX, bCenterY, bLeft, bRight, bTop, bBottom))
+            {
+                Place(menu, Clamp(rightLeft, minLeft, maxLeft), Clamp(rightTop, minTop, maxTop));
+                return;
+            }
+
+            // 3) Esquerda.
+            var leftLeft = bLeft - width - _gap;
+            var leftTop = bCenterY - height * 0.5f;
+            if (InSafe(leftLeft, leftTop, minLeft, maxLeft, minTop, maxTop) &&
+                !OverlapsCenter(leftLeft, leftTop, width, height, bCenterX, bCenterY, bLeft, bRight, bTop, bBottom))
+            {
+                Place(menu, Clamp(leftLeft, minLeft, maxLeft), Clamp(leftTop, minTop, maxTop));
+                return;
+            }
+
+            // 4) Acima (último recurso).
+            var aboveTop = bTop - height - _gap;
+            var aboveLeft = bCenterX - width * 0.5f;
+            Place(
+                menu,
+                Clamp(aboveLeft, minLeft, maxLeft),
+                Clamp(aboveTop, minTop, maxTop));
         }
+
+        private static bool InSafe(
+            float left,
+            float top,
+            float minLeft,
+            float maxLeft,
+            float minTop,
+            float maxTop) =>
+            left >= minLeft - 1f && left <= maxLeft + 1f &&
+            top >= minTop - 1f && top <= maxTop + 1f;
+
+        private static bool OverlapsCenter(
+            float left,
+            float top,
+            float width,
+            float height,
+            float cx,
+            float cy,
+            float bLeft,
+            float bRight,
+            float bTop,
+            float bBottom)
+        {
+            var menu = new Rect(left, top, width, height);
+            // Núcleo visual: 55% central da silhueta.
+            var coreW = (bRight - bLeft) * 0.55f;
+            var coreH = (bBottom - bTop) * 0.55f;
+            var core = new Rect(cx - coreW * 0.5f, cy - coreH * 0.5f, coreW, coreH);
+            return menu.Overlaps(core);
+        }
+
+        private static float Clamp(float v, float min, float max) =>
+            Mathf.Clamp(v, min, Mathf.Max(min, max));
 
         private static void Place(VisualElement menu, float left, float top)
         {
