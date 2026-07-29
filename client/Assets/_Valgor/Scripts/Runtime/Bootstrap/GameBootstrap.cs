@@ -29,6 +29,7 @@ namespace Valgor.Bootstrap
             Services = BuildRegistry();
             Game = new ValgorGame(Services);
             Valgor.UI.BetaNavigationBar.Ensure();
+            Valgor.UI.CityProgressionQaNavigateDriver.EnsureFromCommandLine();
             Valgor.UI.CheckpointSmokeDriver.EnsureFromCommandLine();
         }
 

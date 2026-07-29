@@ -649,6 +649,28 @@ namespace Valgor.City.UI
                 go.style.borderLeftColor = BetaVisualTheme.ButtonBorder;
                 go.style.borderRightColor = BetaVisualTheme.ButtonBorder;
                 row.Add(go);
+
+                if (Valgor.Core.CityProgressionQa.IsActive && check.RequiredMinimumLevel > 0)
+                {
+                    var minLv = check.RequiredMinimumLevel;
+                    var fulfill = new Button(() =>
+                    {
+                        var qa = UnityEngine.Object.FindFirstObjectByType<Valgor.City.Qa.CityProgressionQaController>();
+                        qa?.RequestSatisfyRequirement(targetId, minLv);
+                    })
+                    {
+                        text = "Atender requisito"
+                    };
+                    fulfill.style.marginLeft = 6;
+                    fulfill.style.paddingLeft = 8;
+                    fulfill.style.paddingRight = 8;
+                    fulfill.style.paddingTop = 4;
+                    fulfill.style.paddingBottom = 4;
+                    fulfill.style.fontSize = 11;
+                    fulfill.style.backgroundColor = new Color(0.18f, 0.28f, 0.2f, 0.95f);
+                    fulfill.style.color = BetaVisualTheme.TextPrimary;
+                    row.Add(fulfill);
+                }
             }
 
             return row;

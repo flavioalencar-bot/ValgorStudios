@@ -148,12 +148,19 @@ namespace Valgor.City.Core
                 view.SetConstructionProgress(0f, string.Empty, false);
                 if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
                 {
-                    view.SyncCastleVisual(animate: true);
+                    view.SyncCastleVisual(animate: !Valgor.Core.CityProgressionQa.IsActive);
                 }
             }
 
             LastUpgradeFeedback = $"{GetDefinition(building).DisplayName} → Nv.{building.Level} (concluído agora)";
             _economy.Persist(_buildings);
+            if (Valgor.Core.CityProgressionQa.IsActive)
+            {
+                Valgor.City.Qa.CityProgressionQaBootstrap.TopUpWallet(_wallet);
+                Valgor.City.Qa.CityProgressionQaBootstrap.TopUpEnergyPrefs();
+                _economy.PersistWallet();
+            }
+
             BuildingChanged?.Invoke();
             RefreshWorldIndicators();
             return true;
@@ -191,7 +198,9 @@ namespace Valgor.City.Core
                 }
             }
 
-            var completesAt = _economy.Clock.UtcNow + definition.GetUpgradeDuration(building.Level);
+            var completesAt = _economy.Clock.UtcNow +
+                              Valgor.City.Qa.CityProgressionQaBootstrap.GetEffectiveUpgradeDuration(
+                                  definition, building.Level);
             building.BeginUpgrade(completesAt);
             if (_views.TryGetValue(building, out var view))
             {
@@ -201,6 +210,13 @@ namespace Valgor.City.Core
 
             LastUpgradeFeedback = $"{definition.DisplayName}: melhoria iniciada";
             _economy.Persist(_buildings);
+            if (Valgor.Core.CityProgressionQa.IsActive)
+            {
+                Valgor.City.Qa.CityProgressionQaBootstrap.TopUpWallet(_wallet);
+                Valgor.City.Qa.CityProgressionQaBootstrap.TopUpEnergyPrefs();
+                _economy.PersistWallet();
+            }
+
             BuildingChanged?.Invoke();
             RefreshWorldIndicators();
             return true;
@@ -460,6 +476,8 @@ namespace Valgor.City.Core
 
         public void RefreshPresentation() => RefreshWorldIndicators();
 
+        public void NotifyBuildingChanged() => BuildingChanged?.Invoke();
+
         /// <summary>Após load/save — alinha visual do Castelo à faixa de nível sem animação.</summary>
         public void SyncCastleVisuals(bool animate = false)
         {
@@ -506,7 +524,7 @@ namespace Valgor.City.Core
                     view.SetConstructionProgress(0f, string.Empty, false);
                     if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
                     {
-                        view.SyncCastleVisual(animate: true);
+                        view.SyncCastleVisual(animate: !Valgor.Core.CityProgressionQa.IsActive);
                     }
                 }
 
@@ -549,7 +567,9 @@ namespace Valgor.City.Core
 
                 if (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue)
                 {
-                    var total = definition.GetUpgradeDuration(Math.Max(0, building.Level)).TotalSeconds;
+                    var total = Valgor.City.Qa.CityProgressionQaBootstrap
+                        .GetEffectiveUpgradeDuration(definition, Math.Max(0, building.Level))
+                        .TotalSeconds;
                     var remaining = (building.UpgradeCompletesAtUtc.Value - now).TotalSeconds;
                     if (remaining < 0) remaining = 0;
                     var progress = total <= 0 ? 1f : (float)Math.Clamp(1.0 - remaining / total, 0, 1);

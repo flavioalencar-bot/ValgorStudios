@@ -1,0 +1,112 @@
+{
+  "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier1.glb",
+  "bytes": 10235652,
+  "objects": [
+    {
+      "name": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b",
+      "type": "MESH",
+      "parent": null,
+      "loc": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rot_deg": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "meshes": [
+    {
+      "name": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b",
+      "verts": 121895,
+      "polys": 209465,
+      "uv_layers": [
+        "UVMap"
+      ],
+      "uv0_ok": true,
+      "uv0_nonzero": 628395,
+      "uv0_sample": [
+        [
+          0.17212,
+          0.91016
+        ],
+        [
+          0.17188,
+          0.91016
+        ],
+        [
+          0.17188,
+          0.90967
+        ],
+        [
+          0.17188,
+          0.91016
+        ],
+        [
+          0.17212,
+          0.91016
+        ],
+        [
+          0.17188,
+          0.91113
+        ]
+      ],
+      "material_slots": [
+        "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b_material"
+      ],
+      "submesh_material_indices": [
+        0
+      ],
+      "has_custom_normals": true
+    }
+  ],
+  "materials": [
+    {
+      "name": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b_material",
+      "images": [
+        "medieval+fortress+3d+model_basecolor.jpg"
+      ],
+      "roughness": 0.5,
+      "metallic": 0.0,
+      "base_color_from": "medieval+fortress+3d+model_basecolor.jpg"
+    }
+  ],
+  "images": [
+    {
+      "name": "medieval+fortress+3d+model_basecolor.jpg",
+      "size": [
+        4096,
+        4096
+      ],
+      "packed": true,
+      "has_data": true
+    }
+  ],
+  "bounds": {
+    "min": [
+      -0.4918212890625,
+      -0.4716033935546875,
+      0.0
+    ],
+    "max": [
+      0.4918212890625,
+      0.4716033935546875,
+      0.631134033203125
+    ],
+    "size": [
+      0.983642578125,
+      0.943206787109375,
+      0.631134033203125
+    ],
+    "footprint": 0.983642578125,
+    "height": 0.631134033203125
+  }
+}

@@ -12,7 +12,9 @@ namespace Valgor.City.Visual
         public const string RealChildPrefix = "Castle_Tier";
         public const string RealChildSuffix = "_Real";
 
-        /// <summary>Níveis 1–5→1 … 26–30→6.</summary>
+        /// <summary>
+        /// Faixas: 1–5→1 … 26–30→6.
+        /// </summary>
         public static int ResolveTier(int buildingLevel)
         {
             var level = Math.Max(1, buildingLevel);
@@ -97,6 +99,12 @@ namespace Valgor.City.Visual
             {
                 detail = $"unchanged Tier{want}";
                 return true;
+            }
+
+            if (current > 0)
+            {
+                Debug.Log(
+                    $"Castle visual tier changed: T{current} -> T{want} at level {buildingLevel}");
             }
 
             if (animate && current > 0)

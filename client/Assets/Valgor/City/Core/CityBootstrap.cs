@@ -43,6 +43,7 @@ namespace Valgor.City
 
         private void Awake()
         {
+            Valgor.City.Qa.CityProgressionQaBootstrap.ApplyBeforeEconomy();
             Economy = ResolveEconomy();
             Dragons = ResolveDragons(Economy);
             Controller = new CityController(Economy, new BuildingSelectionService());
@@ -55,12 +56,34 @@ namespace Valgor.City
             Controller.BuildingChanged += ApplyWallFortifications;
             Controller.SyncBetaProgress();
             Economy.ApplyOfflineAndPersist(Controller.Buildings);
+            if (Valgor.Core.CityProgressionQa.IsActive)
+            {
+                Valgor.City.Qa.CityProgressionQaBootstrap.TopUpWallet(Economy.Wallet);
+                Valgor.City.Qa.CityProgressionQaBootstrap.TopUpEnergyPrefs();
+                Economy.PersistWallet();
+            }
+
             Economy.ApplyPendingMissionRewards();
             Controller.SyncCastleVisuals(animate: false);
             Controller.SyncBetaProgress();
             Controller.RefreshPresentation();
             CreateHud();
             ConfigureCamera();
+            if (Valgor.Core.CityProgressionQa.IsActive)
+            {
+                var qa = gameObject.GetComponent<Valgor.City.Qa.CityProgressionQaController>() ??
+                         gameObject.AddComponent<Valgor.City.Qa.CityProgressionQaController>();
+                qa.Bind(Controller);
+                var hudQa = gameObject.GetComponent<Valgor.City.Qa.CityProgressionQaHud>() ??
+                            gameObject.AddComponent<Valgor.City.Qa.CityProgressionQaHud>();
+                hudQa.Initialize(qa);
+                if (Valgor.Core.CityProgressionQa.IsAutoTest)
+                {
+                    var auto = gameObject.GetComponent<Valgor.City.Qa.CityProgressionQaAutoTest>() ??
+                               gameObject.AddComponent<Valgor.City.Qa.CityProgressionQaAutoTest>();
+                    auto.Begin(qa, Controller);
+                }
+            }
         }
 
         private void OnDestroy()

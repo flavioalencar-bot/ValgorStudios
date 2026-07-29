@@ -8,7 +8,7 @@ namespace Valgor.City.Buildings
         private static readonly IReadOnlyDictionary<string, BuildingDefinition> Definitions =
             new Dictionary<string, BuildingDefinition>
             {
-                ["castle"] = Create("castle", "Castelo", 20, gold: 200, food: 50, wood: 100, stone: 100, iron: 40, essence: 5),
+                ["castle"] = Create("castle", "Castelo", 30, gold: 200, food: 50, wood: 100, stone: 100, iron: 40, essence: 5),
                 ["farm"] = Create("farm", "Fazenda", 15, gold: 80, food: 20, wood: 30, stone: 0, iron: 0, essence: 0),
                 ["lumbermill"] = Create("lumbermill", "Serraria", 15, gold: 100, food: 0, wood: 40, stone: 10, iron: 0, essence: 0),
                 ["quarry"] = Create("quarry", "Pedreira", 15, gold: 120, food: 0, wood: 50, stone: 10, iron: 0, essence: 0),

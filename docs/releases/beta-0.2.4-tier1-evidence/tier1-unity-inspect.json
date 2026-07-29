@@ -1,0 +1,13 @@
+﻿{
+  "importer": "com.unity.cloud.gltfast",
+  "source": "C:\\Valgor_Studio\\production\\City\\Castle\\source\\Castle_Tier1.glb",
+  "modelPath": "Assets/Valgor/City/Art/Castle/Models/Castle_Tier1.glb",
+  "scale": 7.624721,
+  "footprint_m": 7.5,
+  "height_m": 4.812221,
+  "material_slots": 1,
+  "submeshes": 1,
+  "materials": "tripo_node_5dc4186a-e4ae-44d6-981f-c5b9e232278b_material [Shader Graphs/glTF-pbrMetallicRoughness]; ",
+  "rematerialized": false,
+  "applyColors": false
+}

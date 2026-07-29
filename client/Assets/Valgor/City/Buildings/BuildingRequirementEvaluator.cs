@@ -10,12 +10,14 @@ namespace Valgor.City.Buildings
             string label,
             bool satisfied,
             string detail,
-            string? jumpToDefinitionId = null)
+            string? jumpToDefinitionId = null,
+            int requiredMinimumLevel = 0)
         {
             Label = label ?? string.Empty;
             Satisfied = satisfied;
             Detail = detail ?? string.Empty;
             JumpToDefinitionId = jumpToDefinitionId;
+            RequiredMinimumLevel = Math.Max(0, requiredMinimumLevel);
         }
 
         public string Label { get; }
@@ -24,6 +26,9 @@ namespace Valgor.City.Buildings
 
         /// <summary>Id do edifício para o botão Ir (null = sem navegação).</summary>
         public string? JumpToDefinitionId { get; }
+
+        /// <summary>Nível mínimo exigido do edifício alvo (0 = N/A).</summary>
+        public int RequiredMinimumLevel { get; }
     }
 
     /// <summary>Avalia pré-requisitos do catálogo (castelo / prédios / unlocks).</summary>
@@ -52,7 +57,8 @@ namespace Valgor.City.Buildings
                     ok
                         ? $"Nv.{castleLevel} ≥ {requirement.MinimumCastleLevel}"
                         : $"Requer Castelo Nv.{requirement.MinimumCastleLevel} (atual {castleLevel})",
-                    jumpToDefinitionId: "castle"));
+                    jumpToDefinitionId: "castle",
+                    requiredMinimumLevel: requirement.MinimumCastleLevel));
             }
 
             foreach (var dep in requirement.RequiredBuildings)
@@ -66,7 +72,8 @@ namespace Valgor.City.Buildings
                     ok
                         ? $"Nv.{level} ≥ {dep.MinimumLevel}"
                         : $"Requer {name} Nv.{dep.MinimumLevel} (atual {level})",
-                    jumpToDefinitionId: dep.BuildingDefinitionId));
+                    jumpToDefinitionId: dep.BuildingDefinitionId,
+                    requiredMinimumLevel: dep.MinimumLevel));
             }
 
             foreach (var unlock in requirement.RequiredUnlocks)
