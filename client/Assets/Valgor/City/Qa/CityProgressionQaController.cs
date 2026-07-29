@@ -422,6 +422,7 @@ namespace Valgor.City.Qa
             }
 
             _city.Persist();
+            _city.SyncBetaProgress();
             _city.NotifyBuildingChanged();
             TopUpNow();
             return true;
@@ -501,6 +502,7 @@ namespace Valgor.City.Qa
             }
 
             _city.SyncCastleVisuals(animate: false);
+            _city.SyncBetaProgress();
             _city.RefreshPresentation();
             _city.NotifyBuildingChanged();
             _status =

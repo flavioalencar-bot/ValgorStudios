@@ -208,6 +208,53 @@ namespace Valgor.City.Qa
             yield return new WaitForSecondsRealtime(0.35f);
             Assert(_qa.GetCastleLevel() == 30, "save-reload-nv30");
 
+            // Soft-lock Instituto: Locked até Academia Nv.1.
+            _qa.RequestResetTo1();
+            while (_qa.IsBusy)
+            {
+                yield return null;
+            }
+
+            yield return new WaitForSecondsRealtime(0.35f);
+            _qa.TopUpNow();
+            if (_city.TryGetBuildingByDefinitionId("institute", out var instituteBefore))
+            {
+                Assert(instituteBefore.State == BuildingState.Locked, "institute-starts-locked");
+            }
+            else
+            {
+                Assert(false, "institute-exists");
+            }
+
+            _qa.RequestSatisfyRequirement("academy", 1);
+            while (_qa.IsBusy)
+            {
+                yield return null;
+            }
+
+            yield return new WaitForSecondsRealtime(0.35f);
+            _city.SyncBetaProgress();
+            if (_city.TryGetBuildingByDefinitionId("institute", out var instituteAfter))
+            {
+                Assert(instituteAfter.State == BuildingState.Available, "institute-unlocks-after-academy");
+            }
+
+            _qa.RequestSave();
+            yield return new WaitForSecondsRealtime(0.2f);
+            _qa.RequestReload();
+            while (_qa.IsBusy)
+            {
+                yield return null;
+            }
+
+            yield return new WaitForSecondsRealtime(0.3f);
+            if (_city.TryGetBuildingByDefinitionId("institute", out var instituteReload) &&
+                _city.GetBuildingLevel("academy") >= 1)
+            {
+                Assert(instituteReload.State is BuildingState.Available or BuildingState.Ready,
+                    "institute-persists-unlocked");
+            }
+
             _report.AppendLine($"pass={_pass} fail={_fail}");
             var path = Path.Combine(EvidenceDir, "auto-test-report.txt");
             File.WriteAllText(path, _report.ToString());

@@ -251,6 +251,34 @@ namespace Valgor.City.Core
                     break;
                 }
             }
+
+            RefreshSoftLocks();
+        }
+
+        /// <summary>
+        /// Desbloqueios soft (Locked → Available) sem alterar regras de pré-requisito de upgrade.
+        /// Instituto: Disponível após Academia Nv.1 (alinhado ao catálogo de deps).
+        /// </summary>
+        public void RefreshSoftLocks()
+        {
+            if (!TryGetBuildingByDefinitionId("institute", out var institute) ||
+                institute.State != BuildingState.Locked)
+            {
+                return;
+            }
+
+            if (GetBuildingLevel("academy") < 1)
+            {
+                return;
+            }
+
+            institute.ApplyPersisted(0, BuildingState.Available, upgradeCompletesAtUtc: null);
+            if (_views.TryGetValue(institute, out var view) &&
+                _definitions.TryGetValue(institute, out var definition))
+            {
+                view.RefreshStateColor();
+                view.RefreshLabel(definition);
+            }
         }
 
         public bool CanUpgrade(BuildingInstance building, BuildingDefinition definition)
@@ -535,6 +563,7 @@ namespace Valgor.City.Core
 
             if (completed)
             {
+                RefreshSoftLocks();
                 _economy.Persist(_buildings);
                 BuildingChanged?.Invoke();
             }

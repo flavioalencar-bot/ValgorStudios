@@ -1,0 +1,4 @@
+﻿backupUtc=2026-07-29T21:14:34.0584097Z
+registryPath=HKCU\Software\Valgor Studios\Valgor
+keyCount=252
+regFile=C:\Valgor_Studio\docs\releases\progression-audit-evidence\save-backups\20260729-181433\playerprefs.reg
