@@ -76,15 +76,21 @@ namespace Valgor.City.Qa
                 yield return new WaitForSecondsRealtime(0.55f);
                 yield return Capture("07-obtain-more");
 
+                AutoRefillConfirmModal.SkipConfirmThisSession = false;
+                presenter.DebugOpenAutoRefill();
+                yield return new WaitForSecondsRealtime(0.65f);
+                yield return Capture("09-auto-refill");
+                yield return Capture("10-auto-refill-confirm");
+
+                // Uso manual de pacote (nova falta controlada)
+                _qa.SimulateResourceShortage(ResourceType.Wood, 50);
+                yield return new WaitForSecondsRealtime(0.2f);
+                presenter.DebugOpenObtainForResource(ResourceType.Wood);
+                yield return new WaitForSecondsRealtime(0.4f);
                 presenter.DebugUseFirstInventoryItem();
                 yield return new WaitForSecondsRealtime(0.45f);
                 yield return Capture("08-use-pack");
 
-                AutoRefillConfirmModal.SkipConfirmThisSession = false;
-                presenter.DebugOpenAutoRefill();
-                yield return new WaitForSecondsRealtime(0.55f);
-                yield return Capture("09-auto-refill");
-                yield return Capture("10-auto-refill-confirm");
                 presenter.DebugConfirmAutoRefill();
                 yield return new WaitForSecondsRealtime(0.4f);
 
@@ -92,7 +98,6 @@ namespace Valgor.City.Qa
                 yield return OpenUpgrade();
                 yield return Capture("05-resources-sufficient");
 
-                // Pré-requisito bloqueado: sobe castelo alvo alto via farm gate
                 yield return EnsureBlockedRequirementCapture();
             }
 
