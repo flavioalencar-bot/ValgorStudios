@@ -13,6 +13,7 @@
 - [x] Arte mínima P0: Castelo, Torre dos Dragões, Fazenda, Armazém, Academia
 - [x] Correção direção visual P0
 - [x] Muralha como edifício evolutivo (requisitos Castelo≥N, Detalhes/Atualizar, visual por nível)
+- [x] UX completa de evolução (modais premium, Obter mais, reabastecimento automático)
 
 ---
 

@@ -60,7 +60,7 @@ namespace Valgor.City.Qa
             yield return Capture("02-upgrade-castle");
 
             // Bloquear recurso / requisito
-            _qa.SimulateResourceShortage(ResourceType.Wood, 300);
+            _qa.SimulateResourceShortage(ResourceType.Wood, 50);
             yield return new WaitForSecondsRealtime(0.25f);
             yield return OpenUpgrade();
             yield return Capture("06-resource-insufficient");
@@ -72,17 +72,17 @@ namespace Valgor.City.Qa
                 presenter.DebugOpenUpgradePanel();
                 yield return new WaitForSecondsRealtime(0.35f);
 
-                // Obter mais via primeiro recurso faltante
-                presenter.DebugOpenObtainForFirstMissing();
-                yield return new WaitForSecondsRealtime(0.45f);
+                presenter.DebugOpenObtainForResource(ResourceType.Wood);
+                yield return new WaitForSecondsRealtime(0.55f);
                 yield return Capture("07-obtain-more");
 
                 presenter.DebugUseFirstInventoryItem();
-                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForSecondsRealtime(0.45f);
                 yield return Capture("08-use-pack");
 
+                AutoRefillConfirmModal.SkipConfirmThisSession = false;
                 presenter.DebugOpenAutoRefill();
-                yield return new WaitForSecondsRealtime(0.45f);
+                yield return new WaitForSecondsRealtime(0.55f);
                 yield return Capture("09-auto-refill");
                 yield return Capture("10-auto-refill-confirm");
                 presenter.DebugConfirmAutoRefill();

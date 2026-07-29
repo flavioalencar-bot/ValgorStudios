@@ -218,6 +218,34 @@ namespace Valgor.City.UI
             }
         }
 
+        public void DebugOpenObtainForResource(ResourceType resource)
+        {
+            if (_current == null)
+            {
+                return;
+            }
+
+            RefreshUpgradeModal(forceShow: true);
+            var presentation = BuildingUpgradePresentationBuilder.Build(_city, _current, _inventory);
+            foreach (var res in presentation.ResourceCosts)
+            {
+                if (res.ResourceId == resource)
+                {
+                    OpenObtainFor(res);
+                    return;
+                }
+            }
+
+            OpenObtainFor(new ResourceRequirementView
+            {
+                ResourceId = resource,
+                DisplayName = BuildingUpgradePresentationBuilder.FriendlyResource(resource),
+                Available = _city.Economy.Wallet.Get(resource),
+                Required = Math.Max(_city.Economy.Wallet.Get(resource) + 10_000, 10_000),
+                CanAutoRefill = true
+            });
+        }
+
         public void DebugUseFirstInventoryItem()
         {
             if (_pendingObtainResource == null)
