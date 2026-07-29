@@ -1,7 +1,7 @@
 # Dragão Fase 2 — Evolução Nv.1→30
 
 **Data:** 2026-07-29  
-**Base:** `3dbf47a` (Fase 1) · Persistência `valgor.dragons.v5` (migra v4)  
+**Base:** `3dbf47a` (Fase 1) → `32f7454` (Fase 2) · Persistência `valgor.dragons.v5` (migra v4)  
 **Build:** `builds/windows/Valgor-QA-Dragon-Phase2/Valgor.exe`
 
 ## Escopo entregue
