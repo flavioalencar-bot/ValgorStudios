@@ -29,6 +29,12 @@ namespace Valgor.Dragons.Growth
 
         public void EnsureSeedDefaults(DragonInstance dragon)
         {
+            if (dragon.DragonLevel >= 1)
+            {
+                dragon.GrowthStage = DragonProgressionRules.StageForLevel(dragon.DragonLevel);
+                return;
+            }
+
             if (dragon.State is DragonState.Locked or DragonState.Egg or DragonState.Hatching)
             {
                 dragon.GrowthStage = DragonGrowthStage.Egg;
@@ -61,7 +67,15 @@ namespace Valgor.Dragons.Growth
                 return false;
             }
 
-            var before = dragon.GrowthStage;
+            // Fase 2: estágio segue o nível do dragão.
+            if (dragon.DragonLevel >= 1)
+            {
+                var before = dragon.GrowthStage;
+                dragon.GrowthStage = DragonProgressionRules.StageForLevel(dragon.DragonLevel);
+                return before != dragon.GrowthStage;
+            }
+
+            var beforeStage = dragon.GrowthStage;
             if (current is DragonState.Locked or DragonState.Egg or DragonState.Hatching)
             {
                 dragon.GrowthStage = DragonGrowthStage.Egg;
@@ -85,7 +99,7 @@ namespace Valgor.Dragons.Growth
                 dragon.GrowthPoints = 0;
             }
 
-            return before != dragon.GrowthStage;
+            return beforeStage != dragon.GrowthStage;
         }
 
         public void AddGrowthPoints(DragonInstance dragon, int points)

@@ -11,7 +11,7 @@ using Valgor.Dragons.Recovery;
 namespace Valgor.Dragons.Core
 {
     /// <summary>
-    /// Fachada do sistema de dragões: jornada do ovo (Fase 1), ninho, estados, alimentação e destaque.
+    /// Fachada do sistema de dragões: jornada do ovo (Fase 1) + progressão Nv.1→30 (Fase 2).
     /// </summary>
     public sealed class DragonService : IDragonGateway
     {
@@ -24,6 +24,8 @@ namespace Valgor.Dragons.Core
         private Action? _persistWallet;
         private DragonEggJourneyPhase _eggJourneyPhase = DragonEggJourneyPhase.Locked;
         private int _syncedCastleLevel;
+        private int _syncedTowerLevel = 1;
+        private int _energyDecayAccumulator;
 
         public DragonService(
             DragonSettings settings,
@@ -40,6 +42,7 @@ namespace Valgor.Dragons.Core
             Growth = new DragonGrowthService(_settings);
             Bond = new DragonBondService(_settings);
             Evolution = new DragonEvolutionService(_settings);
+            Progression = new DragonProgressionService(_settings, _utcNow);
             Roost = new DragonRoost(
                 _settings.DefaultRoostId,
                 "dragon-tower",
@@ -63,6 +66,7 @@ namespace Valgor.Dragons.Core
         public DragonGrowthService Growth { get; }
         public DragonBondService Bond { get; }
         public DragonEvolutionService Evolution { get; }
+        public DragonProgressionService Progression { get; }
         public DragonStateMachine StateMachine => _stateMachine;
         public IReadOnlyDictionary<string, DragonInstance> Dragons => _dragons;
         public event EventHandler<DragonChangedEvent>? Changed;
@@ -86,6 +90,7 @@ namespace Valgor.Dragons.Core
             {
                 _eggJourneyPhase = snapshot.EggJourneyPhase;
                 _syncedCastleLevel = snapshot.SyncedCastleLevel;
+                _syncedTowerLevel = Math.Max(1, snapshot.SyncedTowerLevel);
                 foreach (var pair in snapshot.Dragons)
                 {
                     _dragons[pair.Key] = pair.Value.Clone();
@@ -108,16 +113,26 @@ namespace Valgor.Dragons.Core
             foreach (var dragon in _dragons.Values)
             {
                 Growth.EnsureSeedDefaults(dragon);
+                Progression.EnsureCombatStats(dragon);
             }
 
-            SyncCastleLevel(_syncedCastleLevel);
+            SyncBuildingLevels(_syncedCastleLevel, _syncedTowerLevel);
             Tick();
             Persist();
         }
 
-        public void SyncCastleLevel(int castleLevel)
+        public void SyncCastleLevel(int castleLevel) =>
+            SyncBuildingLevels(castleLevel, _syncedTowerLevel);
+
+        public void SyncBuildingLevels(int castleLevel, int towerLevel)
         {
             _syncedCastleLevel = Math.Max(0, castleLevel);
+            _syncedTowerLevel = Math.Max(0, towerLevel);
+            if (Roost != null && _syncedTowerLevel > 0)
+            {
+                Roost.Level = Math.Max(Roost.Level, _syncedTowerLevel);
+            }
+
             if (_syncedCastleLevel >= _settings.EggUnlockCastleLevel &&
                 _eggJourneyPhase == DragonEggJourneyPhase.Locked)
             {
@@ -125,6 +140,9 @@ namespace Valgor.Dragons.Core
                 Persist();
             }
         }
+
+        public int GetMaxAllowedDragonLevel() =>
+            DragonProgressionRules.EffectiveMaxLevel(_syncedCastleLevel, _syncedTowerLevel);
 
         public string DescribeEggJourney()
         {
@@ -164,10 +182,13 @@ namespace Valgor.Dragons.Core
         public void Tick()
         {
             var now = _utcNow();
+            _energyDecayAccumulator++;
             foreach (var dragon in _dragons.Values.ToList())
             {
                 var previous = dragon.State;
+                var previousLevel = dragon.DragonLevel;
                 DragonCatalog.TryGet(dragon.DefinitionId, out var definition);
+                Progression.AdvanceTimers(dragon);
                 Recovery.Advance(
                     dragon,
                     now,
@@ -180,23 +201,34 @@ namespace Valgor.Dragons.Core
 
                 Growth.SyncWithLifecycle(dragon, previous, dragon.State);
                 Growth.TryAdvance(dragon);
+                Progression.ApplyStageFromLevel(dragon);
+
+                if (_energyDecayAccumulator >= 30 &&
+                    dragon.DragonLevel >= 1 &&
+                    !dragon.IsLevelingUp &&
+                    dragon.State is DragonState.Ready or DragonState.Resting)
+                {
+                    dragon.Energy = Math.Max(0, dragon.Energy - _settings.EnergyDecayPerTick);
+                }
 
                 if (previous == DragonState.Hatching && dragon.State == DragonState.Juvenile)
                 {
                     OnDragonBorn(dragon);
                 }
 
-                if (previous != dragon.State)
+                if (previous != dragon.State || previousLevel != dragon.DragonLevel)
                 {
                     Raise(dragon.InstanceId, previous, dragon.State);
                 }
             }
 
+            if (_energyDecayAccumulator >= 30)
+            {
+                _energyDecayAccumulator = 0;
+            }
+
             Persist();
         }
-
-        private bool CanCompleteHatch(DragonInstance dragon) =>
-            dragon.CareCount >= _settings.CareRequiredForHatch;
 
         private void OnDragonBorn(DragonInstance dragon)
         {
@@ -205,8 +237,15 @@ namespace Valgor.Dragons.Core
                 dragon.DragonLevel = 1;
             }
 
+            dragon.Energy = _settings.MaxEnergy;
+            dragon.Health = _settings.MaxHealth;
+            dragon.Experience = 0;
+            Progression.ApplyStageFromLevel(dragon);
             _eggJourneyPhase = DragonEggJourneyPhase.Born;
         }
+
+        private bool CanCompleteHatch(DragonInstance dragon) =>
+            dragon.CareCount >= _settings.CareRequiredForHatch;
 
         public int GetReadyDragonCount() =>
             _dragons.Values.Count(d => d.State == DragonState.Ready);
@@ -218,6 +257,7 @@ namespace Valgor.Dragons.Core
 
         public IReadOnlyList<DragonStatusInfo> GetDragonStatuses()
         {
+            var maxAllowed = GetMaxAllowedDragonLevel();
             var list = new List<DragonStatusInfo>(_dragons.Count);
             foreach (var pair in _dragons)
             {
@@ -226,37 +266,37 @@ namespace Valgor.Dragons.Core
                     continue;
                 }
 
+                var d = pair.Value;
+                var xpNeed = DragonProgressionRules.ExperienceRequiredForLevel(d.DragonLevel);
                 list.Add(new DragonStatusInfo(
                     pair.Key,
                     definition.DisplayName,
-                    pair.Value.State.ToString().ToUpperInvariant(),
-                    pair.Value.Hunger,
+                    d.IsLevelingUp ? "LEVELING" : d.State.ToString().ToUpperInvariant(),
+                    d.Hunger,
                     definition.MaxHunger,
-                    pair.Value.GrowthStage.ToString().ToUpperInvariant(),
-                    pair.Value.BondLevel,
-                    pair.Value.GrowthPoints,
-                    ResolveStamina(pair.Value),
-                    pair.Value.DragonLevel,
-                    pair.Value.CareCount,
-                    _settings.CareRequiredForHatch));
+                    d.GrowthStage.ToString().ToUpperInvariant(),
+                    d.BondLevel,
+                    d.GrowthPoints,
+                    ResolveStamina(d),
+                    d.DragonLevel,
+                    d.CareCount,
+                    _settings.CareRequiredForHatch,
+                    d.Experience,
+                    xpNeed,
+                    d.Energy,
+                    _settings.MaxEnergy,
+                    d.Health,
+                    _settings.MaxHealth,
+                    d.IsLevelingUp,
+                    d.PendingLevel,
+                    maxAllowed));
             }
 
             return list;
         }
 
-        private static int ResolveStamina(DragonInstance dragon) =>
-            dragon.State switch
-            {
-                DragonState.Ready or DragonState.Deployed => 100,
-                DragonState.Resting => 70,
-                DragonState.Hungry => 45,
-                DragonState.Recovering => 35,
-                DragonState.Exhausted or DragonState.Injured => 10,
-                DragonState.Juvenile => 55,
-                DragonState.Hatching => 20,
-                DragonState.Egg => 5,
-                _ => 0
-            };
+        private int ResolveStamina(DragonInstance dragon) =>
+            dragon.DragonLevel >= 1 ? dragon.Energy : 0;
 
         public bool TryAcceptEggMission(out string error)
         {
@@ -422,6 +462,12 @@ namespace Valgor.Dragons.Core
                 return false;
             }
 
+            if (dragon.IsLevelingUp)
+            {
+                error = "Aguarde a evolução/ritual concluir.";
+                return false;
+            }
+
             var previous = dragon.State;
             if (!Feeding.TryFeed(dragon, definition, _wallet, out error))
             {
@@ -430,6 +476,8 @@ namespace Valgor.Dragons.Core
 
             Bond.AddBondPoints(dragon, _settings.BondPointsPerFeed);
             Growth.AddGrowthPoints(dragon, _settings.GrowthPointsPerFeed);
+            Progression.AddExperience(dragon, _settings.ExperiencePerFeed);
+            Progression.ApplyFeedRestores(dragon);
             _persistWallet?.Invoke();
             Persist();
             Raise(dragonId, previous, dragon.State);
@@ -460,6 +508,12 @@ namespace Valgor.Dragons.Core
             if (!TryGet(dragonId, out var dragon))
             {
                 error = "Dragão não encontrado.";
+                return false;
+            }
+
+            if (dragon.IsLevelingUp)
+            {
+                error = "Dragão em evolução/ritual — não pode ser destacado.";
                 return false;
             }
 
@@ -625,7 +679,9 @@ namespace Valgor.Dragons.Core
                 SavedAtUtc = _utcNow(),
                 Roost = Roost,
                 EggJourneyPhase = _eggJourneyPhase,
-                SyncedCastleLevel = _syncedCastleLevel
+                SyncedCastleLevel = _syncedCastleLevel,
+                SyncedTowerLevel = _syncedTowerLevel,
+                PersistenceVersion = 5
             };
             foreach (var pair in _dragons)
             {
@@ -724,11 +780,113 @@ namespace Valgor.Dragons.Core
             var settings = new DragonSettings();
             var service = new DragonService(
                 settings,
-                repository ?? new DragonRepository(settings.PersistenceKey),
+                repository ?? new DragonRepository(settings.PersistenceKey, settings.LegacyPersistenceKey),
                 utcNow);
             service.BindWallet(wallet, persistWallet);
             service.LoadOrInitialize();
             return service;
+        }
+
+        public string DescribeDragonProgression(string dragonId)
+        {
+            if (!TryGet(dragonId, out var dragon) || dragon.DragonLevel < 1)
+            {
+                return DescribeEggJourney();
+            }
+
+            var max = GetMaxAllowedDragonLevel();
+            var next = dragon.DragonLevel + 1;
+            var xpNeed = DragonProgressionRules.ExperienceRequiredForLevel(dragon.DragonLevel);
+            var stage = dragon.GrowthStage.ToString().ToUpperInvariant();
+            if (dragon.IsLevelingUp)
+            {
+                var ritual = DragonProgressionRules.IsRitualTarget(dragon.PendingLevel);
+                var label = ritual
+                    ? DragonProgressionRules.RitualName(dragon.PendingLevel)
+                    : "Evolução";
+                var rem = dragon.LevelUpEndsAtUtc.HasValue
+                    ? Math.Max(0, (dragon.LevelUpEndsAtUtc.Value - _utcNow()).TotalMinutes)
+                    : 0;
+                return $"{label} → Nv.{dragon.PendingLevel} · restante ~{rem:0} min.";
+            }
+
+            if (dragon.DragonLevel >= DragonProgressionRules.AbsoluteMaxLevel)
+            {
+                return $"Nv.{dragon.DragonLevel} máximo · estágio {stage} · vínculo Nv.{dragon.BondLevel}";
+            }
+
+            var gate = next > max
+                ? $" Bloqueado no limite Nv.{max} (Castelo {_syncedCastleLevel}/Torre {_syncedTowerLevel})."
+                : string.Empty;
+            var ritualHint = DragonProgressionRules.IsRitualTarget(next)
+                ? $" Próximo: {DragonProgressionRules.RitualName(next)}."
+                : string.Empty;
+            return
+                $"Nv.{dragon.DragonLevel}/{max} · XP {dragon.Experience}/{xpNeed} · " +
+                $"energia {dragon.Energy}/{_settings.MaxEnergy} · saúde {dragon.Health}/{_settings.MaxHealth} · " +
+                $"vínculo Nv.{dragon.BondLevel} · {stage}.{ritualHint}{gate}";
+        }
+
+        public bool TryStartLevelUp(string dragonId, out string error)
+        {
+            if (_wallet == null)
+            {
+                error = "Carteira indisponível.";
+                return false;
+            }
+
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            var previousLevel = dragon.DragonLevel;
+            if (!Progression.TryStartLevelUp(dragon, GetMaxAllowedDragonLevel(), _wallet, out error))
+            {
+                return false;
+            }
+
+            _persistWallet?.Invoke();
+            Persist();
+            if (previousLevel != dragon.DragonLevel || previous != dragon.State)
+            {
+                Raise(dragonId, previous, dragon.State);
+            }
+
+            return true;
+        }
+
+        public bool TryInstantCompleteLevelUp(string dragonId, out string error)
+        {
+            if (_wallet == null)
+            {
+                error = "Carteira indisponível.";
+                return false;
+            }
+
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            var previousLevel = dragon.DragonLevel;
+            if (!Progression.TryInstantComplete(dragon, _wallet, out error))
+            {
+                return false;
+            }
+
+            _persistWallet?.Invoke();
+            Persist();
+            if (previousLevel != dragon.DragonLevel)
+            {
+                Raise(dragonId, previous, dragon.State);
+            }
+
+            return true;
         }
     }
 }

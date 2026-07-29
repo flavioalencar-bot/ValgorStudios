@@ -704,7 +704,11 @@ namespace Valgor.City.UI
                 return;
             }
 
-            _dragons.SyncCastleLevel(_city.GetCastleLevel());
+            _dragons.SyncBuildingLevels(
+                _city.GetCastleLevel(),
+                _city.TryGetBuildingByDefinitionId("dragon-tower", out var tower)
+                    ? Math.Max(1, tower.Level)
+                    : 1);
             var phase = _dragons.EggJourneyPhaseLabel;
             switch (phase)
             {
@@ -732,6 +736,8 @@ namespace Valgor.City.UI
                     break;
                 case "BORN":
                     AddPanelButton("Alimentar", ExecuteFeedDragon, enabled: _dragons.RoostOccupantCount > 0);
+                    AddPanelButton("Evoluir nível", ExecuteDragonLevelUp);
+                    AddPanelButton("Acelerar evolução", ExecuteDragonInstantLevelUp);
                     break;
             }
         }
@@ -830,6 +836,80 @@ namespace Valgor.City.UI
                 _feedback.text = error;
             }
 
+            _feedback.style.display = DisplayStyle.Flex;
+            _city.Persist();
+            RefreshCurrent();
+            if (_openPanelAction == BuildingContextAction.Open)
+            {
+                OpenActionPanel(BuildingContextAction.Open);
+            }
+        }
+
+        private void ExecuteDragonLevelUp()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            string? okName = null;
+            string lastError = "Nenhum dragão pode evoluir agora.";
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1 || status.IsLevelingUp)
+                {
+                    continue;
+                }
+
+                if (_dragons.TryStartLevelUp(status.DragonId, out var error))
+                {
+                    okName = status.DisplayName;
+                    break;
+                }
+
+                lastError = error;
+            }
+
+            _feedback.text = okName != null
+                ? $"{okName}: evolução iniciada."
+                : lastError;
+            _feedback.style.display = DisplayStyle.Flex;
+            _city.Persist();
+            RefreshCurrent();
+            if (_openPanelAction == BuildingContextAction.Open)
+            {
+                OpenActionPanel(BuildingContextAction.Open);
+            }
+        }
+
+        private void ExecuteDragonInstantLevelUp()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            string? okName = null;
+            string lastError = "Nenhuma evolução em andamento.";
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (!status.IsLevelingUp)
+                {
+                    continue;
+                }
+
+                if (_dragons.TryInstantCompleteLevelUp(status.DragonId, out var error))
+                {
+                    okName = status.DisplayName;
+                    break;
+                }
+
+                lastError = error;
+            }
+
+            _feedback.text = okName != null
+                ? $"{okName}: evolução acelerada!"
+                : lastError;
             _feedback.style.display = DisplayStyle.Flex;
             _city.Persist();
             RefreshCurrent();

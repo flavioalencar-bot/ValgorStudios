@@ -19,9 +19,13 @@ namespace Valgor.Core.Modules
 
         long GetDragonEssence();
 
+        long GetDiamonds();
+
         bool TrySpendFood(long amount);
 
         bool TrySpendDragonEssence(long amount);
+
+        bool TrySpendDiamonds(long amount);
     }
 
     /// <summary>
@@ -41,7 +45,16 @@ namespace Valgor.Core.Modules
             int stamina = 100,
             int dragonLevel = 0,
             int careCount = 0,
-            int careRequired = 0)
+            int careRequired = 0,
+            int experience = 0,
+            int experienceRequired = 0,
+            int energy = 0,
+            int maxEnergy = 100,
+            int health = 0,
+            int maxHealth = 100,
+            bool isLevelingUp = false,
+            int pendingLevel = 0,
+            int maxAllowedLevel = 30)
         {
             DragonId = dragonId;
             DisplayName = displayName;
@@ -55,6 +68,15 @@ namespace Valgor.Core.Modules
             DragonLevel = dragonLevel;
             CareCount = careCount;
             CareRequired = careRequired;
+            Experience = experience;
+            ExperienceRequired = experienceRequired;
+            Energy = energy;
+            MaxEnergy = maxEnergy;
+            Health = health;
+            MaxHealth = maxHealth;
+            IsLevelingUp = isLevelingUp;
+            PendingLevel = pendingLevel;
+            MaxAllowedLevel = maxAllowedLevel;
         }
 
         public string DragonId { get; }
@@ -69,6 +91,15 @@ namespace Valgor.Core.Modules
         public int DragonLevel { get; }
         public int CareCount { get; }
         public int CareRequired { get; }
+        public int Experience { get; }
+        public int ExperienceRequired { get; }
+        public int Energy { get; }
+        public int MaxEnergy { get; }
+        public int Health { get; }
+        public int MaxHealth { get; }
+        public bool IsLevelingUp { get; }
+        public int PendingLevel { get; }
+        public int MaxAllowedLevel { get; }
     }
 
     /// <summary>
@@ -125,6 +156,17 @@ namespace Valgor.Core.Modules
 
         /// <summary>Espelha nível do Castelo da City (chamado no tick da cidade).</summary>
         void SyncCastleLevel(int castleLevel);
+
+        /// <summary>Espelha níveis Castelo + Torre para caps Fase 2.</summary>
+        void SyncBuildingLevels(int castleLevel, int towerLevel);
+
+        int GetMaxAllowedDragonLevel();
+
+        string DescribeDragonProgression(string dragonId);
+
+        bool TryStartLevelUp(string dragonId, out string error);
+
+        bool TryInstantCompleteLevelUp(string dragonId, out string error);
 
         void Tick();
 

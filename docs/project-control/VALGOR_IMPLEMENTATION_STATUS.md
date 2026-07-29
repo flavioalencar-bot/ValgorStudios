@@ -63,6 +63,7 @@ Colunas Planejada / Código / Integrada / UI / Arte / Executável / Validada: **
 | Heroes | Combate completo | S | P | N | N | N | N | N | EM DESENVOLVIMENTO | Simulação especial | — |
 | Dragons | FSM ovo→adulto | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | dragons.v4 / Torre | Placeholder mesh |
 | Dragons | Fase 1 ovo/incubação | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | Castelo≥20 → Nv.1 | UI Torre |
+| Dragons | Fase 2 Nv.1→30 | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | dragons.v5 / rituais | Placeholder mesh |
 | Dragons | Alimentação / fome / stamina | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | DragonsController | — |
 | Dragons | Vínculo / evolução / recover | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | architecture/dragons.md | — |
 | Dragons | Deploy / combate | S | P | P | P | N | P | N | EM DESENVOLVIMENTO | Deploy flags | Combate mapa |

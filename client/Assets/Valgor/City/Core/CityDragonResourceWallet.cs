@@ -17,8 +17,12 @@ namespace Valgor.City.Core
 
         public long GetDragonEssence() => _wallet.Get(ResourceType.DragonEssence);
 
+        public long GetDiamonds() => _wallet.Get(ResourceType.Diamonds);
+
         public bool TrySpendFood(long amount) => _wallet.TrySpend(ResourceType.Food, amount);
 
         public bool TrySpendDragonEssence(long amount) => _wallet.TrySpend(ResourceType.DragonEssence, amount);
+
+        public bool TrySpendDiamonds(long amount) => _wallet.TrySpend(ResourceType.Diamonds, amount);
     }
 }

@@ -104,7 +104,7 @@ Ciclo de produto (arquitetura `docs/architecture/dragons.md`):
 
 desbloqueio → ovo → crescimento → alimentação → fome → stamina → vínculo → evolução → recuperação → deploy → combate → presença visual no mapa
 
-Persistência atual: `valgor.dragons.v4`. Fase 1: ovo via Castelo ≥ 20 → missão → conquista → incubação com cuidados → nascimento Nv.1 (`ember-whelp`). Catálogo: ember-whelp, ash-drake, portal-wyrm.
+Persistência atual: `valgor.dragons.v5` (migra v4). Fase 1: ovo → Nv.1. Fase 2: Nv.1→30 com XP, caps Castelo/Torre, rituais 6/11/16/21/26.
 
 ---
 

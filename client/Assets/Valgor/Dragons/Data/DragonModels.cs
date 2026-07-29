@@ -66,7 +66,8 @@ namespace Valgor.Dragons.Data
 
     public sealed class DragonSettings
     {
-        public string PersistenceKey { get; set; } = "valgor.dragons.v4";
+        public string PersistenceKey { get; set; } = "valgor.dragons.v5";
+        public string LegacyPersistenceKey { get; set; } = "valgor.dragons.v4";
         public string DefaultRoostId { get; set; } = "dragon-tower";
         public int DefaultRoostCapacity { get; set; } = 3;
         /// <summary>Beta Fase 1: incubação curta (~5 min) para ser jogável.</summary>
@@ -90,7 +91,7 @@ namespace Valgor.Dragons.Data
         public int BondPointsPerFeed { get; set; } = 5;
         public int BondPointsPerMission { get; set; } = 8;
         public int BondPointsPerLevel { get; set; } = 25;
-        public int MaxBondLevel { get; set; } = 5;
+        public int MaxBondLevel { get; set; } = 10;
         public int EvolutionMinBondLevel { get; set; } = 2;
         public DragonGrowthStage EvolutionMinGrowthStage { get; set; } = DragonGrowthStage.Adult;
 
@@ -101,6 +102,24 @@ namespace Valgor.Dragons.Data
         public double CareExtendsHatchHours { get; set; } = 0.04;
         public string FirstDragonInstanceId { get; set; } = "dragon-ember-1";
         public string FirstDragonDefinitionId { get; set; } = "ember-whelp";
+
+        /// <summary>Fase 2 — progressão Nv.1→30.</summary>
+        public int MaxDragonLevel { get; set; } = DragonProgressionRules.AbsoluteMaxLevel;
+        public int ExperiencePerFeed { get; set; } = 25;
+        public int MaxEnergy { get; set; } = 100;
+        public int MaxHealth { get; set; } = 100;
+        public int MinEnergyToLevelUp { get; set; } = 25;
+        public int MinHealthToLevelUp { get; set; } = 40;
+        public int EnergyRestorePerFeed { get; set; } = 15;
+        public int HealthRestorePerFeed { get; set; } = 8;
+        public int EnergyCostOnLevelUp { get; set; } = 10;
+        public int EnergyDecayPerTick { get; set; } = 1;
+        public long LevelUpFoodCost { get; set; } = 300;
+        public long LevelUpEssenceCost { get; set; } = 15;
+        public long RitualFoodCost { get; set; } = 800;
+        public long RitualEssenceCost { get; set; } = 40;
+        public double LevelUpDurationHours { get; set; } = 0.03;
+        public double RitualDurationHours { get; set; } = 0.08;
     }
 
     public sealed class DragonDefinition
@@ -164,10 +183,16 @@ namespace Valgor.Dragons.Data
         public int GrowthPoints { get; set; }
         public int BondLevel { get; set; }
         public int BondPoints { get; set; }
-        /// <summary>Nível do dragão (Fase 1: nasce Nv.1).</summary>
+        /// <summary>Nível do dragão (Fase 1: nasce Nv.1; Fase 2: até 30).</summary>
         public int DragonLevel { get; set; }
         /// <summary>Cuidados aplicados durante a incubação.</summary>
         public int CareCount { get; set; }
+        public int Experience { get; set; }
+        public int Energy { get; set; }
+        public int Health { get; set; }
+        public bool IsLevelingUp { get; set; }
+        public int PendingLevel { get; set; }
+        public DateTime? LevelUpEndsAtUtc { get; set; }
 
         public DragonInstance Clone() =>
             new(InstanceId, DefinitionId, State, Hunger, StateEndsAtUtc, AssignedMarchId, RoostId)
@@ -178,7 +203,13 @@ namespace Valgor.Dragons.Data
                 BondLevel = BondLevel,
                 BondPoints = BondPoints,
                 DragonLevel = DragonLevel,
-                CareCount = CareCount
+                CareCount = CareCount,
+                Experience = Experience,
+                Energy = Energy,
+                Health = Health,
+                IsLevelingUp = IsLevelingUp,
+                PendingLevel = PendingLevel,
+                LevelUpEndsAtUtc = LevelUpEndsAtUtc
             };
     }
 

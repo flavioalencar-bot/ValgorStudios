@@ -112,6 +112,26 @@ namespace Valgor.Core.Modules
         {
         }
 
+        public void SyncBuildingLevels(int castleLevel, int towerLevel)
+        {
+        }
+
+        public int GetMaxAllowedDragonLevel() => 0;
+
+        public string DescribeDragonProgression(string dragonId) => "Sistema de dragões indisponível.";
+
+        public bool TryStartLevelUp(string dragonId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryInstantCompleteLevelUp(string dragonId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
         public void Tick()
         {
         }

@@ -9,6 +9,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- **Dragão Fase 2 (Nv.1→30):** XP, caps Castelo/Torre, energia/saúde, rituais 6/11/16/21/26, timers, acelerador diamantes, persistência `valgor.dragons.v5` (migra v4); build `Valgor-QA-Dragon-Phase2`
+
+### Added
+
 - **Dragão Fase 1 (ovo e incubação):** Castelo Nv.20 desbloqueia conteúdo; missão/conquista/incubação com cuidados na Torre; nascimento Nv.1; persistência `valgor.dragons.v4`; testes `DragonFoundation` 20/0
 
 ### Added

@@ -45,7 +45,13 @@ namespace Valgor.City.Core
         {
             _dragons = dragons ?? throw new ArgumentNullException(nameof(dragons));
             _dragons.Changed += (_, __) => BuildingChanged?.Invoke();
-            _dragons.SyncCastleLevel(GetCastleLevel());
+            var towerLevel = 1;
+            if (TryGetBuildingByDefinitionId("dragon-tower", out var tower))
+            {
+                towerLevel = Math.Max(1, tower.Level);
+            }
+
+            _dragons.SyncBuildingLevels(GetCastleLevel(), towerLevel);
         }
 
         public void Add(BuildingSlot slot, BuildingInstance instance, BuildingDefinition definition, BuildingView view)
@@ -452,7 +458,13 @@ namespace Valgor.City.Core
             _economy.Tick.Update();
             if (_dragons != null)
             {
-                _dragons.SyncCastleLevel(GetCastleLevel());
+                var towerLevel = 1;
+                if (TryGetBuildingByDefinitionId("dragon-tower", out var tower))
+                {
+                    towerLevel = Math.Max(1, tower.Level);
+                }
+
+                _dragons.SyncBuildingLevels(GetCastleLevel(), towerLevel);
                 _dragons.Tick();
             }
 

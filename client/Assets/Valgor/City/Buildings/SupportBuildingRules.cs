@@ -114,6 +114,7 @@ namespace Valgor.City.Buildings
                 sb.AppendLine($"Jornada do ovo: {dragons.EggJourneyPhaseLabel}");
                 sb.AppendLine(dragons.DescribeEggJourney());
                 sb.AppendLine($"Desbloqueio: Castelo Nv.{dragons.EggUnlockCastleLevel}");
+                sb.AppendLine($"Limite de nível do dragão: Nv.{dragons.GetMaxAllowedDragonLevel()}");
             }
 
             sb.AppendLine($"Bônus de vínculo: +{GetDragonBondBonusPercent(lv)}%");
@@ -129,7 +130,17 @@ namespace Valgor.City.Buildings
                     var levelLabel = d.DragonLevel > 0 ? $"Nv.{d.DragonLevel}" : "ovo";
                     sb.Append(
                         $"{d.DisplayName} ({levelLabel}): {d.StateLabel} · fome {d.Hunger}/{d.MaxHunger}");
-                    if (d.CareRequired > 0 &&
+                    if (d.DragonLevel > 0)
+                    {
+                        sb.Append(
+                            $" · XP {d.Experience}/{d.ExperienceRequired} · energia {d.Energy}/{d.MaxEnergy} · " +
+                            $"saúde {d.Health}/{d.MaxHealth} · vínculo Nv.{d.BondLevel}");
+                        if (d.IsLevelingUp)
+                        {
+                            sb.Append($" · evoluindo→Nv.{d.PendingLevel}");
+                        }
+                    }
+                    else if (d.CareRequired > 0 &&
                         string.Equals(d.StateLabel, "HATCHING", StringComparison.OrdinalIgnoreCase))
                     {
                         sb.Append($" · cuidados {d.CareCount}/{d.CareRequired}");

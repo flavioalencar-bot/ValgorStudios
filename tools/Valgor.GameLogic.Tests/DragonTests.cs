@@ -17,9 +17,11 @@ public sealed class DragonFoundationTests
     {
         public long Food { get; set; }
         public long Essence { get; set; }
+        public long Diamonds { get; set; } = 10_000;
 
         public long GetFood() => Food;
         public long GetDragonEssence() => Essence;
+        public long GetDiamonds() => Diamonds;
 
         public bool TrySpendFood(long amount)
         {
@@ -40,6 +42,17 @@ public sealed class DragonFoundationTests
             }
 
             Essence -= amount;
+            return true;
+        }
+
+        public bool TrySpendDiamonds(long amount)
+        {
+            if (Diamonds < amount)
+            {
+                return false;
+            }
+
+            Diamonds -= amount;
             return true;
         }
     }
@@ -488,6 +501,110 @@ public sealed class DragonFoundationTests
         Assert.True(session.TryCancelMarch(out _));
         Assert.True(dragons.TryGet("dragon-ember-1", out var ember));
         Assert.Equal(DragonState.Recovering, ember.State);
+    }
+
+    [Fact]
+    public void Caps_CastleAndTowerLimitMaxLevel()
+    {
+        Assert.Equal(20, DragonProgressionRules.CapFromCastle(20));
+        Assert.Equal(30, DragonProgressionRules.CapFromCastle(35));
+        Assert.Equal(5, DragonProgressionRules.CapFromTower(1));
+        Assert.Equal(30, DragonProgressionRules.CapFromTower(15));
+        Assert.Equal(5, DragonProgressionRules.EffectiveMaxLevel(20, 1));
+        Assert.Equal(20, DragonProgressionRules.EffectiveMaxLevel(20, 10));
+        Assert.Equal(30, DragonProgressionRules.EffectiveMaxLevel(30, 15));
+    }
+
+    [Fact]
+    public void RitualTargets_AreTierBreakpoints()
+    {
+        Assert.True(DragonProgressionRules.IsRitualTarget(6));
+        Assert.True(DragonProgressionRules.IsRitualTarget(11));
+        Assert.True(DragonProgressionRules.IsRitualTarget(16));
+        Assert.True(DragonProgressionRules.IsRitualTarget(21));
+        Assert.True(DragonProgressionRules.IsRitualTarget(26));
+        Assert.False(DragonProgressionRules.IsRitualTarget(7));
+        Assert.Equal(DragonGrowthStage.Juvenile, DragonProgressionRules.StageForLevel(6));
+        Assert.Equal(DragonGrowthStage.Ancient, DragonProgressionRules.StageForLevel(26));
+    }
+
+    [Fact]
+    public void Phase2_FeedGrantsXpAndLevelUpCompletes()
+    {
+        var wallet = new FakeWallet { Food = 50_000, Essence = 5_000, Diamonds = 100 };
+        var service = CreateBornService(out var clock, wallet, advanceToReady: true);
+        service.SyncBuildingLevels(30, 15);
+        Assert.Equal(30, service.GetMaxAllowedDragonLevel());
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.Experience = DragonProgressionRules.ExperienceRequiredForLevel(1);
+        ember.Energy = 100;
+        ember.Health = 100;
+        Assert.True(service.TryStartLevelUp(ember.InstanceId, out var error), error);
+        Assert.True(ember.IsLevelingUp);
+        Assert.Equal(2, ember.PendingLevel);
+        clock.UtcNow = clock.UtcNow.AddHours(1);
+        service.Tick();
+        Assert.False(ember.IsLevelingUp);
+        Assert.Equal(2, ember.DragonLevel);
+        Assert.Equal(DragonGrowthStage.Hatchling, ember.GrowthStage);
+    }
+
+    [Fact]
+    public void Phase2_RitualAt6_AndInstantAccelerate()
+    {
+        var wallet = new FakeWallet { Food = 50_000, Essence = 5_000, Diamonds = 100 };
+        var service = CreateBornService(out var clock, wallet, advanceToReady: true);
+        service.SyncBuildingLevels(30, 15);
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.DragonLevel = 5;
+        ember.Experience = DragonProgressionRules.ExperienceRequiredForLevel(5);
+        ember.Energy = 100;
+        ember.Health = 100;
+        Assert.True(service.TryStartLevelUp(ember.InstanceId, out var error), error);
+        Assert.Equal(6, ember.PendingLevel);
+        Assert.Contains("Ritual", service.DescribeDragonProgression(ember.InstanceId), StringComparison.OrdinalIgnoreCase);
+        Assert.True(service.TryInstantCompleteLevelUp(ember.InstanceId, out error), error);
+        Assert.Equal(6, ember.DragonLevel);
+        Assert.Equal(DragonGrowthStage.Juvenile, ember.GrowthStage);
+        Assert.True(wallet.Diamonds < 100);
+    }
+
+    [Fact]
+    public void Phase2_BlockedByTowerCap()
+    {
+        var service = CreateBornService(out _, advanceToReady: true);
+        service.SyncBuildingLevels(30, 1); // max 5
+        Assert.Equal(5, service.GetMaxAllowedDragonLevel());
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.DragonLevel = 5;
+        ember.Experience = 9999;
+        ember.Energy = 100;
+        ember.Health = 100;
+        Assert.False(service.TryStartLevelUp(ember.InstanceId, out var error));
+        Assert.Contains("Limite", error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Phase2_PersistsXpEnergyHealthAcrossReload()
+    {
+        var repo = new MemoryDragonRepository();
+        var first = CreateBornService(out _, repository: repo, advanceToReady: true);
+        first.SyncBuildingLevels(25, 10);
+        Assert.True(first.TryGet("dragon-ember-1", out var ember));
+        ember.DragonLevel = 4;
+        ember.Experience = 33;
+        ember.Energy = 77;
+        ember.Health = 88;
+        first.Persist();
+
+        var second = new DragonService(new DragonSettings(), repo, () => DateTime.UtcNow);
+        second.BindWallet(new FakeWallet { Food = 1000, Essence = 100 });
+        second.LoadOrInitialize();
+        Assert.True(second.TryGet("dragon-ember-1", out var loaded));
+        Assert.Equal(4, loaded.DragonLevel);
+        Assert.Equal(33, loaded.Experience);
+        Assert.Equal(77, loaded.Energy);
+        Assert.Equal(88, loaded.Health);
     }
 
     private sealed class ManualWorldMapClock : IWorldMapClock

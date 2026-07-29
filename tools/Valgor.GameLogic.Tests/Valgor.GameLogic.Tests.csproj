@@ -85,6 +85,7 @@
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\ProvisionalDragonGateway.cs" Link="GameCore\ProvisionalDragonGateway.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Core\CityDragonResourceWallet.cs" Link="City\CityDragonResourceWallet.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Data\DragonModels.cs" Link="Dragons\DragonModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\Dragons\Data\DragonProgressionRules.cs" Link="Dragons\DragonProgressionRules.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Core\DragonStateMachine.cs" Link="Dragons\DragonStateMachine.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Core\DragonRepository.cs" Link="Dragons\DragonRepository.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Core\DragonService.cs" Link="Dragons\DragonService.cs" />
@@ -95,5 +96,6 @@
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Growth\DragonGrowthService.cs" Link="Dragons\DragonGrowthService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Growth\DragonBondService.cs" Link="Dragons\DragonBondService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Growth\DragonEvolutionService.cs" Link="Dragons\DragonEvolutionService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\Dragons\Growth\DragonProgressionService.cs" Link="Dragons\DragonProgressionService.cs" />
   </ItemGroup>
 </Project>
