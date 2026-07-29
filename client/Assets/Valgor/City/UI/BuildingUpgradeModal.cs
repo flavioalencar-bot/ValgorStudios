@@ -101,6 +101,7 @@ namespace Valgor.City.UI
 
         public void Hide()
         {
+            BuildingUpgradeUxTheme.StopPreview();
             _backdrop.style.display = DisplayStyle.None;
             _root.style.display = DisplayStyle.None;
             _header.Clear();
@@ -111,6 +112,7 @@ namespace Valgor.City.UI
 
         public void HideWithoutCallback()
         {
+            BuildingUpgradeUxTheme.StopPreview();
             _backdrop.style.display = DisplayStyle.None;
             _root.style.display = DisplayStyle.None;
             _header.Clear();
@@ -131,7 +133,10 @@ namespace Valgor.City.UI
             top.style.flexDirection = FlexDirection.Row;
             top.style.alignItems = Align.FlexStart;
 
-            top.Add(BuildingUpgradeUxTheme.CreatePreviewBlock(model.PreviewLabel));
+            top.Add(BuildingUpgradeUxTheme.CreatePreviewHost(
+                model.PreviewLabel,
+                model.BuildingId,
+                model.CurrentLevel));
 
             var titles = new VisualElement();
             titles.style.flexGrow = 1;
@@ -179,21 +184,7 @@ namespace Valgor.City.UI
 
             if (!model.IsMaxLevel)
             {
-                var benefitBox = new VisualElement();
-                benefitBox.style.backgroundColor = BuildingUpgradeUxTheme.ScrollInner;
-                benefitBox.style.paddingLeft = 10;
-                benefitBox.style.paddingRight = 10;
-                benefitBox.style.paddingTop = 8;
-                benefitBox.style.paddingBottom = 8;
-                benefitBox.style.marginBottom = 10;
-                benefitBox.style.borderTopWidth = 1;
-                benefitBox.style.borderBottomWidth = 1;
-                benefitBox.style.borderLeftWidth = 1;
-                benefitBox.style.borderRightWidth = 1;
-                benefitBox.style.borderTopColor = BetaVisualTheme.DeepBlue;
-                benefitBox.style.borderBottomColor = BetaVisualTheme.DeepBlue;
-                benefitBox.style.borderLeftColor = BetaVisualTheme.DeepBlue;
-                benefitBox.style.borderRightColor = BetaVisualTheme.DeepBlue;
+                var benefitBox = BuildingUpgradeUxTheme.CreateBenefitBox();
 
                 var benefitTitle = new Label(model.BenefitTitle);
                 benefitTitle.style.color = BetaVisualTheme.AgedGold;
@@ -206,13 +197,13 @@ namespace Valgor.City.UI
                 values.style.marginTop = 4;
                 var cur = new Label(model.CurrentBenefit);
                 cur.style.color = BetaVisualTheme.TextPrimary;
-                cur.style.fontSize = 14;
+                cur.style.fontSize = 15;
                 values.Add(cur);
                 if (!string.IsNullOrEmpty(model.BenefitIncrease))
                 {
                     var inc = new Label($"  {model.BenefitIncrease}");
                     inc.style.color = BetaVisualTheme.Success;
-                    inc.style.fontSize = 14;
+                    inc.style.fontSize = 15;
                     inc.style.unityFontStyleAndWeight = FontStyle.Bold;
                     values.Add(inc);
                 }
@@ -228,7 +219,7 @@ namespace Valgor.City.UI
                 _body.Add(benefitBox);
             }
 
-            _body.Add(SectionTitle("Pré-requisitos"));
+            _body.Add(BuildingUpgradeUxTheme.SectionTitle("Pré-requisitos"));
             if (model.Requirements.Count == 0)
             {
                 _body.Add(Muted("Nenhum pré-requisito adicional."));
@@ -241,7 +232,7 @@ namespace Valgor.City.UI
                 }
             }
 
-            _body.Add(SectionTitle("Recursos"));
+            _body.Add(BuildingUpgradeUxTheme.SectionTitle("Recursos"));
             if (model.IsMaxLevel)
             {
                 _body.Add(Muted("Nível máximo atingido."));
@@ -324,30 +315,16 @@ namespace Valgor.City.UI
 
         private VisualElement BuildRequirementRow(BuildingRequirementView req)
         {
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.marginTop = 4;
-            row.style.paddingLeft = 8;
-            row.style.paddingRight = 8;
-            row.style.paddingTop = 6;
-            row.style.paddingBottom = 6;
-            row.style.backgroundColor = req.IsSatisfied
-                ? BuildingUpgradeUxTheme.RowOk
-                : BuildingUpgradeUxTheme.RowBlocked;
-
-            var icon = new Label("🏛");
-            icon.style.fontSize = 14;
-            icon.style.marginRight = 6;
-            icon.style.color = BetaVisualTheme.AgedGold;
-            row.Add(icon);
+            var row = BuildingUpgradeUxTheme.CreateStatusRow(req.IsSatisfied);
+            row.Add(ValgorUiIcons.CreateIconElement(ValgorUiIcons.ForBuildingRequirement(), 24f));
 
             var texts = new VisualElement();
             texts.style.flexGrow = 1;
             texts.style.flexShrink = 1;
             var name = new Label(req.DisplayName);
             name.style.color = BetaVisualTheme.TextPrimary;
-            name.style.fontSize = 12;
+            name.style.fontSize = 13;
+            name.style.unityFontStyleAndWeight = FontStyle.Bold;
             texts.Add(name);
             var detail = new Label(
                 req.RequiredLevel > 0
@@ -360,7 +337,7 @@ namespace Valgor.City.UI
 
             var mark = new Label(req.IsSatisfied ? "✓" : "✗");
             mark.style.color = req.IsSatisfied ? BetaVisualTheme.Success : BetaVisualTheme.Danger;
-            mark.style.fontSize = 14;
+            mark.style.fontSize = 15;
             mark.style.unityFontStyleAndWeight = FontStyle.Bold;
             mark.style.marginLeft = 6;
             row.Add(mark);
@@ -387,26 +364,12 @@ namespace Valgor.City.UI
 
         private VisualElement BuildResourceRow(ResourceRequirementView res)
         {
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.marginTop = 4;
-            row.style.paddingLeft = 8;
-            row.style.paddingRight = 8;
-            row.style.paddingTop = 6;
-            row.style.paddingBottom = 6;
-            row.style.backgroundColor = res.IsSatisfied
-                ? BuildingUpgradeUxTheme.RowOk
-                : BuildingUpgradeUxTheme.RowBlocked;
-
-            var icon = new Label(ResourceGlyph(res.ResourceId));
-            icon.style.fontSize = 14;
-            icon.style.marginRight = 6;
-            row.Add(icon);
+            var row = BuildingUpgradeUxTheme.CreateStatusRow(res.IsSatisfied);
+            row.Add(ValgorUiIcons.CreateResourceChip(res.ResourceId, 24f));
 
             var name = new Label(res.DisplayName);
             name.style.color = BetaVisualTheme.TextPrimary;
-            name.style.fontSize = 12;
+            name.style.fontSize = 13;
             name.style.flexGrow = 1;
             row.Add(name);
 
@@ -417,6 +380,7 @@ namespace Valgor.City.UI
             amounts.style.color = res.IsSatisfied ? BetaVisualTheme.Success : BetaVisualTheme.Danger;
             amounts.style.fontSize = 12;
             amounts.style.marginRight = 8;
+            amounts.style.unityFontStyleAndWeight = FontStyle.Bold;
             row.Add(amounts);
 
             if (!res.IsSatisfied)
@@ -439,17 +403,6 @@ namespace Valgor.City.UI
             return row;
         }
 
-        private static Label SectionTitle(string text)
-        {
-            var label = new Label(text);
-            label.style.color = BetaVisualTheme.AgedGold;
-            label.style.fontSize = 13;
-            label.style.unityFontStyleAndWeight = FontStyle.Bold;
-            label.style.marginTop = 8;
-            label.style.marginBottom = 2;
-            return label;
-        }
-
         private static Label Muted(string text)
         {
             var label = new Label(text);
@@ -458,17 +411,5 @@ namespace Valgor.City.UI
             label.style.marginTop = 2;
             return label;
         }
-
-        private static string ResourceGlyph(ResourceType type) => type switch
-        {
-            ResourceType.Gold => "◆",
-            ResourceType.Food => "❀",
-            ResourceType.Wood => "♣",
-            ResourceType.Stone => "▲",
-            ResourceType.Iron => "⬢",
-            ResourceType.DragonEssence => "✧",
-            ResourceType.Diamonds => "◇",
-            _ => "•"
-        };
     }
 }

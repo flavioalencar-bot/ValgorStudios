@@ -150,6 +150,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI pasta visual polish: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildUpgradeVisualCli</summary>
+        public static void BuildUpgradeVisualCli()
+        {
+            var report = Build("Valgor-QA-Building-Upgrade-Visual");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Building Upgrade Visual Build OK: {GetOutputExe("Valgor-QA-Building-Upgrade-Visual")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Upgrade Visual Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

@@ -107,6 +107,7 @@ namespace Valgor.City.UI
             header.style.flexDirection = FlexDirection.Row;
             header.style.alignItems = Align.Center;
             header.style.flexShrink = 0;
+            header.Add(ValgorUiIcons.CreateResourceChip(_resource, 36f));
 
             var titles = new VisualElement();
             titles.style.flexGrow = 1;
@@ -156,10 +157,7 @@ namespace Valgor.City.UI
             scroll.style.minHeight = 120;
             scroll.style.marginTop = 10;
 
-            var sourcesTitle = new Label("Fontes no inventário");
-            sourcesTitle.style.color = BetaVisualTheme.AgedGold;
-            sourcesTitle.style.fontSize = 13;
-            sourcesTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
+            var sourcesTitle = BuildingUpgradeUxTheme.SectionTitle("Fontes no inventário");
             scroll.Add(sourcesTitle);
 
             var stacks = inventory.GetStacksFor(_resource);
@@ -244,15 +242,9 @@ namespace Valgor.City.UI
 
         private VisualElement BuildItemRow(ResourceItemStack stack)
         {
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.marginTop = 5;
-            row.style.paddingLeft = 8;
-            row.style.paddingRight = 8;
-            row.style.paddingTop = 6;
-            row.style.paddingBottom = 6;
+            var row = BuildingUpgradeUxTheme.CreateStatusRow(true);
             row.style.backgroundColor = BuildingUpgradeUxTheme.RowBg;
+            row.Add(ValgorUiIcons.CreateResourceChip(stack.ResourceId, 22f));
 
             var texts = new VisualElement();
             texts.style.flexGrow = 1;
@@ -260,6 +252,7 @@ namespace Valgor.City.UI
             var name = new Label(stack.Definition.DisplayName);
             name.style.color = BetaVisualTheme.TextPrimary;
             name.style.fontSize = 12;
+            name.style.unityFontStyleAndWeight = FontStyle.Bold;
             texts.Add(name);
             var meta = new Label(
                 $"×{stack.Quantity}  ·  +{BuildingUpgradePresentationBuilder.FormatAmount(stack.Value)} cada");

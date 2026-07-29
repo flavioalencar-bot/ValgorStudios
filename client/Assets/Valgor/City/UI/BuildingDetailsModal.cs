@@ -44,7 +44,10 @@ namespace Valgor.City.UI
             header.style.flexDirection = FlexDirection.Row;
             header.style.alignItems = Align.FlexStart;
             header.style.flexShrink = 0;
-            header.Add(BuildingUpgradeUxTheme.CreatePreviewBlock(model.PreviewLabel));
+            header.Add(BuildingUpgradeUxTheme.CreatePreviewHost(
+                model.PreviewLabel,
+                model.BuildingId,
+                model.Level));
 
             var titles = new VisualElement();
             titles.style.flexGrow = 1;
@@ -79,11 +82,7 @@ namespace Valgor.City.UI
 
             if (!string.IsNullOrEmpty(model.Function))
             {
-                var fnTitle = new Label("Função");
-                fnTitle.style.color = BetaVisualTheme.AgedGold;
-                fnTitle.style.fontSize = 13;
-                fnTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
-                scroll.Add(fnTitle);
+                scroll.Add(BuildingUpgradeUxTheme.SectionTitle("Função"));
                 var fn = new Label(model.Function);
                 fn.style.color = BetaVisualTheme.TextPrimary;
                 fn.style.fontSize = 13;
@@ -92,23 +91,21 @@ namespace Valgor.City.UI
                 scroll.Add(fn);
             }
 
-            var attrTitle = new Label("Atributos");
-            attrTitle.style.color = BetaVisualTheme.AgedGold;
-            attrTitle.style.fontSize = 13;
-            attrTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
-            scroll.Add(attrTitle);
+            scroll.Add(BuildingUpgradeUxTheme.SectionTitle("Atributos"));
 
             foreach (var attr in model.Attributes)
             {
                 var row = new VisualElement();
                 row.style.flexDirection = FlexDirection.Row;
                 row.style.justifyContent = Justify.SpaceBetween;
-                row.style.marginTop = 3;
-                row.style.paddingLeft = 8;
-                row.style.paddingRight = 8;
-                row.style.paddingTop = 5;
-                row.style.paddingBottom = 5;
+                row.style.marginTop = 4;
+                row.style.paddingLeft = 10;
+                row.style.paddingRight = 10;
+                row.style.paddingTop = 6;
+                row.style.paddingBottom = 6;
                 row.style.backgroundColor = BuildingUpgradeUxTheme.RowBg;
+                row.style.borderLeftWidth = 2;
+                row.style.borderLeftColor = BuildingUpgradeUxTheme.FrameOuter;
                 var l = new Label(attr.Label);
                 l.style.color = BetaVisualTheme.TextMuted;
                 l.style.fontSize = 12;
@@ -116,7 +113,7 @@ namespace Valgor.City.UI
                 row.Add(l);
                 var v = new Label(attr.Value);
                 v.style.color = BetaVisualTheme.TextPrimary;
-                v.style.fontSize = 12;
+                v.style.fontSize = 13;
                 v.style.unityFontStyleAndWeight = FontStyle.Bold;
                 row.Add(v);
                 scroll.Add(row);
@@ -124,12 +121,7 @@ namespace Valgor.City.UI
 
             if (!string.IsNullOrEmpty(model.Narrative))
             {
-                var narTitle = new Label("Descrição");
-                narTitle.style.color = BetaVisualTheme.AgedGold;
-                narTitle.style.fontSize = 13;
-                narTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
-                narTitle.style.marginTop = 10;
-                scroll.Add(narTitle);
+                scroll.Add(BuildingUpgradeUxTheme.SectionTitle("Descrição"));
                 var nar = new Label(model.Narrative);
                 nar.style.color = BetaVisualTheme.TextPrimary;
                 nar.style.fontSize = 12;
@@ -168,6 +160,7 @@ namespace Valgor.City.UI
 
         public void Hide()
         {
+            BuildingUpgradeUxTheme.StopPreview();
             _backdrop.style.display = DisplayStyle.None;
             _root.style.display = DisplayStyle.None;
             _root.Clear();
@@ -176,6 +169,7 @@ namespace Valgor.City.UI
 
         public void HideWithoutCallback()
         {
+            BuildingUpgradeUxTheme.StopPreview();
             _backdrop.style.display = DisplayStyle.None;
             _root.style.display = DisplayStyle.None;
             _root.Clear();

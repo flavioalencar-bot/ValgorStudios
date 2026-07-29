@@ -91,12 +91,17 @@ namespace Valgor.City.UI
         private void Rebuild(AutoRefillPlan plan)
         {
             _root.Clear();
+            var titleRow = new VisualElement();
+            titleRow.style.flexDirection = FlexDirection.Row;
+            titleRow.style.alignItems = Align.Center;
+            titleRow.style.flexShrink = 0;
+            titleRow.Add(ValgorUiIcons.CreateResourceChip(plan.ResourceId, 28f));
             var title = new Label("Reabastecimento automático");
             title.style.color = BetaVisualTheme.AgedGoldBright;
             title.style.fontSize = 17;
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            title.style.flexShrink = 0;
-            _root.Add(title);
+            titleRow.Add(title);
+            _root.Add(titleRow);
 
             var subtitle = new Label(
                 $"Completar {BuildingUpgradePresentationBuilder.FriendlyResource(plan.ResourceId)} " +
@@ -114,23 +119,14 @@ namespace Valgor.City.UI
             scroll.style.minHeight = 80;
             scroll.style.marginTop = 10;
 
-            var listTitle = new Label("Itens que serão consumidos");
-            listTitle.style.color = BetaVisualTheme.AgedGold;
-            listTitle.style.fontSize = 13;
-            listTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
+            var listTitle = BuildingUpgradeUxTheme.SectionTitle("Itens que serão consumidos");
             scroll.Add(listTitle);
 
             foreach (var line in plan.Lines)
             {
-                var row = new VisualElement();
-                row.style.flexDirection = FlexDirection.Row;
-                row.style.justifyContent = Justify.SpaceBetween;
-                row.style.marginTop = 4;
-                row.style.paddingLeft = 8;
-                row.style.paddingRight = 8;
-                row.style.paddingTop = 5;
-                row.style.paddingBottom = 5;
+                var row = BuildingUpgradeUxTheme.CreateStatusRow(true);
                 row.style.backgroundColor = BuildingUpgradeUxTheme.RowBg;
+                row.Add(ValgorUiIcons.CreateResourceChip(plan.ResourceId, 20f));
                 var l = new Label($"{line.DisplayName} ×{line.Quantity}");
                 l.style.color = BetaVisualTheme.TextPrimary;
                 l.style.fontSize = 12;
@@ -139,6 +135,7 @@ namespace Valgor.City.UI
                 var v = new Label($"+{BuildingUpgradePresentationBuilder.FormatAmount(line.TotalValue)}");
                 v.style.color = BetaVisualTheme.Success;
                 v.style.fontSize = 12;
+                v.style.unityFontStyleAndWeight = FontStyle.Bold;
                 row.Add(v);
                 scroll.Add(row);
             }
