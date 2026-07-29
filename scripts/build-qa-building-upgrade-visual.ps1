@@ -110,8 +110,9 @@ if (-not $SkipAutoTest) {
   }
 
   Copy-Item (Join-Path $uxEvidence "*") $evidence -Force
-  "Building Upgrade Visual polish — mirrored from UX auto-test`n$(Get-Content $uxReport -Raw)" |
-    Set-Content $report -Encoding UTF8
+  $header = "Building Upgrade Visual polish - mirrored from UX auto-test"
+  $body = Get-Content $uxReport -Raw
+  Set-Content -Path $report -Value ($header + "`r`n" + $body) -Encoding UTF8
   Get-Content $report
   if (Select-String -Path $report -Pattern "\[FAIL\]" -Quiet) { exit 1 }
   Write-Host "AutoTest OK"
