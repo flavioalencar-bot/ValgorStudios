@@ -1,0 +1,35 @@
+City Progression QA AutoTest — smooth tier swap
+started=2026-07-29T18:53:34.5434155Z
+compiledIn=True active=True
+[start] level=1 (want 1) tierAttached=1 tierResolved=1 (want 1) OK
+evolve→5 expectTier=1
+[before-5to6] level=5 (want 5) tierAttached=1 tierResolved=1 (want 1) OK
+cross→6 expectTier=2
+[cross-5to6] level=6 (want 6) tierAttached=2 tierResolved=2 (want 2) OK
+[cross-5to6-camera] posΔ=0,0000 zoomΔ=0,0000 rotDot=1,00000 OK
+evolve→10 expectTier=2
+[before-10to11] level=10 (want 10) tierAttached=2 tierResolved=2 (want 2) OK
+cross→11 expectTier=3
+[cross-10to11] level=11 (want 11) tierAttached=3 tierResolved=3 (want 3) OK
+[cross-10to11-camera] posΔ=0,0000 zoomΔ=0,0000 rotDot=1,00000 OK
+evolve→15 expectTier=3
+[before-15to16] level=15 (want 15) tierAttached=3 tierResolved=3 (want 3) OK
+cross→16 expectTier=4
+[cross-15to16] level=16 (want 16) tierAttached=4 tierResolved=4 (want 4) OK
+[cross-15to16-camera] posΔ=0,0000 zoomΔ=0,0000 rotDot=1,00000 OK
+evolve→20 expectTier=4
+[before-20to21] level=20 (want 20) tierAttached=4 tierResolved=4 (want 4) OK
+cross→21 expectTier=5
+[cross-20to21] level=21 (want 21) tierAttached=5 tierResolved=5 (want 5) OK
+[cross-20to21-camera] posΔ=0,0000 zoomΔ=0,0000 rotDot=1,00000 OK
+evolve→25 expectTier=5
+[before-25to26] level=25 (want 25) tierAttached=5 tierResolved=5 (want 5) OK
+cross→26 expectTier=6
+[cross-25to26] level=26 (want 26) tierAttached=6 tierResolved=6 (want 6) OK
+[cross-25to26-camera] posΔ=0,0000 zoomΔ=0,0000 rotDot=1,00000 OK
+evolve→30 expectTier=6
+[tier6-nv30-max] level=30 (want 30) tierAttached=6 tierResolved=6 (want 6) OK
+[fast-to-12] level=12 (want 12) tierAttached=3 tierResolved=3 (want 3) OK
+[evolve-next-tier] level=16 (want 16) tierAttached=4 tierResolved=4 (want 4) OK
+[evolve-to-30] level=30 (want 30) tierAttached=6 tierResolved=6 (want 6) OK
+[reload] level=30 (want 30) tierAttached=6 tierResolved=6 (want 6) OK

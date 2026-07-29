@@ -27,6 +27,7 @@ $workDir = Split-Path $Exe
 # Builds polished / context-menu escrevem em context-menu-final-evidence;
 # builds QA base usam city-progression-qa-evidence.
 $evidenceCandidates = @(
+  "C:\Valgor_Studio\docs\releases\tier-swap-smooth-evidence",
   "C:\Valgor_Studio\docs\releases\context-menu-final-evidence",
   "C:\Valgor_Studio\docs\releases\city-progression-qa-evidence"
 )

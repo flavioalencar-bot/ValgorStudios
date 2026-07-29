@@ -181,6 +181,10 @@ namespace Valgor.City.UI
 
         private void OnBuildingChanged()
         {
+            EnsureCamera();
+            _cameraController?.SuppressFocus(0.85f);
+            _cameraController?.CancelFocus();
+
             var feedback = _city.LastUpgradeFeedback;
             if (!string.IsNullOrEmpty(feedback) &&
                 feedback.IndexOf("→ Nv.", StringComparison.Ordinal) >= 0)
@@ -235,14 +239,9 @@ namespace Valgor.City.UI
             if (refocusCamera)
             {
                 EnsureCamera();
-                float? ortho = null;
-                if (string.Equals(definition.Id, "castle", StringComparison.Ordinal))
-                {
-                    ortho = Valgor.City.Visual.CastleTierPresentation
-                        .ForBuildingLevel(building.Level).FocusOrthoSize;
-                }
-
-                _cameraController?.FocusOn(view.transform.position, 0.35f, ortho);
+                // Sem override de zoom — enquadramento por tier não deve alterar a câmera
+                // em seleção/upgrade (evita salto ao cruzar faixa).
+                _cameraController?.FocusOn(view.transform.position, 0.35f, orthographicSize: null);
             }
 
             var actions = BuildActions(building, definition);

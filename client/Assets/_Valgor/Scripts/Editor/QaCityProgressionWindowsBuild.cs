@@ -116,6 +116,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI pasta smooth: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildSmoothCli</summary>
+        public static void BuildSmoothCli()
+        {
+            var report = Build("Valgor-QA-City-Progression-Smooth");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA City Progression Smooth Build OK: {GetOutputExe("Valgor-QA-City-Progression-Smooth")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Smooth Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

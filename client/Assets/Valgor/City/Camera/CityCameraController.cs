@@ -22,10 +22,27 @@ namespace Valgor.City.Camera
         private bool _isPanning;
         private bool _dragExceededThreshold;
         private static float _suppressClickUntilUnscaled;
+        private float _suppressFocusUntilUnscaled;
+        private bool _poseLocked;
+        private PoseSnapshot _lockedPose;
 
         /// <summary>True se o último gesto foi arrasto de câmera — não selecionar prédio.</summary>
         public static bool ShouldSuppressBuildingClick =>
             Time.unscaledTime < _suppressClickUntilUnscaled;
+
+        public readonly struct PoseSnapshot
+        {
+            public PoseSnapshot(Vector3 position, Quaternion rotation, float orthographicSize)
+            {
+                Position = position;
+                Rotation = rotation;
+                OrthographicSize = orthographicSize;
+            }
+
+            public Vector3 Position { get; }
+            public Quaternion Rotation { get; }
+            public float OrthographicSize { get; }
+        }
 
         private void Awake()
         {
@@ -40,6 +57,12 @@ namespace Valgor.City.Camera
 
         private void Update()
         {
+            if (_poseLocked)
+            {
+                RestorePose(_lockedPose);
+                return;
+            }
+
             HandleMouse();
             HandleTouch();
         }
@@ -198,13 +221,62 @@ namespace Valgor.City.Camera
             _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize - amount, minZoom, maxZoom);
         }
 
-        public void FocusOn(Vector3 worldTarget, float duration = 0.35f, float? orthographicSize = null)
+        public PoseSnapshot CapturePose()
         {
-            if (_camera == null)
+            EnsureCamera();
+            return new PoseSnapshot(transform.position, transform.rotation, _camera.orthographicSize);
+        }
+
+        public void RestorePose(PoseSnapshot pose)
+        {
+            EnsureCamera();
+            CancelFocus();
+            transform.SetPositionAndRotation(pose.Position, pose.Rotation);
+            _camera.orthographicSize = Mathf.Clamp(pose.OrthographicSize, minZoom, maxZoom);
+        }
+
+        /// <summary>Congela pose (posição/rotação/zoom) até <see cref="UnlockPose"/>.</summary>
+        public void LockPose()
+        {
+            _lockedPose = CapturePose();
+            _poseLocked = true;
+            CancelFocus();
+        }
+
+        public void UnlockPose()
+        {
+            if (_poseLocked)
             {
-                _camera = GetComponent<UnityEngine.Camera>();
+                RestorePose(_lockedPose);
             }
 
+            _poseLocked = false;
+        }
+
+        public void SuppressFocus(float seconds = 0.6f)
+        {
+            _suppressFocusUntilUnscaled = Mathf.Max(
+                _suppressFocusUntilUnscaled,
+                Time.unscaledTime + Mathf.Max(0.05f, seconds));
+            CancelFocus();
+        }
+
+        public void CancelFocus()
+        {
+            _focusing = false;
+            _focusElapsed = 0f;
+        }
+
+        public void FocusOn(Vector3 worldTarget, float duration = 0.35f, float? orthographicSize = null)
+        {
+            if (_poseLocked || Time.unscaledTime < _suppressFocusUntilUnscaled)
+            {
+                return;
+            }
+
+            EnsureCamera();
+
+            // Zoom só muda se o caller pedir explicitamente — troca de tier nunca deve pedir.
             if (orthographicSize.HasValue)
             {
                 _camera.orthographicSize = Mathf.Clamp(orthographicSize.Value, minZoom, maxZoom);
@@ -218,6 +290,14 @@ namespace Valgor.City.Camera
             _focusDuration = Mathf.Max(0.05f, duration);
             _focusElapsed = 0f;
             _focusing = true;
+        }
+
+        private void EnsureCamera()
+        {
+            if (_camera == null)
+            {
+                _camera = GetComponent<UnityEngine.Camera>();
+            }
         }
 
         private Vector3 ProjectLookPointOnGround()
@@ -234,6 +314,12 @@ namespace Valgor.City.Camera
 
         private void LateUpdate()
         {
+            if (_poseLocked)
+            {
+                RestorePose(_lockedPose);
+                return;
+            }
+
             if (!_focusing)
             {
                 return;

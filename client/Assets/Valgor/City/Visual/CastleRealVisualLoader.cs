@@ -171,7 +171,11 @@ namespace Valgor.City.Visual
             return false;
         }
 
-        private static bool TryAttachExactTier(Transform visualRoot, int tier, out string detail)
+        /// <summary>
+        /// Anexa o tier pedido sob <paramref name="visualRoot"/> sem limpar irmãos.
+        /// Usado pela transição suave; colliders do asset são removidos para não afetar o root.
+        /// </summary>
+        public static bool TryAttachExactTier(Transform visualRoot, int tier, out string detail)
         {
             var key = ResourcesKeyForTier(tier);
             var prefab = Resources.Load<GameObject>(key);
@@ -194,6 +198,12 @@ namespace Valgor.City.Visual
             foreach (var col in instance.GetComponentsInChildren<Collider>(true))
             {
                 UnityEngine.Object.Destroy(col);
+            }
+
+            foreach (var body in instance.GetComponentsInChildren<Rigidbody>(true))
+            {
+                body.isKinematic = true;
+                body.detectCollisions = false;
             }
 
             detail =

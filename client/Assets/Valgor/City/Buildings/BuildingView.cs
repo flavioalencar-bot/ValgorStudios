@@ -73,6 +73,18 @@ namespace Valgor.City.Buildings
                 return;
             }
 
+            var cam = UnityEngine.Object.FindFirstObjectByType<Valgor.City.Camera.CityCameraController>();
+            var pose = cam?.CapturePose();
+            cam?.SuppressFocus(0.85f);
+            if (!animate)
+            {
+                cam?.LockPose();
+            }
+
+            var logicalPos = transform.position;
+            var logicalRot = transform.rotation;
+            var logicalScale = transform.localScale;
+
             if (!CastleRealVisualLoader.Sync(_visual, Instance.Level, animate, out var detail, out var deferred))
             {
                 Debug.LogWarning($"[Valgor.City] SyncCastleVisual failed: {detail}");
@@ -80,6 +92,19 @@ namespace Valgor.City.Buildings
                 {
                     CastleTierVisual.Build(_visual, Color.white, visualTier: 1);
                 }
+            }
+
+            transform.SetPositionAndRotation(logicalPos, logicalRot);
+            transform.localScale = logicalScale;
+
+            if (!animate)
+            {
+                if (pose.HasValue)
+                {
+                    cam?.RestorePose(pose.Value);
+                }
+
+                cam?.UnlockPose();
             }
 
             if (deferred)

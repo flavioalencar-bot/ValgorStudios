@@ -105,6 +105,20 @@ namespace Valgor.City.Qa
 
         public void RequestEvolvePlusOne() => StartSafe(EvolveCastleToLevel(GetCastleLevel() + 1));
 
+        /// <summary>
+        /// Força +1 no Castelo sem navegar para outros edifícios (teste de estabilidade de câmera).
+        /// </summary>
+        public bool ForceCastleOneLevelNoNavigate()
+        {
+            if (_city == null || !_city.TryGetBuildingByDefinitionId("castle", out var castle))
+            {
+                return false;
+            }
+
+            _city.TrySelectByDefinitionId("castle");
+            return TryForceOneUpgradeLevel(castle);
+        }
+
         public void RequestEvolveToNextTier()
         {
             var level = GetCastleLevel();
@@ -370,7 +384,7 @@ namespace Valgor.City.Qa
                 view.SetConstructionProgress(0f, string.Empty, false);
                 if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
                 {
-                    view.SyncCastleVisual(animate: !CityProgressionQa.IsActive);
+                    view.SyncCastleVisual(animate: true);
                 }
             }
 

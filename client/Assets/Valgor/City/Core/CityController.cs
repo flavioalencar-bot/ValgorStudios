@@ -148,7 +148,8 @@ namespace Valgor.City.Core
                 view.SetConstructionProgress(0f, string.Empty, false);
                 if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
                 {
-                    view.SyncCastleVisual(animate: !Valgor.Core.CityProgressionQa.IsActive);
+                    // Sempre anima a troca de filho visual; câmera fica travada na transição.
+                    view.SyncCastleVisual(animate: true);
                 }
             }
 
@@ -524,7 +525,7 @@ namespace Valgor.City.Core
                     view.SetConstructionProgress(0f, string.Empty, false);
                     if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
                     {
-                        view.SyncCastleVisual(animate: !Valgor.Core.CityProgressionQa.IsActive);
+                        view.SyncCastleVisual(animate: true);
                     }
                 }
 
