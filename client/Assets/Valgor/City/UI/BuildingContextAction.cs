@@ -15,7 +15,25 @@ namespace Valgor.City.UI
         Research,
         Open,
         Send,
-        Feed
+        Feed,
+        /// <summary>Gancho futuro de skins/decoração (placeholder UI).</summary>
+        Decoration
+    }
+
+    /// <summary>Ícone visual do botão circular (glyphs vetoriais simples).</summary>
+    public enum BuildingContextIcon
+    {
+        None,
+        Brush,
+        Info,
+        Upgrade,
+        Collect,
+        Open,
+        Feed,
+        Send,
+        Train,
+        Research,
+        Produce
     }
 
     public readonly struct BuildingContextActionInfo
@@ -24,17 +42,36 @@ namespace Valgor.City.UI
             BuildingContextAction action,
             string label,
             bool enabled,
-            string? disabledReason = null)
+            string? disabledReason = null,
+            BuildingContextIcon icon = BuildingContextIcon.None)
         {
             Action = action;
             Label = label ?? throw new ArgumentNullException(nameof(label));
             Enabled = enabled;
             DisabledReason = disabledReason;
+            Icon = icon == BuildingContextIcon.None ? ResolveDefaultIcon(action) : icon;
         }
 
         public BuildingContextAction Action { get; }
         public string Label { get; }
         public bool Enabled { get; }
         public string? DisabledReason { get; }
+        public BuildingContextIcon Icon { get; }
+
+        public static BuildingContextIcon ResolveDefaultIcon(BuildingContextAction action) =>
+            action switch
+            {
+                BuildingContextAction.Decoration => BuildingContextIcon.Brush,
+                BuildingContextAction.Details => BuildingContextIcon.Info,
+                BuildingContextAction.Upgrade => BuildingContextIcon.Upgrade,
+                BuildingContextAction.Collect => BuildingContextIcon.Collect,
+                BuildingContextAction.Open => BuildingContextIcon.Open,
+                BuildingContextAction.Feed => BuildingContextIcon.Feed,
+                BuildingContextAction.Send => BuildingContextIcon.Send,
+                BuildingContextAction.Train => BuildingContextIcon.Train,
+                BuildingContextAction.Research => BuildingContextIcon.Research,
+                BuildingContextAction.Produce => BuildingContextIcon.Produce,
+                _ => BuildingContextIcon.Info
+            };
     }
 }

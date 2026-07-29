@@ -83,6 +83,10 @@ namespace Valgor.UI
             yield return Capture("vis-07-building-selected");
             yield return Capture("art-02-castle");
             yield return Capture("city-castle-tier1");
+            yield return Capture("ctx-01-castle-menu-polish");
+            InvokeCityPresenter("DebugShowDecorationPlaceholder");
+            yield return new WaitForSecondsRealtime(0.9f);
+            yield return Capture("ctx-02-decoration-toast");
             if (TryForceCastleVisualLevel(26))
             {
                 yield return new WaitForSecondsRealtime(0.6f);

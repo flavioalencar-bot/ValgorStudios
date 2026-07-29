@@ -26,6 +26,7 @@ namespace Valgor.City.UI
         private readonly IDragonGateway? _dragons;
         private readonly VisualElement _panelRoot;
         private readonly BuildingContextMenu _contextMenu;
+        private readonly BuildingContextToast _toast;
         private readonly BuildingDetailsPanel _detailsPanel;
         private readonly VisualElement _actionPanel;
         private readonly Label _actionTitle;
@@ -51,6 +52,7 @@ namespace Valgor.City.UI
             _goToWorldMap = goToWorldMap;
 
             _contextMenu = new BuildingContextMenu(panelRoot);
+            _toast = new BuildingContextToast(panelRoot);
             _detailsPanel = new BuildingDetailsPanel(panelRoot);
             _actionPanel = BuildActionPanel(out _actionTitle, out _actionBodyHost, out _actionButtons, out _feedback);
             panelRoot.Add(_actionPanel);
@@ -123,6 +125,9 @@ namespace Valgor.City.UI
             _openPanelAction = BuildingContextAction.Upgrade;
             OpenActionPanel(BuildingContextAction.Upgrade);
         }
+
+        /// <summary>API de smoke: toast do gancho Decoração.</summary>
+        public void DebugShowDecorationPlaceholder() => ExecuteDecorationPlaceholder();
 
         /// <summary>API de smoke/QA: abre o painel Abrir/Dragões do selecionado.</summary>
         public void DebugOpenOpenPanel()
@@ -233,9 +238,9 @@ namespace Valgor.City.UI
                 _cameraController?.FocusOn(view.transform.position, 0.35f);
             }
 
-            var title = $"{definition.DisplayName}\nNv.{Math.Max(0, building.Level)}";
+            var title = $"{definition.DisplayName}  ·  Nv.{Math.Max(0, building.Level)}";
             var actions = BuildActions(building, definition);
-            _contextMenu.Show(title, actions, OnContextAction);
+            _contextMenu.Show(title, actions, OnContextAction, _openPanelAction);
             if (TryGetWorldAnchor(building, out var anchor) && _camera != null)
             {
                 _contextMenu.Reposition(
@@ -257,6 +262,7 @@ namespace Valgor.City.UI
             {
                 return new List<BuildingContextActionInfo>
                 {
+                    new(BuildingContextAction.Decoration, "Decoração", true),
                     new(BuildingContextAction.Details, "Detalhes", true),
                     UpgradeAction(building, definition)
                 };
@@ -387,14 +393,28 @@ namespace Valgor.City.UI
                 case BuildingContextAction.Send:
                     ExecuteSend();
                     break;
+                case BuildingContextAction.Decoration:
+                    ExecuteDecorationPlaceholder();
+                    break;
                 case BuildingContextAction.Details:
                 case BuildingContextAction.Open:
                 case BuildingContextAction.Upgrade:
                 default:
                     _openPanelAction = action;
+                    _contextMenu.SetSelectedAction(action);
                     OpenActionPanel(action);
                     break;
             }
+        }
+
+        private void ExecuteDecorationPlaceholder()
+        {
+            // Gancho futuro: BuildingDecorationCatalog.ListSkins(_current.DefinitionId)
+            _contextMenu.SetSelectedAction(BuildingContextAction.Decoration);
+            _toast.Show(Valgor.City.Decoration.BuildingDecorationCatalog.ComingSoonMessage);
+            Debug.Log(
+                $"[Valgor.City] decoration action id={Valgor.City.Decoration.BuildingDecorationCatalog.ActionId} " +
+                $"(placeholder — skins em breve)");
         }
 
         private void ExecuteFeedDragon()
@@ -976,6 +996,7 @@ namespace Valgor.City.UI
             {
                 BuildingContextAction.Details => $"Detalhes — {definition.DisplayName}",
                 BuildingContextAction.Upgrade => $"Atualizar — {definition.DisplayName}",
+                BuildingContextAction.Decoration => $"Decoração — {definition.DisplayName}",
                 BuildingContextAction.Open when string.Equals(definition.Id, "dragon-tower", StringComparison.Ordinal)
                     => $"Dragões — {definition.DisplayName}",
                 BuildingContextAction.Open => $"Abrir — {definition.DisplayName}",
