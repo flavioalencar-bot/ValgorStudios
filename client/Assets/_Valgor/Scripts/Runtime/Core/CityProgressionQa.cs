@@ -57,7 +57,8 @@ namespace Valgor.Core
                 }
 
                 _active = IsCompiledIn || HasFlag(CliFlag) || HasFlag(CliUpgradeUxTestFlag) ||
-                          HasFlag(CliResponsiveUiTestFlag);
+                          HasFlag(CliResponsiveUiTestFlag) ||
+                          HasFlag(DragonPhase2Qa.CliFlag) || HasFlag(DragonPhase2Qa.CliE2EFlag);
                 return _active.Value;
             }
         }
@@ -67,7 +68,7 @@ namespace Valgor.Core
             get
             {
                 _autoTest ??= IsActive && HasFlag(CliAutoTestFlag) && !HasFlag(CliUpgradeUxTestFlag) &&
-                              !HasFlag(CliResponsiveUiTestFlag);
+                              !HasFlag(CliResponsiveUiTestFlag) && !HasFlag(DragonPhase2Qa.CliE2EFlag);
                 return _autoTest.Value;
             }
         }

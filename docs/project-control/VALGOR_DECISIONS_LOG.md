@@ -32,6 +32,7 @@
 | D024 | 2026-07-27 | Pós-0.2.1 | Próximo foco = vertical slice **visual**; sem PvP/alianças/loja | Auditoria visual gap P2 | Não abrir novos sistemas de jogo nesta etapa | Supersedida em parte por D025 |
 | D025 | 2026-07-29 | Dragões Fase 1 | Jornada oficial do ovo: Castelo≥20 → missão → conquista → incubação+care → nascimento Nv.1; persistência `valgor.dragons.v4`; um dragão | City homologada; diferenciador Torre | Sem combate/PvP/montaria/múltiplos dragões | Vigente |
 | D026 | 2026-07-29 | Dragões Fase 2 | Progressão Nv.1→30 com XP, caps Castelo/Torre, rituais 6/11/16/21/26, energia/saúde, timers e acelerador; persistência `valgor.dragons.v5` (migra v4) | Continuação do módulo Dragão | UI Torre: Evoluir/Acelerar; sem combate completo | Vigente |
+| D027 | 2026-07-29 | Dragões Fase 2 P1 | Visuais por estágio data-driven (`DragonStageVisualConfig`), troca só ao concluir ritual, E2E Unity `-dragonPhase2E2E` Nv.1→30 | Fechamento P1 Fase 2 | Placeholders próprios até asset definitivo; sem Fase 3 | Vigente |
 
 ---
 

@@ -1,0 +1,114 @@
+Dragon Phase2 P1 E2E — Nv.1→30
+started=2026-07-29T22:47:36.4387433Z
+compiledIn=True e2e=True
+buildings → Castelo 30 / Torre 15 (cap 30)
+buildings result castle=30 tower=15 cap=30
+já nascido Nv.1
+shot=01-born-nv1
+visual born=Hatchling placeholder=True
+bond ok pre-lv2 Nv.10 pts=0
+visual after-2=Hatchling placeholder=True
+OK 1→2 stage=Filhote ritual=False
+bond ok pre-lv3 Nv.10 pts=0
+visual after-3=Hatchling placeholder=True
+OK 2→3 stage=Filhote ritual=False
+bond ok pre-lv4 Nv.10 pts=0
+visual after-4=Hatchling placeholder=True
+OK 3→4 stage=Filhote ritual=False
+bond ok pre-lv5 Nv.10 pts=0
+visual after-5=Hatchling placeholder=True
+OK 4→5 stage=Filhote ritual=False
+bond ok pre-lv6 Nv.10 pts=0
+shot=ritual-5-to-6-during
+visual ritual-during-6=Hatchling placeholder=True
+visual after-6=Young placeholder=True
+shot=after-nv6-Jovem
+OK 5→6 stage=Jovem ritual=True
+bond ok pre-lv7 Nv.10 pts=0
+visual after-7=Young placeholder=True
+OK 6→7 stage=Jovem ritual=False
+bond ok pre-lv8 Nv.10 pts=0
+visual after-8=Young placeholder=True
+OK 7→8 stage=Jovem ritual=False
+bond ok pre-lv9 Nv.10 pts=0
+visual after-9=Young placeholder=True
+OK 8→9 stage=Jovem ritual=False
+bond ok pre-lv10 Nv.10 pts=0
+visual after-10=Young placeholder=True
+OK 9→10 stage=Jovem ritual=False
+bond ok pre-lv11 Nv.10 pts=0
+shot=ritual-10-to-11-during
+visual ritual-during-11=Young placeholder=True
+visual after-11=Adolescent placeholder=True
+shot=after-nv11-Adolescente
+OK 10→11 stage=Adolescente ritual=True
+bond ok pre-lv12 Nv.10 pts=0
+visual after-12=Adolescent placeholder=True
+OK 11→12 stage=Adolescente ritual=False
+bond ok pre-lv13 Nv.10 pts=0
+visual after-13=Adolescent placeholder=True
+OK 12→13 stage=Adolescente ritual=False
+bond ok pre-lv14 Nv.10 pts=0
+visual after-14=Adolescent placeholder=True
+OK 13→14 stage=Adolescente ritual=False
+bond ok pre-lv15 Nv.10 pts=0
+visual after-15=Adolescent placeholder=True
+OK 14→15 stage=Adolescente ritual=False
+bond ok pre-lv16 Nv.10 pts=0
+shot=ritual-15-to-16-during
+visual ritual-during-16=Adolescent placeholder=True
+visual after-16=YoungAdult placeholder=True
+shot=after-nv16-Adulto jovem
+OK 15→16 stage=Adulto jovem ritual=True
+bond ok pre-lv17 Nv.10 pts=0
+visual after-17=YoungAdult placeholder=True
+OK 16→17 stage=Adulto jovem ritual=False
+bond ok pre-lv18 Nv.10 pts=0
+visual after-18=YoungAdult placeholder=True
+OK 17→18 stage=Adulto jovem ritual=False
+bond ok pre-lv19 Nv.10 pts=0
+visual after-19=YoungAdult placeholder=True
+OK 18→19 stage=Adulto jovem ritual=False
+bond ok pre-lv20 Nv.10 pts=0
+visual after-20=YoungAdult placeholder=True
+OK 19→20 stage=Adulto jovem ritual=False
+bond ok pre-lv21 Nv.10 pts=0
+shot=ritual-20-to-21-during
+visual ritual-during-21=YoungAdult placeholder=True
+visual after-21=Adult placeholder=True
+shot=after-nv21-Adulto
+OK 20→21 stage=Adulto ritual=True
+bond ok pre-lv22 Nv.10 pts=0
+visual after-22=Adult placeholder=True
+OK 21→22 stage=Adulto ritual=False
+bond ok pre-lv23 Nv.10 pts=0
+visual after-23=Adult placeholder=True
+OK 22→23 stage=Adulto ritual=False
+bond ok pre-lv24 Nv.10 pts=0
+visual after-24=Adult placeholder=True
+OK 23→24 stage=Adulto ritual=False
+bond ok pre-lv25 Nv.10 pts=0
+visual after-25=Adult placeholder=True
+OK 24→25 stage=Adulto ritual=False
+bond ok pre-lv26 Nv.10 pts=0
+shot=ritual-25-to-26-during
+visual ritual-during-26=Adult placeholder=True
+visual after-26=Ancestral placeholder=True
+shot=after-nv26-Ancestral
+OK 25→26 stage=Ancestral ritual=True
+bond ok pre-lv27 Nv.10 pts=0
+visual after-27=Ancestral placeholder=True
+OK 26→27 stage=Ancestral ritual=False
+bond ok pre-lv28 Nv.10 pts=0
+visual after-28=Ancestral placeholder=True
+OK 27→28 stage=Ancestral ritual=False
+bond ok pre-lv29 Nv.10 pts=0
+visual after-29=Ancestral placeholder=True
+OK 28→29 stage=Ancestral ritual=False
+bond ok pre-lv30 Nv.10 pts=0
+visual after-30=Ancestral placeholder=True
+shot=after-nv30-Ancestral
+OK 29→30 stage=Ancestral ritual=False
+visual nv30=Ancestral placeholder=True
+shot=99-nv30-ancestral
+PASS Nv.30 Ancestral

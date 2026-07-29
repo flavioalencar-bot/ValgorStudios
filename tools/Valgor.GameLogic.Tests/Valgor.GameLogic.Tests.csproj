@@ -79,6 +79,8 @@
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Camera\WorldMapBounds.cs" Link="WorldMap\WorldMapBounds.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Camera\WorldCameraPersistence.cs" Link="WorldMap\WorldCameraPersistence.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Simulation\WorldSimulationServices.cs" Link="WorldMap\WorldSimulationServices.cs" />
+    <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\CityProgressionQa.cs" Link="GameCore\CityProgressionQa.cs" />
+    <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\DragonPhase2Qa.cs" Link="GameCore\DragonPhase2Qa.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\IHeroesGateway.cs" Link="GameCore\IHeroesGateway.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\ProvisionalHeroesGateway.cs" Link="GameCore\ProvisionalHeroesGateway.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\IDragonModule.cs" Link="GameCore\IDragonModule.cs" />

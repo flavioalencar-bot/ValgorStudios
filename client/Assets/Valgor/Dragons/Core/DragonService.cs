@@ -274,7 +274,7 @@ namespace Valgor.Dragons.Core
                     d.IsLevelingUp ? "LEVELING" : d.State.ToString().ToUpperInvariant(),
                     d.Hunger,
                     definition.MaxHunger,
-                    d.GrowthStage.ToString().ToUpperInvariant(),
+                    DragonProgressionRules.StageDisplayName(d.GrowthStage),
                     d.BondLevel,
                     d.GrowthPoints,
                     ResolveStamina(d),
@@ -771,6 +771,21 @@ namespace Valgor.Dragons.Core
         private void Raise(string dragonId, DragonState previous, DragonState current) =>
             Changed?.Invoke(this, new DragonChangedEvent(dragonId, previous, current));
 
+        /// <summary>Notifica ouvintes (ninho/UI) após mutação direta em QA/debug.</summary>
+        public void NotifyChanged(string? dragonId = null)
+        {
+            if (!string.IsNullOrEmpty(dragonId) && TryGet(dragonId, out var one))
+            {
+                Raise(one.InstanceId, one.State, one.State);
+                return;
+            }
+
+            foreach (var pair in _dragons)
+            {
+                Raise(pair.Key, pair.Value.State, pair.Value.State);
+            }
+        }
+
         public static DragonService Create(
             IDragonResourceWallet? wallet = null,
             Action? persistWallet = null,
@@ -778,6 +793,7 @@ namespace Valgor.Dragons.Core
             Func<DateTime>? utcNow = null)
         {
             var settings = new DragonSettings();
+            ApplyQaTimingOverrides(settings);
             var service = new DragonService(
                 settings,
                 repository ?? new DragonRepository(settings.PersistenceKey, settings.LegacyPersistenceKey),
@@ -785,6 +801,28 @@ namespace Valgor.Dragons.Core
             service.BindWallet(wallet, persistWallet);
             service.LoadOrInitialize();
             return service;
+        }
+
+        private static void ApplyQaTimingOverrides(DragonSettings settings)
+        {
+            var cityQa = Valgor.Core.CityProgressionQa.IsActive;
+            var dragonE2E = Valgor.Core.DragonPhase2Qa.IsE2ETest ||
+                            Valgor.Core.DragonPhase2Qa.IsActive;
+            if (!cityQa && !dragonE2E)
+            {
+                return;
+            }
+
+            // Timers curtos para E2E jogável (ainda conclui por tempo real).
+            settings.LevelUpDurationHours = 2.0 / 3600.0;
+            settings.RitualDurationHours = 3.0 / 3600.0;
+            settings.HatchDurationHours = 2.5 / 3600.0;
+            settings.CareExtendsHatchHours = 0;
+
+            if (Valgor.Core.DragonPhase2Qa.IsE2ETest)
+            {
+                settings.PersistenceKey = Valgor.Core.DragonPhase2Qa.PersistenceKey;
+            }
         }
 
         public string DescribeDragonProgression(string dragonId)
@@ -797,7 +835,7 @@ namespace Valgor.Dragons.Core
             var max = GetMaxAllowedDragonLevel();
             var next = dragon.DragonLevel + 1;
             var xpNeed = DragonProgressionRules.ExperienceRequiredForLevel(dragon.DragonLevel);
-            var stage = dragon.GrowthStage.ToString().ToUpperInvariant();
+            var stage = DragonProgressionRules.StageDisplayName(dragon.GrowthStage);
             if (dragon.IsLevelingUp)
             {
                 var ritual = DragonProgressionRules.IsRitualTarget(dragon.PendingLevel);
@@ -807,7 +845,7 @@ namespace Valgor.Dragons.Core
                 var rem = dragon.LevelUpEndsAtUtc.HasValue
                     ? Math.Max(0, (dragon.LevelUpEndsAtUtc.Value - _utcNow()).TotalMinutes)
                     : 0;
-                return $"{label} → Nv.{dragon.PendingLevel} · restante ~{rem:0} min.";
+                return $"{label} → Nv.{dragon.PendingLevel} · restante ~{rem:0} min. · visual {stage}";
             }
 
             if (dragon.DragonLevel >= DragonProgressionRules.AbsoluteMaxLevel)
@@ -842,7 +880,6 @@ namespace Valgor.Dragons.Core
             }
 
             var previous = dragon.State;
-            var previousLevel = dragon.DragonLevel;
             if (!Progression.TryStartLevelUp(dragon, GetMaxAllowedDragonLevel(), _wallet, out error))
             {
                 return false;
@@ -850,11 +887,8 @@ namespace Valgor.Dragons.Core
 
             _persistWallet?.Invoke();
             Persist();
-            if (previousLevel != dragon.DragonLevel || previous != dragon.State)
-            {
-                Raise(dragonId, previous, dragon.State);
-            }
-
+            // Sempre notifica: visual/timer do ritual precisam refrescar sem troca antecipada.
+            Raise(dragonId, previous, dragon.State);
             return true;
         }
 

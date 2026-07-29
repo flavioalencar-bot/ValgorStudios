@@ -24,8 +24,11 @@ Nv.1 … Nv.30
 XP via alimentação
 Caps: Castelo + Torre dos Dragões
 Rituais ao atingir 6 / 11 / 16 / 21 / 26
-Estágios: Hatchling→Juvenile→Adult→Elder→Ancient
+Estágios visuais: Ovo → Filhote → Jovem → Adolescente → Adulto jovem → Adulto → Ancestral
 ```
+
+Catálogo: `DragonStageVisualConfig` / `DragonStageVisualCatalog` (placeholders substituíveis).  
+E2E: `-dragonPhase2E2E` → `docs/releases/dragon-phase2-p1-evidence/`
 
 | API | Papel |
 |-----|--------|

@@ -213,7 +213,9 @@ public sealed class DragonFoundationTests
         Assert.Contains(DragonGrowthStage.Adult, values);
         Assert.Contains(DragonGrowthStage.Elder, values);
         Assert.Contains(DragonGrowthStage.Ancient, values);
-        Assert.Equal(6, values.Length);
+        Assert.Contains(DragonGrowthStage.Adolescent, values);
+        Assert.Contains(DragonGrowthStage.YoungAdult, values);
+        Assert.Equal(8, values.Length);
     }
 
     [Fact]
@@ -525,7 +527,26 @@ public sealed class DragonFoundationTests
         Assert.True(DragonProgressionRules.IsRitualTarget(26));
         Assert.False(DragonProgressionRules.IsRitualTarget(7));
         Assert.Equal(DragonGrowthStage.Juvenile, DragonProgressionRules.StageForLevel(6));
+        Assert.Equal(DragonGrowthStage.Adolescent, DragonProgressionRules.StageForLevel(11));
+        Assert.Equal(DragonGrowthStage.YoungAdult, DragonProgressionRules.StageForLevel(16));
+        Assert.Equal(DragonGrowthStage.Adult, DragonProgressionRules.StageForLevel(21));
         Assert.Equal(DragonGrowthStage.Ancient, DragonProgressionRules.StageForLevel(26));
+        Assert.Equal(DragonVisualStage.Ancestral, DragonProgressionRules.VisualStageForLevel(26));
+        Assert.Equal("Ancestral", DragonProgressionRules.StageDisplayName(DragonGrowthStage.Ancient));
+        Assert.Equal("Adolescente", DragonProgressionRules.StageDisplayName(DragonGrowthStage.Adolescent));
+    }
+
+    [Fact]
+    public void VisualStages_MatchLevelBands()
+    {
+        Assert.Equal(DragonVisualStage.Egg, DragonProgressionRules.VisualStageForLevel(0));
+        Assert.Equal(DragonVisualStage.Hatchling, DragonProgressionRules.VisualStageForLevel(5));
+        Assert.Equal(DragonVisualStage.Young, DragonProgressionRules.VisualStageForLevel(6));
+        Assert.Equal(DragonVisualStage.Adolescent, DragonProgressionRules.VisualStageForLevel(11));
+        Assert.Equal(DragonVisualStage.YoungAdult, DragonProgressionRules.VisualStageForLevel(16));
+        Assert.Equal(DragonVisualStage.Adult, DragonProgressionRules.VisualStageForLevel(21));
+        Assert.Equal(DragonVisualStage.Ancestral, DragonProgressionRules.VisualStageForLevel(26));
+        Assert.Equal(DragonVisualStage.Ancestral, DragonProgressionRules.VisualStageForLevel(30));
     }
 
     [Fact]

@@ -214,7 +214,12 @@ namespace Valgor.City.Buildings
                         [2] = WithBuildings(2, new BuildingLevelRequirement("academy", 1, "Academia")),
                         [3] = WithBuildings(3, new BuildingLevelRequirement("academy", 1, "Academia")),
                         [4] = WithBuildings(4, new BuildingLevelRequirement("academy", 2, "Academia")),
-                        [5] = WithBuildings(5, new BuildingLevelRequirement("academy", 2, "Academia"))
+                        [5] = WithBuildings(5, new BuildingLevelRequirement("academy", 2, "Academia")),
+                        [6] = WithBuildings(6, new BuildingLevelRequirement("academy", 3, "Academia")),
+                        [8] = WithBuildings(8, new BuildingLevelRequirement("academy", 4, "Academia")),
+                        [10] = WithBuildings(10, new BuildingLevelRequirement("academy", 5, "Academia")),
+                        [12] = WithBuildings(12, new BuildingLevelRequirement("academy", 6, "Academia")),
+                        [15] = WithBuildings(15, new BuildingLevelRequirement("academy", 8, "Academia"))
                     })
             };
 

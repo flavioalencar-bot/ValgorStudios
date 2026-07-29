@@ -21,7 +21,9 @@ namespace Valgor.Dragons.Growth
                 DragonGrowthStage.Egg => 0.1,
                 DragonGrowthStage.Hatchling => 0.4,
                 DragonGrowthStage.Juvenile => 0.7,
-                DragonGrowthStage.Adult => 1.0,
+                DragonGrowthStage.Adolescent => 0.85,
+                DragonGrowthStage.YoungAdult => 1.1,
+                DragonGrowthStage.Adult => 1.25,
                 DragonGrowthStage.Elder => 1.25,
                 DragonGrowthStage.Ancient => 1.5,
                 _ => 1.0

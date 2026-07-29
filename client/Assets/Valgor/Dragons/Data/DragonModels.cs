@@ -39,6 +39,9 @@ namespace Valgor.Dragons.Data
 
     /// <summary>
     /// Estágio de crescimento (eixo separado do DragonState operacional).
+    /// Valores 0–5 preservados para save v5; Adolescent/YoungAdult anexados.
+    /// Faixas P1: Filhote 1–5, Jovem 6–10, Adolescente 11–15,
+    /// Adulto jovem 16–20, Adulto 21–25, Ancestral 26–30.
     /// </summary>
     public enum DragonGrowthStage
     {
@@ -47,7 +50,23 @@ namespace Valgor.Dragons.Data
         Juvenile = 2,
         Adult = 3,
         Elder = 4,
-        Ancient = 5
+        Ancient = 5,
+        Adolescent = 6,
+        YoungAdult = 7
+    }
+
+    /// <summary>
+    /// Estágios visuais P1 Fase 2 (Ovo → Ancestral).
+    /// </summary>
+    public enum DragonVisualStage
+    {
+        Egg = 0,
+        Hatchling = 1,
+        Young = 2,
+        Adolescent = 3,
+        YoungAdult = 4,
+        Adult = 5,
+        Ancestral = 6
     }
 
     public sealed class DragonChangedEvent : EventArgs

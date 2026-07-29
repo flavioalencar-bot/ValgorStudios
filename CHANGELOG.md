@@ -9,6 +9,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- **Dragão Fase 2 P1:** catálogo `DragonStageVisualConfig` (7 estágios), placeholders 3D próprios, troca estável no ritual, harness E2E `-dragonPhase2E2E`, evidências `dragon-phase2-p1-evidence`
+
+### Added
+
 - **Dragão Fase 2 (Nv.1→30):** XP, caps Castelo/Torre, energia/saúde, rituais 6/11/16/21/26, timers, acelerador diamantes, persistência `valgor.dragons.v5` (migra v4); build `Valgor-QA-Dragon-Phase2`
 
 ### Added

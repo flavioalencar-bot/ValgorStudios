@@ -79,16 +79,70 @@ namespace Valgor.Dragons.Data
 
             if (level < 16)
             {
-                return DragonGrowthStage.Adult;
+                return DragonGrowthStage.Adolescent;
             }
 
             if (level < 21)
             {
-                return DragonGrowthStage.Elder;
+                return DragonGrowthStage.YoungAdult;
+            }
+
+            if (level < 26)
+            {
+                return DragonGrowthStage.Adult;
             }
 
             return DragonGrowthStage.Ancient;
         }
+
+        public static DragonVisualStage VisualStageForLevel(int level)
+        {
+            if (level <= 0)
+            {
+                return DragonVisualStage.Egg;
+            }
+
+            if (level <= 5)
+            {
+                return DragonVisualStage.Hatchling;
+            }
+
+            if (level <= 10)
+            {
+                return DragonVisualStage.Young;
+            }
+
+            if (level <= 15)
+            {
+                return DragonVisualStage.Adolescent;
+            }
+
+            if (level <= 20)
+            {
+                return DragonVisualStage.YoungAdult;
+            }
+
+            if (level <= 25)
+            {
+                return DragonVisualStage.Adult;
+            }
+
+            return DragonVisualStage.Ancestral;
+        }
+
+        public static string StageDisplayName(DragonGrowthStage stage) =>
+            stage switch
+            {
+                DragonGrowthStage.Egg => "Ovo",
+                DragonGrowthStage.Hatchling => "Filhote",
+                DragonGrowthStage.Juvenile => "Jovem",
+                DragonGrowthStage.Adolescent => "Adolescente",
+                DragonGrowthStage.YoungAdult => "Adulto jovem",
+                DragonGrowthStage.Adult => "Adulto",
+                DragonGrowthStage.Elder => "Adulto jovem",
+                DragonGrowthStage.Ancient => "Ancestral",
+                _ => stage.ToString()
+            };
 
         public static string RitualName(int targetLevel) =>
             targetLevel switch

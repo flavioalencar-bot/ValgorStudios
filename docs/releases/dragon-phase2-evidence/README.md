@@ -21,7 +21,7 @@
 ## Caps
 
 - Castelo: `max = min(30, castleLevel)` (castle ≥ 20)
-- Torre: `max = min(30, 5 + (towerLevel-1)*2)`
+- Torre: `max = min(30, 5 + (towerLevel-1)*2)` — Torre **MaxLevel 15** (cap dragão 30)
 - Efetivo: `min(castelo, torre, 30)`
 
 ## Testes
@@ -34,11 +34,9 @@ dotnet test tools/Valgor.GameLogic.Tests --filter FullyQualifiedName~DragonFound
 ## P0 / P1
 
 - **P0:** progressão Nv.1→30 jogável na Torre (alimentar, evoluir, ritual, acelerar); save v5.
-- **P1:** polish visual por estágio; auto-teste Unity E2E até Nv.30 (não bloqueante).
+- **P1:** polish visual por estágio + auto-teste Unity E2E até Nv.30 — ver `docs/releases/dragon-phase2-p1-evidence/`.
 
 ## Limitações restantes
 
 - Sem combate completo / PvP / montaria / múltiplos dragões.
-- Mesh do dragão permanece placeholder.
-- Estágio visual 3D ainda não troca por ritual (só dados + UI texto).
-- QA build usa define de progressão City; smoke Fase 2 via testes + Torre manual.
+- Mesh definitivo do dragão ainda placeholder (próprio, diferenciado por estágio; substituível via catálogo).
