@@ -76,13 +76,17 @@ namespace Valgor.City.Qa
                 yield return new WaitForSecondsRealtime(0.55f);
                 yield return Capture("07-obtain-more");
 
+                // Fecha obter para o confirm ficar limpo, mantendo pending
                 AutoRefillConfirmModal.SkipConfirmThisSession = false;
                 presenter.DebugOpenAutoRefill();
-                yield return new WaitForSecondsRealtime(0.65f);
+                yield return new WaitForSecondsRealtime(0.8f);
                 yield return Capture("09-auto-refill");
+                yield return new WaitForSecondsRealtime(0.3f);
                 yield return Capture("10-auto-refill-confirm");
+                presenter.DebugConfirmAutoRefill();
+                yield return new WaitForSecondsRealtime(0.45f);
 
-                // Uso manual de pacote (nova falta controlada)
+                // Uso manual de pacote
                 _qa.SimulateResourceShortage(ResourceType.Wood, 50);
                 yield return new WaitForSecondsRealtime(0.2f);
                 presenter.DebugOpenObtainForResource(ResourceType.Wood);
@@ -90,9 +94,6 @@ namespace Valgor.City.Qa
                 presenter.DebugUseFirstInventoryItem();
                 yield return new WaitForSecondsRealtime(0.45f);
                 yield return Capture("08-use-pack");
-
-                presenter.DebugConfirmAutoRefill();
-                yield return new WaitForSecondsRealtime(0.4f);
 
                 _qa.TopUpNow();
                 yield return OpenUpgrade();

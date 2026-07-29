@@ -266,30 +266,43 @@ namespace Valgor.City.UI
 
         public void DebugOpenAutoRefill()
         {
+            AutoRefillConfirmModal.SkipConfirmThisSession = false;
             if (_pendingObtainResource == null)
             {
-                AutoRefillConfirmModal.SkipConfirmThisSession = false;
-                DebugOpenObtainForFirstMissing();
+                DebugOpenObtainForResource(ResourceType.Wood);
             }
 
+            // Evita o modal Obter cobrir a confirmação nas capturas.
+            _obtainModal.HideWithoutCallback();
             BeginAutoRefill();
         }
 
         public void DebugConfirmAutoRefill()
         {
-            if (_pendingObtainResource == null)
+            var resource = _pendingObtainResource?.ResourceId ?? ResourceType.Wood;
+            var required = _pendingObtainResource?.Required ?? 0;
+            if (_current != null)
             {
-                return;
+                foreach (var req in _city.GetUpgradeRequirements(_current))
+                {
+                    if (req.Resource == resource)
+                    {
+                        required = req.Required;
+                        break;
+                    }
+                }
             }
 
-            var resource = _pendingObtainResource.ResourceId;
-            var missing = Math.Max(0, _pendingObtainResource.Required - _city.Economy.Wallet.Get(resource));
+            var missing = Math.Max(0, required - _city.Economy.Wallet.Get(resource));
             var plan = AutoRefillPlanner.Plan(_inventory, resource, missing);
             plan.BeforeAmount = _city.Economy.Wallet.Get(resource);
             plan.AfterAmount = plan.BeforeAmount + plan.TotalObtained;
-            plan.RequiredAmount = _pendingObtainResource.Required;
+            plan.RequiredAmount = required;
             _autoRefillModal.Hide();
-            ApplyAutoRefill(plan);
+            if (plan.Lines.Length > 0)
+            {
+                ApplyAutoRefill(plan);
+            }
         }
 
         public void DebugConfirmUpgrade() => ExecuteUpgrade();
@@ -897,17 +910,36 @@ namespace Valgor.City.UI
 
         private void BeginAutoRefill()
         {
-            if (_pendingObtainResource == null)
+            if (_pendingObtainResource == null && _current == null)
             {
                 return;
             }
 
-            var resource = _pendingObtainResource.ResourceId;
-            var missing = Math.Max(0, _pendingObtainResource.Required - _city.Economy.Wallet.Get(resource));
+            var resource = _pendingObtainResource?.ResourceId ?? ResourceType.Wood;
+            var required = _pendingObtainResource?.Required ?? 0;
+            if (_current != null && required <= 0)
+            {
+                foreach (var req in _city.GetUpgradeRequirements(_current))
+                {
+                    if (req.Resource == resource)
+                    {
+                        required = req.Required;
+                        break;
+                    }
+                }
+            }
+
+            var missing = Math.Max(0, required - _city.Economy.Wallet.Get(resource));
+            if (missing <= 0)
+            {
+                _toast.Show("Recurso já suficiente.");
+                return;
+            }
+
             var plan = AutoRefillPlanner.Plan(_inventory, resource, missing);
             plan.BeforeAmount = _city.Economy.Wallet.Get(resource);
             plan.AfterAmount = plan.BeforeAmount + plan.TotalObtained;
-            plan.RequiredAmount = _pendingObtainResource.Required;
+            plan.RequiredAmount = required;
 
             if (plan.Lines.Length == 0)
             {

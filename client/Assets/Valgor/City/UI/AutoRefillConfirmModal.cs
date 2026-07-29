@@ -49,6 +49,7 @@ namespace Valgor.City.UI
             _busy = false;
             Rebuild(plan);
             _backdrop.style.display = DisplayStyle.Flex;
+            _backdrop.BringToFront();
             _root.style.display = DisplayStyle.Flex;
             _root.BringToFront();
         }
