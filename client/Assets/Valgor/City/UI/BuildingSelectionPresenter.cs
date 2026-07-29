@@ -102,6 +102,8 @@ namespace Valgor.City.UI
 
             if (_openPanelAction == BuildingContextAction.Upgrade &&
                 _upgradeModal.IsVisible &&
+                !_obtainModal.IsVisible &&
+                !_autoRefillModal.IsVisible &&
                 _current != null &&
                 (_current.State == BuildingState.Upgrading || Time.unscaledTime >= _nextUpgradeModalRefresh))
             {
@@ -847,8 +849,11 @@ namespace Valgor.City.UI
             var presentation = BuildingUpgradePresentationBuilder.Build(_city, _current, _inventory);
             var showReturn = !string.IsNullOrEmpty(_returnToDefinitionId) &&
                              !string.Equals(_returnToDefinitionId, _current.DefinitionId, StringComparison.Ordinal);
-            _obtainModal.HideWithoutCallback();
-            _detailsModal.HideWithoutCallback();
+            if (!_obtainModal.IsVisible && !_autoRefillModal.IsVisible)
+            {
+                _detailsModal.HideWithoutCallback();
+            }
+
             _upgradeModal.Show(presentation, feedback ?? _feedback.text, showReturn);
             _openPanelAction = BuildingContextAction.Upgrade;
         }
