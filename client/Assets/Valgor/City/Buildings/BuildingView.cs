@@ -22,6 +22,7 @@ namespace Valgor.City.Buildings
         private GameObject? _constructionRoot;
         private Transform? _progressFill;
         private TextMesh? _progressLabel;
+        private BuildingConstructionVisual? _constructionVisual;
         private bool _selected;
         private float _labelHeight = 3.2f;
         private long _collectAmount;
@@ -49,7 +50,8 @@ namespace Valgor.City.Buildings
             _upgradeArrow = CreateUpgradeArrow();
             _lockedBadge = CreateStatusBadge("LockedBadge", new Color(0.35f, 0.38f, 0.45f), isLock: true);
             _readyBadge = CreateStatusBadge("ReadyBadge", new Color(0.72f, 0.58f, 0.28f), isLock: false);
-            _constructionRoot = CreateConstructionOverlay();
+            _constructionRoot = CreateBuildingWorldUi();
+            _constructionVisual = BuildingConstructionVisual.Ensure(transform, instance.DefinitionId);
             SetCollectable(0, null);
             SetUpgradeAvailable(false);
             SetConstructionProgress(0f, string.Empty, false);
@@ -202,6 +204,13 @@ namespace Valgor.City.Buildings
 
         public void SetConstructionProgress(float progress01, string timeLabel, bool active)
         {
+            if (_constructionVisual == null && Instance != null)
+            {
+                _constructionVisual = BuildingConstructionVisual.Ensure(transform, Instance.DefinitionId);
+            }
+
+            _constructionVisual?.SetActive(active);
+
             if (_constructionRoot == null)
             {
                 return;
@@ -212,6 +221,16 @@ namespace Valgor.City.Buildings
             {
                 return;
             }
+
+            // Mantém o UI acima do visual atual (sem mover o BuildingRoot).
+            var uiHeight = _labelHeight + 0.35f;
+            if (_visual != null)
+            {
+                var b = GetWorldBounds();
+                uiHeight = Mathf.Max(uiHeight, (b.max.y - transform.position.y) + 0.85f);
+            }
+
+            _constructionRoot.transform.localPosition = Vector3.up * uiHeight;
 
             if (_progressFill != null)
             {
@@ -287,16 +306,26 @@ namespace Valgor.City.Buildings
                     continue;
                 }
 
-                // Ignora labels/badges 3D.
+                // Ignora labels/badges/FX de obra (não entram no framing da câmera/menu).
                 var n = r.gameObject.name;
                 if (n is "Name" or "LabelPlate" or "CollectableMarker" or "Rim" or "ResourceIcon"
-                    or "LockedBadge" or "ReadyBadge" or "ConstructionOverlay" or "Amount")
+                    or "LockedBadge" or "ReadyBadge" or "ConstructionOverlay" or "BuildingWorldUI"
+                    or "ConstructionVisualRoot" or "Scaffold" or "DustVFX" or "DebrisVFX" or "WorkAudio"
+                    or "ConstructionTimer" or "ConstructionProgress" or "ConstructionStatusIcon"
+                    or "BuildIcon" or "ProgressTrack" or "ProgressFill" or "Amount" or "Beam"
+                    or "Glyph" or "Stem" or "Tip")
+                {
+                    continue;
+                }
+
+                if (IsUnderExcludedAncestor(r.transform))
                 {
                     continue;
                 }
 
                 var parentName = r.transform.parent != null ? r.transform.parent.name : string.Empty;
-                if (parentName is "Name" or "CollectableMarker" or "LockedBadge" or "ReadyBadge")
+                if (parentName is "Name" or "CollectableMarker" or "LockedBadge" or "ReadyBadge"
+                    or "BuildingWorldUI" or "ConstructionVisualRoot" or "Scaffold")
                 {
                     continue;
                 }
@@ -578,23 +607,58 @@ namespace Valgor.City.Buildings
             return root;
         }
 
-        private GameObject CreateConstructionOverlay()
+        private static bool IsUnderExcludedAncestor(Transform t)
         {
-            var root = new GameObject("ConstructionOverlay");
+            var p = t;
+            while (p != null)
+            {
+                var n = p.name;
+                if (n is "ConstructionVisualRoot" or "BuildingWorldUI" or "ConstructionOverlay"
+                    or "CollectableMarker" or "UpgradeArrow")
+                {
+                    return true;
+                }
+
+                // Prefab instance names.
+                if (n.StartsWith("ConstructionScaffold_", StringComparison.Ordinal) ||
+                    n.StartsWith("Scaffold_", StringComparison.Ordinal))
+                {
+                    return true;
+                }
+
+                p = p.parent;
+            }
+
+            return false;
+        }
+
+        private GameObject CreateBuildingWorldUi()
+        {
+            var root = new GameObject("BuildingWorldUI");
             root.transform.SetParent(transform, false);
             root.transform.localPosition = Vector3.up * (_labelHeight + 0.15f);
             root.transform.localRotation = Quaternion.Euler(30f, 45f, 0f);
 
             var icon = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            icon.name = "BuildIcon";
+            icon.name = "ConstructionStatusIcon";
             icon.transform.SetParent(root.transform, false);
             icon.transform.localPosition = new Vector3(-1.05f, 0.15f, 0f);
             icon.transform.localScale = new Vector3(0.28f, 0.28f, 0.28f);
             Destroy(icon.GetComponent<Collider>());
             CityVisualMaterials.Apply(icon.GetComponent<Renderer>(), new Color(0.78f, 0.62f, 0.28f));
 
+            // Ícone de martelo/obra (dois volumes).
+            var hammer = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            hammer.name = "BuildIcon";
+            hammer.transform.SetParent(icon.transform, false);
+            hammer.transform.localPosition = new Vector3(0.15f, 0.25f, -0.4f);
+            hammer.transform.localScale = new Vector3(0.35f, 0.9f, 0.35f);
+            hammer.transform.localRotation = Quaternion.Euler(0f, 0f, -35f);
+            Destroy(hammer.GetComponent<Collider>());
+            CityVisualMaterials.Apply(hammer.GetComponent<Renderer>(), new Color(0.9f, 0.78f, 0.4f));
+
             var track = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            track.name = "ProgressTrack";
+            track.name = "ConstructionProgress";
             track.transform.SetParent(root.transform, false);
             track.transform.localPosition = new Vector3(0.15f, 0.15f, 0f);
             track.transform.localScale = new Vector3(1.6f, 0.18f, 0.08f);
@@ -610,20 +674,22 @@ namespace Valgor.City.Buildings
             CityVisualMaterials.Apply(fill.GetComponent<Renderer>(), new Color(0.28f, 0.55f, 0.85f));
             _progressFill = fill.transform;
 
-            var timeObj = new GameObject("Time");
+            var timeObj = new GameObject("ConstructionTimer");
             timeObj.transform.SetParent(root.transform, false);
             timeObj.transform.localPosition = new Vector3(0.15f, 0.55f, 0f);
             _progressLabel = timeObj.AddComponent<TextMesh>();
             _progressLabel.anchor = TextAnchor.MiddleCenter;
             _progressLabel.alignment = TextAlignment.Center;
-            _progressLabel.characterSize = 0.08f;
-            _progressLabel.fontSize = 48;
-            _progressLabel.color = new Color(0.95f, 0.88f, 0.7f);
+            _progressLabel.characterSize = 0.085f;
+            _progressLabel.fontSize = 52;
+            _progressLabel.color = new Color(0.96f, 0.9f, 0.72f);
             _progressLabel.text = "0s";
 
             root.SetActive(false);
             return root;
         }
+
+        private GameObject CreateConstructionOverlay() => CreateBuildingWorldUi();
 
         private static Color ResourceIconColor(ResourceType resource) => resource switch
         {

@@ -75,6 +75,15 @@ namespace Valgor.Editor
                     Debug.LogWarning($"[Valgor] Castle tiers: {castleMsg}");
                 }
 
+                if (ConstructionScaffoldPrefabBuilder.BuildAll(out var scaffoldMsg))
+                {
+                    Debug.Log($"[Valgor] Construction scaffolds: {scaffoldMsg}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[Valgor] Construction scaffolds: {scaffoldMsg}");
+                }
+
                 var outputDir = GetOutputDir(folderNameOverride);
                 Directory.CreateDirectory(outputDir);
                 var exe = Path.Combine(outputDir, "Valgor.exe");
@@ -162,6 +171,23 @@ namespace Valgor.Editor
             else
             {
                 Debug.LogError($"[Valgor] QA Upgrade Visual Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
+        /// <summary>CLI pasta construction visual: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildConstructionVisualCli</summary>
+        public static void BuildConstructionVisualCli()
+        {
+            var report = Build("Valgor-QA-Building-Construction-Visual");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Building Construction Visual Build OK: {GetOutputExe("Valgor-QA-Building-Construction-Visual")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Construction Visual Build FAIL: {report.summary.result}");
             }
 
             EditorApplication.Exit(code);

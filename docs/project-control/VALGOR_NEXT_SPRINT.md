@@ -14,6 +14,7 @@
 - [x] Correção direção visual P0
 - [x] Muralha como edifício evolutivo (requisitos Castelo≥N, Detalhes/Atualizar, visual por nível)
 - [x] UX completa de evolução (modais premium, Obter mais, reabastecimento automático)
+- [x] Estado visual de construção/evolução (andaimes, poeira, cronômetro world-space)
 
 ---
 
