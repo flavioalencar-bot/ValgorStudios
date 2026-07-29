@@ -52,9 +52,13 @@ namespace Valgor.City.Core
             var snapshot = Repository.Load();
             if (snapshot != null)
             {
-                foreach (var pair in snapshot.Wallet)
+                // Modo QA: níveis/construções do save QA, mas carteira sempre forçada depois.
+                if (!Valgor.Core.CityProgressionQa.IsActive)
                 {
-                    Wallet.SetAmount(pair.Key, pair.Value);
+                    foreach (var pair in snapshot.Wallet)
+                    {
+                        Wallet.SetAmount(pair.Key, pair.Value);
+                    }
                 }
 
                 foreach (var building in buildings)
@@ -65,7 +69,7 @@ namespace Valgor.City.Core
                     }
                 }
             }
-            else
+            else if (!Valgor.Core.CityProgressionQa.IsActive)
             {
                 SeedStarterWallet();
             }

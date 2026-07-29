@@ -71,9 +71,17 @@ namespace Valgor.City
             ConfigureCamera();
             if (Valgor.Core.CityProgressionQa.IsActive)
             {
+                // Garante HUD com valores QA após CreateHud (antes o TopUp era cedo demais).
+                Valgor.City.Qa.CityProgressionQaBootstrap.TopUpWallet(Economy.Wallet);
+                Valgor.City.Qa.CityProgressionQaBootstrap.TopUpEnergyPrefs();
+                Economy.PersistWallet();
+                var cityHud = GetComponent<CityHudController>();
+                cityHud?.ForceRefreshResources();
+
                 var qa = gameObject.GetComponent<Valgor.City.Qa.CityProgressionQaController>() ??
                          gameObject.AddComponent<Valgor.City.Qa.CityProgressionQaController>();
                 qa.Bind(Controller);
+                qa.TopUpNow();
                 var hudQa = gameObject.GetComponent<Valgor.City.Qa.CityProgressionQaHud>() ??
                             gameObject.AddComponent<Valgor.City.Qa.CityProgressionQaHud>();
                 hudQa.Initialize(qa);

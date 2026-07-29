@@ -4,10 +4,12 @@ namespace Valgor.Core
 {
     /// <summary>
     /// Gate do modo de homologação da progressão da cidade.
-    /// Ativo somente com -cityProgressionQA (nunca na build normal sem o flag).
+    /// Ativo com define VALGOR_CITY_PROGRESSION_QA (build QA) e/ou -cityProgressionQA.
+    /// Build normal sem a define permanece sem QA.
     /// </summary>
     public static class CityProgressionQa
     {
+        public const string ScriptingDefine = "VALGOR_CITY_PROGRESSION_QA";
         public const string CliFlag = "-cityProgressionQA";
         public const string CliAutoTestFlag = "-cityProgressionQATest";
         public const string SaveSlotId = "city-progression-qa";
@@ -20,18 +22,35 @@ namespace Valgor.Core
         public const int EnergyMax = 999_999;
 
         /// <summary>Duração efetiva de construção no modo QA (segundos).</summary>
-        public const float HomologDurationSeconds = 2f;
+        public const float HomologDurationSeconds = 1f;
 
         public const string BannerText = "MODO HOMOLOGAÇÃO";
 
         private static bool? _active;
         private static bool? _autoTest;
 
+        public static bool IsCompiledIn
+        {
+            get
+            {
+#if VALGOR_CITY_PROGRESSION_QA
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
+
         public static bool IsActive
         {
             get
             {
-                _active ??= HasFlag(CliFlag);
+                if (_active.HasValue)
+                {
+                    return _active.Value;
+                }
+
+                _active = IsCompiledIn || HasFlag(CliFlag);
                 return _active.Value;
             }
         }
@@ -50,16 +69,6 @@ namespace Valgor.Core
         {
             _active = active;
             _autoTest = autoTest;
-        }
-
-        public static void ApplyPersistenceKeyIfActive()
-        {
-            if (!IsActive)
-            {
-                return;
-            }
-
-            // ProductionCatalog vive em Valgor.City — setado por CityProgressionQaBootstrap.
         }
 
         private static bool HasFlag(string flag)

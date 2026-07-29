@@ -130,8 +130,15 @@ namespace Valgor.City.UI
 
         private void OnResourceChanged(object? sender, ResourceChangedEvent args) => RefreshResources();
 
+        public void ForceRefreshResources() => RefreshResources();
+
         private void RefreshResources()
         {
+            if (_resources == null || _city == null)
+            {
+                return;
+            }
+
             var w = _city.Economy.Wallet;
             var name = LocalPlayerProfile.HasProfile
                 ? LocalPlayerProfile.DisplayName
@@ -140,16 +147,19 @@ namespace Valgor.City.UI
             var energy = ReadEnergyDisplay();
             _resources.text =
                 $"{name}  ·  Nv.{level}  ·  " +
-                $"Ouro {w.Get(ResourceType.Gold)}  ·  " +
-                $"Comida {w.Get(ResourceType.Food)}  ·  " +
-                $"Madeira {w.Get(ResourceType.Wood)}  ·  " +
-                $"Pedra {w.Get(ResourceType.Stone)}  ·  " +
-                $"Ferro {w.Get(ResourceType.Iron)}  ·  " +
-                $"Essência {w.Get(ResourceType.DragonEssence)}  ·  " +
-                $"Diamantes {w.Get(ResourceType.Diamonds)}  ·  " +
+                $"Ouro {FormatAmount(w.Get(ResourceType.Gold))}  ·  " +
+                $"Comida {FormatAmount(w.Get(ResourceType.Food))}  ·  " +
+                $"Madeira {FormatAmount(w.Get(ResourceType.Wood))}  ·  " +
+                $"Pedra {FormatAmount(w.Get(ResourceType.Stone))}  ·  " +
+                $"Ferro {FormatAmount(w.Get(ResourceType.Iron))}  ·  " +
+                $"Essência {FormatAmount(w.Get(ResourceType.DragonEssence))}  ·  " +
+                $"Diamantes {FormatAmount(w.Get(ResourceType.Diamonds))}  ·  " +
                 $"Energia {energy}  ·  " +
                 _city.DescribeConstructionQueue();
         }
+
+        private static string FormatAmount(long amount) =>
+            amount.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"));
 
         private static string ReadEnergyDisplay()
         {
@@ -160,7 +170,8 @@ namespace Valgor.City.UI
 
             var current = PlayerPrefs.GetInt(EnergyPrefsPrefix + ".current", 100);
             var max = Mathf.Max(1, PlayerPrefs.GetInt(EnergyPrefsPrefix + ".max", 100));
-            return $"{current}/{max}";
+            var culture = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+            return $"{current.ToString("N0", culture)}/{max.ToString("N0", culture)}";
         }
     }
 }

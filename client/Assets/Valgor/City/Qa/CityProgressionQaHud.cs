@@ -1,18 +1,18 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using Valgor.City.UI;
 using Valgor.Core;
 using Valgor.UI;
 
 namespace Valgor.City.Qa
 {
     /// <summary>
-    /// Banner discreto + painel de progressão (somente -cityProgressionQA).
+    /// Banner + painel de progressão (build QA com define ou -cityProgressionQA).
     /// </summary>
     public sealed class CityProgressionQaHud : MonoBehaviour
     {
         private CityProgressionQaController _qa = null!;
         private UIDocument _document = null!;
-        private Label _banner = null!;
         private Label _status = null!;
         private Label _castleInfo = null!;
         private VisualElement _panel = null!;
@@ -49,52 +49,60 @@ namespace Valgor.City.Qa
         private void Build()
         {
             var root = _document.rootVisualElement;
-            // Não limpa o HUD da City — adiciona overlay.
-            _banner = new Label(CityProgressionQa.BannerText);
-            _banner.name = "qa-homolog-banner";
-            _banner.style.position = Position.Absolute;
-            _banner.style.top = 52;
-            _banner.style.left = 12;
-            _banner.style.paddingLeft = 10;
-            _banner.style.paddingRight = 10;
-            _banner.style.paddingTop = 4;
-            _banner.style.paddingBottom = 4;
-            _banner.style.fontSize = 11;
-            _banner.style.color = new Color(0.92f, 0.85f, 0.55f, 0.95f);
-            _banner.style.backgroundColor = new Color(0.05f, 0.05f, 0.06f, 0.55f);
-            _banner.pickingMode = PickingMode.Ignore;
-            root.Add(_banner);
+
+            var banner = new Label(CityProgressionQa.BannerText);
+            banner.name = "qa-homolog-banner";
+            banner.style.position = Position.Absolute;
+            banner.style.top = 0;
+            banner.style.left = 0;
+            banner.style.right = 0;
+            banner.style.height = 28;
+            banner.style.paddingLeft = 14;
+            banner.style.paddingRight = 14;
+            banner.style.unityTextAlign = TextAnchor.MiddleCenter;
+            banner.style.fontSize = 13;
+            banner.style.unityFontStyleAndWeight = FontStyle.Bold;
+            banner.style.color = new Color(0.98f, 0.92f, 0.55f, 1f);
+            banner.style.backgroundColor = new Color(0.35f, 0.12f, 0.08f, 0.92f);
+            banner.pickingMode = PickingMode.Ignore;
+            root.Add(banner);
+
+            var resources = root.Q<Label>("city-resources");
+            if (resources != null)
+            {
+                resources.style.top = 34;
+            }
 
             var toggle = new Button(TogglePanel) { text = "QA Progressão" };
             toggle.name = "qa-progress-toggle";
             toggle.style.position = Position.Absolute;
-            toggle.style.top = 52;
+            toggle.style.top = 34;
             toggle.style.right = 12;
-            toggle.style.fontSize = 11;
-            toggle.style.paddingLeft = 10;
-            toggle.style.paddingRight = 10;
-            toggle.style.paddingTop = 4;
-            toggle.style.paddingBottom = 4;
-            toggle.style.backgroundColor = new Color(0.12f, 0.14f, 0.18f, 0.92f);
+            toggle.style.fontSize = 12;
+            toggle.style.paddingLeft = 12;
+            toggle.style.paddingRight = 12;
+            toggle.style.paddingTop = 6;
+            toggle.style.paddingBottom = 6;
+            toggle.style.backgroundColor = new Color(0.42f, 0.22f, 0.1f, 0.95f);
             toggle.style.color = BetaVisualTheme.TextPrimary;
             root.Add(toggle);
 
             _panel = new VisualElement();
             _panel.name = "qa-progress-panel";
             _panel.style.position = Position.Absolute;
-            _panel.style.top = 84;
+            _panel.style.top = 72;
             _panel.style.right = 12;
-            _panel.style.width = 280;
+            _panel.style.width = 300;
             _panel.style.paddingLeft = 12;
             _panel.style.paddingRight = 12;
             _panel.style.paddingTop = 10;
             _panel.style.paddingBottom = 10;
-            _panel.style.backgroundColor = new Color(0.08f, 0.09f, 0.11f, 0.94f);
+            _panel.style.backgroundColor = new Color(0.08f, 0.09f, 0.11f, 0.96f);
             _panel.style.display = DisplayStyle.None;
-            _panel.style.borderTopWidth = 1;
-            _panel.style.borderBottomWidth = 1;
-            _panel.style.borderLeftWidth = 1;
-            _panel.style.borderRightWidth = 1;
+            _panel.style.borderTopWidth = 2;
+            _panel.style.borderBottomWidth = 2;
+            _panel.style.borderLeftWidth = 2;
+            _panel.style.borderRightWidth = 2;
             _panel.style.borderTopColor = BetaVisualTheme.AgedGold;
             _panel.style.borderBottomColor = BetaVisualTheme.AgedGold;
             _panel.style.borderLeftColor = BetaVisualTheme.AgedGold;
@@ -112,10 +120,12 @@ namespace Valgor.City.Qa
             _castleInfo.style.marginBottom = 8;
             _panel.Add(_castleInfo);
 
-            _panel.Add(MakeButton("Evoluir +1", () => _qa.RequestEvolvePlusOne()));
+            _panel.Add(MakeButton("Atender todos os requisitos do Castelo",
+                () => _qa.RequestSatisfyAllCastleRequirements()));
+            _panel.Add(MakeButton("Evoluir Castelo +1", () => _qa.RequestEvolvePlusOne()));
             _panel.Add(MakeButton("Evoluir até próximo Tier", () => _qa.RequestEvolveToNextTier()));
-            _panel.Add(MakeButton("Evoluir até Nv.30", () => _qa.RequestEvolveTo30()));
-            _panel.Add(MakeButton("Voltar para Nv.1", () => _qa.RequestResetTo1()));
+            _panel.Add(MakeButton("Evoluir Castelo até Nv.30", () => _qa.RequestEvolveTo30()));
+            _panel.Add(MakeButton("Resetar para Nv.1", () => _qa.RequestResetTo1()));
             _panel.Add(MakeButton("Salvar", () => _qa.RequestSave()));
             _panel.Add(MakeButton("Recarregar save", () => _qa.RequestReload()));
 
@@ -145,8 +155,9 @@ namespace Valgor.City.Qa
         {
             var btn = new Button(action) { text = text };
             btn.style.marginTop = 4;
-            btn.style.height = 28;
-            btn.style.fontSize = 12;
+            btn.style.minHeight = 28;
+            btn.style.fontSize = 11;
+            btn.style.whiteSpace = WhiteSpace.Normal;
             btn.style.backgroundColor = BetaVisualTheme.ButtonFace;
             btn.style.color = BetaVisualTheme.TextPrimary;
             return btn;

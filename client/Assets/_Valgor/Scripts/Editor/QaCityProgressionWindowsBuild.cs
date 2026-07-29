@@ -1,12 +1,15 @@
 using System.IO;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using Valgor.Core;
 
 namespace Valgor.Editor
 {
     /// <summary>
     /// Build isolada de homologação da progressão da cidade.
+    /// Compila com VALGOR_CITY_PROGRESSION_QA — QA ativo no duplo clique, sem CLI.
     /// Não altera ValgorVersion / pasta das betas normais.
     /// </summary>
     public static class QaCityProgressionWindowsBuild
@@ -81,15 +84,18 @@ namespace Valgor.Editor
                     scenes = Scenes,
                     locationPathName = exe,
                     target = BuildTarget.StandaloneWindows64,
-                    options = BuildOptions.CompressWithLz4HC
+                    options = BuildOptions.CompressWithLz4HC,
+                    // Define só nesta build — duplo clique ativa QA sem argumento CLI.
+                    extraScriptingDefines = new[] { CityProgressionQa.ScriptingDefine }
                 };
 
-                Debug.Log($"[Valgor] Building QA City Progression → {exe}");
+                Debug.Log(
+                    $"[Valgor] Building QA City Progression → {exe} " +
+                    $"(define {CityProgressionQa.ScriptingDefine})");
                 return BuildPipeline.BuildPlayer(options);
             }
             finally
             {
-                // Não deixar o bundle QA “grudar” no projeto fonte da build normal.
                 PlayerSettings.bundleVersion = previousBundle;
             }
         }

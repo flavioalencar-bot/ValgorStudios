@@ -18,9 +18,10 @@ if ($AutoTest) {
   $argList += "-cityProgressionQATest"
 }
 
+# Build QA ja compila com VALGOR_CITY_PROGRESSION_QA — flag CLI so e necessaria no Editor/auto-test.
 Write-Host ("Launch: {0} {1}" -f $Exe, ($argList -join ' '))
 Write-Host "Save QA: city-progression-qa"
-Write-Host "Banner: MODO HOMOLOGACAO - painel via botao QA Progressao"
+Write-Host "Banner: MODO HOMOLOGACAO - ativo por define nesta build (duplo clique OK)"
 
 $workDir = Split-Path $Exe
 $evidence = "C:\Valgor_Studio\docs\releases\city-progression-qa-evidence"

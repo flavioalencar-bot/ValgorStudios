@@ -35,6 +35,14 @@ namespace Valgor.City.Qa
             Application.runInBackground = true;
             _report.AppendLine("City Progression QA AutoTest");
             _report.AppendLine($"started={DateTime.UtcNow:o}");
+            _report.AppendLine($"compiledIn={CityProgressionQa.IsCompiledIn} active={CityProgressionQa.IsActive}");
+
+            // Banner + recursos QA no HUD
+            _qa.TopUpNow();
+            var hud = FindFirstObjectByType<CityProgressionQaHud>();
+            hud?.OpenPanel();
+            yield return new WaitForSecondsRealtime(0.5f);
+            yield return Capture("00-banner-resources-qa-panel");
 
             // Garante estado inicial Nv.1
             _qa.RequestResetTo1();
@@ -51,7 +59,6 @@ namespace Valgor.City.Qa
             yield return EvolveAndCapture(30, 6, "08-castle-nv30-tier6");
 
             // Painel QA aberto
-            var hud = FindFirstObjectByType<CityProgressionQaHud>();
             hud?.OpenPanel();
             yield return new WaitForSecondsRealtime(0.4f);
             yield return Capture("09-qa-panel");

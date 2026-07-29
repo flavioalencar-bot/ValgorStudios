@@ -5,6 +5,7 @@ using UnityEngine;
 using Valgor.City.Buildings;
 using Valgor.City.Core;
 using Valgor.City.Data;
+using Valgor.City.UI;
 using Valgor.City.Visual;
 using Valgor.Core;
 
@@ -39,6 +40,48 @@ namespace Valgor.City.Qa
             CityProgressionQaBootstrap.TopUpEnergyPrefs();
             _city.Economy.PersistWallet();
             _city.RefreshPresentation();
+            var hud = FindFirstObjectByType<CityHudController>();
+            hud?.ForceRefreshResources();
+        }
+
+        public void RequestSatisfyAllCastleRequirements() =>
+            StartSafe(SatisfyAllCastleRequirementsRoutine());
+
+        private IEnumerator SatisfyAllCastleRequirementsRoutine()
+        {
+            _status = "Atendendo todos os requisitos do Castelo…";
+            TopUpNow();
+            if (!_city.TryGetBuildingByDefinitionId("castle", out var castle))
+            {
+                _status = "Castelo ausente";
+                yield break;
+            }
+
+            var guard = 0;
+            while (guard++ < 80)
+            {
+                TopUpNow();
+                if (!TryFindFirstUnmet(castle, out var blocked))
+                {
+                    _status = "Requisitos do Castelo OK";
+                    _city.TrySelectByDefinitionId("castle");
+                    _city.NotifyBuildingChanged();
+                    yield break;
+                }
+
+                if (string.IsNullOrEmpty(blocked.JumpToDefinitionId) ||
+                    blocked.RequiredMinimumLevel <= 0)
+                {
+                    _status = $"Bloqueio sem alvo: {blocked.Detail}";
+                    yield break;
+                }
+
+                yield return UpgradeBuildingToLevel(
+                    blocked.JumpToDefinitionId!,
+                    blocked.RequiredMinimumLevel);
+            }
+
+            _status = "Timeout atendendo requisitos do Castelo";
         }
 
         public int GetCastleLevel() => _city?.GetCastleLevel() ?? 1;

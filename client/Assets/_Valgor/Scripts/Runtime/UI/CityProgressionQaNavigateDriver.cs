@@ -3,13 +3,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Valgor.Bootstrap;
 using Valgor.Core;
-using Valgor.Navigation;
 
 namespace Valgor.UI
 {
     /// <summary>
-    /// Com -cityProgressionQATest: cria perfil se preciso e navega até a City
-    /// para o auto-teste em Valgor.City.Qa.CityProgressionQaAutoTest.
+    /// Sessão QA: na build com VALGOR_CITY_PROGRESSION_QA (ou -cityProgressionQA)
+    /// navega até a City após o MainMenu para homologação imediata.
     /// </summary>
     public sealed class CityProgressionQaNavigateDriver : MonoBehaviour
     {
@@ -28,36 +27,37 @@ namespace Valgor.UI
             var host = new GameObject(nameof(CityProgressionQaNavigateDriver));
             DontDestroyOnLoad(host);
             host.AddComponent<CityProgressionQaNavigateDriver>();
-            Debug.Log("[Valgor.QA] Session ativa (-cityProgressionQA).");
+            Debug.Log(
+                $"[Valgor.QA] Session ativa (compiledIn={CityProgressionQa.IsCompiledIn} " +
+                $"autoTest={CityProgressionQa.IsAutoTest}).");
         }
 
         private IEnumerator Start()
         {
-            if (!CityProgressionQa.IsAutoTest)
-            {
-                yield break;
-            }
-
             Application.runInBackground = true;
-            Debug.Log("[Valgor.QA] AutoTest: aguardando MainMenu…");
+            Debug.Log("[Valgor.QA] Aguardando MainMenu…");
             yield return WaitForScene("MainMenu", 120f);
             EnsureLocalProfile();
             LocalPlayerProfile.MarkIntroDone();
             LocalPlayerProfile.TutorialStep = LocalPlayerProfile.TutorialSteps.Complete;
             PlayerPrefs.Save();
-            yield return new WaitForSecondsRealtime(0.5f);
+            yield return new WaitForSecondsRealtime(0.6f);
 
             var nav = GameBootstrap.Game?.Navigator;
             if (nav == null)
             {
                 Debug.LogError("[Valgor.QA] Navigator indisponível.");
-                Application.Quit(1);
+                if (CityProgressionQa.IsAutoTest)
+                {
+                    Application.Quit(1);
+                }
+
                 yield break;
             }
 
             yield return nav.GoToCity();
             yield return WaitForScene("City", 90f);
-            Debug.Log("[Valgor.QA] City carregada — AutoTest no CityBootstrap.");
+            Debug.Log("[Valgor.QA] City carregada — modo homologação pronto.");
         }
 
         private static void EnsureLocalProfile()
