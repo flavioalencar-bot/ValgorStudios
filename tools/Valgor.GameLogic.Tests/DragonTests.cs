@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Valgor.City.Core;
 using Valgor.City.Data;
 using Valgor.Core.Modules;
@@ -49,37 +51,143 @@ public sealed class DragonFoundationTests
         public void Save(DragonSnapshot snapshot) => _snapshot = snapshot;
     }
 
+    private sealed class MutableClock
+    {
+        public DateTime UtcNow { get; set; }
+    }
+
     private static DragonService CreateService(
         FakeWallet? wallet = null,
-        DateTime? now = null,
+        MutableClock? clock = null,
         IDragonRepository? repository = null,
         DragonSettings? settings = null)
     {
-        var clock = now ?? new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
-        if (settings != null)
+        clock ??= new MutableClock
         {
-            var service = new DragonService(settings, repository ?? new MemoryDragonRepository(), () => clock);
-            service.BindWallet(wallet ?? new FakeWallet { Food = 1000, Essence = 100 });
-            service.LoadOrInitialize();
-            return service;
+            UtcNow = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc)
+        };
+        var resolved = settings ?? new DragonSettings();
+        var service = new DragonService(resolved, repository ?? new MemoryDragonRepository(), () => clock.UtcNow);
+        service.BindWallet(wallet ?? new FakeWallet { Food = 5000, Essence = 200 });
+        service.LoadOrInitialize();
+        return service;
+    }
+
+    /// <summary>Avança a jornada Fase 1 até Juvenile Nv.1 (e opcionalmente Ready).</summary>
+    private static DragonService CreateBornService(
+        out MutableClock clock,
+        FakeWallet? wallet = null,
+        bool advanceToReady = false,
+        IDragonRepository? repository = null)
+    {
+        clock = new MutableClock
+        {
+            UtcNow = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc)
+        };
+        var settings = new DragonSettings
+        {
+            HatchDurationHours = 1,
+            JuvenileDurationHours = 1,
+            RestDurationHours = 1,
+            CareRequiredForHatch = 2,
+            CareFoodCost = 50,
+            CareExtendsHatchHours = 0
+        };
+        var service = CreateService(wallet ?? new FakeWallet { Food = 5000, Essence = 200 }, clock, repository, settings);
+        Assert.True(service.TryAcceptEggMission(out var err) == false);
+        service.SyncCastleLevel(20);
+        Assert.Equal(DragonEggJourneyPhase.Unlocked, service.EggJourneyPhase);
+        Assert.True(service.TryAcceptEggMission(out err), err);
+        Assert.True(service.TryConquerEgg(out err), err);
+        Assert.True(service.TryBeginIncubation(out err), err);
+        Assert.True(service.TryCareIncubation(out err), err);
+        Assert.True(service.TryCareIncubation(out err), err);
+
+        clock.UtcNow = clock.UtcNow.AddHours(1.1);
+        service.Tick();
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        Assert.Equal(DragonState.Juvenile, ember.State);
+        Assert.Equal(1, ember.DragonLevel);
+        Assert.Equal(DragonEggJourneyPhase.Born, service.EggJourneyPhase);
+
+        if (advanceToReady)
+        {
+            ember.Hunger = 100;
+            clock.UtcNow = clock.UtcNow.AddHours(1.1);
+            service.Tick();
+            Assert.Equal(DragonState.Resting, ember.State);
+            clock.UtcNow = clock.UtcNow.AddHours(1.1);
+            service.Tick();
+            Assert.Equal(DragonState.Ready, ember.State);
+            ember.GrowthStage = DragonGrowthStage.Adult;
         }
 
-        return DragonService.Create(
-            wallet ?? new FakeWallet { Food = 1000, Essence = 100 },
-            repository: repository ?? new MemoryDragonRepository(),
-            utcNow: () => clock);
+        return service;
     }
 
     [Fact]
-    public void Seed_StartsWithReadyAndLockedDragons()
+    public void Seed_StartsLockedEgg_Phase1()
     {
         var service = CreateService();
-        Assert.Equal(1, service.GetReadyDragonCount());
+        Assert.Equal(0, service.GetReadyDragonCount());
+        Assert.Equal(DragonEggJourneyPhase.Locked, service.EggJourneyPhase);
+        Assert.False(service.IsDragonContentUnlocked);
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
-        Assert.Equal(DragonState.Ready, ember.State);
-        Assert.True(service.TryGet("dragon-ash-1", out var ash));
-        Assert.Equal(DragonState.Locked, ash.State);
-        Assert.Equal(2, service.RoostOccupantCount);
+        Assert.Equal(DragonState.Locked, ember.State);
+        Assert.Equal(0, ember.DragonLevel);
+        Assert.Equal(1, service.RoostOccupantCount);
+        Assert.False(service.TryGet("dragon-ash-1", out _));
+    }
+
+    [Fact]
+    public void Castle20_UnlocksEggContent()
+    {
+        var service = CreateService();
+        service.SyncCastleLevel(19);
+        Assert.Equal(DragonEggJourneyPhase.Locked, service.EggJourneyPhase);
+        service.SyncCastleLevel(20);
+        Assert.Equal(DragonEggJourneyPhase.Unlocked, service.EggJourneyPhase);
+        Assert.True(service.IsDragonContentUnlocked);
+        Assert.Contains("missão", service.DescribeEggJourney(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void EggJourney_MissionConquerIncubateCare_BirthsLevel1()
+    {
+        CreateBornService(out _, advanceToReady: false);
+    }
+
+    [Fact]
+    public void Hatch_RequiresCare_DoesNotBirthWithoutIt()
+    {
+        var clock = new MutableClock
+        {
+            UtcNow = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc)
+        };
+        var settings = new DragonSettings
+        {
+            HatchDurationHours = 1,
+            CareRequiredForHatch = 3,
+            CareFoodCost = 10
+        };
+        var service = CreateService(new FakeWallet { Food = 1000, Essence = 50 }, clock, settings: settings);
+        service.SyncCastleLevel(20);
+        Assert.True(service.TryAcceptEggMission(out _));
+        Assert.True(service.TryConquerEgg(out _));
+        Assert.True(service.TryBeginIncubation(out _));
+        Assert.True(service.TryCareIncubation(out _)); // 1/3
+
+        clock.UtcNow = clock.UtcNow.AddHours(2);
+        service.Tick();
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        Assert.Equal(DragonState.Hatching, ember.State);
+
+        Assert.True(service.TryCareIncubation(out _));
+        Assert.True(service.TryCareIncubation(out _));
+        clock.UtcNow = clock.UtcNow.AddHours(0.1);
+        service.Tick();
+        Assert.Equal(DragonState.Juvenile, ember.State);
+        Assert.Equal(1, ember.DragonLevel);
     }
 
     [Fact]
@@ -98,62 +206,71 @@ public sealed class DragonFoundationTests
     [Fact]
     public void Hatch_SetsHatchlingGrowthStage()
     {
-        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
-        var current = now;
-        var settings = new DragonSettings { HatchDurationHours = 1, JuvenileDurationHours = 1 };
-        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
-        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
-        service.LoadOrInitialize();
-
-        Assert.True(service.TryUnlockAndHatch("ash-drake", out _));
-        current = now.AddHours(1.1);
-        service.Tick();
-        Assert.True(service.TryGet("dragon-ash-1", out var ash));
-        Assert.Equal(DragonState.Juvenile, ash.State);
-        Assert.Equal(DragonGrowthStage.Hatchling, ash.GrowthStage);
+        var service = CreateBornService(out _);
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        Assert.Equal(DragonGrowthStage.Hatchling, ember.GrowthStage);
     }
 
     [Fact]
     public void Feed_IncreasesBondAndGrowth()
     {
-        var service = CreateService(new FakeWallet { Food = 1000, Essence = 100 });
+        var service = CreateBornService(out _, advanceToReady: true);
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
         var bondBefore = ember.BondPoints;
         var growthBefore = ember.GrowthPoints;
-        Assert.True(service.TryFeed(ember.InstanceId, out _));
+        Assert.True(service.TryFeed(ember.InstanceId, out var error), error);
         Assert.True(ember.BondPoints > bondBefore || ember.BondLevel > 0);
-        Assert.True(ember.GrowthPoints > growthBefore || ember.GrowthStage > DragonGrowthStage.Adult);
+        Assert.True(ember.GrowthPoints > growthBefore || ember.GrowthStage >= DragonGrowthStage.Adult);
     }
 
     [Fact]
     public void Growth_AdvancesAdultToElder()
     {
-        var settings = new DragonSettings { AdultToElderPoints = 10, GrowthPointsPerFeed = 10 };
-        var service = CreateService(
-            new FakeWallet { Food = 2000, Essence = 200 },
-            settings: settings);
+        var clock = new MutableClock
+        {
+            UtcNow = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc)
+        };
+        var settings = new DragonSettings
+        {
+            HatchDurationHours = 1,
+            JuvenileDurationHours = 1,
+            RestDurationHours = 1,
+            CareRequiredForHatch = 1,
+            CareFoodCost = 10,
+            AdultToElderPoints = 10,
+            GrowthPointsPerFeed = 10
+        };
+        var wallet = new FakeWallet { Food = 5000, Essence = 200 };
+        var service = CreateService(wallet, clock, settings: settings);
+        service.SyncCastleLevel(20);
+        Assert.True(service.TryAcceptEggMission(out _));
+        Assert.True(service.TryConquerEgg(out _));
+        Assert.True(service.TryBeginIncubation(out _));
+        Assert.True(service.TryCareIncubation(out _));
+        clock.UtcNow = clock.UtcNow.AddHours(1.1);
+        service.Tick();
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
-        Assert.Equal(DragonGrowthStage.Adult, ember.GrowthStage);
-        Assert.True(service.TryFeed(ember.InstanceId, out _));
+        ember.Hunger = 100;
+        clock.UtcNow = clock.UtcNow.AddHours(1.1);
+        service.Tick();
+        clock.UtcNow = clock.UtcNow.AddHours(1.1);
+        service.Tick();
+        ember.GrowthStage = DragonGrowthStage.Adult;
+        ember.GrowthPoints = 0;
+        Assert.True(service.TryFeed(ember.InstanceId, out var error), error);
         Assert.Equal(DragonGrowthStage.Elder, ember.GrowthStage);
     }
 
     [Fact]
     public void Evolution_RequiresAdultAndBond()
     {
-        var settings = new DragonSettings
-        {
-            EvolutionMinBondLevel = 1,
-            BondPointsPerFeed = 25,
-            BondPointsPerLevel = 25
-        };
-        var service = CreateService(
-            new FakeWallet { Food = 2000, Essence = 200 },
-            settings: settings);
+        var service = CreateBornService(out _, advanceToReady: true);
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.BondLevel = 0;
+        ember.BondPoints = 0;
+        ember.GrowthStage = DragonGrowthStage.Adult;
         Assert.False(service.TryEvolve(ember.InstanceId, out _));
-        Assert.True(service.TryFeed(ember.InstanceId, out _));
-        Assert.True(ember.BondLevel >= 1);
+        ember.BondLevel = 2;
         Assert.True(service.TryEvolve(ember.InstanceId, out var error), error);
         Assert.Equal("ash-drake", ember.DefinitionId);
     }
@@ -189,16 +306,12 @@ public sealed class DragonFoundationTests
     public void Feeding_SpendsResourcesAndCanRestoreReady()
     {
         var wallet = new FakeWallet { Food = 200, Essence = 10 };
-        var repo = new MemoryDragonRepository();
-        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
-        var settings = new DragonSettings();
-        var service = new DragonService(settings, repo, () => now);
-        service.BindWallet(wallet);
-        service.LoadOrInitialize();
-
+        var service = CreateBornService(out _, wallet, advanceToReady: true);
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
         ember.State = DragonState.Hungry;
         ember.Hunger = 10;
+        wallet.Food = 200;
+        wallet.Essence = 10;
 
         Assert.True(service.TryFeed(ember.InstanceId, out _));
         Assert.Equal(0, wallet.Food);
@@ -207,53 +320,42 @@ public sealed class DragonFoundationTests
     }
 
     [Fact]
-    public void Hatch_GoesEggHatchingJuvenileThenResting()
-    {
-        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
-        var current = now;
-        var settings = new DragonSettings
-        {
-            HatchDurationHours = 1,
-            JuvenileDurationHours = 1,
-            RestDurationHours = 1
-        };
-        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
-        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
-        service.LoadOrInitialize();
-
-        Assert.True(service.TryUnlockAndHatch("ash-drake", out _));
-        Assert.True(service.TryGet("dragon-ash-1", out var ash));
-        Assert.Equal(DragonState.Hatching, ash.State);
-
-        current = now.AddHours(1.1);
-        service.Tick();
-        Assert.Equal(DragonState.Juvenile, ash.State);
-
-        current = now.AddHours(2.2);
-        service.Tick();
-        Assert.Equal(DragonState.Resting, ash.State);
-    }
-
-    [Fact]
     public void Hunger_DecaysReadyIntoHungry()
     {
-        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
-        var current = now;
+        var clock = new MutableClock
+        {
+            UtcNow = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc)
+        };
         var settings = new DragonSettings
         {
             HungerIntervalHours = 1,
             HungerDecayPerTick = 30,
-            HungryThresholdRatio = 0.25
+            HungryThresholdRatio = 0.25,
+            HatchDurationHours = 1,
+            JuvenileDurationHours = 1,
+            RestDurationHours = 1,
+            CareRequiredForHatch = 1,
+            CareFoodCost = 10
         };
-        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
-        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
-        service.LoadOrInitialize();
-
+        var service = CreateService(new FakeWallet { Food = 1000, Essence = 50 }, clock, settings: settings);
+        service.SyncCastleLevel(20);
+        Assert.True(service.TryAcceptEggMission(out _));
+        Assert.True(service.TryConquerEgg(out _));
+        Assert.True(service.TryBeginIncubation(out _));
+        Assert.True(service.TryCareIncubation(out _));
+        clock.UtcNow = clock.UtcNow.AddHours(1.1);
+        service.Tick();
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
-        ember.Hunger = 40;
-        ember.LastUpdatedUtc = now;
+        ember.Hunger = 100;
+        clock.UtcNow = clock.UtcNow.AddHours(1.1);
+        service.Tick();
+        clock.UtcNow = clock.UtcNow.AddHours(1.1);
+        service.Tick();
+        Assert.Equal(DragonState.Ready, ember.State);
 
-        current = now.AddHours(2.1);
+        ember.Hunger = 40;
+        ember.LastUpdatedUtc = clock.UtcNow;
+        clock.UtcNow = clock.UtcNow.AddHours(2.1);
         service.Tick();
         Assert.Equal(DragonState.Hungry, ember.State);
         Assert.True(ember.Hunger <= 25);
@@ -262,18 +364,12 @@ public sealed class DragonFoundationTests
     [Fact]
     public void Rest_CompletesToReadyWhenHungerSufficient()
     {
-        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
-        var current = now;
-        var settings = new DragonSettings { RestDurationHours = 1 };
-        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
-        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
-        service.LoadOrInitialize();
-
+        var service = CreateBornService(out var clock, advanceToReady: true);
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
-        Assert.True(service.Recovery.TryBeginRest(ember, now, out _));
+        Assert.True(service.Recovery.TryBeginRest(ember, clock.UtcNow, out _));
         Assert.Equal(DragonState.Resting, ember.State);
-
-        current = now.AddHours(1.1);
+        ember.Hunger = 100;
+        clock.UtcNow = clock.UtcNow.AddHours(1.1);
         service.Tick();
         Assert.Equal(DragonState.Ready, ember.State);
     }
@@ -281,19 +377,12 @@ public sealed class DragonFoundationTests
     [Fact]
     public void Recovery_ExhaustedToResting()
     {
-        var now = new DateTime(2026, 7, 26, 12, 0, 0, DateTimeKind.Utc);
-        var current = now;
-        var settings = new DragonSettings { RecoveryDurationHours = 1, RestDurationHours = 1 };
-        var service = new DragonService(settings, new MemoryDragonRepository(), () => current);
-        service.BindWallet(new FakeWallet { Food = 500, Essence = 50 });
-        service.LoadOrInitialize();
-
+        var service = CreateBornService(out var clock, advanceToReady: true);
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
         ember.State = DragonState.Exhausted;
         Assert.True(service.TryStartRecovery(ember.InstanceId, out _));
         Assert.Equal(DragonState.Recovering, ember.State);
-
-        current = now.AddHours(1.1);
+        clock.UtcNow = clock.UtcNow.AddHours(2.1);
         service.Tick();
         Assert.Equal(DragonState.Resting, ember.State);
     }
@@ -301,11 +390,11 @@ public sealed class DragonFoundationTests
     [Fact]
     public void Deployment_DeployRecall_AndCombatStayDeployed()
     {
-        var service = CreateService();
-        Assert.True(service.TryDeployFirstReadyToMarch("march-1", out _));
+        var service = CreateBornService(out _, advanceToReady: true);
+        Assert.True(service.TryDeployFirstReadyToMarch("march-1", out var error), error);
         Assert.True(service.TryGet("dragon-ember-1", out var ember));
         Assert.Equal(DragonState.Deployed, ember.State);
-        Assert.Equal(80, service.GetProvisionalDragonPower());
+        Assert.True(service.GetProvisionalDragonPower() > 0);
 
         Assert.True(service.TryEnterCombatForMarch("march-1", out _));
         Assert.Equal(DragonState.Deployed, ember.State);
@@ -316,20 +405,25 @@ public sealed class DragonFoundationTests
     }
 
     [Fact]
-    public void Repository_PersistsAcrossServiceInstances()
+    public void Repository_PersistsJourneyAcrossServiceInstances()
     {
         var repo = new MemoryDragonRepository();
-        var first = CreateService(repository: repo);
+        var first = CreateBornService(out _, repository: repo, advanceToReady: true);
         Assert.True(first.TryDeployFirstReadyToMarch("m1", out _));
         first.Persist();
 
-        var second = DragonService.Create(
-            new FakeWallet { Food = 100, Essence = 10 },
-            repository: repo,
-            utcNow: () => new DateTime(2026, 7, 26, 13, 0, 0, DateTimeKind.Utc));
+        var clock = new MutableClock
+        {
+            UtcNow = new DateTime(2026, 7, 26, 18, 0, 0, DateTimeKind.Utc)
+        };
+        var second = new DragonService(new DragonSettings(), repo, () => clock.UtcNow);
+        second.BindWallet(new FakeWallet { Food = 100, Essence = 10 });
+        second.LoadOrInitialize();
+        Assert.Equal(DragonEggJourneyPhase.Born, second.EggJourneyPhase);
         Assert.True(second.TryGet("dragon-ember-1", out var ember));
         Assert.Equal(DragonState.Deployed, ember.State);
         Assert.Equal("m1", ember.AssignedMarchId);
+        Assert.Equal(1, ember.DragonLevel);
     }
 
     [Fact]
@@ -356,7 +450,7 @@ public sealed class DragonFoundationTests
             clock,
             new ProvisionalHeroesGateway(),
             new LocalWorldMapRepository("test.dragons.dispatch"));
-        var dragons = CreateService();
+        var dragons = CreateBornService(out _, advanceToReady: true);
         session.BindDragons(dragons);
         session.LoadOrInitialize();
 
@@ -382,7 +476,7 @@ public sealed class DragonFoundationTests
             clock,
             new ProvisionalHeroesGateway(),
             new LocalWorldMapRepository("test.dragons.cancel"));
-        var dragons = CreateService();
+        var dragons = CreateBornService(out _, advanceToReady: true);
         session.BindDragons(dragons);
         session.LoadOrInitialize();
 

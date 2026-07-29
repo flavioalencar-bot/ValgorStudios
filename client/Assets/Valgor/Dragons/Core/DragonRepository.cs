@@ -9,6 +9,8 @@ namespace Valgor.Dragons.Core
         public DateTime SavedAtUtc { get; set; }
         public DragonRoost? Roost { get; set; }
         public Dictionary<string, DragonInstance> Dragons { get; set; } = new();
+        public DragonEggJourneyPhase EggJourneyPhase { get; set; } = DragonEggJourneyPhase.Locked;
+        public int SyncedCastleLevel { get; set; }
     }
 
     public interface IDragonRepository
@@ -54,7 +56,12 @@ namespace Valgor.Dragons.Core
 
         private static DragonSnapshot Clone(DragonSnapshot source)
         {
-            var clone = new DragonSnapshot { SavedAtUtc = source.SavedAtUtc };
+            var clone = new DragonSnapshot
+            {
+                SavedAtUtc = source.SavedAtUtc,
+                EggJourneyPhase = source.EggJourneyPhase,
+                SyncedCastleLevel = source.SyncedCastleLevel
+            };
             if (source.Roost != null)
             {
                 clone.Roost = new DragonRoost(
@@ -87,7 +94,11 @@ namespace Valgor.Dragons.Core
                 SavedAtUtc = DateTime.Parse(
                     UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".meta"),
                     inv,
-                    System.Globalization.DateTimeStyles.RoundtripKind)
+                    System.Globalization.DateTimeStyles.RoundtripKind),
+                EggJourneyPhase = (DragonEggJourneyPhase)UnityEngine.PlayerPrefs.GetInt(
+                    _keyPrefix + ".journey",
+                    (int)DragonEggJourneyPhase.Locked),
+                SyncedCastleLevel = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".castle", 0)
             };
 
             var roostId = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".roost.id", string.Empty);
@@ -139,7 +150,9 @@ namespace Valgor.Dragons.Core
                             (int)DragonGrowthStage.Egg),
                         GrowthPoints = UnityEngine.PlayerPrefs.GetInt(key + ".gpts", 0),
                         BondLevel = UnityEngine.PlayerPrefs.GetInt(key + ".bond", 0),
-                        BondPoints = UnityEngine.PlayerPrefs.GetInt(key + ".bpts", 0)
+                        BondPoints = UnityEngine.PlayerPrefs.GetInt(key + ".bpts", 0),
+                        DragonLevel = UnityEngine.PlayerPrefs.GetInt(key + ".lvl", 0),
+                        CareCount = UnityEngine.PlayerPrefs.GetInt(key + ".care", 0)
                     };
                 }
             }
@@ -151,6 +164,8 @@ namespace Valgor.Dragons.Core
         {
             var inv = System.Globalization.CultureInfo.InvariantCulture;
             UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".meta", snapshot.SavedAtUtc.ToString("O", inv));
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".journey", (int)snapshot.EggJourneyPhase);
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".castle", snapshot.SyncedCastleLevel);
             if (snapshot.Roost == null)
             {
                 UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + ".roost.id");
@@ -181,6 +196,8 @@ namespace Valgor.Dragons.Core
                 UnityEngine.PlayerPrefs.SetInt(key + ".gpts", d.GrowthPoints);
                 UnityEngine.PlayerPrefs.SetInt(key + ".bond", d.BondLevel);
                 UnityEngine.PlayerPrefs.SetInt(key + ".bpts", d.BondPoints);
+                UnityEngine.PlayerPrefs.SetInt(key + ".lvl", d.DragonLevel);
+                UnityEngine.PlayerPrefs.SetInt(key + ".care", d.CareCount);
                 if (d.StateEndsAtUtc.HasValue)
                 {
                     UnityEngine.PlayerPrefs.SetString(key + ".ends", d.StateEndsAtUtc.Value.ToString("O", inv));

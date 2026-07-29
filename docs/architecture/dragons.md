@@ -4,69 +4,68 @@ Sistema de dragões em `Assets/Valgor/Dragons`.
 
 ## Objetivo
 
-Primeira versão funcional: ninho na Torre dos Dragões, estados, alimentação com recursos da cidade, recuperação e destaque opcional em marchas do World Map.
+**Fase 1 (oficial):** Castelo Nv.20 → desbloqueio → missão do Ovo → conquista → incubação com cuidados → nascimento Nv.1.
+
+Fundação adicional (já no módulo, fora do escopo de combate completo): ninho na Torre, alimentação, recuperação e destaque opcional em marchas.
 
 ## Limite
 
 Fronteira de módulo: não reimplementar heróis dentro de Dragons. Integração via `IHeroesGateway` e `IDragonGateway`. O agente único (D022) pode editar `Heroes/**` e `Dragons/**`, sem duplicar lógica entre pastas.
 
+**Fora da Fase 1:** combate completo, PvP, montaria, habilidades avançadas, múltiplos dragões.
+
+## Jornada do ovo (Fase 1)
+
+```text
+LOCKED → UNLOCKED (Castelo ≥ 20)
+→ MISSION_ACTIVE (Aceitar missão)
+→ EGG_OWNED (Buscar/conquistar ovo)
+→ INCUBATING (iniciar + cuidados ≥ N)
+→ BORN (Juvenile Nv.1)
+```
+
+| API | Papel |
+|-----|--------|
+| `SyncCastleLevel` | Espelha Castelo da City |
+| `TryAcceptEggMission` | Desbloqueia missão |
+| `TryConquerEgg` | Locked → Egg |
+| `TryBeginIncubation` | Egg → Hatching |
+| `TryCareIncubation` | Gasta comida; exige `CareRequiredForHatch` para nascer |
+
+UI: painel **Dragões** na Torre dos Dragões.
+
 ## Entidades
 
 | Tipo | Papel |
 |------|--------|
-| `DragonDefinition` / `DragonCatalog` | Catálogo estático (espécie, poder, fome) |
-| `DragonInstance` | Instância do jogador |
-| `DragonStateMachine` | Grafo de transições oficiais |
-| `DragonRepository` | Memória (City↔WorldMap) + PlayerPrefs (`valgor.dragons.v2`) |
+| `DragonEggJourneyPhase` | Fase da jornada do ovo |
+| `DragonDefinition` / `DragonCatalog` | Catálogo estático |
+| `DragonInstance` | Instância (`DragonLevel`, `CareCount`) |
+| `DragonStateMachine` | Grafo de transições |
+| `DragonRepository` | Memória + PlayerPrefs (`valgor.dragons.v4`) |
 | `DragonService` | Fachada `IDragonGateway` |
-| `DragonChangedEvent` | Notificação de mudança de estado |
 | `DragonRoost` | Ninho vinculado à `dragon-tower` |
-| `DragonFeedingService` | Alimentação (Food + DragonEssence) |
-| `DragonHungerService` | Decaimento de fome → HUNGRY |
-| `DragonRecoveryService` | Hatch, juvenile, recovering, resting |
-| `DragonGrowthService` / `DragonBondService` / `DragonEvolutionService` | Crescimento, vínculo e evolução |
-| `DragonDeploymentService` | READY → DEPLOYED / recall |
 
 ## Estados oficiais
 
 ```text
 LOCKED → EGG → HATCHING → JUVENILE → RESTING ⇄ READY
 READY → DEPLOYED → EXHAUSTED|INJURED → RECOVERING → RESTING
-READY|RESTING|JUVENILE → HUNGRY → RESTING|READY
 ```
 
-Timers (configuráveis em `DragonSettings`): hatch, juvenile, rest, recovery, intervalo de fome.
+## Seed (Fase 1)
 
-## Crescimento, evolução e vínculo
-
-Eixo separado do estado operacional:
-
-```text
-EGG → HATCHLING → JUVENILE → ADULT → ELDER → ANCIENT
-```
-
-| Tipo | Papel |
-|------|--------|
-| `DragonGrowthService` | Sync com ciclo de vida + pontos → avanço de estágio |
-| `DragonBondService` | Pontos/nível de vínculo (alimentação e missões) |
-| `DragonEvolutionService` | Cadeia `ember-whelp → ash-drake → portal-wyrm` |
-
-Poder provisório = `BasePower × multiplicador de crescimento × (1 + 0.05 × BondLevel)`.
-Persistência: `valgor.dragons.v3`.
-
-## Seed
-
-- `dragon-ember-1` (`ember-whelp`) — READY
-- `dragon-ash-1` (`ash-drake`) — LOCKED (desbloqueia ovo e choca na torre)
+- `dragon-ember-1` (`ember-whelp`) — **LOCKED** (ovo pendente da jornada)
+- Um único dragão; sem seed Ready pré-nascido
 
 ## Integração
 
 | Área | Comportamento |
 |------|----------------|
-| City | `CityBootstrap` cria/registra `DragonService`; HUD da torre lista, alimenta e choca |
-| Recursos | `IDragonResourceWallet` / `CityDragonResourceWallet` (Food + Essence) |
-| World Map | Despacho destaca 1 dragão READY (DEPLOYED); combate permanece DEPLOYED; conclusão/cancel recall + recovery |
-| Poder | `GetProvisionalDragonPower()` soma poder de dragões DEPLOYED |
+| City | `SyncCastleLevel` no tick/bind; Torre: missão / conquistar / incubar / cuidar / alimentar |
+| Recursos | Care usa Food; feed pós-nascimento usa Food + Essence |
+| World Map | Despacho destaca 1 dragão READY (após maturação pós-nascimento) |
+| Persistência | `valgor.dragons.v4` (fase, nível, cuidados) |
 
 ## Contratos Runtime
 

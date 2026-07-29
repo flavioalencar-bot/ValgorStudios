@@ -9,6 +9,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- **Dragão Fase 1 (ovo e incubação):** Castelo Nv.20 desbloqueia conteúdo; missão/conquista/incubação com cuidados na Torre; nascimento Nv.1; persistência `valgor.dragons.v4`; testes `DragonFoundation` 20/0
+
+### Added
+
 - **Polish visual modais de evolucao:** preview 3D RenderTexture, icones Valgor, molduras/botoes refinados; build `Valgor-QA-Building-Upgrade-Visual`
 
 ### Added

@@ -575,12 +575,14 @@ namespace Valgor.City.UI
 
             if (string.Equals(id, "dragon-tower", StringComparison.Ordinal))
             {
-                var canFeed = _dragons != null && _dragons.RoostOccupantCount > 0;
+                var canFeed = _dragons != null &&
+                              _dragons.EggJourneyPhaseLabel == "BORN" &&
+                              _dragons.RoostOccupantCount > 0;
                 return new List<BuildingContextActionInfo>
                 {
                     new(BuildingContextAction.Open, "Dragões", true),
                     new(BuildingContextAction.Feed, "Alimentar", canFeed,
-                        canFeed ? null : "Nenhum dragão no ninho."),
+                        canFeed ? null : "Disponível após o nascimento."),
                     new(BuildingContextAction.Details, "Detalhes", true),
                     UpgradeAction(building, definition)
                 };
@@ -695,6 +697,148 @@ namespace Valgor.City.UI
                 $"(placeholder — skins em breve)");
         }
 
+        private void PopulateDragonTowerActions()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            _dragons.SyncCastleLevel(_city.GetCastleLevel());
+            var phase = _dragons.EggJourneyPhaseLabel;
+            switch (phase)
+            {
+                case "LOCKED":
+                    AddPanelButton(
+                        $"Bloqueado (Castelo {_dragons.EggUnlockCastleLevel})",
+                        () =>
+                        {
+                            _feedback.text = _dragons.DescribeEggJourney();
+                            _feedback.style.display = DisplayStyle.Flex;
+                        },
+                        enabled: false);
+                    break;
+                case "UNLOCKED":
+                    AddPanelButton("Aceitar missão do Ovo", ExecuteAcceptEggMission);
+                    break;
+                case "MISSIONACTIVE":
+                    AddPanelButton("Buscar o Ovo", ExecuteConquerEgg);
+                    break;
+                case "EGGOWNED":
+                    AddPanelButton("Iniciar incubação", ExecuteBeginIncubation);
+                    break;
+                case "INCUBATING":
+                    AddPanelButton("Cuidar do ovo", ExecuteCareIncubation);
+                    break;
+                case "BORN":
+                    AddPanelButton("Alimentar", ExecuteFeedDragon, enabled: _dragons.RoostOccupantCount > 0);
+                    break;
+            }
+        }
+
+        private void ExecuteAcceptEggMission()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            _dragons.SyncCastleLevel(_city.GetCastleLevel());
+            if (_dragons.TryAcceptEggMission(out var error))
+            {
+                _feedback.text = "Missão do Ovo aceita. Busque o ovo na Torre.";
+            }
+            else
+            {
+                _feedback.text = error;
+            }
+
+            _feedback.style.display = DisplayStyle.Flex;
+            _city.Persist();
+            RefreshCurrent();
+            if (_openPanelAction == BuildingContextAction.Open)
+            {
+                OpenActionPanel(BuildingContextAction.Open);
+            }
+        }
+
+        private void ExecuteConquerEgg()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            if (_dragons.TryConquerEgg(out var error))
+            {
+                _feedback.text = "Ovo Dracônico conquistado! Inicie a incubação.";
+            }
+            else
+            {
+                _feedback.text = error;
+            }
+
+            _feedback.style.display = DisplayStyle.Flex;
+            _city.Persist();
+            RefreshCurrent();
+            if (_openPanelAction == BuildingContextAction.Open)
+            {
+                OpenActionPanel(BuildingContextAction.Open);
+            }
+        }
+
+        private void ExecuteBeginIncubation()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            if (_dragons.TryBeginIncubation(out var error))
+            {
+                _feedback.text = "Incubação iniciada. Cuide do ovo até nascer.";
+            }
+            else
+            {
+                _feedback.text = error;
+            }
+
+            _feedback.style.display = DisplayStyle.Flex;
+            _city.Persist();
+            RefreshCurrent();
+            if (_openPanelAction == BuildingContextAction.Open)
+            {
+                OpenActionPanel(BuildingContextAction.Open);
+            }
+        }
+
+        private void ExecuteCareIncubation()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            if (_dragons.TryCareIncubation(out var error))
+            {
+                _feedback.text = _dragons.EggJourneyPhaseLabel == "BORN"
+                    ? "O dragão nasceu (Nv.1)!"
+                    : _dragons.DescribeEggJourney();
+            }
+            else
+            {
+                _feedback.text = error;
+            }
+
+            _feedback.style.display = DisplayStyle.Flex;
+            _city.Persist();
+            RefreshCurrent();
+            if (_openPanelAction == BuildingContextAction.Open)
+            {
+                OpenActionPanel(BuildingContextAction.Open);
+            }
+        }
+
         private void ExecuteFeedDragon()
         {
             if (_dragons == null)
@@ -791,8 +935,7 @@ namespace Valgor.City.UI
                     _actionTitle.text = ActionTitle(action, definition);
                     var model = BuildingDetailsViewModel.From(_city, _current, definition, openMode: true);
                     AppendBodyText(model.Body);
-                    var canFeed = _dragons != null && _dragons.RoostOccupantCount > 0;
-                    AddPanelButton("Alimentar", ExecuteFeedDragon, enabled: canFeed);
+                    PopulateDragonTowerActions();
                     AddPanelButton("Fechar", HideActionPanel);
                     _actionPanel.style.display = DisplayStyle.Flex;
                     _actionPanel.style.visibility = Visibility.Visible;

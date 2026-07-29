@@ -29,7 +29,8 @@
 | D021 | 2026-07-27 | Build pasta | Saída oficial `builds/windows/Valgor-Beta-0.1` | Alinhar docs e `ValgorVersion.BuildFolderName` | Checkpoint = legado/espelho | Vigente |
 | D022 | 2026-07-27 | Agentes | **Agente único** assume o monorepo inteiro; segundo agente (heróis) descontinuado | Evitar conflito, duplicação e regressão | Um dono; fronteiras de pasta/módulo permanecem como arquitetura | Vigente |
 | D023 | 2026-07-27 | Build 0.2.1 | Pasta oficial atual `Valgor-Beta-0.2.1`; **congelar** 0.1 e 0.2 | Fechamento P0/P1 sem sobrescrever builds auditadas | `ValgorVersion` + `build-windows-beta-0.2.1.ps1` | Vigente |
-| D024 | 2026-07-27 | Pós-0.2.1 | Próximo foco = vertical slice **visual**; sem PvP/alianças/loja | Auditoria visual gap P2 | Não abrir novos sistemas de jogo nesta etapa | Vigente |
+| D024 | 2026-07-27 | Pós-0.2.1 | Próximo foco = vertical slice **visual**; sem PvP/alianças/loja | Auditoria visual gap P2 | Não abrir novos sistemas de jogo nesta etapa | Supersedida em parte por D025 |
+| D025 | 2026-07-29 | Dragões Fase 1 | Jornada oficial do ovo: Castelo≥20 → missão → conquista → incubação+care → nascimento Nv.1; persistência `valgor.dragons.v4`; um dragão | City homologada; diferenciador Torre | Sem combate/PvP/montaria/múltiplos dragões | Vigente |
 
 ---
 
@@ -38,3 +39,4 @@
 - Decisões de **produto longo prazo** (alianças, Capital, Rei do Reino, Android/iOS store) estão no plano mestre mas **ainda sem implementação** — não confundir com decisões da Beta 0.1.
 - Conflito documentado: README promete Unity→API; D014 mantém offline até sprint de integração explícita.
 - Carta operacional: `VALGOR_SINGLE_AGENT.md` + regra Cursor `.cursor/rules/valgor-single-agent.mdc`.
+- Persistência dragões: D013 citava `dragons.v3`; D025 promove `dragons.v4` (jornada do ovo).

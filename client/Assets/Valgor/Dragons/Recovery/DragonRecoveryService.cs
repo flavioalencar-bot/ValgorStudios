@@ -55,7 +55,11 @@ namespace Valgor.Dragons.Recovery
         public void BeginTimedState(DragonInstance dragon, DateTime nowUtc, double durationHours) =>
             dragon.StateEndsAtUtc = nowUtc.AddHours(durationHours);
 
-        public void Advance(DragonInstance dragon, DateTime nowUtc, Func<DragonInstance, bool>? isReadyHunger = null)
+        public void Advance(
+            DragonInstance dragon,
+            DateTime nowUtc,
+            Func<DragonInstance, bool>? isReadyHunger = null,
+            Func<DragonInstance, bool>? canCompleteHatch = null)
         {
             if (!dragon.StateEndsAtUtc.HasValue || nowUtc < dragon.StateEndsAtUtc.Value)
             {
@@ -74,8 +78,19 @@ namespace Valgor.Dragons.Recovery
             switch (dragon.State)
             {
                 case DragonState.Hatching:
+                    // Fase 1: incubação só conclui com cuidados suficientes.
+                    if (canCompleteHatch != null && !canCompleteHatch(dragon))
+                    {
+                        break;
+                    }
+
                     if (_stateMachine.TryTransition(dragon, DragonState.Juvenile, out _))
                     {
+                        if (dragon.DragonLevel < 1)
+                        {
+                            dragon.DragonLevel = 1;
+                        }
+
                         dragon.StateEndsAtUtc = nowUtc.AddHours(_settings.JuvenileDurationHours);
                     }
 

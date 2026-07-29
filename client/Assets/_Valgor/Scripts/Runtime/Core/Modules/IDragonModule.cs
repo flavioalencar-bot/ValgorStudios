@@ -38,7 +38,10 @@ namespace Valgor.Core.Modules
             string growthStageLabel = "",
             int bondLevel = 0,
             int growthPoints = 0,
-            int stamina = 100)
+            int stamina = 100,
+            int dragonLevel = 0,
+            int careCount = 0,
+            int careRequired = 0)
         {
             DragonId = dragonId;
             DisplayName = displayName;
@@ -49,6 +52,9 @@ namespace Valgor.Core.Modules
             BondLevel = bondLevel;
             GrowthPoints = growthPoints;
             Stamina = stamina;
+            DragonLevel = dragonLevel;
+            CareCount = careCount;
+            CareRequired = careRequired;
         }
 
         public string DragonId { get; }
@@ -60,6 +66,9 @@ namespace Valgor.Core.Modules
         public int BondLevel { get; }
         public int GrowthPoints { get; }
         public int Stamina { get; }
+        public int DragonLevel { get; }
+        public int CareCount { get; }
+        public int CareRequired { get; }
     }
 
     /// <summary>
@@ -75,6 +84,15 @@ namespace Valgor.Core.Modules
 
         int RoostCapacity { get; }
 
+        /// <summary>Castelo mínimo para conteúdo Fase 1 (ovo).</summary>
+        int EggUnlockCastleLevel { get; }
+
+        bool IsDragonContentUnlocked { get; }
+
+        string EggJourneyPhaseLabel { get; }
+
+        string DescribeEggJourney();
+
         IReadOnlyList<DragonStatusInfo> GetDragonStatuses();
 
         bool TryFeed(string dragonId, out string error);
@@ -82,6 +100,14 @@ namespace Valgor.Core.Modules
         bool TryStartRecovery(string dragonId, out string error);
 
         bool TryUnlockAndHatch(string definitionId, out string error);
+
+        bool TryAcceptEggMission(out string error);
+
+        bool TryConquerEgg(out string error);
+
+        bool TryBeginIncubation(out string error);
+
+        bool TryCareIncubation(out string error);
 
         bool TryEvolve(string dragonId, out string error);
 
@@ -96,6 +122,9 @@ namespace Valgor.Core.Modules
         bool TryGetStatus(string dragonId, out string displayName, out string stateLabel);
 
         bool TryGetStatusByWorldCode(string worldNodeCode, out string displayName, out string stateLabel);
+
+        /// <summary>Espelha nível do Castelo da City (chamado no tick da cidade).</summary>
+        void SyncCastleLevel(int castleLevel);
 
         void Tick();
 

@@ -3,6 +3,25 @@ using System.Collections.Generic;
 
 namespace Valgor.Dragons.Data
 {
+    /// <summary>
+    /// Jornada Fase 1: Castelo Nv.20 → ovo → incubação com cuidado → nascimento Nv.1.
+    /// </summary>
+    public enum DragonEggJourneyPhase
+    {
+        /// <summary>Conteúdo dracônico ainda bloqueado (Castelo &lt; 20).</summary>
+        Locked = 0,
+        /// <summary>Castelo ≥ 20 — missão do ovo disponível.</summary>
+        Unlocked = 1,
+        /// <summary>Missão aceita — falta conquistar o ovo.</summary>
+        MissionActive = 2,
+        /// <summary>Ovo conquistado no ninho (estado Egg).</summary>
+        EggOwned = 3,
+        /// <summary>Incubação em andamento (Hatching + cuidados).</summary>
+        Incubating = 4,
+        /// <summary>Dragão nascido Nv.1.</summary>
+        Born = 5
+    }
+
     public enum DragonState
     {
         Locked = 0,
@@ -47,12 +66,13 @@ namespace Valgor.Dragons.Data
 
     public sealed class DragonSettings
     {
-        public string PersistenceKey { get; set; } = "valgor.dragons.v3";
+        public string PersistenceKey { get; set; } = "valgor.dragons.v4";
         public string DefaultRoostId { get; set; } = "dragon-tower";
         public int DefaultRoostCapacity { get; set; } = 3;
-        public double HatchDurationHours { get; set; } = 1;
-        public double JuvenileDurationHours { get; set; } = 2;
-        public double RestDurationHours { get; set; } = 1;
+        /// <summary>Beta Fase 1: incubação curta (~5 min) para ser jogável.</summary>
+        public double HatchDurationHours { get; set; } = 0.08;
+        public double JuvenileDurationHours { get; set; } = 0.05;
+        public double RestDurationHours { get; set; } = 0.05;
         public double HungerIntervalHours { get; set; } = 6;
         public int HungerDecayPerTick { get; set; } = 10;
         public double HungryThresholdRatio { get; set; } = 0.25;
@@ -73,6 +93,14 @@ namespace Valgor.Dragons.Data
         public int MaxBondLevel { get; set; } = 5;
         public int EvolutionMinBondLevel { get; set; } = 2;
         public DragonGrowthStage EvolutionMinGrowthStage { get; set; } = DragonGrowthStage.Adult;
+
+        /// <summary>Fase 1 — desbloqueio do conteúdo do ovo.</summary>
+        public int EggUnlockCastleLevel { get; set; } = 20;
+        public int CareRequiredForHatch { get; set; } = 3;
+        public long CareFoodCost { get; set; } = 150;
+        public double CareExtendsHatchHours { get; set; } = 0.04;
+        public string FirstDragonInstanceId { get; set; } = "dragon-ember-1";
+        public string FirstDragonDefinitionId { get; set; } = "ember-whelp";
     }
 
     public sealed class DragonDefinition
@@ -136,6 +164,10 @@ namespace Valgor.Dragons.Data
         public int GrowthPoints { get; set; }
         public int BondLevel { get; set; }
         public int BondPoints { get; set; }
+        /// <summary>Nível do dragão (Fase 1: nasce Nv.1).</summary>
+        public int DragonLevel { get; set; }
+        /// <summary>Cuidados aplicados durante a incubação.</summary>
+        public int CareCount { get; set; }
 
         public DragonInstance Clone() =>
             new(InstanceId, DefinitionId, State, Hunger, StateEndsAtUtc, AssignedMarchId, RoostId)
@@ -144,7 +176,9 @@ namespace Valgor.Dragons.Data
                 GrowthStage = GrowthStage,
                 GrowthPoints = GrowthPoints,
                 BondLevel = BondLevel,
-                BondPoints = BondPoints
+                BondPoints = BondPoints,
+                DragonLevel = DragonLevel,
+                CareCount = CareCount
             };
     }
 

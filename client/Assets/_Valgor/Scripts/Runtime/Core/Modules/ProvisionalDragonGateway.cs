@@ -10,10 +10,15 @@ namespace Valgor.Core.Modules
         public bool IsReady => false;
         public int RoostOccupantCount => 0;
         public int RoostCapacity => 0;
+        public int EggUnlockCastleLevel => 20;
+        public bool IsDragonContentUnlocked => false;
+        public string EggJourneyPhaseLabel => "LOCKED";
 
         public int GetReadyDragonCount() => 0;
 
         public int GetProvisionalDragonPower() => 0;
+
+        public string DescribeEggJourney() => "Sistema de dragões indisponível.";
 
         public IReadOnlyList<DragonStatusInfo> GetDragonStatuses() => System.Array.Empty<DragonStatusInfo>();
 
@@ -30,6 +35,30 @@ namespace Valgor.Core.Modules
         }
 
         public bool TryUnlockAndHatch(string definitionId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryAcceptEggMission(out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryConquerEgg(out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryBeginIncubation(out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryCareIncubation(out string error)
         {
             error = "Sistema de dragões indisponível.";
             return false;
@@ -77,6 +106,10 @@ namespace Valgor.Core.Modules
             displayName = string.Empty;
             stateLabel = string.Empty;
             return false;
+        }
+
+        public void SyncCastleLevel(int castleLevel)
+        {
         }
 
         public void Tick()

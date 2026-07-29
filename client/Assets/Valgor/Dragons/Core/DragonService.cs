@@ -11,7 +11,7 @@ using Valgor.Dragons.Recovery;
 namespace Valgor.Dragons.Core
 {
     /// <summary>
-    /// Fachada do sistema de dragões: ninho, estados, alimentação, recuperação e destaque em marcha.
+    /// Fachada do sistema de dragões: jornada do ovo (Fase 1), ninho, estados, alimentação e destaque.
     /// </summary>
     public sealed class DragonService : IDragonGateway
     {
@@ -22,6 +22,8 @@ namespace Valgor.Dragons.Core
         private readonly DragonStateMachine _stateMachine = new();
         private IDragonResourceWallet? _wallet;
         private Action? _persistWallet;
+        private DragonEggJourneyPhase _eggJourneyPhase = DragonEggJourneyPhase.Locked;
+        private int _syncedCastleLevel;
 
         public DragonService(
             DragonSettings settings,
@@ -48,6 +50,12 @@ namespace Valgor.Dragons.Core
         public DragonRoost Roost { get; private set; }
         public int RoostOccupantCount => Roost.OccupantIds.Count;
         public int RoostCapacity => Roost.Capacity;
+        public int EggUnlockCastleLevel => _settings.EggUnlockCastleLevel;
+        public bool IsDragonContentUnlocked =>
+            _eggJourneyPhase >= DragonEggJourneyPhase.Unlocked ||
+            _syncedCastleLevel >= _settings.EggUnlockCastleLevel;
+        public string EggJourneyPhaseLabel => _eggJourneyPhase.ToString().ToUpperInvariant();
+        public DragonEggJourneyPhase EggJourneyPhase => _eggJourneyPhase;
         public DragonHungerService Hunger { get; }
         public DragonFeedingService Feeding { get; }
         public DragonRecoveryService Recovery { get; }
@@ -76,6 +84,8 @@ namespace Valgor.Dragons.Core
             _dragons.Clear();
             if (snapshot != null)
             {
+                _eggJourneyPhase = snapshot.EggJourneyPhase;
+                _syncedCastleLevel = snapshot.SyncedCastleLevel;
                 foreach (var pair in snapshot.Dragons)
                 {
                     _dragons[pair.Key] = pair.Value.Clone();
@@ -88,7 +98,11 @@ namespace Valgor.Dragons.Core
 
             if (_dragons.Count == 0)
             {
-                SeedStarterDragons();
+                SeedPhase1Egg();
+            }
+            else
+            {
+                MigrateLegacyJourneyIfNeeded();
             }
 
             foreach (var dragon in _dragons.Values)
@@ -96,8 +110,55 @@ namespace Valgor.Dragons.Core
                 Growth.EnsureSeedDefaults(dragon);
             }
 
+            SyncCastleLevel(_syncedCastleLevel);
             Tick();
             Persist();
+        }
+
+        public void SyncCastleLevel(int castleLevel)
+        {
+            _syncedCastleLevel = Math.Max(0, castleLevel);
+            if (_syncedCastleLevel >= _settings.EggUnlockCastleLevel &&
+                _eggJourneyPhase == DragonEggJourneyPhase.Locked)
+            {
+                _eggJourneyPhase = DragonEggJourneyPhase.Unlocked;
+                Persist();
+            }
+        }
+
+        public string DescribeEggJourney()
+        {
+            var need = _settings.EggUnlockCastleLevel;
+            return _eggJourneyPhase switch
+            {
+                DragonEggJourneyPhase.Locked =>
+                    $"Conteúdo dracônico bloqueado. Evolua o Castelo até Nv.{need} (atual {_syncedCastleLevel}).",
+                DragonEggJourneyPhase.Unlocked =>
+                    "Castelo pronto. Aceite a missão do Ovo na Torre dos Dragões.",
+                DragonEggJourneyPhase.MissionActive =>
+                    "Missão ativa: conquiste o Ovo Dracônico (Buscar o Ovo na Torre).",
+                DragonEggJourneyPhase.EggOwned =>
+                    "Ovo conquistado. Inicie a incubação no ninho.",
+                DragonEggJourneyPhase.Incubating =>
+                    DescribeIncubationStatus(),
+                DragonEggJourneyPhase.Born =>
+                    "Dragão nascido (Nv.1). Cuide e alimente na Torre.",
+                _ => "Jornada do ovo."
+            };
+        }
+
+        private string DescribeIncubationStatus()
+        {
+            if (!TryGetFirstDragon(out var dragon))
+            {
+                return "Incubação em andamento.";
+            }
+
+            var care = $"{dragon.CareCount}/{_settings.CareRequiredForHatch}";
+            var remaining = dragon.StateEndsAtUtc.HasValue
+                ? Math.Max(0, (dragon.StateEndsAtUtc.Value - _utcNow()).TotalMinutes)
+                : 0;
+            return $"Incubando — cuidados {care} · restante ~{remaining:0} min. Cuide do ovo até nascer.";
         }
 
         public void Tick()
@@ -110,7 +171,8 @@ namespace Valgor.Dragons.Core
                 Recovery.Advance(
                     dragon,
                     now,
-                    d => definition != null && Hunger.IsReadyHunger(d, definition));
+                    d => definition != null && Hunger.IsReadyHunger(d, definition),
+                    CanCompleteHatch);
                 if (definition != null)
                 {
                     Hunger.ApplyDecay(dragon, definition, now);
@@ -119,6 +181,11 @@ namespace Valgor.Dragons.Core
                 Growth.SyncWithLifecycle(dragon, previous, dragon.State);
                 Growth.TryAdvance(dragon);
 
+                if (previous == DragonState.Hatching && dragon.State == DragonState.Juvenile)
+                {
+                    OnDragonBorn(dragon);
+                }
+
                 if (previous != dragon.State)
                 {
                     Raise(dragon.InstanceId, previous, dragon.State);
@@ -126,6 +193,19 @@ namespace Valgor.Dragons.Core
             }
 
             Persist();
+        }
+
+        private bool CanCompleteHatch(DragonInstance dragon) =>
+            dragon.CareCount >= _settings.CareRequiredForHatch;
+
+        private void OnDragonBorn(DragonInstance dragon)
+        {
+            if (dragon.DragonLevel < 1)
+            {
+                dragon.DragonLevel = 1;
+            }
+
+            _eggJourneyPhase = DragonEggJourneyPhase.Born;
         }
 
         public int GetReadyDragonCount() =>
@@ -155,7 +235,10 @@ namespace Valgor.Dragons.Core
                     pair.Value.GrowthStage.ToString().ToUpperInvariant(),
                     pair.Value.BondLevel,
                     pair.Value.GrowthPoints,
-                    ResolveStamina(pair.Value)));
+                    ResolveStamina(pair.Value),
+                    pair.Value.DragonLevel,
+                    pair.Value.CareCount,
+                    _settings.CareRequiredForHatch));
             }
 
             return list;
@@ -170,8 +253,154 @@ namespace Valgor.Dragons.Core
                 DragonState.Recovering => 35,
                 DragonState.Exhausted or DragonState.Injured => 10,
                 DragonState.Juvenile => 55,
+                DragonState.Hatching => 20,
+                DragonState.Egg => 5,
                 _ => 0
             };
+
+        public bool TryAcceptEggMission(out string error)
+        {
+            SyncCastleLevel(_syncedCastleLevel);
+            if (_eggJourneyPhase == DragonEggJourneyPhase.Locked)
+            {
+                error = $"Castelo Nv.{_settings.EggUnlockCastleLevel} necessário (atual {_syncedCastleLevel}).";
+                return false;
+            }
+
+            if (_eggJourneyPhase != DragonEggJourneyPhase.Unlocked)
+            {
+                error = _eggJourneyPhase > DragonEggJourneyPhase.Unlocked
+                    ? "Missão do ovo já foi aceita."
+                    : "Missão indisponível.";
+                return false;
+            }
+
+            _eggJourneyPhase = DragonEggJourneyPhase.MissionActive;
+            Persist();
+            error = string.Empty;
+            return true;
+        }
+
+        public bool TryConquerEgg(out string error)
+        {
+            if (_eggJourneyPhase != DragonEggJourneyPhase.MissionActive)
+            {
+                error = _eggJourneyPhase < DragonEggJourneyPhase.MissionActive
+                    ? "Aceite a missão do Ovo primeiro."
+                    : "Ovo já conquistado.";
+                return false;
+            }
+
+            if (!TryGetFirstDragon(out var dragon))
+            {
+                error = "Ninho sem ovo.";
+                return false;
+            }
+
+            if (dragon.State != DragonState.Locked)
+            {
+                error = "Ovo já está no ninho.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            if (!_stateMachine.TryTransition(dragon, DragonState.Egg, out error))
+            {
+                return false;
+            }
+
+            dragon.GrowthStage = DragonGrowthStage.Egg;
+            dragon.CareCount = 0;
+            dragon.DragonLevel = 0;
+            _eggJourneyPhase = DragonEggJourneyPhase.EggOwned;
+            Persist();
+            Raise(dragon.InstanceId, previous, dragon.State);
+            error = string.Empty;
+            return true;
+        }
+
+        public bool TryBeginIncubation(out string error)
+        {
+            if (_eggJourneyPhase != DragonEggJourneyPhase.EggOwned)
+            {
+                error = _eggJourneyPhase < DragonEggJourneyPhase.EggOwned
+                    ? "Conquiste o ovo primeiro."
+                    : "Incubação já iniciada ou concluída.";
+                return false;
+            }
+
+            if (!TryGetFirstDragon(out var dragon) || dragon.State != DragonState.Egg)
+            {
+                error = "Nenhum ovo no ninho para incubar.";
+                return false;
+            }
+
+            var previous = dragon.State;
+            if (!_stateMachine.TryTransition(dragon, DragonState.Hatching, out error))
+            {
+                return false;
+            }
+
+            dragon.CareCount = 0;
+            Recovery.BeginTimedState(dragon, _utcNow(), _settings.HatchDurationHours);
+            _eggJourneyPhase = DragonEggJourneyPhase.Incubating;
+            Persist();
+            Raise(dragon.InstanceId, previous, dragon.State);
+            error = string.Empty;
+            return true;
+        }
+
+        public bool TryCareIncubation(out string error)
+        {
+            if (_eggJourneyPhase != DragonEggJourneyPhase.Incubating)
+            {
+                error = "Não há incubação em andamento.";
+                return false;
+            }
+
+            if (!TryGetFirstDragon(out var dragon) || dragon.State != DragonState.Hatching)
+            {
+                error = "Ovo não está incubando.";
+                return false;
+            }
+
+            if (dragon.CareCount >= _settings.CareRequiredForHatch)
+            {
+                error = "Cuidados suficientes — aguarde o nascimento.";
+                return false;
+            }
+
+            if (_wallet == null)
+            {
+                error = "Carteira indisponível.";
+                return false;
+            }
+
+            if (!_wallet.TrySpendFood(_settings.CareFoodCost))
+            {
+                error = $"Comida insuficiente (precisa {_settings.CareFoodCost}).";
+                return false;
+            }
+
+            dragon.CareCount++;
+            dragon.LastUpdatedUtc = _utcNow();
+
+            // Cada cuidado acelera um pouco a incubação.
+            if (dragon.StateEndsAtUtc.HasValue && _settings.CareExtendsHatchHours > 0)
+            {
+                var accelerated = dragon.StateEndsAtUtc.Value.AddHours(-_settings.CareExtendsHatchHours);
+                var minEnd = _utcNow().AddMinutes(0.5);
+                dragon.StateEndsAtUtc = accelerated < minEnd ? minEnd : accelerated;
+            }
+
+            _persistWallet?.Invoke();
+            Persist();
+            error = string.Empty;
+
+            // Pode nascer imediatamente se timer + care ok.
+            Tick();
+            return true;
+        }
 
         public bool TryFeed(string dragonId, out string error)
         {
@@ -184,6 +413,12 @@ namespace Valgor.Dragons.Core
             if (!TryGet(dragonId, out var dragon) || !DragonCatalog.TryGet(dragon.DefinitionId, out var definition))
             {
                 error = "Dragão não encontrado.";
+                return false;
+            }
+
+            if (dragon.State is DragonState.Locked or DragonState.Egg or DragonState.Hatching)
+            {
+                error = "Alimente após o nascimento. Use Cuidar durante a incubação.";
                 return false;
             }
 
@@ -350,6 +585,9 @@ namespace Valgor.Dragons.Core
             return true;
         }
 
+        /// <summary>
+        /// Compat: inicia incubação se o ovo já estiver conquistado; não pula cuidados.
+        /// </summary>
         public bool TryUnlockAndHatch(string definitionId, out string error)
         {
             if (!DragonCatalog.TryGet(definitionId, out _))
@@ -358,43 +596,23 @@ namespace Valgor.Dragons.Core
                 return false;
             }
 
-            if (!Roost.HasSlot)
+            if (_eggJourneyPhase == DragonEggJourneyPhase.EggOwned)
             {
-                error = "Ninho sem vagas.";
-                return false;
+                return TryBeginIncubation(out error);
             }
 
-            var candidate = _dragons.Values.FirstOrDefault(d =>
-                d.DefinitionId == definitionId &&
-                d.State is DragonState.Locked or DragonState.Egg);
-            if (candidate == null)
+            if (_eggJourneyPhase == DragonEggJourneyPhase.MissionActive)
             {
-                error = "Nenhum ovo disponível para esta espécie.";
-                return false;
-            }
-
-            var previous = candidate.State;
-            if (candidate.State == DragonState.Locked)
-            {
-                if (!_stateMachine.TryTransition(candidate, DragonState.Egg, out error))
+                if (!TryConquerEgg(out error))
                 {
                     return false;
                 }
+
+                return TryBeginIncubation(out error);
             }
 
-            if (candidate.State == DragonState.Egg)
-            {
-                if (!_stateMachine.TryTransition(candidate, DragonState.Hatching, out error))
-                {
-                    return false;
-                }
-            }
-
-            Recovery.BeginTimedState(candidate, _utcNow(), _settings.HatchDurationHours);
-            Persist();
-            Raise(candidate.InstanceId, previous, candidate.State);
-            error = string.Empty;
-            return true;
+            error = "Conquiste o ovo pela jornada (Castelo ≥ 20 → missão → conquista).";
+            return false;
         }
 
         public bool TryGet(string dragonId, out DragonInstance dragon) =>
@@ -405,7 +623,9 @@ namespace Valgor.Dragons.Core
             var snapshot = new DragonSnapshot
             {
                 SavedAtUtc = _utcNow(),
-                Roost = Roost
+                Roost = Roost,
+                EggJourneyPhase = _eggJourneyPhase,
+                SyncedCastleLevel = _syncedCastleLevel
             };
             foreach (var pair in _dragons)
             {
@@ -415,31 +635,68 @@ namespace Valgor.Dragons.Core
             _repository.Save(snapshot);
         }
 
-        private void SeedStarterDragons()
+        private bool TryGetFirstDragon(out DragonInstance dragon)
         {
-            var ember = new DragonInstance(
-                "dragon-ember-1",
-                "ember-whelp",
-                DragonState.Ready,
-                hunger: 80,
-                roostId: Roost.RoostId)
+            if (_dragons.TryGetValue(_settings.FirstDragonInstanceId, out dragon!))
             {
-                GrowthStage = DragonGrowthStage.Adult
-            };
-            var ash = new DragonInstance(
-                "dragon-ash-1",
-                "ash-drake",
+                return true;
+            }
+
+            dragon = _dragons.Values.FirstOrDefault()!;
+            return dragon != null;
+        }
+
+        private void SeedPhase1Egg()
+        {
+            _eggJourneyPhase = DragonEggJourneyPhase.Locked;
+            var ember = new DragonInstance(
+                _settings.FirstDragonInstanceId,
+                _settings.FirstDragonDefinitionId,
                 DragonState.Locked,
                 hunger: 0,
                 roostId: Roost.RoostId)
             {
-                GrowthStage = DragonGrowthStage.Egg
+                GrowthStage = DragonGrowthStage.Egg,
+                DragonLevel = 0,
+                CareCount = 0
             };
             _dragons[ember.InstanceId] = ember;
-            _dragons[ash.InstanceId] = ash;
             Roost.OccupantIds.Clear();
             Roost.OccupantIds.Add(ember.InstanceId);
-            Roost.OccupantIds.Add(ash.InstanceId);
+        }
+
+        private void MigrateLegacyJourneyIfNeeded()
+        {
+            if (_eggJourneyPhase >= DragonEggJourneyPhase.Born)
+            {
+                return;
+            }
+
+            var anyBorn = _dragons.Values.Any(d =>
+                d.State is DragonState.Juvenile or DragonState.Ready or DragonState.Deployed
+                    or DragonState.Hungry or DragonState.Resting or DragonState.Exhausted
+                    or DragonState.Injured or DragonState.Recovering);
+            if (anyBorn)
+            {
+                _eggJourneyPhase = DragonEggJourneyPhase.Born;
+                foreach (var d in _dragons.Values.Where(x => x.DragonLevel < 1 && x.State != DragonState.Locked))
+                {
+                    d.DragonLevel = Math.Max(1, d.DragonLevel);
+                }
+
+                return;
+            }
+
+            if (_dragons.Values.Any(d => d.State == DragonState.Hatching))
+            {
+                _eggJourneyPhase = DragonEggJourneyPhase.Incubating;
+                return;
+            }
+
+            if (_dragons.Values.Any(d => d.State == DragonState.Egg))
+            {
+                _eggJourneyPhase = DragonEggJourneyPhase.EggOwned;
+            }
         }
 
         private int ResolveCombatPower(DragonInstance dragon)

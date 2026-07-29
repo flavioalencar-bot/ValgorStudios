@@ -1,39 +1,39 @@
 # VALGOR — Próximo Sprint
 
-**Atualizado:** 2026-07-27 · após consolidação visual Beta 0.1  
+**Atualizado:** 2026-07-29 · Fase 1 Dragão (ovo e incubação)  
 **Governança:** agente único (D022)
 
 ---
 
 ## Concluído recentemente
 
-- [x] UX contextual completa da City (todos os edifícios atuais)
-- [x] Pré-requisitos data-driven + Castelo real + Ir
-- [x] Consolidação visual Beta 0.1 (silhuetas, zonas, menu, atmosfera, inventário)
-- [x] Arte mínima P0: Castelo, Torre dos Dragões, Fazenda, Armazém, Academia
-- [x] Correção direção visual P0
-- [x] Muralha como edifício evolutivo (requisitos Castelo≥N, Detalhes/Atualizar, visual por nível)
-- [x] UX completa de evolução (modais premium, Obter mais, reabastecimento automático)
-- [x] Estado visual de construção/evolução (andaimes, poeira, cronômetro world-space)
+- [x] Progressão City homologada (Castelo Nv.30, requisitos, timers, tiers, save, responsividade)
+- [x] P0 construção visual + P1 UI 1080×640
+- [x] **Fase 1 Dragão:** Castelo 20 → missão → conquista → incubação com care → nascimento Nv.1
 
 ---
 
-## Próxima sprint recomendada (P0)
+## Em curso / validação
 
 | # | Item | Critério |
 |---|------|----------|
-| 1 | Arte mínima dos 8 edifícios restantes (kit → modular) | Serraria…Lab; preservar collider/ID |
-| 2 | Texturas de terreno/caminhos além do noise | Sem magenta URP |
-| 3 | Ícones de recurso/HUD originais | Substituir medalhões provisórios |
-| 4 | Polish Heroes cards + preview estável | Sem magenta; PT-BR |
+| 1 | Smoke jogável Torre (ovo) | Fluxo completo na City com Castelo ≥ 20 |
+| 2 | Save/reload jornada | `valgor.dragons.v4` persiste fase + Nv.1 |
+
+## Próxima sprint recomendada (após smoke Fase 1)
+
+| # | Item | Critério |
+|---|------|----------|
+| 1 | Arte mínima edifícios restantes | Sem magenta URP |
+| 2 | Polish visual dragão nascido | Placeholder → silhueta mínima no ninho |
+| 3 | Fase 2 dragão (alimentação/crescimento jogável) | Sem combate completo |
 
 ## Fora (não iniciar)
 
-PvP, alianças, SvS, monetização, loja, comércio P2P, novos heróis/dragões, menu central de construções.
+PvP, alianças, SvS, montaria, múltiplos dragões, combate completo, monetização.
 
 ## Referências
 
-- `VALGOR_PLACEHOLDER_INVENTORY.md`
+- `docs/architecture/dragons.md`
 - `VALGOR_IMPLEMENTATION_STATUS.md`
-- `docs/releases/beta-0.1-evidence/visual-consolidation/`
-- `docs/releases/beta-0.1-evidence/art-minimal-p0/` (após smoke)
+- `docs/releases/dragon-egg-phase1-evidence/` (após smoke)

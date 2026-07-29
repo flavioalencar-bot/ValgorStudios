@@ -154,7 +154,8 @@ namespace Valgor.Core
 
         public static bool HasDomainSave()
         {
-            return PlayerPrefs.HasKey("valgor.dragons.v3.meta") ||
+            return PlayerPrefs.HasKey("valgor.dragons.v4.meta") ||
+                   PlayerPrefs.HasKey("valgor.dragons.v3.meta") ||
                    PlayerPrefs.HasKey("valgor.city.production.v1.meta") ||
                    PlayerPrefs.HasKey("valgor.worldmap.v1.meta") ||
                    PlayerPrefs.HasKey("valgor.worldmap.energy.v1.current") ||
@@ -187,6 +188,7 @@ namespace Valgor.Core
                 PlayerPrefs.DeleteKey("valgor.city.production.v1.b." + id + ".ts");
             }
 
+            PlayerPrefs.DeleteKey("valgor.dragons.v4.meta");
             PlayerPrefs.DeleteKey("valgor.dragons.v3.meta");
             PlayerPrefs.DeleteKey("valgor.worldmap.v1.meta");
             PlayerPrefs.DeleteKey("valgor.worldmap.energy.v1.current");

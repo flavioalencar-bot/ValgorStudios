@@ -109,6 +109,13 @@ namespace Valgor.City.Buildings
             var ready = dragons?.GetReadyDragonCount() ?? 0;
             sb.AppendLine($"Capacidade do ninho: {occupied}/{capacity}");
             sb.AppendLine($"Dragões prontos: {ready}");
+            if (dragons != null)
+            {
+                sb.AppendLine($"Jornada do ovo: {dragons.EggJourneyPhaseLabel}");
+                sb.AppendLine(dragons.DescribeEggJourney());
+                sb.AppendLine($"Desbloqueio: Castelo Nv.{dragons.EggUnlockCastleLevel}");
+            }
+
             sb.AppendLine($"Bônus de vínculo: +{GetDragonBondBonusPercent(lv)}%");
             sb.AppendLine($"Recuperação no ninho: +{GetDragonRecoveryBonusPercent(lv)}%");
             sb.AppendLine($"Próximo desbloqueio: {(lv < 2 ? "segundo slot estável" : "evolução assistida (módulo existente)")}");
@@ -119,7 +126,18 @@ namespace Valgor.City.Buildings
                 foreach (var d in dragons.GetDragonStatuses())
                 {
                     sb.AppendLine();
-                    sb.Append($"{d.DisplayName}: {d.StateLabel} · fome {d.Hunger}/{d.MaxHunger} · vínculo Nv.{d.BondLevel}");
+                    var levelLabel = d.DragonLevel > 0 ? $"Nv.{d.DragonLevel}" : "ovo";
+                    sb.Append(
+                        $"{d.DisplayName} ({levelLabel}): {d.StateLabel} · fome {d.Hunger}/{d.MaxHunger}");
+                    if (d.CareRequired > 0 &&
+                        string.Equals(d.StateLabel, "HATCHING", StringComparison.OrdinalIgnoreCase))
+                    {
+                        sb.Append($" · cuidados {d.CareCount}/{d.CareRequired}");
+                    }
+                    else
+                    {
+                        sb.Append($" · vínculo Nv.{d.BondLevel}");
+                    }
                 }
             }
 
