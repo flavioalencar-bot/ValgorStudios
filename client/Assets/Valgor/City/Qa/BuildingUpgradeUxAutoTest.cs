@@ -264,7 +264,8 @@ namespace Valgor.City.Qa
             var path = Path.Combine(EvidenceDir, name + ".png");
             ScreenCapture.CaptureScreenshot(path);
             Debug.Log($"[Valgor.QA] Capture {path}");
-            yield return new WaitForSecondsRealtime(1.0f);
+            // CaptureScreenshot é assíncrono — espera gravar antes da próxima.
+            yield return new WaitForSecondsRealtime(2.0f);
         }
 
         private void Assert(bool ok, string tag)

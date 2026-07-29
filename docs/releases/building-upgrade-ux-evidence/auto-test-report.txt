@@ -1,0 +1,13 @@
+Building Upgrade UX AutoTest
+started=2026-07-29T19:34:33.6685263Z
+compiledIn=True active=True
+[OK] planner-has-lines
+[OK] planner-completes
+[OK] planner-enough
+[OK] planner-priority-small-first
+[OK] presenter
+[OK] level-advanced-or-same
+[OK] camera-stable Δ=0,0000
+[OK] idle-or-busy-ok
+[OK] save-reload-nv30
+pass=9 fail=0
