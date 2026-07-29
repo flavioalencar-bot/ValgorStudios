@@ -107,23 +107,34 @@ namespace Valgor.City.Visual
             }
 
             var size = ConstructionScaffoldCatalog.ResolveSize(_buildingId);
-            var key = ConstructionScaffoldCatalog.PrefabResourceKey(size);
-            var prefab = Resources.Load<GameObject>(key);
-            if (prefab != null)
-            {
-                _scaffoldInstance = Instantiate(prefab, _scaffoldHost, false);
-                _scaffoldInstance.name = ScaffoldName + "_Instance";
-            }
-            else
-            {
-                _scaffoldInstance = ConstructionScaffoldBuilder.Build(size, _scaffoldHost);
-                _scaffoldInstance.name = ScaffoldName + "_Runtime";
-            }
+            // Prefabs em Resources podem carregar magenta no player (materiais bake sem shader URP).
+            // Builder runtime aplica RuntimeSafeMaterials — fonte visual desta sprint.
+            _scaffoldInstance = ConstructionScaffoldBuilder.Build(size, _scaffoldHost);
+            _scaffoldInstance.name = ScaffoldName + "_Runtime";
+            RefreshScaffoldMaterials(_scaffoldInstance);
 
             _scaffoldInstance.transform.localPosition = ConstructionScaffoldCatalog.LocalOffset(_buildingId);
             _scaffoldInstance.transform.localRotation = Quaternion.identity;
             _scaffoldInstance.transform.localScale = ConstructionScaffoldCatalog.LocalScaleMultiplier(_buildingId);
             StripGameplay(_scaffoldInstance);
+        }
+
+        private static void RefreshScaffoldMaterials(GameObject scaffold)
+        {
+            if (scaffold == null)
+            {
+                return;
+            }
+
+            foreach (var renderer in scaffold.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                CityVisualMaterials.ApplySurface(renderer, CityVisualMaterials.Wood, SurfaceKind.Wood);
+            }
         }
 
         private void FitScaffoldToVisual()

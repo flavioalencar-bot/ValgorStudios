@@ -307,6 +307,16 @@ namespace Valgor.City.UI
 
         public void DebugConfirmUpgrade() => ExecuteUpgrade();
 
+        /// <summary>API de smoke/QA: fecha modais para capturar o mundo (andaime/timer).</summary>
+        public void DebugHidePanels()
+        {
+            _upgradeModal.HideWithoutCallback();
+            _detailsModal.HideWithoutCallback();
+            _obtainModal.HideWithoutCallback();
+            _autoRefillModal.Hide();
+            _openPanelAction = null;
+        }
+
         public void DebugReturnToOriginIfAny()
         {
             if (!string.IsNullOrEmpty(_returnToDefinitionId))

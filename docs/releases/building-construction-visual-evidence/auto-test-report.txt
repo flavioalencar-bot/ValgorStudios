@@ -1,3 +1,4 @@
+﻿Building Construction Visual - world scaffold capture + UX report
 Building Upgrade UX AutoTest
 started=2026-07-29T21:06:45.3865355Z
 compiledIn=True active=True
@@ -12,7 +13,8 @@ compiledIn=True active=True
 [OK] construction-visual-cleared
 [OK] world-ui-cleared
 [OK] level-advanced-or-same
-[OK] camera-stable Δ=0,0000
+[OK] camera-stable Î”=0,0000
 [OK] idle-or-busy-ok
 [OK] save-reload-nv30
 pass=14 fail=0
+

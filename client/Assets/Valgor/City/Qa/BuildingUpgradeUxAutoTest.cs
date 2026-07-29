@@ -8,6 +8,7 @@ using Valgor.City.Core;
 using Valgor.City.Data;
 using Valgor.City.Economy;
 using Valgor.City.UI;
+using Valgor.City.Visual;
 using Valgor.Core;
 
 namespace Valgor.City.Qa
@@ -115,7 +116,15 @@ namespace Valgor.City.Qa
             var beforeLevel = _qa.GetCastleLevel();
             presenter = FindPresenter();
             presenter?.DebugConfirmUpgrade();
-            yield return new WaitForSecondsRealtime(0.5f);
+            // Janela curta (HomologDurationSeconds=1s): captura mundo com andaime antes de concluir.
+            yield return new WaitForSecondsRealtime(0.18f);
+            AssertConstructionVisualActive();
+            presenter?.DebugHidePanels();
+            _city.TrySelectByDefinitionId("castle");
+            yield return new WaitForSecondsRealtime(0.22f);
+            yield return Capture("11b-construction-world");
+            yield return OpenUpgrade();
+            yield return new WaitForSecondsRealtime(0.15f);
             yield return Capture("11-upgrade-started");
 
             if (_city.TryGetBuildingByDefinitionId("castle", out var castle) &&
@@ -125,6 +134,8 @@ namespace Valgor.City.Qa
                 _city.TryInstantCompleteSelected(out _);
                 yield return new WaitForSecondsRealtime(0.55f);
             }
+
+            AssertConstructionVisualInactive();
 
             yield return Capture("12-upgrade-completed");
             Assert(_qa.GetCastleLevel() >= beforeLevel, "level-advanced-or-same");
@@ -239,6 +250,40 @@ namespace Valgor.City.Qa
             }
         }
 
+        private void AssertConstructionVisualActive()
+        {
+            if (!_city.TryGetBuildingByDefinitionId("castle", out var castle) ||
+                !_city.TryGetView(castle, out var view) ||
+                view == null)
+            {
+                Assert(false, "construction-view");
+                return;
+            }
+
+            var root = view.transform.Find(BuildingConstructionVisual.RootName);
+            Assert(root != null && root.gameObject.activeInHierarchy, "construction-visual-active");
+            var scaffold = root != null ? root.Find(BuildingConstructionVisual.ScaffoldName) : null;
+            Assert(scaffold != null && scaffold.childCount > 0, "scaffold-present");
+            var worldUi = view.transform.Find("BuildingWorldUI");
+            Assert(worldUi != null && worldUi.gameObject.activeInHierarchy, "world-ui-timer-active");
+        }
+
+        private void AssertConstructionVisualInactive()
+        {
+            if (!_city.TryGetBuildingByDefinitionId("castle", out var castle) ||
+                !_city.TryGetView(castle, out var view) ||
+                view == null)
+            {
+                Assert(false, "construction-view-after");
+                return;
+            }
+
+            var root = view.transform.Find(BuildingConstructionVisual.RootName);
+            Assert(root == null || !root.gameObject.activeInHierarchy, "construction-visual-cleared");
+            var worldUi = view.transform.Find("BuildingWorldUI");
+            Assert(worldUi == null || !worldUi.gameObject.activeInHierarchy, "world-ui-cleared");
+        }
+
         private IEnumerator SelectAndOpen(string definitionId, bool details)
         {
             _city.TrySelectByDefinitionId(definitionId);
@@ -262,10 +307,34 @@ namespace Valgor.City.Qa
         {
             yield return new WaitForEndOfFrame();
             var path = Path.Combine(EvidenceDir, name + ".png");
-            ScreenCapture.CaptureScreenshot(path);
+            var usedFallback = false;
+            try
+            {
+                var w = Screen.width;
+                var h = Screen.height;
+                var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+                tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+                tex.Apply(false);
+                File.WriteAllBytes(path, tex.EncodeToPNG());
+                UnityEngine.Object.Destroy(tex);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[Valgor.QA] ReadPixels falhou ({ex.Message}); fallback CaptureScreenshot");
+                ScreenCapture.CaptureScreenshot(path);
+                usedFallback = true;
+            }
+
+            if (usedFallback)
+            {
+                yield return new WaitForSecondsRealtime(2.0f);
+            }
+            else
+            {
+                yield return new WaitForSecondsRealtime(0.25f);
+            }
+
             Debug.Log($"[Valgor.QA] Capture {path}");
-            // CaptureScreenshot é assíncrono — espera gravar antes da próxima.
-            yield return new WaitForSecondsRealtime(2.0f);
         }
 
         private void Assert(bool ok, string tag)

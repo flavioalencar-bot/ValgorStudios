@@ -23,7 +23,7 @@ namespace Valgor.Core
         public const int EnergyMax = 999_999;
 
         /// <summary>Duração efetiva de construção no modo QA (segundos).</summary>
-        public const float HomologDurationSeconds = 1f;
+        public const float HomologDurationSeconds = 3f;
 
         public const string BannerText = "MODO HOMOLOGAÇÃO";
 

@@ -108,10 +108,16 @@ if (-not $SkipAutoTest) {
     exit 1
   }
 
-  Copy-Item (Join-Path $uxEvidence "11-upgrade-started.png") (Join-Path $evidence "01-construction-in-progress.png") -Force -ErrorAction SilentlyContinue
+  $world = Join-Path $uxEvidence "11b-construction-world.png"
+  if (Test-Path $world) {
+    Copy-Item $world (Join-Path $evidence "01-construction-in-progress.png") -Force
+  } else {
+    Copy-Item (Join-Path $uxEvidence "11-upgrade-started.png") (Join-Path $evidence "01-construction-in-progress.png") -Force -ErrorAction SilentlyContinue
+  }
+  Copy-Item (Join-Path $uxEvidence "11-upgrade-started.png") (Join-Path $evidence "01b-upgrade-modal-during-build.png") -Force -ErrorAction SilentlyContinue
   Copy-Item (Join-Path $uxEvidence "12-upgrade-completed.png") (Join-Path $evidence "02-construction-complete.png") -Force -ErrorAction SilentlyContinue
   Copy-Item (Join-Path $uxEvidence "13-tier-swap.png") (Join-Path $evidence "03-tier-after-build.png") -Force -ErrorAction SilentlyContinue
-  $header = "Building Construction Visual - mirrored upgrade captures + UX report"
+  $header = "Building Construction Visual - world scaffold capture + UX report"
   $body = Get-Content $uxReport -Raw
   Set-Content -Path $report -Value ($header + "`r`n" + $body) -Encoding UTF8
   Get-Content $report
