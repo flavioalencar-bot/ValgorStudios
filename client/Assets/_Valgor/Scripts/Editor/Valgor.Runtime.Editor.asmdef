@@ -2,7 +2,8 @@
   "name": "Valgor.Runtime.Editor",
   "rootNamespace": "Valgor.Editor",
   "references": [
-    "Valgor.Runtime"
+    "Valgor.Runtime",
+    "Valgor.City"
   ],
   "includePlatforms": [
     "Editor"
