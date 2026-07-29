@@ -75,9 +75,7 @@ namespace Valgor.City.UI
             _root.Add(header);
 
             var scroll = new ScrollView(ScrollViewMode.Vertical);
-            scroll.style.flexGrow = 1;
-            scroll.style.flexShrink = 1;
-            scroll.style.minHeight = 100;
+            ValgorResponsiveUi.TightenScrollBody(scroll, 100f);
             scroll.style.marginTop = 10;
 
             if (!string.IsNullOrEmpty(model.Function))

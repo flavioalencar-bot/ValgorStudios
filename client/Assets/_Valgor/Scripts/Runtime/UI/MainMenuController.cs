@@ -77,14 +77,11 @@ namespace Valgor.UI
             }
 
             root.Clear();
-            root.style.flexGrow = 1;
+            ValgorResponsiveUi.ApplySafeFullRoot(root);
             root.style.backgroundColor = new Color(0.04f, 0.035f, 0.045f, 1f);
-            root.style.justifyContent = Justify.Center;
+            root.style.justifyContent = Justify.FlexStart;
             root.style.alignItems = Align.Center;
-            root.style.paddingLeft = 16;
-            root.style.paddingRight = 16;
-            root.style.paddingTop = 12;
-            root.style.paddingBottom = 12;
+            root.style.overflow = Overflow.Hidden;
 
             // Atmosfera medieval — véus em camadas (não só preto plano).
             var veilWarm = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -110,7 +107,7 @@ namespace Valgor.UI
             goldVignetteTop.style.left = Length.Percent(10);
             goldVignetteTop.style.right = Length.Percent(10);
             goldVignetteTop.style.top = 0;
-            goldVignetteTop.style.height = 80;
+            goldVignetteTop.style.height = ValgorResponsiveUi.Compact(80, 48);
             goldVignetteTop.style.backgroundColor = new Color(0.45f, 0.34f, 0.12f, 0.18f);
             root.Add(goldVignetteTop);
 
@@ -119,7 +116,7 @@ namespace Valgor.UI
             goldVignetteBottom.style.left = Length.Percent(8);
             goldVignetteBottom.style.right = Length.Percent(8);
             goldVignetteBottom.style.bottom = 0;
-            goldVignetteBottom.style.height = 96;
+            goldVignetteBottom.style.height = ValgorResponsiveUi.Compact(96, 56);
             goldVignetteBottom.style.backgroundColor = new Color(0.38f, 0.28f, 0.1f, 0.16f);
             root.Add(goldVignetteBottom);
 
@@ -127,17 +124,16 @@ namespace Valgor.UI
             scroll.name = "main-menu-scroll";
             scroll.style.width = Length.Percent(92);
             scroll.style.maxWidth = 560;
-            scroll.style.maxHeight = Length.Percent(90);
-            scroll.style.flexGrow = 0;
-            scroll.style.flexShrink = 1;
+            ValgorResponsiveUi.ConstrainToViewport(scroll);
+            scroll.style.alignSelf = Align.Center;
             root.Add(scroll);
 
             var card = new VisualElement { name = "main-menu-root" };
             card.style.width = Length.Percent(100);
-            card.style.paddingLeft = 36;
-            card.style.paddingRight = 36;
-            card.style.paddingTop = 32;
-            card.style.paddingBottom = 28;
+            card.style.paddingLeft = ValgorResponsiveUi.Compact(36, 20);
+            card.style.paddingRight = ValgorResponsiveUi.Compact(36, 20);
+            card.style.paddingTop = ValgorResponsiveUi.Compact(32, 16);
+            card.style.paddingBottom = ValgorResponsiveUi.Compact(28, 14);
             card.style.backgroundColor = BetaVisualTheme.BackgroundPanel;
             card.style.borderTopWidth = 2;
             card.style.borderBottomWidth = 2;
@@ -151,9 +147,9 @@ namespace Valgor.UI
             scroll.Add(card);
 
             var crest = new VisualElement { pickingMode = PickingMode.Ignore };
-            crest.style.width = 56;
-            crest.style.height = 56;
-            crest.style.marginBottom = 10;
+            crest.style.width = ValgorResponsiveUi.Compact(56, 40);
+            crest.style.height = ValgorResponsiveUi.Compact(56, 40);
+            crest.style.marginBottom = ValgorResponsiveUi.Compact(10, 6);
             crest.style.backgroundColor = new Color(0.12f, 0.1f, 0.06f, 1f);
             crest.style.borderTopWidth = 2;
             crest.style.borderBottomWidth = 2;
@@ -165,15 +161,15 @@ namespace Valgor.UI
             crest.style.borderRightColor = BetaVisualTheme.AgedGoldBright;
             crest.style.justifyContent = Justify.Center;
             crest.style.alignItems = Align.Center;
-            var crestMark = CreateLabel("V", 28, BetaVisualTheme.AgedGoldBright);
+            var crestMark = CreateLabel("V", (int)ValgorResponsiveUi.Compact(28, 22), BetaVisualTheme.AgedGoldBright);
             crestMark.style.unityFontStyleAndWeight = FontStyle.Bold;
             crestMark.style.marginBottom = 0;
             crest.Add(crestMark);
             card.Add(crest);
 
-            var logo = CreateLabel("VALGOR", 48, BetaVisualTheme.AgedGoldBright);
+            var logo = CreateLabel("VALGOR", (int)ValgorResponsiveUi.Compact(48, 34), BetaVisualTheme.AgedGoldBright);
             logo.style.unityFontStyleAndWeight = FontStyle.Bold;
-            logo.style.letterSpacing = 10;
+            logo.style.letterSpacing = ValgorResponsiveUi.Compact(10, 6);
             logo.style.marginBottom = 2;
             card.Add(logo);
             card.Add(CreateLabel(ValgorVersion.ProductLine, 15, BetaVisualTheme.AgedGold));
@@ -573,10 +569,11 @@ namespace Valgor.UI
         private static Button CreateMenuButton(string text, System.Action action, string name = null)
         {
             var button = new Button(action) { text = text, name = name };
-            button.style.marginTop = 12;
+            button.style.marginTop = ValgorResponsiveUi.Compact(12, 8);
             button.style.width = Length.Percent(100);
-            button.style.height = 52;
-            button.style.fontSize = 18;
+            button.style.height = ValgorResponsiveUi.Compact(52, 44);
+            button.style.minHeight = 40;
+            button.style.fontSize = ValgorResponsiveUi.Compact(18, 16);
             button.style.backgroundColor = BetaVisualTheme.DeepBlue;
             button.style.color = BetaVisualTheme.TextPrimary;
             button.style.borderTopWidth = 1;

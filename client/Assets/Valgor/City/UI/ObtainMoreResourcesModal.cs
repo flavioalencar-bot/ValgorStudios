@@ -152,9 +152,7 @@ namespace Valgor.City.UI
             }
 
             var scroll = new ScrollView(ScrollViewMode.Vertical);
-            scroll.style.flexGrow = 1;
-            scroll.style.flexShrink = 1;
-            scroll.style.minHeight = 120;
+            ValgorResponsiveUi.TightenScrollBody(scroll, 120f);
             scroll.style.marginTop = 10;
 
             var sourcesTitle = BuildingUpgradeUxTheme.SectionTitle("Fontes no inventário");

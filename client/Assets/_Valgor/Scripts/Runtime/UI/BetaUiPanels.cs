@@ -18,8 +18,7 @@ namespace Valgor.UI
         {
             var settings = CloneOrCreate();
             settings.sortingOrder = sortingOrder;
-            settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-            settings.referenceResolution = new Vector2Int(1920, 1080);
+            ValgorResponsiveUi.ApplyPanelScaleDefaults(settings);
             EnsureTheme(settings);
             return settings;
         }
@@ -35,16 +34,7 @@ namespace Valgor.UI
             if (existing != null && existing.themeStyleSheet != null)
             {
                 existing.sortingOrder = Mathf.Max(existing.sortingOrder, sortingOrder);
-                if (existing.scaleMode != PanelScaleMode.ScaleWithScreenSize)
-                {
-                    existing.scaleMode = PanelScaleMode.ScaleWithScreenSize;
-                }
-
-                if (existing.referenceResolution.x < 100)
-                {
-                    existing.referenceResolution = new Vector2Int(1920, 1080);
-                }
-
+                ValgorResponsiveUi.ApplyPanelScaleDefaults(existing);
                 return;
             }
 

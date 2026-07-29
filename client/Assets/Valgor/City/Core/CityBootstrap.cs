@@ -85,7 +85,13 @@ namespace Valgor.City
                 var hudQa = gameObject.GetComponent<Valgor.City.Qa.CityProgressionQaHud>() ??
                             gameObject.AddComponent<Valgor.City.Qa.CityProgressionQaHud>();
                 hudQa.Initialize(qa);
-                if (Valgor.Core.CityProgressionQa.IsUpgradeUxTest)
+                if (Valgor.Core.CityProgressionQa.IsResponsiveUiTest)
+                {
+                    var responsive = gameObject.GetComponent<Valgor.City.Qa.ResponsiveUiAutoTest>() ??
+                                     gameObject.AddComponent<Valgor.City.Qa.ResponsiveUiAutoTest>();
+                    responsive.Begin(qa, Controller);
+                }
+                else if (Valgor.Core.CityProgressionQa.IsUpgradeUxTest)
                 {
                     var ux = gameObject.GetComponent<Valgor.City.Qa.BuildingUpgradeUxAutoTest>() ??
                              gameObject.AddComponent<Valgor.City.Qa.BuildingUpgradeUxAutoTest>();

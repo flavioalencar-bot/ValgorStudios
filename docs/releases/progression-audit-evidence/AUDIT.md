@@ -71,7 +71,7 @@ Chat **não** é prova. Evidências: esta pasta + builds QA + reports auto-teste
 | ID | Sev | Achado | Ação |
 |----|-----|--------|------|
 | A1 | **P1** | Instituto seed `Locked` sem transição para `Available` | **Corrigido:** `CityController.RefreshSoftLocks` (Academia ≥1) |
-| A2 | P1 | Menu ~1080×640 corta Confirmar/Sair | Aberto (UI layout); evidência audit 0.2 |
+| A2 | P1 | Menu ~1080×640 corta Confirmar/Sair | **Encerrado** — ver `docs/releases/ui-responsive-p1-fix-evidence/` |
 | A3 | P2 | Nav bar pode aparecer no Main Menu com perfil | Aberto (audit 0.2) |
 | A4 | P2 | Missões/hospital/arena/templo stubs | Aceito beta |
 | A5 | P3 | Watermark Development Build | Aceito builds QA |

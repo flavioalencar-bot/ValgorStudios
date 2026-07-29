@@ -193,6 +193,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI pasta responsive P1: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildResponsiveP1Cli</summary>
+        public static void BuildResponsiveP1Cli()
+        {
+            var report = Build("Valgor-QA-Responsive-P1-Fix");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Responsive P1 Build OK: {GetOutputExe("Valgor-QA-Responsive-P1-Fix")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Responsive P1 Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

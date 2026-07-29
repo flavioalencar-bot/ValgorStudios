@@ -71,17 +71,21 @@ namespace Valgor.City.UI
             _resources.style.left = 12;
             _resources.style.right = 12;
             _resources.style.top = 8;
-            _resources.style.height = 44;
+            _resources.style.height = StyleKeyword.Auto;
+            _resources.style.minHeight = ValgorResponsiveUi.Compact(44, 40);
+            _resources.style.maxHeight = ValgorResponsiveUi.Compact(64, 72);
             _resources.style.paddingLeft = 14;
             _resources.style.paddingRight = 14;
-            _resources.style.paddingTop = 10;
-            _resources.style.paddingBottom = 10;
+            _resources.style.paddingTop = ValgorResponsiveUi.Compact(10, 6);
+            _resources.style.paddingBottom = ValgorResponsiveUi.Compact(10, 6);
             _resources.style.backgroundColor = new Color(0.08f, 0.09f, 0.1f, 0.88f);
             _resources.style.color = BetaVisualTheme.TextPrimary;
             _resources.style.borderBottomWidth = 2;
             _resources.style.borderBottomColor = BetaVisualTheme.AgedGold;
             _resources.style.unityTextAlign = TextAnchor.MiddleLeft;
-            _resources.style.fontSize = 13;
+            _resources.style.fontSize = ValgorResponsiveUi.Compact(13, 11);
+            _resources.style.whiteSpace = WhiteSpace.Normal;
+            _resources.style.overflow = Overflow.Hidden;
             _resources.pickingMode = PickingMode.Ignore;
             root.Add(_resources);
 

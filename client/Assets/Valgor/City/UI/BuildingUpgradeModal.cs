@@ -43,9 +43,7 @@ namespace Valgor.City.UI
             _root.Add(_header);
 
             var scroll = new ScrollView(ScrollViewMode.Vertical);
-            scroll.style.flexGrow = 1;
-            scroll.style.flexShrink = 1;
-            scroll.style.minHeight = 120;
+            ValgorResponsiveUi.TightenScrollBody(scroll, 120f);
             _body = new VisualElement { name = "upgrade-body" };
             scroll.Add(_body);
             _root.Add(scroll);

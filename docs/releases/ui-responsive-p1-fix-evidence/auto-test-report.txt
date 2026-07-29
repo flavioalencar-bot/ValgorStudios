@@ -1,0 +1,20 @@
+Responsive UI P1 AutoTest
+started=2026-07-29T21:34:56.0011367Z
+match=False short-at-start
+[OK] details-in-view-1920x1080
+[OK] upgrade-in-view-1920x1080
+[OK] obtain-in-view-1920x1080
+[OK] details-in-view-1600x900
+[OK] upgrade-in-view-1600x900
+[OK] obtain-in-view-1600x900
+[OK] details-in-view-1366x768
+[OK] upgrade-in-view-1366x768
+[OK] obtain-in-view-1366x768
+[OK] details-in-view-1280x720
+[OK] upgrade-in-view-1280x720
+[OK] obtain-in-view-1280x720
+[OK] details-in-view-1080x640
+[OK] upgrade-in-view-1080x640
+[OK] obtain-in-view-1080x640
+[OK] construction-active-1080
+pass=16 fail=0

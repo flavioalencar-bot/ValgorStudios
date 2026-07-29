@@ -25,18 +25,7 @@ namespace Valgor.City.UI
 
         public static void ApplyModalShell(VisualElement panel, float maxWidth = 560f)
         {
-            panel.style.position = Position.Absolute;
-            panel.style.left = new Length(50, LengthUnit.Percent);
-            panel.style.top = new Length(50, LengthUnit.Percent);
-            panel.style.translate = new Translate(new Length(-50, LengthUnit.Percent), new Length(-50, LengthUnit.Percent));
-            panel.style.width = new Length(86, LengthUnit.Percent);
-            panel.style.maxWidth = maxWidth;
-            panel.style.maxHeight = new Length(88, LengthUnit.Percent);
-            panel.style.minWidth = 320;
-            panel.style.paddingLeft = 18;
-            panel.style.paddingRight = 18;
-            panel.style.paddingTop = 16;
-            panel.style.paddingBottom = 16;
+            ValgorResponsiveUi.ApplyModalShell(panel, maxWidth);
             panel.style.backgroundColor = ScrollBg;
             panel.style.borderTopWidth = 3;
             panel.style.borderBottomWidth = 3;
@@ -50,7 +39,6 @@ namespace Valgor.City.UI
             panel.style.borderTopRightRadius = 4;
             panel.style.borderBottomLeftRadius = 4;
             panel.style.borderBottomRightRadius = 4;
-            panel.style.flexDirection = FlexDirection.Column;
             panel.style.display = DisplayStyle.None;
             panel.pickingMode = PickingMode.Position;
         }

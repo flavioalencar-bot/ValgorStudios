@@ -94,7 +94,8 @@ namespace Valgor.Scenes
             root.Add(atmosphere);
 
             var panel = new VisualElement { name = "loading-root" };
-            panel.style.width = 540;
+            panel.style.width = ValgorResponsiveUi.Compact(540, 420);
+            panel.style.maxWidth = Length.Percent(92);
             panel.style.paddingLeft = 32;
             panel.style.paddingRight = 32;
             panel.style.paddingTop = 36;

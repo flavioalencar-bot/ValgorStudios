@@ -114,9 +114,7 @@ namespace Valgor.City.UI
             _root.Add(subtitle);
 
             var scroll = new ScrollView(ScrollViewMode.Vertical);
-            scroll.style.flexGrow = 1;
-            scroll.style.flexShrink = 1;
-            scroll.style.minHeight = 80;
+            ValgorResponsiveUi.TightenScrollBody(scroll, 80f);
             scroll.style.marginTop = 10;
 
             var listTitle = BuildingUpgradeUxTheme.SectionTitle("Itens que serão consumidos");

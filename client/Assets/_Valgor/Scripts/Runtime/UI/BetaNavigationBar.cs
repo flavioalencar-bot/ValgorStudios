@@ -56,7 +56,7 @@ namespace Valgor.UI
             root.style.right = 0;
             root.style.bottom = 0;
             root.style.top = StyleKeyword.Auto;
-            root.style.height = 64;
+            root.style.height = ValgorResponsiveUi.Compact(64, 56);
             root.pickingMode = PickingMode.Position;
 
             var bar = new VisualElement();
@@ -67,8 +67,8 @@ namespace Valgor.UI
             bar.style.backgroundColor = new Color(0.08f, 0.09f, 0.1f, 0.92f);
             bar.style.borderTopWidth = 2;
             bar.style.borderTopColor = BetaVisualTheme.AgedGold;
-            bar.style.paddingLeft = 12;
-            bar.style.paddingRight = 12;
+            bar.style.paddingLeft = ValgorResponsiveUi.Compact(12, 6);
+            bar.style.paddingRight = ValgorResponsiveUi.Compact(12, 6);
             root.Add(bar);
 
             bar.Add(NavButton("Cidade", () =>
@@ -107,10 +107,11 @@ namespace Valgor.UI
             _missionsPanel.style.display = DisplayStyle.None;
             _missionsPanel.style.position = Position.Absolute;
             _missionsPanel.style.left = Length.Percent(50);
-            _missionsPanel.style.bottom = 76;
+            _missionsPanel.style.bottom = ValgorResponsiveUi.Compact(76, 62);
             _missionsPanel.style.translate = new Translate(Length.Percent(-50), 0);
-            _missionsPanel.style.width = 420;
-            _missionsPanel.style.maxHeight = 420;
+            _missionsPanel.style.width = Length.Percent(ValgorResponsiveUi.IsNarrowScreen ? 92 : 70);
+            _missionsPanel.style.maxWidth = 420;
+            _missionsPanel.style.maxHeight = ValgorResponsiveUi.Compact(420, 320);
             _missionsPanel.style.backgroundColor = BetaVisualTheme.BackgroundPanel;
             _missionsPanel.style.borderTopWidth = 2;
             _missionsPanel.style.borderBottomWidth = 2;
@@ -120,20 +121,25 @@ namespace Valgor.UI
             _missionsPanel.style.borderBottomColor = BetaVisualTheme.AgedGold;
             _missionsPanel.style.borderLeftColor = BetaVisualTheme.AgedGold;
             _missionsPanel.style.borderRightColor = BetaVisualTheme.AgedGold;
-            _missionsPanel.style.paddingLeft = 16;
-            _missionsPanel.style.paddingRight = 16;
-            _missionsPanel.style.paddingTop = 14;
-            _missionsPanel.style.paddingBottom = 12;
+            _missionsPanel.style.paddingLeft = ValgorResponsiveUi.Compact(16, 10);
+            _missionsPanel.style.paddingRight = ValgorResponsiveUi.Compact(16, 10);
+            _missionsPanel.style.paddingTop = ValgorResponsiveUi.Compact(14, 8);
+            _missionsPanel.style.paddingBottom = ValgorResponsiveUi.Compact(12, 8);
+            _missionsPanel.style.overflow = Overflow.Hidden;
 
             var title = new Label("Missões — Capítulo do Comandante");
             title.style.color = BetaVisualTheme.AgedGoldBright;
-            title.style.fontSize = 16;
+            title.style.fontSize = ValgorResponsiveUi.Compact(16, 14);
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
             title.style.marginBottom = 8;
+            title.style.flexShrink = 0;
             _missionsPanel.Add(title);
 
             var scroll = new ScrollView();
-            scroll.style.maxHeight = 300;
+            scroll.style.flexGrow = 1;
+            scroll.style.flexShrink = 1;
+            scroll.style.minHeight = 80;
+            scroll.style.maxHeight = ValgorResponsiveUi.Compact(300, 180);
             _missionsBody = new Label { name = "missions-body" };
             _missionsBody.style.whiteSpace = WhiteSpace.Normal;
             _missionsBody.style.color = BetaVisualTheme.TextPrimary;
@@ -151,6 +157,8 @@ namespace Valgor.UI
 
             root.Add(_missionsPanel);
         }
+
+        public void DebugToggleMissions() => ToggleMissions();
 
         private void ToggleMissions()
         {
@@ -235,12 +243,16 @@ namespace Valgor.UI
         private Button NavButton(string text, Action action)
         {
             var button = new Button(action) { text = text };
-            button.style.marginRight = 10;
-            button.style.paddingLeft = 18;
-            button.style.paddingRight = 18;
-            button.style.paddingTop = 10;
-            button.style.paddingBottom = 10;
-            button.style.minWidth = 88;
+            button.style.marginLeft = 3;
+            button.style.marginRight = 3;
+            button.style.paddingLeft = ValgorResponsiveUi.Compact(10, 4);
+            button.style.paddingRight = ValgorResponsiveUi.Compact(10, 4);
+            button.style.paddingTop = 8;
+            button.style.paddingBottom = 8;
+            button.style.minWidth = ValgorResponsiveUi.Compact(72, 56);
+            button.style.flexGrow = 1;
+            button.style.flexShrink = 1;
+            button.style.fontSize = ValgorResponsiveUi.Compact(14, 12);
             button.style.backgroundColor = BetaVisualTheme.ButtonFace;
             button.style.color = BetaVisualTheme.TextPrimary;
             button.style.borderTopColor = BetaVisualTheme.ButtonBorder;
@@ -251,7 +263,6 @@ namespace Valgor.UI
             button.style.borderBottomWidth = 1;
             button.style.borderLeftWidth = 1;
             button.style.borderRightWidth = 1;
-            button.style.fontSize = 14;
             return button;
         }
 
