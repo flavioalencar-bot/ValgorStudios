@@ -12,6 +12,7 @@ namespace Valgor.Core
         public const string ScriptingDefine = "VALGOR_CITY_PROGRESSION_QA";
         public const string CliFlag = "-cityProgressionQA";
         public const string CliAutoTestFlag = "-cityProgressionQATest";
+        public const string CliUpgradeUxTestFlag = "-buildingUpgradeUxTest";
         public const string SaveSlotId = "city-progression-qa";
         public const string PersistenceKey = "valgor.city.production.v1.city-progression-qa";
         public const string EnergyPrefsPrefix = "valgor.worldmap.energy.v1.city-progression-qa";
@@ -28,6 +29,7 @@ namespace Valgor.Core
 
         private static bool? _active;
         private static bool? _autoTest;
+        private static bool? _upgradeUxTest;
 
         public static bool IsCompiledIn
         {
@@ -50,7 +52,7 @@ namespace Valgor.Core
                     return _active.Value;
                 }
 
-                _active = IsCompiledIn || HasFlag(CliFlag);
+                _active = IsCompiledIn || HasFlag(CliFlag) || HasFlag(CliUpgradeUxTestFlag);
                 return _active.Value;
             }
         }
@@ -59,8 +61,17 @@ namespace Valgor.Core
         {
             get
             {
-                _autoTest ??= IsActive && HasFlag(CliAutoTestFlag);
+                _autoTest ??= IsActive && HasFlag(CliAutoTestFlag) && !HasFlag(CliUpgradeUxTestFlag);
                 return _autoTest.Value;
+            }
+        }
+
+        public static bool IsUpgradeUxTest
+        {
+            get
+            {
+                _upgradeUxTest ??= IsActive && HasFlag(CliUpgradeUxTestFlag);
+                return _upgradeUxTest.Value;
             }
         }
 
@@ -69,6 +80,7 @@ namespace Valgor.Core
         {
             _active = active;
             _autoTest = autoTest;
+            _upgradeUxTest = false;
         }
 
         private static bool HasFlag(string flag)

@@ -126,6 +126,8 @@ namespace Valgor.City.Qa
             _panel.Add(MakeButton("Evoluir até próximo Tier", () => _qa.RequestEvolveToNextTier()));
             _panel.Add(MakeButton("Evoluir Castelo até Nv.30", () => _qa.RequestEvolveTo30()));
             _panel.Add(MakeButton("Resetar para Nv.1", () => _qa.RequestResetTo1()));
+            _panel.Add(MakeButton("QA: Simular falta de recurso", () => _qa.SimulateResourceShortage()));
+            _panel.Add(MakeButton("QA: Restaurar recursos", () => _qa.RestoreResourcesAndInventory()));
             _panel.Add(MakeButton("Salvar", () => _qa.RequestSave()));
             _panel.Add(MakeButton("Recarregar save", () => _qa.RequestReload()));
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -8,6 +7,7 @@ using Valgor.City.Buildings;
 using Valgor.City.Camera;
 using Valgor.City.Core;
 using Valgor.City.Data;
+using Valgor.City.Economy;
 using Valgor.City.Production;
 using Valgor.Core;
 using Valgor.Core.Modules;
@@ -17,8 +17,7 @@ using Valgor.UI;
 namespace Valgor.City.UI
 {
     /// <summary>
-    /// Orquestra seleção → câmera → menu contextual → painel de ação.
-    /// Primeira entrega: Castelo, Fazenda, Armazém.
+    /// Orquestra seleção → câmera → menu contextual → modais de Detalhes/Atualizar/Obter.
     /// </summary>
     public sealed class BuildingSelectionPresenter
     {
@@ -28,6 +27,11 @@ namespace Valgor.City.UI
         private readonly BuildingContextMenu _contextMenu;
         private readonly BuildingContextToast _toast;
         private readonly BuildingDetailsPanel _detailsPanel;
+        private readonly BuildingUpgradeModal _upgradeModal;
+        private readonly BuildingDetailsModal _detailsModal;
+        private readonly ObtainMoreResourcesModal _obtainModal;
+        private readonly AutoRefillConfirmModal _autoRefillModal;
+        private readonly ResourceItemInventory _inventory;
         private readonly VisualElement _actionPanel;
         private readonly Label _actionTitle;
         private readonly VisualElement _actionBodyHost;
@@ -39,6 +43,10 @@ namespace Valgor.City.UI
         private BuildingInstance? _current;
         private BuildingContextAction? _openPanelAction;
         private float _ignoreOutsideClickUntil;
+        private string? _returnToDefinitionId;
+        private ResourceRequirementView? _pendingObtainResource;
+        private bool _reopenUpgradeAfterSelect;
+        private float _nextUpgradeModalRefresh;
 
         public BuildingSelectionPresenter(
             CityController city,
@@ -50,17 +58,27 @@ namespace Valgor.City.UI
             _panelRoot = panelRoot ?? throw new ArgumentNullException(nameof(panelRoot));
             _dragons = dragons;
             _goToWorldMap = goToWorldMap;
+            _inventory = CityResourceItems.Shared;
+            _inventory.EnsureLoaded();
 
             _contextMenu = new BuildingContextMenu(panelRoot);
             _toast = new BuildingContextToast(panelRoot);
             _detailsPanel = new BuildingDetailsPanel(panelRoot);
+            _upgradeModal = new BuildingUpgradeModal(panelRoot);
+            _detailsModal = new BuildingDetailsModal(panelRoot);
+            _obtainModal = new ObtainMoreResourcesModal(panelRoot);
+            _autoRefillModal = new AutoRefillConfirmModal(panelRoot);
             _actionPanel = BuildActionPanel(out _actionTitle, out _actionBodyHost, out _actionButtons, out _feedback);
             panelRoot.Add(_actionPanel);
 
+            WireModals();
+            _inventory.Changed += OnInventoryChanged;
             _city.Selection.SelectionChanged += OnSelectionChanged;
             _city.BuildingChanged += OnBuildingChanged;
             ResolveCamera();
         }
+
+        public ResourceItemInventory Inventory => _inventory;
 
         public void Tick()
         {
@@ -83,16 +101,24 @@ namespace Valgor.City.UI
             }
 
             if (_openPanelAction == BuildingContextAction.Upgrade &&
-                _actionPanel.style.display == DisplayStyle.Flex)
+                _upgradeModal.IsVisible &&
+                _current != null &&
+                (_current.State == BuildingState.Upgrading || Time.unscaledTime >= _nextUpgradeModalRefresh))
             {
-                RebuildUpgradeBody(_current);
+                _nextUpgradeModalRefresh = Time.unscaledTime + 0.5f;
+                RefreshUpgradeModal();
             }
 
             HandleOutsideClick();
         }
 
         private bool IsAnyPanelOpen() =>
-            _detailsPanel.IsVisible || _actionPanel.style.display == DisplayStyle.Flex;
+            _detailsPanel.IsVisible ||
+            _detailsModal.IsVisible ||
+            _upgradeModal.IsVisible ||
+            _obtainModal.IsVisible ||
+            _autoRefillModal.IsVisible ||
+            _actionPanel.style.display == DisplayStyle.Flex;
 
         public void RefreshCurrent()
         {
@@ -173,10 +199,174 @@ namespace Valgor.City.UI
             OpenActionPanel(BuildingContextAction.Details);
         }
 
+        public void DebugOpenObtainForFirstMissing()
+        {
+            if (_current == null)
+            {
+                return;
+            }
+
+            RefreshUpgradeModal(forceShow: true);
+            var presentation = BuildingUpgradePresentationBuilder.Build(_city, _current, _inventory);
+            foreach (var res in presentation.ResourceCosts)
+            {
+                if (!res.IsSatisfied)
+                {
+                    OpenObtainFor(res);
+                    return;
+                }
+            }
+        }
+
+        public void DebugUseFirstInventoryItem()
+        {
+            if (_pendingObtainResource == null)
+            {
+                return;
+            }
+
+            var stacks = _inventory.GetStacksFor(_pendingObtainResource.ResourceId);
+            if (stacks.Count == 0)
+            {
+                return;
+            }
+
+            UseInventoryItem(stacks[0].ItemId, 1);
+        }
+
+        public void DebugOpenAutoRefill()
+        {
+            if (_pendingObtainResource == null)
+            {
+                AutoRefillConfirmModal.SkipConfirmThisSession = false;
+                DebugOpenObtainForFirstMissing();
+            }
+
+            BeginAutoRefill();
+        }
+
+        public void DebugConfirmAutoRefill()
+        {
+            if (_pendingObtainResource == null)
+            {
+                return;
+            }
+
+            var resource = _pendingObtainResource.ResourceId;
+            var missing = Math.Max(0, _pendingObtainResource.Required - _city.Economy.Wallet.Get(resource));
+            var plan = AutoRefillPlanner.Plan(_inventory, resource, missing);
+            plan.BeforeAmount = _city.Economy.Wallet.Get(resource);
+            plan.AfterAmount = plan.BeforeAmount + plan.TotalObtained;
+            plan.RequiredAmount = _pendingObtainResource.Required;
+            _autoRefillModal.Hide();
+            ApplyAutoRefill(plan);
+        }
+
+        public void DebugConfirmUpgrade() => ExecuteUpgrade();
+
+        public void DebugReturnToOriginIfAny()
+        {
+            if (!string.IsNullOrEmpty(_returnToDefinitionId))
+            {
+                ReturnToOriginBuilding();
+            }
+        }
+
         public void Dispose()
         {
+            _inventory.Changed -= OnInventoryChanged;
             _city.Selection.SelectionChanged -= OnSelectionChanged;
             _city.BuildingChanged -= OnBuildingChanged;
+        }
+
+        private void WireModals()
+        {
+            _upgradeModal.Bind(
+                onClose: OnPremiumModalClosed,
+                onUpgrade: ExecuteUpgrade,
+                onInstant: ExecuteInstantComplete,
+                onGo: req => GoToRequirementBuilding(req.TargetBuildingId),
+                onObtain: OpenObtainFor,
+                onInfo: () =>
+                {
+                    if (_current != null)
+                    {
+                        OpenDetailsModal(_current);
+                    }
+                },
+                onSatisfyQa: req =>
+                {
+                    var qa = UnityEngine.Object.FindFirstObjectByType<Valgor.City.Qa.CityProgressionQaController>();
+                    qa?.RequestSatisfyRequirement(req.TargetBuildingId, req.RequiredLevel);
+                },
+                onReturn: ReturnToOriginBuilding);
+
+            _detailsModal.Bind(
+                onClose: OnPremiumModalClosed,
+                onUpgrade: () =>
+                {
+                    if (_current != null)
+                    {
+                        _openPanelAction = BuildingContextAction.Upgrade;
+                        OpenActionPanel(BuildingContextAction.Upgrade);
+                    }
+                });
+
+            _obtainModal.Bind(
+                onClose: () =>
+                {
+                    _pendingObtainResource = null;
+                    if (_openPanelAction == BuildingContextAction.Upgrade && _current != null)
+                    {
+                        RefreshUpgradeModal();
+                    }
+                    else
+                    {
+                        OnPremiumModalClosed();
+                    }
+                },
+                onUse: UseInventoryItem,
+                onAutoRefill: BeginAutoRefill,
+                onSimulateShortageQa: SimulateResourceShortageQa,
+                onRestoreResourcesQa: RestoreResourcesQa);
+
+            _autoRefillModal.Bind(
+                onCancel: () => { },
+                onConfirm: (plan, _) => ApplyAutoRefill(plan));
+        }
+
+        private void OnPremiumModalClosed()
+        {
+            if (_upgradeModal.IsVisible || _detailsModal.IsVisible || _obtainModal.IsVisible || _autoRefillModal.IsVisible)
+            {
+                return;
+            }
+
+            if (_actionPanel.style.display != DisplayStyle.Flex)
+            {
+                _openPanelAction = null;
+                BetaJourneyGuide.NotifyCityModalOpen(false);
+            }
+        }
+
+        private void OnInventoryChanged()
+        {
+            if (_obtainModal.IsVisible && _pendingObtainResource != null)
+            {
+                var wallet = _city.Economy.Wallet;
+                _obtainModal.Refresh(
+                    _inventory,
+                    wallet.Get(_pendingObtainResource.ResourceId),
+                    _pendingObtainResource.Required);
+            }
+
+            if (_upgradeModal.IsVisible)
+            {
+                RefreshUpgradeModal();
+            }
+
+            var hud = UnityEngine.Object.FindFirstObjectByType<CityHudController>();
+            hud?.ForceRefreshResources();
         }
 
         private void OnBuildingChanged()
@@ -224,7 +414,14 @@ namespace Valgor.City.UI
                 BetaMissions.Notify(MissionEvent.SelectCastle);
             }
 
+            var reopenUpgrade = _reopenUpgradeAfterSelect;
+            _reopenUpgradeAfterSelect = false;
             OpenContextFor(selected, refocusCamera: true);
+            if (reopenUpgrade)
+            {
+                _openPanelAction = BuildingContextAction.Upgrade;
+                OpenActionPanel(BuildingContextAction.Upgrade);
+            }
         }
 
         private void OpenContextFor(BuildingInstance building, bool refocusCamera)
@@ -536,6 +733,7 @@ namespace Valgor.City.UI
                 if (action == BuildingContextAction.Open &&
                     string.Equals(definition.Id, "dragon-tower", StringComparison.Ordinal))
                 {
+                    HidePremiumModals();
                     _detailsPanel.Hide();
                     _actionTitle.text = ActionTitle(action, definition);
                     var model = BuildingDetailsViewModel.From(_city, _current, definition, openMode: true);
@@ -552,176 +750,220 @@ namespace Valgor.City.UI
                     return;
                 }
 
+                if (action == BuildingContextAction.Details)
+                {
+                    _actionPanel.style.display = DisplayStyle.None;
+                    _detailsPanel.Hide();
+                    OpenDetailsModal(_current);
+                    Debug.Log($"[Valgor] Painel Detalhes aberto: {definition.DisplayName}");
+                    return;
+                }
+
+                // Abrir (não-torre): painel legado de detalhes à direita.
                 _actionPanel.style.display = DisplayStyle.None;
+                HidePremiumModals();
                 var detailsModel = BuildingDetailsViewModel.From(
                     _city,
                     _current,
                     definition,
-                    openMode: action == BuildingContextAction.Open);
+                    openMode: true);
                 _detailsPanel.Show(detailsModel, HideActionPanel);
                 BetaJourneyGuide.NotifyCityModalOpen(true, panelOnRight: true);
-                Debug.Log($"[Valgor] Painel Detalhes aberto: {definition.DisplayName}");
+                Debug.Log($"[Valgor] Painel Abrir aberto: {definition.DisplayName}");
                 return;
             }
 
             _detailsPanel.Hide();
+            _detailsModal.HideWithoutCallback();
             _actionTitle.text = ActionTitle(action, definition);
 
             switch (action)
             {
                 case BuildingContextAction.Upgrade:
-                    RebuildUpgradeBody(_current);
-                    var canConfirmUpgrade = _city.CanUpgrade(_current, definition) &&
-                                            string.IsNullOrEmpty(_city.GetUpgradeBlockReason(_current, definition));
-                    AddPanelButton(
-                        _current.State == BuildingState.Available && _current.Level <= 0 ? "Construir" : "Atualizar",
-                        ExecuteUpgrade,
-                        enabled: canConfirmUpgrade);
-                    var canInstant = _current.State == BuildingState.Upgrading &&
-                                     _current.UpgradeCompletesAtUtc.HasValue;
-                    AddPanelButton("Concluir Agora", ExecuteInstantComplete, enabled: canInstant);
-                    AddPanelButton("Fechar", HideActionPanel);
+                    _actionPanel.style.display = DisplayStyle.None;
+                    RefreshUpgradeModal(forceShow: true);
                     break;
                 default:
+                    HidePremiumModals();
                     AppendBodyText(BuildPanelBodyLegacy(action, _current, definition));
                     AddPanelButton("Fechar", HideActionPanel);
+                    _actionPanel.style.display = DisplayStyle.Flex;
+                    _actionPanel.style.visibility = Visibility.Visible;
+                    _actionPanel.style.opacity = 1f;
+                    _actionPanel.BringToFront();
+                    BetaJourneyGuide.NotifyCityModalOpen(true, panelOnRight: true);
                     break;
             }
-
-            _actionPanel.style.display = DisplayStyle.Flex;
-            _actionPanel.style.visibility = Visibility.Visible;
-            _actionPanel.style.opacity = 1f;
-            _actionPanel.BringToFront();
-            BetaJourneyGuide.NotifyCityModalOpen(true, panelOnRight: true);
         }
 
-        private void RebuildUpgradeBody(BuildingInstance building)
+        private void OpenDetailsModal(BuildingInstance building)
         {
-            if (_openPanelAction != BuildingContextAction.Upgrade)
+            HidePremiumModals();
+            var presentation = BuildingUpgradePresentationBuilder.BuildDetails(_city, building);
+            _detailsModal.Show(presentation);
+            _openPanelAction = BuildingContextAction.Details;
+        }
+
+        private void RefreshUpgradeModal(bool forceShow = false, string? feedback = null)
+        {
+            if (_current == null)
             {
                 return;
             }
 
-            _actionBodyHost.Clear();
-            var definition = _city.GetDefinition(building);
-            var next = Math.Min(definition.MaxLevel, building.Level + 1);
-            var duration = definition.GetUpgradeDuration(building.Level);
-
-            AppendBodyText(
-                $"{definition.DisplayName}\n" +
-                $"Nível atual: {building.Level}\n" +
-                $"Próximo nível: {next}\n" +
-                $"Benefício: {DescribeUpgradeBenefit(building, definition)}\n" +
-                $"Duração: {(int)duration.TotalSeconds}s\n" +
-                (building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue
-                    ? $"Em andamento — resta {FormatRemaining(building.UpgradeCompletesAtUtc.Value)}\n"
-                    : string.Empty) +
-                $"Construtor: {_city.GetActiveConstructionCount()}/{CityController.ConstructionQueueSlots}\n" +
-                "Pré-requisitos:");
-
-            foreach (var dep in _city.GetDependencyChecks(building))
+            if (!forceShow && !_upgradeModal.IsVisible && _openPanelAction != BuildingContextAction.Upgrade)
             {
-                _actionBodyHost.Add(BuildDependencyRow(dep));
+                return;
             }
 
-            AppendBodyText("Recursos:");
-
-            foreach (var req in _city.GetUpgradeRequirements(building))
-            {
-                _actionBodyHost.Add(BuildRequirementRow(req));
-            }
-
-            var diamonds = BuildingUpgradeRequirements.InstantCompleteDiamondCost(
-                building.State == BuildingState.Upgrading && building.UpgradeCompletesAtUtc.HasValue
-                    ? building.UpgradeCompletesAtUtc.Value - _city.Economy.Clock.UtcNow
-                    : duration);
-            AppendBodyText($"\nConcluir Agora: {diamonds} diamante(s) · saldo {_city.Economy.Wallet.Get(ResourceType.Diamonds)}");
+            var presentation = BuildingUpgradePresentationBuilder.Build(_city, _current, _inventory);
+            var showReturn = !string.IsNullOrEmpty(_returnToDefinitionId) &&
+                             !string.Equals(_returnToDefinitionId, _current.DefinitionId, StringComparison.Ordinal);
+            _obtainModal.HideWithoutCallback();
+            _detailsModal.HideWithoutCallback();
+            _upgradeModal.Show(presentation, feedback ?? _feedback.text, showReturn);
+            _openPanelAction = BuildingContextAction.Upgrade;
         }
 
-        private VisualElement BuildDependencyRow(BuildingDependencyCheck check)
+        private void HidePremiumModals()
         {
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.justifyContent = Justify.SpaceBetween;
-            row.style.marginTop = 3;
-            row.style.paddingLeft = 6;
-            row.style.paddingRight = 6;
-            row.style.paddingTop = 4;
-            row.style.paddingBottom = 4;
-            row.style.backgroundColor = new Color(0.12f, 0.12f, 0.14f, 0.85f);
+            _upgradeModal.HideWithoutCallback();
+            _detailsModal.HideWithoutCallback();
+            _obtainModal.HideWithoutCallback();
+            _autoRefillModal.Hide();
+        }
 
-            var name = new Label(check.Label);
-            name.style.color = BetaVisualTheme.TextPrimary;
-            name.style.fontSize = 12;
-            name.style.flexGrow = 1;
-            name.style.flexShrink = 1;
+        private void OpenObtainFor(ResourceRequirementView resource)
+        {
+            _pendingObtainResource = resource;
+            _obtainModal.Show(
+                resource.ResourceId,
+                resource.Available,
+                resource.Required,
+                _inventory);
+        }
 
-            var detail = new Label(check.Detail);
-            detail.style.fontSize = 11;
-            detail.style.color = check.Satisfied
-                ? BetaVisualTheme.Success
-                : BetaVisualTheme.Danger;
-            detail.style.unityTextAlign = TextAnchor.MiddleRight;
-            detail.style.flexGrow = 1;
-            detail.style.flexShrink = 1;
-
-            var mark = new Label(check.Satisfied ? "✓" : "✗");
-            mark.style.fontSize = 13;
-            mark.style.marginLeft = 8;
-            mark.style.color = detail.style.color;
-            mark.style.unityFontStyleAndWeight = FontStyle.Bold;
-
-            row.Add(name);
-            row.Add(detail);
-            row.Add(mark);
-
-            if (!check.Satisfied && !string.IsNullOrEmpty(check.JumpToDefinitionId))
+        private void UseInventoryItem(string itemId, int quantity)
+        {
+            if (!_inventory.TryUse(itemId, _city.Economy.Wallet, out var credited, out var error, quantity))
             {
-                var targetId = check.JumpToDefinitionId!;
-                var go = new Button(() => GoToRequirementBuilding(targetId)) { text = "Ir" };
-                go.style.marginLeft = 8;
-                go.style.paddingLeft = 10;
-                go.style.paddingRight = 10;
-                go.style.paddingTop = 4;
-                go.style.paddingBottom = 4;
-                go.style.fontSize = 12;
-                go.style.backgroundColor = BetaVisualTheme.ButtonFace;
-                go.style.color = BetaVisualTheme.TextPrimary;
-                go.style.borderTopWidth = 1;
-                go.style.borderBottomWidth = 1;
-                go.style.borderLeftWidth = 1;
-                go.style.borderRightWidth = 1;
-                go.style.borderTopColor = BetaVisualTheme.ButtonBorder;
-                go.style.borderBottomColor = BetaVisualTheme.ButtonBorder;
-                go.style.borderLeftColor = BetaVisualTheme.ButtonBorder;
-                go.style.borderRightColor = BetaVisualTheme.ButtonBorder;
-                row.Add(go);
-
-                if (Valgor.Core.CityProgressionQa.IsActive && check.RequiredMinimumLevel > 0)
-                {
-                    var minLv = check.RequiredMinimumLevel;
-                    var fulfill = new Button(() =>
-                    {
-                        var qa = UnityEngine.Object.FindFirstObjectByType<Valgor.City.Qa.CityProgressionQaController>();
-                        qa?.RequestSatisfyRequirement(targetId, minLv);
-                    })
-                    {
-                        text = "Atender requisito"
-                    };
-                    fulfill.style.marginLeft = 6;
-                    fulfill.style.paddingLeft = 8;
-                    fulfill.style.paddingRight = 8;
-                    fulfill.style.paddingTop = 4;
-                    fulfill.style.paddingBottom = 4;
-                    fulfill.style.fontSize = 11;
-                    fulfill.style.backgroundColor = new Color(0.18f, 0.28f, 0.2f, 0.95f);
-                    fulfill.style.color = BetaVisualTheme.TextPrimary;
-                    row.Add(fulfill);
-                }
+                _toast.Show(error);
+                return;
             }
 
-            return row;
+            _city.Economy.PersistWallet();
+            var hud = UnityEngine.Object.FindFirstObjectByType<CityHudController>();
+            hud?.ForceRefreshResources();
+            _toast.Show($"+{BuildingUpgradePresentationBuilder.FormatAmount(credited)} creditado");
+            OnInventoryChanged();
+            if (_current != null)
+            {
+                RefreshUpgradeModal();
+            }
+        }
+
+        private void BeginAutoRefill()
+        {
+            if (_pendingObtainResource == null)
+            {
+                return;
+            }
+
+            var resource = _pendingObtainResource.ResourceId;
+            var missing = Math.Max(0, _pendingObtainResource.Required - _city.Economy.Wallet.Get(resource));
+            var plan = AutoRefillPlanner.Plan(_inventory, resource, missing);
+            plan.BeforeAmount = _city.Economy.Wallet.Get(resource);
+            plan.AfterAmount = plan.BeforeAmount + plan.TotalObtained;
+            plan.RequiredAmount = _pendingObtainResource.Required;
+
+            if (plan.Lines.Length == 0)
+            {
+                _toast.Show("Nenhum item disponível para reabastecer.");
+                return;
+            }
+
+            if (AutoRefillConfirmModal.SkipConfirmThisSession)
+            {
+                ApplyAutoRefill(plan);
+                return;
+            }
+
+            _autoRefillModal.Show(plan);
+        }
+
+        private void ApplyAutoRefill(AutoRefillPlan plan)
+        {
+            if (!_inventory.TryApplyAutoRefill(plan, _city.Economy.Wallet, out var error))
+            {
+                _toast.Show(error);
+                return;
+            }
+
+            _city.Economy.PersistWallet();
+            var hud = UnityEngine.Object.FindFirstObjectByType<CityHudController>();
+            hud?.ForceRefreshResources();
+            _toast.Show(
+                $"+{BuildingUpgradePresentationBuilder.FormatAmount(plan.TotalObtained)} via reabastecimento");
+            OnInventoryChanged();
+            if (_current != null)
+            {
+                RefreshUpgradeModal();
+            }
+        }
+
+        private void SimulateResourceShortageQa()
+        {
+            if (!CityProgressionQa.IsActive || _pendingObtainResource == null)
+            {
+                return;
+            }
+
+            var resource = _pendingObtainResource.ResourceId;
+            var required = _pendingObtainResource.Required;
+            var low = Math.Max(0, required / 20);
+            _city.Economy.Wallet.SetAmount(resource, low);
+            _city.Economy.PersistWallet();
+            var hud = UnityEngine.Object.FindFirstObjectByType<CityHudController>();
+            hud?.ForceRefreshResources();
+            _toast.Show($"QA: {BuildingUpgradePresentationBuilder.FriendlyResource(resource)} → {low}");
+            OnInventoryChanged();
+            RefreshUpgradeModal();
+        }
+
+        private void RestoreResourcesQa()
+        {
+            if (!CityProgressionQa.IsActive)
+            {
+                return;
+            }
+
+            var qa = UnityEngine.Object.FindFirstObjectByType<Valgor.City.Qa.CityProgressionQaController>();
+            qa?.TopUpNow();
+            _inventory.SeedQaControlled();
+            _toast.Show("QA: recursos e inventário restaurados");
+            OnInventoryChanged();
+            RefreshUpgradeModal();
+        }
+
+        private void ReturnToOriginBuilding()
+        {
+            if (string.IsNullOrEmpty(_returnToDefinitionId))
+            {
+                return;
+            }
+
+            var originId = _returnToDefinitionId;
+            _returnToDefinitionId = null;
+            if (!_city.TryGetBuildingByDefinitionId(originId!, out var origin))
+            {
+                return;
+            }
+
+            CityBuildingPointerInput.SuppressWorldClicks(0.35f);
+            _ignoreOutsideClickUntil = Time.unscaledTime + 0.35f;
+            HidePremiumModals();
+            _reopenUpgradeAfterSelect = true;
+            _city.Selection.Select(origin);
         }
 
         private void GoToRequirementBuilding(string definitionId)
@@ -732,102 +974,21 @@ namespace Valgor.City.UI
             if (!_city.TryGetBuildingByDefinitionId(definitionId, out var target))
             {
                 _feedback.text = "Edifício exigido não encontrado na cidade.";
+                _upgradeModal.SetFeedback(_feedback.text);
                 return;
             }
 
-            HideActionPanel();
+            if (_current != null)
+            {
+                _returnToDefinitionId = _current.DefinitionId;
+            }
+
+            HidePremiumModals();
+            _detailsPanel.Hide();
+            _actionPanel.style.display = DisplayStyle.None;
             _openPanelAction = null;
+            BetaJourneyGuide.NotifyCityModalOpen(false);
             _city.Selection.Select(target);
-        }
-
-        private static VisualElement BuildRequirementRow(UpgradeResourceRequirement req)
-        {
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.justifyContent = Justify.SpaceBetween;
-            row.style.marginTop = 3;
-            row.style.paddingLeft = 6;
-            row.style.paddingRight = 6;
-            row.style.paddingTop = 4;
-            row.style.paddingBottom = 4;
-            row.style.backgroundColor = new Color(0.12f, 0.12f, 0.14f, 0.85f);
-
-            var name = new Label(FriendlyResource(req.Resource));
-            name.style.color = BetaVisualTheme.TextPrimary;
-            name.style.fontSize = 12;
-            name.style.flexGrow = 1;
-
-            var amounts = new Label($"{req.Available} / {req.Required}");
-            amounts.style.fontSize = 12;
-            amounts.style.color = req.Satisfied
-                ? new Color(0.45f, 0.85f, 0.5f)
-                : new Color(0.9f, 0.35f, 0.32f);
-            amounts.style.unityTextAlign = TextAnchor.MiddleRight;
-            amounts.style.minWidth = 90;
-
-            var mark = new Label(req.Satisfied ? "✓" : "✗");
-            mark.style.fontSize = 13;
-            mark.style.marginLeft = 8;
-            mark.style.color = amounts.style.color;
-            mark.style.unityFontStyleAndWeight = FontStyle.Bold;
-
-            row.Add(name);
-            row.Add(amounts);
-            row.Add(mark);
-            return row;
-        }
-
-        private string BuildDetailsBody(BuildingInstance building, BuildingDefinition definition, bool openMode) =>
-            BuildingDetailsViewModel.From(_city, building, definition, openMode).Body;
-
-        private string DescribeRequirementsShort(BuildingInstance building)
-        {
-            var sb = new StringBuilder("Requisitos: ");
-            var first = true;
-            foreach (var req in _city.GetUpgradeRequirements(building))
-            {
-                if (req.Required <= 0)
-                {
-                    continue;
-                }
-
-                if (!first) sb.Append(", ");
-                sb.Append($"{FriendlyResource(req.Resource)} {req.Required}");
-                first = false;
-            }
-
-            return first ? "Requisitos: —" : sb.ToString();
-        }
-
-        private static string DescribeUpgradeBenefit(BuildingInstance building, BuildingDefinition definition)
-        {
-            if (string.Equals(building.DefinitionId, "castle", StringComparison.Ordinal))
-            {
-                return $"Eleva o teto da cidade para Nv.{building.Level + 1}";
-            }
-
-            if (string.Equals(building.DefinitionId, "warehouse", StringComparison.Ordinal))
-            {
-                return
-                    $"Capacidade {WarehouseRules.GetNextCapacity(building.Level):N0} · " +
-                    $"proteção {WarehouseRules.GetNextProtection(building.Level):N0}";
-            }
-
-            if (string.Equals(building.DefinitionId, "academy", StringComparison.Ordinal))
-            {
-                return $"Eleva o teto acadêmico para Nv.{building.Level + 1}";
-            }
-
-            var supportBenefit = SupportBuildingRules.DescribeUpgradeBenefit(building.DefinitionId, building.Level);
-            if (!string.IsNullOrEmpty(supportBenefit))
-            {
-                return supportBenefit;
-            }
-
-            var productionBenefit = ProductionBuildingDetails.DescribeUpgradeBenefit(building.DefinitionId);
-            return string.IsNullOrEmpty(productionBenefit)
-                ? $"Melhora {definition.DisplayName}"
-                : productionBenefit;
         }
 
         private string BuildPanelBodyLegacy(
@@ -855,7 +1016,7 @@ namespace Valgor.City.UI
             if (building.State == BuildingState.Upgrading)
             {
                 _feedback.text = "Melhoria já em andamento.";
-                RebuildUpgradeBody(building);
+                RefreshUpgradeModal(feedback: _feedback.text);
                 return;
             }
 
@@ -871,6 +1032,10 @@ namespace Valgor.City.UI
             }
 
             RefreshCurrent();
+            if (_openPanelAction == BuildingContextAction.Upgrade)
+            {
+                RefreshUpgradeModal(forceShow: true, feedback: _feedback.text);
+            }
         }
 
         private void ExecuteInstantComplete()
@@ -885,6 +1050,10 @@ namespace Valgor.City.UI
             }
 
             RefreshCurrent();
+            if (_openPanelAction == BuildingContextAction.Upgrade)
+            {
+                RefreshUpgradeModal(forceShow: true, feedback: _feedback.text);
+            }
         }
 
         private void HandleOutsideClick()
@@ -911,6 +1080,10 @@ namespace Valgor.City.UI
             var pos = mouse.position.ReadValue();
             if (IsScreenOverElement(_contextMenu.Root, pos) ||
                 IsScreenOverElement(_detailsPanel.Root, pos) ||
+                IsScreenOverElement(_detailsModal.Root, pos) ||
+                IsScreenOverElement(_upgradeModal.Root, pos) ||
+                IsScreenOverElement(_obtainModal.Root, pos) ||
+                IsScreenOverElement(_autoRefillModal.Root, pos) ||
                 (_actionPanel.style.display == DisplayStyle.Flex && IsScreenOverElement(_actionPanel, pos)))
             {
                 return;
@@ -965,6 +1138,7 @@ namespace Valgor.City.UI
         {
             _openPanelAction = null;
             _detailsPanel.Hide();
+            HidePremiumModals();
             _actionPanel.style.display = DisplayStyle.None;
             _actionButtons.Clear();
             _actionBodyHost.Clear();

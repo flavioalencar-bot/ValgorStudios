@@ -133,6 +133,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI pasta upgrade UX: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildUpgradeUxCli</summary>
+        public static void BuildUpgradeUxCli()
+        {
+            var report = Build("Valgor-QA-Building-Upgrade-UX");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Building Upgrade UX Build OK: {GetOutputExe("Valgor-QA-Building-Upgrade-UX")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Upgrade UX Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

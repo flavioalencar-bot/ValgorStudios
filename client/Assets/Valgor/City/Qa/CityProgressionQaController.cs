@@ -44,6 +44,39 @@ namespace Valgor.City.Qa
             hud?.ForceRefreshResources();
         }
 
+        /// <summary>Reduz madeira/comida/ouro para forçar fluxo Obter mais.</summary>
+        public void SimulateResourceShortage(ResourceType resource = ResourceType.Wood, long amount = 300)
+        {
+            if (!CityProgressionQa.IsActive || _city == null)
+            {
+                return;
+            }
+
+            _city.Economy.Wallet.SetAmount(resource, Math.Max(0, amount));
+            _city.Economy.PersistWallet();
+            var hud = FindFirstObjectByType<CityHudController>();
+            hud?.ForceRefreshResources();
+            _city.NotifyBuildingChanged();
+            _status = $"Falta simulada: {resource}={amount}";
+            Debug.Log($"[Valgor.QA] {_status}");
+        }
+
+        public void RestoreResourcesAndInventory()
+        {
+            if (!CityProgressionQa.IsActive || _city == null)
+            {
+                return;
+            }
+
+            TopUpNow();
+            Valgor.City.Economy.CityResourceItems.Shared.SeedQaControlled();
+            var hud = FindFirstObjectByType<CityHudController>();
+            hud?.ForceRefreshResources();
+            hud?.Presenter?.RefreshCurrent();
+            _status = "Recursos + inventário restaurados";
+            Debug.Log($"[Valgor.QA] {_status}");
+        }
+
         public void RequestSatisfyAllCastleRequirements() =>
             StartSafe(SatisfyAllCastleRequirementsRoutine());
 
