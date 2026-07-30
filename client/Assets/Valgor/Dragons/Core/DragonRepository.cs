@@ -12,7 +12,7 @@ namespace Valgor.Dragons.Core
         public DragonEggJourneyPhase EggJourneyPhase { get; set; } = DragonEggJourneyPhase.Locked;
         public int SyncedCastleLevel { get; set; }
         public int SyncedTowerLevel { get; set; } = 1;
-        public int PersistenceVersion { get; set; } = 6;
+        public int PersistenceVersion { get; set; } = 7;
     }
 
     public interface IDragonRepository
@@ -23,22 +23,25 @@ namespace Valgor.Dragons.Core
 
     /// <summary>
     /// Persistência técnica. Memória cobre City↔WorldMap; PlayerPrefs cobre restart.
-    /// Migra automaticamente v4/v5 → v6.
+    /// Migra automaticamente v4/v5/v6 → v7.
     /// </summary>
     public sealed class DragonRepository : IDragonRepository
     {
         private readonly string _keyPrefix;
-        private readonly string? _legacyKeyPrefix;
+        private readonly string? _legacyV6KeyPrefix;
+        private readonly string? _legacyV5KeyPrefix;
         private readonly string? _legacyV4KeyPrefix;
         private DragonSnapshot? _memory;
 
         public DragonRepository(
             string keyPrefix,
-            string? legacyKeyPrefix = null,
+            string? legacyV6KeyPrefix = null,
+            string? legacyV5KeyPrefix = null,
             string? legacyV4KeyPrefix = null)
         {
             _keyPrefix = keyPrefix ?? throw new ArgumentNullException(nameof(keyPrefix));
-            _legacyKeyPrefix = legacyKeyPrefix;
+            _legacyV6KeyPrefix = legacyV6KeyPrefix;
+            _legacyV5KeyPrefix = legacyV5KeyPrefix;
             _legacyV4KeyPrefix = legacyV4KeyPrefix;
         }
 
@@ -53,31 +56,22 @@ namespace Valgor.Dragons.Core
             var current = LoadFromPrefs(_keyPrefix);
             if (current != null)
             {
-                MigratePhase3Defaults(current);
+                ApplyAllMigrations(current);
                 return current;
             }
 
-            if (!string.IsNullOrEmpty(_legacyKeyPrefix))
+            foreach (var legacyKey in new[] { _legacyV6KeyPrefix, _legacyV5KeyPrefix, _legacyV4KeyPrefix })
             {
-                var legacy = LoadFromPrefs(_legacyKeyPrefix!);
+                if (string.IsNullOrEmpty(legacyKey))
+                {
+                    continue;
+                }
+
+                var legacy = LoadFromPrefs(legacyKey!);
                 if (legacy != null)
                 {
-                    legacy.PersistenceVersion = 6;
-                    MigratePhase2Defaults(legacy);
-                    MigratePhase3Defaults(legacy);
+                    ApplyAllMigrations(legacy);
                     return legacy;
-                }
-            }
-
-            if (!string.IsNullOrEmpty(_legacyV4KeyPrefix))
-            {
-                var v4 = LoadFromPrefs(_legacyV4KeyPrefix!);
-                if (v4 != null)
-                {
-                    v4.PersistenceVersion = 6;
-                    MigratePhase2Defaults(v4);
-                    MigratePhase3Defaults(v4);
-                    return v4;
                 }
             }
 
@@ -89,11 +83,19 @@ namespace Valgor.Dragons.Core
 
         public void Save(DragonSnapshot snapshot)
         {
-            snapshot.PersistenceVersion = 6;
+            snapshot.PersistenceVersion = 7;
             _memory = Clone(snapshot);
 #if UNITY_5_3_OR_NEWER
             SaveToPrefs(_keyPrefix, snapshot);
 #endif
+        }
+
+        private static void ApplyAllMigrations(DragonSnapshot snapshot)
+        {
+            MigratePhase2Defaults(snapshot);
+            MigratePhase3Defaults(snapshot);
+            MigratePhase4Defaults(snapshot);
+            snapshot.PersistenceVersion = 7;
         }
 
         private static void MigratePhase2Defaults(DragonSnapshot snapshot)
@@ -130,8 +132,17 @@ namespace Valgor.Dragons.Core
                     dragon.AbilitySlot0 = DragonAbilityId.EmberBreath;
                 }
             }
+        }
 
-            snapshot.PersistenceVersion = 6;
+        private static void MigratePhase4Defaults(DragonSnapshot snapshot)
+        {
+            foreach (var dragon in snapshot.Dragons.Values)
+            {
+                if (!string.IsNullOrEmpty(dragon.BondedHeroId) && dragon.MountBondLevel < 1)
+                {
+                    dragon.MountBondLevel = 1;
+                }
+            }
         }
 
         private static DragonSnapshot Clone(DragonSnapshot source)
@@ -255,15 +266,21 @@ namespace Valgor.Dragons.Core
                         AbilitySlot0 = ParseAbility(UnityEngine.PlayerPrefs.GetString(key + ".ab0", "ember-breath")),
                         AbilitySlot1 = ParseAbility(UnityEngine.PlayerPrefs.GetString(key + ".ab1", string.Empty)),
                         AbilitySlot2 = ParseAbility(UnityEngine.PlayerPrefs.GetString(key + ".ab2", string.Empty)),
-                        PendingCombatInjury = UnityEngine.PlayerPrefs.GetInt(key + ".inj", 0) == 1
+                        PendingCombatInjury = UnityEngine.PlayerPrefs.GetInt(key + ".inj", 0) == 1,
+                        BondedHeroId = NullIfEmpty(UnityEngine.PlayerPrefs.GetString(key + ".hero", string.Empty)),
+                        MountBondLevel = UnityEngine.PlayerPrefs.GetInt(key + ".mbond", 0),
+                        MountBondPoints = UnityEngine.PlayerPrefs.GetInt(key + ".mbpts", 0),
+                        IsMounted = UnityEngine.PlayerPrefs.GetInt(key + ".mount", 0) == 1
                     };
                 }
             }
 
-            MigratePhase2Defaults(snapshot);
-            MigratePhase3Defaults(snapshot);
+            ApplyAllMigrations(snapshot);
             return snapshot;
         }
+
+        private static string? NullIfEmpty(string value) =>
+            string.IsNullOrEmpty(value) ? null : value;
 
         private static DragonAbilityId ParseAbility(string raw)
         {
@@ -279,7 +296,7 @@ namespace Valgor.Dragons.Core
             UnityEngine.PlayerPrefs.SetInt(keyPrefix + ".journey", (int)snapshot.EggJourneyPhase);
             UnityEngine.PlayerPrefs.SetInt(keyPrefix + ".castle", snapshot.SyncedCastleLevel);
             UnityEngine.PlayerPrefs.SetInt(keyPrefix + ".tower", snapshot.SyncedTowerLevel);
-            UnityEngine.PlayerPrefs.SetInt(keyPrefix + ".ver", 6);
+            UnityEngine.PlayerPrefs.SetInt(keyPrefix + ".ver", 7);
             if (snapshot.Roost == null)
             {
                 UnityEngine.PlayerPrefs.DeleteKey(keyPrefix + ".roost.id");
@@ -327,6 +344,10 @@ namespace Valgor.Dragons.Core
                     key + ".ab2",
                     Valgor.Dragons.Combat.DragonAbilityCatalog.ToPersistId(d.AbilitySlot2));
                 UnityEngine.PlayerPrefs.SetInt(key + ".inj", d.PendingCombatInjury ? 1 : 0);
+                UnityEngine.PlayerPrefs.SetString(key + ".hero", d.BondedHeroId ?? string.Empty);
+                UnityEngine.PlayerPrefs.SetInt(key + ".mbond", d.MountBondLevel);
+                UnityEngine.PlayerPrefs.SetInt(key + ".mbpts", d.MountBondPoints);
+                UnityEngine.PlayerPrefs.SetInt(key + ".mount", d.IsMounted ? 1 : 0);
                 if (d.StateEndsAtUtc.HasValue)
                 {
                     UnityEngine.PlayerPrefs.SetString(key + ".ends", d.StateEndsAtUtc.Value.ToString("O", inv));

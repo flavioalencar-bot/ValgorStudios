@@ -7,12 +7,13 @@ using Valgor.Dragons.Data;
 using Valgor.Dragons.Deployment;
 using Valgor.Dragons.Feeding;
 using Valgor.Dragons.Growth;
+using Valgor.Dragons.Mount;
 using Valgor.Dragons.Recovery;
 
 namespace Valgor.Dragons.Core
 {
     /// <summary>
-    /// Fachada: ovo (F1) + progressão (F2) + habilidades/combate PvE suporte (F3).
+    /// Fachada: ovo (F1) + progressão (F2) + combate PvE (F3) + montaria (F4).
     /// </summary>
     public sealed class DragonService : IDragonGateway
     {
@@ -47,6 +48,7 @@ namespace Valgor.Dragons.Core
             Progression = new DragonProgressionService(_settings, _utcNow);
             Abilities = new DragonAbilityService();
             Combat = new DragonCombatService(_settings, Abilities);
+            Mount = new DragonMountService(_settings);
             Roost = new DragonRoost(
                 _settings.DefaultRoostId,
                 "dragon-tower",
@@ -73,6 +75,7 @@ namespace Valgor.Dragons.Core
         public DragonProgressionService Progression { get; }
         public DragonAbilityService Abilities { get; }
         public DragonCombatService Combat { get; }
+        public DragonMountService Mount { get; }
         public DragonStateMachine StateMachine => _stateMachine;
         public IReadOnlyDictionary<string, DragonInstance> Dragons => _dragons;
         public string LastCombatSummary => _lastCombatSummary;
@@ -606,6 +609,11 @@ namespace Valgor.Dragons.Core
             dragon.PendingCombatInjury = false;
             Bond.AddBondPoints(dragon, _settings.BondPointsPerMission);
             Growth.AddGrowthPoints(dragon, _settings.GrowthPointsPerMission);
+            if (dragon.IsMounted && !string.IsNullOrEmpty(dragon.BondedHeroId))
+            {
+                Mount.AddMountBondPoints(dragon, _settings.MountBondPointsPerMission);
+            }
+
             Recovery.TryStartRecovery(dragon, _utcNow(), out _);
             Persist();
             Raise(dragonId, previous, dragon.State);
@@ -703,6 +711,160 @@ namespace Valgor.Dragons.Core
             }
 
             return ResolveCombatPower(dragon);
+        }
+
+        public bool TryCreateMountBond(string dragonId, string heroId, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            if (!Mount.TryCreateBond(dragon, heroId, out error))
+            {
+                return false;
+            }
+
+            Persist();
+            Raise(dragonId, dragon.State, dragon.State);
+            return true;
+        }
+
+        public bool TryClearMountBond(string dragonId, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            if (!Mount.TryClearBond(dragon, out error))
+            {
+                return false;
+            }
+
+            Persist();
+            Raise(dragonId, dragon.State, dragon.State);
+            return true;
+        }
+
+        public bool TryTrainMountBond(string dragonId, out string error)
+        {
+            if (_wallet == null)
+            {
+                error = "Carteira indisponível.";
+                return false;
+            }
+
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(dragon.BondedHeroId))
+            {
+                error = "Crie o vínculo de montaria primeiro.";
+                return false;
+            }
+
+            if (dragon.State is DragonState.Deployed or DragonState.Recovering or DragonState.Injured
+                or DragonState.Exhausted)
+            {
+                error = "Treine o vínculo com o dragão no ninho.";
+                return false;
+            }
+
+            if (_wallet.GetFood() < _settings.MountTrainFoodCost ||
+                _wallet.GetDragonEssence() < _settings.MountTrainEssenceCost)
+            {
+                error = "Recursos insuficientes para treinar o vínculo.";
+                return false;
+            }
+
+            if (!_wallet.TrySpendFood(_settings.MountTrainFoodCost) ||
+                !_wallet.TrySpendDragonEssence(_settings.MountTrainEssenceCost))
+            {
+                error = "Falha ao debitar recursos.";
+                return false;
+            }
+
+            Mount.AddMountBondPoints(dragon, _settings.MountBondPointsPerTrain);
+            _persistWallet?.Invoke();
+            Persist();
+            Raise(dragonId, dragon.State, dragon.State);
+            error = string.Empty;
+            return true;
+        }
+
+        public bool TryEquipMount(string dragonId, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            if (!Mount.TryEquipMount(dragon, out error))
+            {
+                return false;
+            }
+
+            Persist();
+            Raise(dragonId, dragon.State, dragon.State);
+            return true;
+        }
+
+        public bool TryUnequipMount(string dragonId, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            if (!Mount.TryUnequipMount(dragon, out error))
+            {
+                return false;
+            }
+
+            Persist();
+            Raise(dragonId, dragon.State, dragon.State);
+            return true;
+        }
+
+        public string DescribeMountBond(string dragonId)
+        {
+            if (!TryGet(dragonId, out var dragon) || dragon.DragonLevel < 1)
+            {
+                return "Montaria indisponível.";
+            }
+
+            return Mount.Describe(dragon);
+        }
+
+        public bool TryGetMarchDragonPresence(
+            string marchId,
+            out string dragonId,
+            out string stageLabel,
+            out bool isMounted,
+            out string bondedHeroId)
+        {
+            dragonId = string.Empty;
+            stageLabel = string.Empty;
+            isMounted = false;
+            bondedHeroId = string.Empty;
+            if (!Deployment.TryGetDragonForMarch(marchId, out var id) || !TryGet(id, out var dragon))
+            {
+                return false;
+            }
+
+            dragonId = id;
+            stageLabel = DragonProgressionRules.StageDisplayName(dragon.GrowthStage);
+            isMounted = dragon.IsMounted;
+            bondedHeroId = dragon.BondedHeroId ?? string.Empty;
+            return true;
         }
 
         public bool TryEvolve(string dragonId, out string error)
@@ -918,6 +1080,7 @@ namespace Valgor.Dragons.Core
                 repository ?? new DragonRepository(
                     settings.PersistenceKey,
                     settings.LegacyPersistenceKey,
+                    settings.LegacyV5PersistenceKey,
                     settings.LegacyV4PersistenceKey),
                 utcNow);
             service.BindWallet(wallet, persistWallet);

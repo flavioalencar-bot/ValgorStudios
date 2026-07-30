@@ -154,6 +154,52 @@ namespace Valgor.Core.Modules
 
         public int GetSupportPowerForMarch(string marchId) => 0;
 
+        public bool TryCreateMountBond(string dragonId, string heroId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryClearMountBond(string dragonId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryTrainMountBond(string dragonId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryEquipMount(string dragonId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public bool TryUnequipMount(string dragonId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public string DescribeMountBond(string dragonId) => "Sistema de dragões indisponível.";
+
+        public bool TryGetMarchDragonPresence(
+            string marchId,
+            out string dragonId,
+            out string stageLabel,
+            out bool isMounted,
+            out string bondedHeroId)
+        {
+            dragonId = string.Empty;
+            stageLabel = string.Empty;
+            isMounted = false;
+            bondedHeroId = string.Empty;
+            return false;
+        }
+
         public void Tick()
         {
         }

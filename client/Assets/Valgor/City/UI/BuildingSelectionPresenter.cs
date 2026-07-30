@@ -740,6 +740,10 @@ namespace Valgor.City.UI
                     AddPanelButton("Acelerar evolução", ExecuteDragonInstantLevelUp);
                     AddPanelButton("Habilidades", ExecuteShowDragonAbilities);
                     AddPanelButton("Equipar próxima habilidade", ExecuteEquipNextDragonAbility);
+                    AddPanelButton("Vínculo Vortex", ExecuteBindVortexMount);
+                    AddPanelButton("Treinar montaria", ExecuteTrainMountBond);
+                    AddPanelButton("Equipar montaria", ExecuteEquipMount);
+                    AddPanelButton("Status montaria", ExecuteShowMountBond);
                     break;
             }
         }
@@ -986,6 +990,130 @@ namespace Valgor.City.UI
                     OpenActionPanel(BuildingContextAction.Open);
                 }
 
+                return;
+            }
+
+            _feedback.text = "Nenhum dragão nascido.";
+            _feedback.style.display = DisplayStyle.Flex;
+        }
+
+        private void ExecuteBindVortexMount()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1)
+                {
+                    continue;
+                }
+
+                if (_dragons.TryCreateMountBond(status.DragonId, "HERO_VORTEX_000", out var error) &&
+                    _dragons.TryEquipMount(status.DragonId, out error))
+                {
+                    _feedback.text = "Vortex vinculado e montaria equipada. " +
+                                     _dragons.DescribeMountBond(status.DragonId);
+                }
+                else
+                {
+                    _feedback.text = error;
+                }
+
+                _feedback.style.display = DisplayStyle.Flex;
+                _city.Persist();
+                RefreshCurrent();
+                return;
+            }
+
+            _feedback.text = "Nenhum dragão nascido.";
+            _feedback.style.display = DisplayStyle.Flex;
+        }
+
+        private void ExecuteTrainMountBond()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1)
+                {
+                    continue;
+                }
+
+                if (_dragons.TryTrainMountBond(status.DragonId, out var error))
+                {
+                    _feedback.text = "Vínculo treinado. " + _dragons.DescribeMountBond(status.DragonId);
+                }
+                else
+                {
+                    _feedback.text = error;
+                }
+
+                _feedback.style.display = DisplayStyle.Flex;
+                _city.Persist();
+                RefreshCurrent();
+                return;
+            }
+
+            _feedback.text = "Nenhum dragão nascido.";
+            _feedback.style.display = DisplayStyle.Flex;
+        }
+
+        private void ExecuteEquipMount()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1)
+                {
+                    continue;
+                }
+
+                if (_dragons.TryEquipMount(status.DragonId, out var error))
+                {
+                    _feedback.text = "Montaria equipada. " + _dragons.DescribeMountBond(status.DragonId);
+                }
+                else
+                {
+                    _feedback.text = error;
+                }
+
+                _feedback.style.display = DisplayStyle.Flex;
+                _city.Persist();
+                RefreshCurrent();
+                return;
+            }
+
+            _feedback.text = "Nenhum dragão nascido.";
+            _feedback.style.display = DisplayStyle.Flex;
+        }
+
+        private void ExecuteShowMountBond()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1)
+                {
+                    continue;
+                }
+
+                _feedback.text = _dragons.DescribeMountBond(status.DragonId);
+                _feedback.style.display = DisplayStyle.Flex;
                 return;
             }
 

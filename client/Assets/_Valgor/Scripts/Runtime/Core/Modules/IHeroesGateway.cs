@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Valgor.Core.Modules
 {
@@ -17,5 +18,10 @@ namespace Valgor.Core.Modules
 
         /// <summary>Multiplicador de coleta no mapa (1.0 = base).</summary>
         float GetGatherRateMultiplier();
+
+        /// <summary>Heróis elegíveis como montadores (Fase 4).</summary>
+        IReadOnlyList<string> GetCompatibleRiderHeroIds();
+
+        bool TryGetHeroDisplayName(string heroId, out string displayName);
     }
 }

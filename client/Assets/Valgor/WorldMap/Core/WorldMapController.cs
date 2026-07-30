@@ -186,15 +186,33 @@ namespace Valgor.WorldMap.Core
 
         private void SyncMarchArmy()
         {
+            var showDragon = false;
+            var stage = string.Empty;
+            var mounted = false;
+            var march = _session.Marches.Active;
+            if (march != null &&
+                _session.TryGetMarchDragonPresence(
+                    march.Id,
+                    out _,
+                    out stage,
+                    out mounted,
+                    out _))
+            {
+                showDragon = true;
+            }
+
             _marchArmy?.Sync(
-                _session.Marches.Active,
+                march,
                 id =>
                 {
                     var definition = _session.GetDefinition(id);
                     return new Vector3(definition.X, 0f, definition.Z);
                 },
                 _session.Clock.UtcNow,
-                _session.DescribeHeroFormation());
+                _session.DescribeHeroFormation(),
+                showDragon,
+                stage,
+                mounted);
         }
 
         private void ApplyNodeVisibility(string nodeId)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Valgor.Core;
 
 namespace Valgor.Core.Modules
@@ -10,10 +11,19 @@ namespace Valgor.Core.Modules
     {
         public const string VortexHeroId = "HERO_VORTEX_000";
         public const string VortexDisplayName = "Vortex";
+        public const string ElyraHeroId = "HERO_ELYRA_001";
+        public const string VesperaHeroId = "HERO_VESPERA_010";
         public const int VortexMarchPower = 280;
         public const int PowerPerCastleLevel = 20;
         public const float BaseGatherMultiplier = 1.10f;
         public const float ResearchGatherExtra = 1.05f;
+
+        private static readonly string[] RiderIds =
+        {
+            VortexHeroId,
+            ElyraHeroId,
+            VesperaHeroId
+        };
 
         private string? _activeReservationId;
         private string? _activeTargetNodeId;
@@ -55,6 +65,20 @@ namespace Valgor.Core.Modules
                 ? $"{VortexDisplayName} (pronto · poder {power})"
                 : $"{VortexDisplayName} → {_activeTargetNodeId} · poder {power}";
             return baseLine;
+        }
+
+        public IReadOnlyList<string> GetCompatibleRiderHeroIds() => RiderIds;
+
+        public bool TryGetHeroDisplayName(string heroId, out string displayName)
+        {
+            displayName = heroId switch
+            {
+                VortexHeroId => VortexDisplayName,
+                ElyraHeroId => "Elyra",
+                VesperaHeroId => "Vespera",
+                _ => string.Empty
+            };
+            return !string.IsNullOrEmpty(displayName);
         }
     }
 }

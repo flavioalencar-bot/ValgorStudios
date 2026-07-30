@@ -273,8 +273,21 @@ namespace Valgor.WorldMap.Core
             {
                 if (_dragons.TryDeployFirstReadyToMarch(Marches.Active.Id, out var dragonError))
                 {
+                    var mountHint = string.Empty;
+                    if (_dragons.TryGetMarchDragonPresence(
+                            Marches.Active.Id,
+                            out _,
+                            out var stage,
+                            out var mounted,
+                            out var heroId) &&
+                        mounted)
+                    {
+                        mountHint = $" · montaria {stage}" +
+                                    (string.IsNullOrEmpty(heroId) ? string.Empty : $"/{heroId}");
+                    }
+
                     LastDispatchDetail =
-                        $"{_heroes.DescribeFormation()} · Dragão destacado · Poder {GetAttackerPower()}";
+                        $"{_heroes.DescribeFormation()} · Dragão destacado{mountHint} · Poder {GetAttackerPower()}";
                 }
                 else
                 {
@@ -518,6 +531,14 @@ namespace Valgor.WorldMap.Core
         public int GetHeroMarchPower() => _heroes.GetProvisionalMarchPower();
 
         public string DescribeHeroFormation() => _heroes.DescribeFormation();
+
+        public bool TryGetMarchDragonPresence(
+            string marchId,
+            out string dragonId,
+            out string stageLabel,
+            out bool isMounted,
+            out string bondedHeroId) =>
+            _dragons.TryGetMarchDragonPresence(marchId, out dragonId, out stageLabel, out isMounted, out bondedHeroId);
 
         public string? LastDispatchDetail { get; private set; }
 

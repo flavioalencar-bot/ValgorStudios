@@ -186,6 +186,26 @@ namespace Valgor.Core.Modules
 
         int GetSupportPowerForMarch(string marchId);
 
+        /// <summary>Fase 4 — vínculo de montaria com herói compatível.</summary>
+        bool TryCreateMountBond(string dragonId, string heroId, out string error);
+
+        bool TryClearMountBond(string dragonId, out string error);
+
+        bool TryTrainMountBond(string dragonId, out string error);
+
+        bool TryEquipMount(string dragonId, out string error);
+
+        bool TryUnequipMount(string dragonId, out string error);
+
+        string DescribeMountBond(string dragonId);
+
+        bool TryGetMarchDragonPresence(
+            string marchId,
+            out string dragonId,
+            out string stageLabel,
+            out bool isMounted,
+            out string bondedHeroId);
+
         void Tick();
 
         void Persist();

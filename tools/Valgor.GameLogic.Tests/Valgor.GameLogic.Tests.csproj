@@ -102,5 +102,7 @@
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Combat\DragonAbilityModels.cs" Link="Dragons\DragonAbilityModels.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Combat\DragonAbilityService.cs" Link="Dragons\DragonAbilityService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Combat\DragonCombatService.cs" Link="Dragons\DragonCombatService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\Dragons\Mount\DragonMountCompatibility.cs" Link="Dragons\DragonMountCompatibility.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\Dragons\Mount\DragonMountService.cs" Link="Dragons\DragonMountService.cs" />
   </ItemGroup>
 </Project>

@@ -68,7 +68,7 @@ Filtros persistem via `WorldMapFilterPersistenceRepository` (memória + PlayerPr
 
 ## Dragões em marchas
 
-Despacho tenta destacar o primeiro dragão READY com energia/saúde suficientes (`TryDeployFirstReadyToMarch` → `DEPLOYED`). Engajar criatura valida suporte (`TryEnterCombatForMarch`). Ao resolver o encontro, aplica outcome no dragão (`TryApplyCombatOutcomeForMarch`: energia, dano, XP, ferida). Conclusão ou cancelamento faz recall + recovery (Injured se `PendingCombatInjury`). Poder de suporte (com habilidades) soma ao dos heróis. Ver [dragons.md](dragons.md).
+Despacho destaca dragão READY (`TryDeployFirstReadyToMarch`). Se montaria equipada (`IsMounted`), o poder de suporte inclui bônus de vínculo herói↔dragão e o `MarchArmyView` exibe companion 3D + rótulo. Engage/resolve aplicam combate Fase 3; recall treina vínculo de montaria. Ver [dragons.md](dragons.md).
 
 ## Coleta, carga e respawn
 

@@ -88,6 +88,11 @@ namespace Valgor.Dragons.Combat
 
             power *= 1.0 + bonus;
             power *= 1.0 + dragon.DragonLevel * 0.01;
+            if (dragon.IsMounted && !string.IsNullOrEmpty(dragon.BondedHeroId))
+            {
+                power *= Mount.DragonMountService.MountPowerMultiplier(dragon.MountBondLevel);
+            }
+
             return Math.Max(1, (int)Math.Round(power));
         }
 

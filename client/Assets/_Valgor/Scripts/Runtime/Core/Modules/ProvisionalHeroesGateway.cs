@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Valgor.Core.Modules
 {
@@ -26,5 +27,13 @@ namespace Valgor.Core.Modules
         public float GetGatherRateMultiplier() => 1f;
 
         public string DescribeFormation() => "Formação provisional";
+
+        public IReadOnlyList<string> GetCompatibleRiderHeroIds() => Array.Empty<string>();
+
+        public bool TryGetHeroDisplayName(string heroId, out string displayName)
+        {
+            displayName = string.Empty;
+            return false;
+        }
     }
 }

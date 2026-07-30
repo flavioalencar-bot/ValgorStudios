@@ -11,6 +11,7 @@ namespace Valgor.WorldMap.Visual
     public sealed class MarchArmyView : MonoBehaviour
     {
         private Transform _body = null!;
+        private Transform? _dragonFollower;
         private Renderer[] _renderers = null!;
         private Color[] _baseColors = Array.Empty<Color>();
         private TextMesh _label = null!;
@@ -31,7 +32,10 @@ namespace Valgor.WorldMap.Visual
             MarchOrder? march,
             System.Func<string, Vector3> nodeWorldPosition,
             System.DateTime utcNow,
-            string? formationHint = null)
+            string? formationHint = null,
+            bool showDragonCompanion = false,
+            string? dragonStageLabel = null,
+            bool dragonMounted = false)
         {
             if (march == null ||
                 march.State is MarchState.Completed or MarchState.Cancelled or MarchState.Preparing)
@@ -42,6 +46,7 @@ namespace Valgor.WorldMap.Visual
                     _path.enabled = false;
                 }
 
+                SetDragonCompanionVisible(false);
                 return;
             }
 
@@ -57,9 +62,72 @@ namespace Valgor.WorldMap.Visual
                 transform.rotation = Quaternion.LookRotation(look.normalized, Vector3.up);
             }
 
-            _label.text = LabelFor(march, formationHint);
+            _label.text = LabelFor(march, formationHint, showDragonCompanion, dragonStageLabel, dragonMounted);
             ApplyTint(ColorFor(march.State));
             SyncPath(march, origin, target, position);
+            SetDragonCompanionVisible(showDragonCompanion);
+        }
+
+        private void SetDragonCompanionVisible(bool show)
+        {
+            if (show)
+            {
+                EnsureDragonFollower();
+            }
+
+            if (_dragonFollower != null)
+            {
+                _dragonFollower.gameObject.SetActive(show);
+            }
+        }
+
+        private void EnsureDragonFollower()
+        {
+            if (_dragonFollower != null)
+            {
+                return;
+            }
+
+            var root = new GameObject("DragonCompanion").transform;
+            root.SetParent(transform, false);
+            root.localPosition = new Vector3(-0.95f, 0.55f, -0.85f);
+            root.localScale = Vector3.one * 0.55f;
+
+            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            body.name = "DragonBody";
+            body.transform.SetParent(root, false);
+            body.transform.localPosition = Vector3.up * 0.35f;
+            body.transform.localScale = new Vector3(0.55f, 0.45f, 0.55f);
+            Destroy(body.GetComponent<Collider>());
+            CityVisualMaterials.Apply(body.GetComponent<Renderer>(), new Color(0.72f, 0.32f, 0.14f));
+
+            var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            head.name = "DragonHead";
+            head.transform.SetParent(root, false);
+            head.transform.localPosition = new Vector3(0f, 0.85f, 0.25f);
+            head.transform.localScale = Vector3.one * 0.4f;
+            Destroy(head.GetComponent<Collider>());
+            CityVisualMaterials.Apply(head.GetComponent<Renderer>(), new Color(0.85f, 0.45f, 0.18f));
+
+            var wingL = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            wingL.name = "WingL";
+            wingL.transform.SetParent(root, false);
+            wingL.transform.localPosition = new Vector3(-0.45f, 0.55f, 0f);
+            wingL.transform.localScale = new Vector3(0.08f, 0.35f, 0.55f);
+            wingL.transform.localRotation = Quaternion.Euler(10f, -25f, 0f);
+            Destroy(wingL.GetComponent<Collider>());
+            CityVisualMaterials.Apply(wingL.GetComponent<Renderer>(), new Color(0.55f, 0.22f, 0.1f));
+
+            var wingR = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            wingR.name = "WingR";
+            wingR.transform.SetParent(root, false);
+            wingR.transform.localPosition = new Vector3(0.45f, 0.55f, 0f);
+            wingR.transform.localScale = new Vector3(0.08f, 0.35f, 0.55f);
+            wingR.transform.localRotation = Quaternion.Euler(10f, 25f, 0f);
+            Destroy(wingR.GetComponent<Collider>());
+            CityVisualMaterials.Apply(wingR.GetComponent<Renderer>(), new Color(0.55f, 0.22f, 0.1f));
+
+            _dragonFollower = root;
         }
 
         private void SyncPath(MarchOrder march, Vector3 origin, Vector3 target, Vector3 current)
@@ -202,17 +270,29 @@ namespace Valgor.WorldMap.Visual
             }
         }
 
-        private static string LabelFor(MarchOrder march, string? formationHint)
+        private static string LabelFor(
+            MarchOrder march,
+            string? formationHint,
+            bool showDragon,
+            string? dragonStageLabel,
+            bool dragonMounted)
         {
             var prefix = string.IsNullOrEmpty(formationHint) ? string.Empty : formationHint + " · ";
+            var dragon = string.Empty;
+            if (showDragon)
+            {
+                var stage = string.IsNullOrEmpty(dragonStageLabel) ? "Dragão" : dragonStageLabel;
+                dragon = dragonMounted ? $" · Dragão {stage} (montaria)" : $" · Dragão {stage}";
+            }
+
             var load = march.ResourceLoad > 0 ? $" · carga {march.ResourceLoad}" : string.Empty;
             return march.State switch
             {
-                MarchState.Marching => prefix + "Em marcha" + load,
-                MarchState.Arrived => prefix + "Chegou" + load,
-                MarchState.Gathering => prefix + "Coletando" + load,
-                MarchState.Returning => prefix + "Retornando" + load,
-                _ => prefix + "Marcha" + load
+                MarchState.Marching => prefix + "Em marcha" + dragon + load,
+                MarchState.Arrived => prefix + "Chegou" + dragon + load,
+                MarchState.Gathering => prefix + "Coletando" + dragon + load,
+                MarchState.Returning => prefix + "Retornando" + dragon + load,
+                _ => prefix + "Marcha" + dragon + load
             };
         }
 

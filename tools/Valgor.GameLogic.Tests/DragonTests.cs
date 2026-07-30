@@ -5,6 +5,7 @@ using Valgor.City.Data;
 using Valgor.Core.Modules;
 using Valgor.Dragons.Core;
 using Valgor.Dragons.Data;
+using Valgor.Dragons.Mount;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Data;
 using Xunit;
@@ -703,6 +704,85 @@ public sealed class DragonFoundationTests
         Assert.Equal(DragonAbilityId.EmberBreath, loaded.AbilitySlot0);
         Assert.Equal(DragonAbilityId.ScaleGuard, loaded.AbilitySlot1);
         Assert.Equal(DragonAbilityId.AshSurge, loaded.AbilitySlot2);
+    }
+
+    [Fact]
+    public void Phase4_MountBond_TrainEquipAndPowerBonus()
+    {
+        var wallet = new FakeWallet { Food = 50_000, Essence = 5_000, Diamonds = 100 };
+        var service = CreateBornService(out _, wallet, advanceToReady: true);
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.Energy = 100;
+        ember.Health = 100;
+
+        Assert.True(service.TryCreateMountBond(ember.InstanceId, "HERO_VORTEX_000", out var error), error);
+        Assert.Equal("HERO_VORTEX_000", ember.BondedHeroId);
+        Assert.True(ember.MountBondLevel >= 1);
+
+        Assert.False(service.TryCreateMountBond(ember.InstanceId, "HERO_ELYRA_001", out error));
+        Assert.Contains("outro herói", error, StringComparison.OrdinalIgnoreCase);
+
+        Assert.True(service.TryTrainMountBond(ember.InstanceId, out error), error);
+        Assert.True(ember.MountBondPoints > 0 || ember.MountBondLevel > 1);
+
+        Assert.True(service.TryEquipMount(ember.InstanceId, out error), error);
+        Assert.True(ember.IsMounted);
+
+        var unmountedPower = 0;
+        ember.IsMounted = false;
+        unmountedPower = service.GetProvisionalDragonPower(); // 0 — not deployed
+        ember.IsMounted = true;
+        Assert.True(service.TryDeployToMarch(ember.InstanceId, "march-mount", out error), error);
+        var mountedPower = service.GetSupportPowerForMarch("march-mount");
+        ember.IsMounted = false;
+        var supportUnmounted = service.Combat.ResolveSupportPower(ember, DragonCatalog.Get(ember.DefinitionId));
+        ember.IsMounted = true;
+        var supportMounted = service.Combat.ResolveSupportPower(ember, DragonCatalog.Get(ember.DefinitionId));
+        Assert.True(supportMounted > supportUnmounted);
+        Assert.True(mountedPower > 0);
+        _ = unmountedPower;
+
+        Assert.True(service.TryGetMarchDragonPresence(
+            "march-mount",
+            out var id,
+            out var stage,
+            out var mounted,
+            out var hero));
+        Assert.Equal(ember.InstanceId, id);
+        Assert.True(mounted);
+        Assert.Equal("HERO_VORTEX_000", hero);
+        Assert.False(string.IsNullOrEmpty(stage));
+    }
+
+    [Fact]
+    public void Phase4_MountCompatibility_RequiresLevel()
+    {
+        Assert.False(DragonMountCompatibility.IsCompatible("HERO_ELYRA_001", 1, out var error));
+        Assert.Contains("Nv.6", error, StringComparison.OrdinalIgnoreCase);
+        Assert.True(DragonMountCompatibility.IsCompatible("HERO_ELYRA_001", 6, out _));
+        Assert.True(DragonMountCompatibility.IsCompatible("HERO_VORTEX_000", 1, out _));
+    }
+
+    [Fact]
+    public void Phase4_PersistsMountBond()
+    {
+        var repo = new MemoryDragonRepository();
+        var first = CreateBornService(out _, repository: repo, advanceToReady: true);
+        Assert.True(first.TryGet("dragon-ember-1", out var ember));
+        Assert.True(first.TryCreateMountBond(ember.InstanceId, "HERO_VORTEX_000", out _));
+        Assert.True(first.TryEquipMount(ember.InstanceId, out _));
+        ember.MountBondLevel = 3;
+        ember.MountBondPoints = 7;
+        first.Persist();
+
+        var second = new DragonService(new DragonSettings(), repo, () => DateTime.UtcNow);
+        second.BindWallet(new FakeWallet { Food = 1000, Essence = 100 });
+        second.LoadOrInitialize();
+        Assert.True(second.TryGet("dragon-ember-1", out var loaded));
+        Assert.Equal("HERO_VORTEX_000", loaded.BondedHeroId);
+        Assert.True(loaded.IsMounted);
+        Assert.Equal(3, loaded.MountBondLevel);
+        Assert.Equal(7, loaded.MountBondPoints);
     }
 
     private sealed class ManualWorldMapClock : IWorldMapClock

@@ -103,8 +103,9 @@ namespace Valgor.Dragons.Data
 
     public sealed class DragonSettings
     {
-        public string PersistenceKey { get; set; } = "valgor.dragons.v6";
-        public string LegacyPersistenceKey { get; set; } = "valgor.dragons.v5";
+        public string PersistenceKey { get; set; } = "valgor.dragons.v7";
+        public string LegacyPersistenceKey { get; set; } = "valgor.dragons.v6";
+        public string LegacyV5PersistenceKey { get; set; } = "valgor.dragons.v5";
         public string LegacyV4PersistenceKey { get; set; } = "valgor.dragons.v4";
         public string DefaultRoostId { get; set; } = "dragon-tower";
         public int DefaultRoostCapacity { get; set; } = 3;
@@ -165,6 +166,14 @@ namespace Valgor.Dragons.Data
         public int CombatEnergyCost { get; set; } = 15;
         public int CombatExperienceReward { get; set; } = 10;
         public int AbilitySlotCount { get; set; } = 3;
+
+        /// <summary>Fase 4 — montaria / vínculo com herói.</summary>
+        public int MaxMountBondLevel { get; set; } = 10;
+        public int MountBondPointsPerLevel { get; set; } = 20;
+        public int MountBondPointsPerTrain { get; set; } = 8;
+        public int MountBondPointsPerMission { get; set; } = 6;
+        public long MountTrainFoodCost { get; set; } = 250;
+        public long MountTrainEssenceCost { get; set; } = 12;
     }
 
     public sealed class DragonDefinition
@@ -247,6 +256,13 @@ namespace Valgor.Dragons.Data
         /// <summary>Último combate deixou o dragão ferido (recall → Injured).</summary>
         public bool PendingCombatInjury { get; set; }
 
+        /// <summary>Fase 4 — herói vinculado à montaria (ex.: HERO_VORTEX_000).</summary>
+        public string? BondedHeroId { get; set; }
+        public int MountBondLevel { get; set; }
+        public int MountBondPoints { get; set; }
+        /// <summary>Herói Montador equipado para formação/marcha.</summary>
+        public bool IsMounted { get; set; }
+
         public DragonInstance Clone() =>
             new(InstanceId, DefinitionId, State, Hunger, StateEndsAtUtc, AssignedMarchId, RoostId)
             {
@@ -266,7 +282,11 @@ namespace Valgor.Dragons.Data
                 AbilitySlot0 = AbilitySlot0,
                 AbilitySlot1 = AbilitySlot1,
                 AbilitySlot2 = AbilitySlot2,
-                PendingCombatInjury = PendingCombatInjury
+                PendingCombatInjury = PendingCombatInjury,
+                BondedHeroId = BondedHeroId,
+                MountBondLevel = MountBondLevel,
+                MountBondPoints = MountBondPoints,
+                IsMounted = IsMounted
             };
     }
 

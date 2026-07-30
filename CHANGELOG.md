@@ -9,6 +9,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- **Dragão Fase 4:** montaria estratégica, vínculo com herói, treino, presença visual na marcha (`MarchArmyView`), bônus de vínculo no suporte PvE, persistência `valgor.dragons.v7`
+
+### Added
+
 - **Dragão Fase 3:** habilidades (3 slots), combate PvE como suporte automático, gasto de energia/saúde, ferimento/recall, persistência `valgor.dragons.v6` (migra v5/v4)
 
 ### Added
