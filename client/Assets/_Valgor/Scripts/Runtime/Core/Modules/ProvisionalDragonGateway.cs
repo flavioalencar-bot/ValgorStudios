@@ -132,6 +132,28 @@ namespace Valgor.Core.Modules
             return false;
         }
 
+        public bool TrySetAbilitySlot(string dragonId, int slotIndex, string abilityId, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public string DescribeDragonAbilities(string dragonId) => "Sistema de dragões indisponível.";
+
+        public bool TryApplyCombatOutcomeForMarch(
+            string marchId,
+            bool victory,
+            int difficultyBand,
+            out string error,
+            out string summary)
+        {
+            summary = string.Empty;
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public int GetSupportPowerForMarch(string marchId) => 0;
+
         public void Tick()
         {
         }

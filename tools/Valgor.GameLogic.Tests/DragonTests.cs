@@ -628,6 +628,83 @@ public sealed class DragonFoundationTests
         Assert.Equal(88, loaded.Health);
     }
 
+    [Fact]
+    public void Phase3_Abilities_UnlockAndEquip()
+    {
+        var service = CreateBornService(out _, advanceToReady: true);
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        Assert.Equal(DragonAbilityId.EmberBreath, ember.AbilitySlot0);
+        Assert.False(service.TrySetAbilitySlot(ember.InstanceId, 1, "scale-guard", out var err));
+        Assert.Contains("Desbloqueia", err, StringComparison.OrdinalIgnoreCase);
+
+        ember.DragonLevel = 6;
+        Assert.True(service.TrySetAbilitySlot(ember.InstanceId, 1, "scale-guard", out err), err);
+        Assert.Equal(DragonAbilityId.ScaleGuard, ember.AbilitySlot1);
+        Assert.Contains("Escama", service.DescribeDragonAbilities(ember.InstanceId), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Phase3_CombatSupport_SpendsEnergyHealthAndCanInjure()
+    {
+        var service = CreateBornService(out _, advanceToReady: true);
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.DragonLevel = 10;
+        ember.Energy = 100;
+        ember.Health = 100;
+        ember.AbilitySlot0 = DragonAbilityId.EmberBreath;
+        ember.AbilitySlot1 = DragonAbilityId.ScaleGuard;
+
+        Assert.True(service.TryDeployToMarch(ember.InstanceId, "march-pve", out var error), error);
+        Assert.True(service.TryEnterCombatForMarch("march-pve", out error), error);
+        var powerBefore = service.GetSupportPowerForMarch("march-pve");
+        Assert.True(powerBefore > 0);
+
+        Assert.True(service.TryApplyCombatOutcomeForMarch(
+            "march-pve",
+            victory: true,
+            difficultyBand: 2,
+            out error,
+            out var summary), error);
+        Assert.Contains("Vitória", summary, StringComparison.OrdinalIgnoreCase);
+        Assert.True(ember.Energy < 100);
+        Assert.True(ember.Health <= 100);
+
+        // Combate duro + derrota tende a ferir.
+        ember.Energy = 100;
+        ember.Health = 40;
+        Assert.True(service.TryApplyCombatOutcomeForMarch(
+            "march-pve",
+            victory: false,
+            difficultyBand: 3,
+            out error,
+            out _), error);
+        Assert.True(ember.PendingCombatInjury || ember.Health < 40);
+
+        Assert.True(service.TryRecallFromMarch("march-pve", out error), error);
+        Assert.True(ember.State is DragonState.Recovering or DragonState.Injured or DragonState.Exhausted);
+    }
+
+    [Fact]
+    public void Phase3_PersistsAbilityLoadout()
+    {
+        var repo = new MemoryDragonRepository();
+        var first = CreateBornService(out _, repository: repo, advanceToReady: true);
+        Assert.True(first.TryGet("dragon-ember-1", out var ember));
+        ember.DragonLevel = 16;
+        Assert.True(first.TrySetAbilitySlot(ember.InstanceId, 0, "ember-breath", out _));
+        Assert.True(first.TrySetAbilitySlot(ember.InstanceId, 1, "scale-guard", out _));
+        Assert.True(first.TrySetAbilitySlot(ember.InstanceId, 2, "ash-surge", out _));
+        first.Persist();
+
+        var second = new DragonService(new DragonSettings(), repo, () => DateTime.UtcNow);
+        second.BindWallet(new FakeWallet { Food = 1000, Essence = 100 });
+        second.LoadOrInitialize();
+        Assert.True(second.TryGet("dragon-ember-1", out var loaded));
+        Assert.Equal(DragonAbilityId.EmberBreath, loaded.AbilitySlot0);
+        Assert.Equal(DragonAbilityId.ScaleGuard, loaded.AbilitySlot1);
+        Assert.Equal(DragonAbilityId.AshSurge, loaded.AbilitySlot2);
+    }
+
     private sealed class ManualWorldMapClock : IWorldMapClock
     {
         public ManualWorldMapClock(DateTime utcNow) => UtcNow = utcNow;

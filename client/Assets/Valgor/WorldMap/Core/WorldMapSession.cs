@@ -419,7 +419,11 @@ namespace Valgor.WorldMap.Core
             EnergyWallet.SyncFromExternal(available, EnergyWallet.LastUpdatedAt);
             if (Marches.Active != null)
             {
-                _dragons.TryEnterCombatForMarch(Marches.Active.Id, out _);
+                if (!_dragons.TryEnterCombatForMarch(Marches.Active.Id, out var dragonCombatError))
+                {
+                    // Combate de criatura segue sem dragão se ele não puder apoiar.
+                    LastDispatchDetail = $"Criatura engajada · dragão fora: {dragonCombatError}";
+                }
             }
 
             Persist();
@@ -467,26 +471,49 @@ namespace Valgor.WorldMap.Core
             }
 
             var attackerPower = GetAttackerPower();
-            if (!Encounters.TryResolveProvisional(
-                    Selection.Selected.DefinitionId,
-                    attackerPower,
-                    wallet,
-                    Clock.UtcNow,
-                    out error,
-                    out band))
+            var victory = Encounters.TryResolveProvisional(
+                Selection.Selected.DefinitionId,
+                attackerPower,
+                wallet,
+                Clock.UtcNow,
+                out error,
+                out band);
+
+            if (Marches.Active != null)
             {
-                Persist();
-                Changed?.Invoke();
-                return false;
+                var difficultyBand = band switch
+                {
+                    CreatureDifficultyBand.Trivial => 0,
+                    CreatureDifficultyBand.Easy => 1,
+                    CreatureDifficultyBand.Fair => 2,
+                    CreatureDifficultyBand.Hard => 3,
+                    _ => 4
+                };
+                if (_dragons.TryApplyCombatOutcomeForMarch(
+                        Marches.Active.Id,
+                        victory,
+                        difficultyBand,
+                        out _,
+                        out var dragonSummary) &&
+                    !string.IsNullOrEmpty(dragonSummary))
+                {
+                    LastDispatchDetail = dragonSummary;
+                }
             }
 
             Persist();
             Changed?.Invoke();
-            return true;
+            return victory;
         }
 
-        public int GetAttackerPower() =>
-            _heroes.GetProvisionalMarchPower() + _dragons.GetProvisionalDragonPower();
+        public int GetAttackerPower()
+        {
+            var heroes = _heroes.GetProvisionalMarchPower();
+            var dragons = Marches.Active != null
+                ? Math.Max(_dragons.GetSupportPowerForMarch(Marches.Active.Id), _dragons.GetProvisionalDragonPower())
+                : _dragons.GetProvisionalDragonPower();
+            return heroes + dragons;
+        }
 
         public int GetHeroMarchPower() => _heroes.GetProvisionalMarchPower();
 

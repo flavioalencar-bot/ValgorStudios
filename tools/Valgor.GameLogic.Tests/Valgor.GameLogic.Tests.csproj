@@ -99,5 +99,8 @@
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Growth\DragonBondService.cs" Link="Dragons\DragonBondService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Growth\DragonEvolutionService.cs" Link="Dragons\DragonEvolutionService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\Dragons\Growth\DragonProgressionService.cs" Link="Dragons\DragonProgressionService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\Dragons\Combat\DragonAbilityModels.cs" Link="Dragons\DragonAbilityModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\Dragons\Combat\DragonAbilityService.cs" Link="Dragons\DragonAbilityService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\Dragons\Combat\DragonCombatService.cs" Link="Dragons\DragonCombatService.cs" />
   </ItemGroup>
 </Project>

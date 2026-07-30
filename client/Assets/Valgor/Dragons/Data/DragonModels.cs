@@ -69,6 +69,24 @@ namespace Valgor.Dragons.Data
         Ancestral = 6
     }
 
+    /// <summary>Habilidades de suporte PvE (Fase 3).</summary>
+    public enum DragonAbilityId
+    {
+        None = 0,
+        EmberBreath = 1,
+        ScaleGuard = 2,
+        BondRoar = 3,
+        AshSurge = 4,
+        AncestralAegis = 5
+    }
+
+    public enum DragonAbilitySlot
+    {
+        Primary = 0,
+        Secondary = 1,
+        Tertiary = 2
+    }
+
     public sealed class DragonChangedEvent : EventArgs
     {
         public DragonChangedEvent(string dragonId, DragonState previousState, DragonState currentState)
@@ -85,8 +103,9 @@ namespace Valgor.Dragons.Data
 
     public sealed class DragonSettings
     {
-        public string PersistenceKey { get; set; } = "valgor.dragons.v5";
-        public string LegacyPersistenceKey { get; set; } = "valgor.dragons.v4";
+        public string PersistenceKey { get; set; } = "valgor.dragons.v6";
+        public string LegacyPersistenceKey { get; set; } = "valgor.dragons.v5";
+        public string LegacyV4PersistenceKey { get; set; } = "valgor.dragons.v4";
         public string DefaultRoostId { get; set; } = "dragon-tower";
         public int DefaultRoostCapacity { get; set; } = 3;
         /// <summary>Beta Fase 1: incubação curta (~5 min) para ser jogável.</summary>
@@ -139,6 +158,13 @@ namespace Valgor.Dragons.Data
         public long RitualEssenceCost { get; set; } = 40;
         public double LevelUpDurationHours { get; set; } = 0.03;
         public double RitualDurationHours { get; set; } = 0.08;
+
+        /// <summary>Fase 3 — combate PvE (suporte).</summary>
+        public int MinEnergyToCombat { get; set; } = 30;
+        public int MinHealthToCombat { get; set; } = 25;
+        public int CombatEnergyCost { get; set; } = 15;
+        public int CombatExperienceReward { get; set; } = 10;
+        public int AbilitySlotCount { get; set; } = 3;
     }
 
     public sealed class DragonDefinition
@@ -213,6 +239,14 @@ namespace Valgor.Dragons.Data
         public int PendingLevel { get; set; }
         public DateTime? LevelUpEndsAtUtc { get; set; }
 
+        /// <summary>Fase 3 — loadout de habilidades (suporte PvE).</summary>
+        public DragonAbilityId AbilitySlot0 { get; set; }
+        public DragonAbilityId AbilitySlot1 { get; set; }
+        public DragonAbilityId AbilitySlot2 { get; set; }
+
+        /// <summary>Último combate deixou o dragão ferido (recall → Injured).</summary>
+        public bool PendingCombatInjury { get; set; }
+
         public DragonInstance Clone() =>
             new(InstanceId, DefinitionId, State, Hunger, StateEndsAtUtc, AssignedMarchId, RoostId)
             {
@@ -228,7 +262,11 @@ namespace Valgor.Dragons.Data
                 Health = Health,
                 IsLevelingUp = IsLevelingUp,
                 PendingLevel = PendingLevel,
-                LevelUpEndsAtUtc = LevelUpEndsAtUtc
+                LevelUpEndsAtUtc = LevelUpEndsAtUtc,
+                AbilitySlot0 = AbilitySlot0,
+                AbilitySlot1 = AbilitySlot1,
+                AbilitySlot2 = AbilitySlot2,
+                PendingCombatInjury = PendingCombatInjury
             };
     }
 

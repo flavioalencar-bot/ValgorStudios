@@ -738,6 +738,8 @@ namespace Valgor.City.UI
                     AddPanelButton("Alimentar", ExecuteFeedDragon, enabled: _dragons.RoostOccupantCount > 0);
                     AddPanelButton("Evoluir nível", ExecuteDragonLevelUp);
                     AddPanelButton("Acelerar evolução", ExecuteDragonInstantLevelUp);
+                    AddPanelButton("Habilidades", ExecuteShowDragonAbilities);
+                    AddPanelButton("Equipar próxima habilidade", ExecuteEquipNextDragonAbility);
                     break;
             }
         }
@@ -917,6 +919,78 @@ namespace Valgor.City.UI
             {
                 OpenActionPanel(BuildingContextAction.Open);
             }
+        }
+
+        private void ExecuteShowDragonAbilities()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1)
+                {
+                    continue;
+                }
+
+                _feedback.text = _dragons.DescribeDragonAbilities(status.DragonId);
+                _feedback.style.display = DisplayStyle.Flex;
+                return;
+            }
+
+            _feedback.text = "Nenhum dragão nascido.";
+            _feedback.style.display = DisplayStyle.Flex;
+        }
+
+        private void ExecuteEquipNextDragonAbility()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1)
+                {
+                    continue;
+                }
+
+                _dragons.TrySetAbilitySlot(status.DragonId, 0, "ember-breath", out _);
+                if (status.DragonLevel >= 6)
+                {
+                    _dragons.TrySetAbilitySlot(status.DragonId, 1, "scale-guard", out _);
+                }
+
+                if (status.DragonLevel >= 26)
+                {
+                    _dragons.TrySetAbilitySlot(status.DragonId, 2, "ancestral-aegis", out _);
+                }
+                else if (status.DragonLevel >= 16)
+                {
+                    _dragons.TrySetAbilitySlot(status.DragonId, 2, "ash-surge", out _);
+                }
+                else if (status.DragonLevel >= 11)
+                {
+                    _dragons.TrySetAbilitySlot(status.DragonId, 2, "bond-roar", out _);
+                }
+
+                _feedback.text = "Loadout atualizado. " + _dragons.DescribeDragonAbilities(status.DragonId);
+                _feedback.style.display = DisplayStyle.Flex;
+                _city.Persist();
+                RefreshCurrent();
+                if (_openPanelAction == BuildingContextAction.Open)
+                {
+                    OpenActionPanel(BuildingContextAction.Open);
+                }
+
+                return;
+            }
+
+            _feedback.text = "Nenhum dragão nascido.";
+            _feedback.style.display = DisplayStyle.Flex;
         }
 
         private void ExecuteFeedDragon()

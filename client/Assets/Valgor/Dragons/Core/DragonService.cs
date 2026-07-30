@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Valgor.Core.Modules;
+using Valgor.Dragons.Combat;
 using Valgor.Dragons.Data;
 using Valgor.Dragons.Deployment;
 using Valgor.Dragons.Feeding;
@@ -11,7 +12,7 @@ using Valgor.Dragons.Recovery;
 namespace Valgor.Dragons.Core
 {
     /// <summary>
-    /// Fachada do sistema de dragões: jornada do ovo (Fase 1) + progressão Nv.1→30 (Fase 2).
+    /// Fachada: ovo (F1) + progressão (F2) + habilidades/combate PvE suporte (F3).
     /// </summary>
     public sealed class DragonService : IDragonGateway
     {
@@ -26,6 +27,7 @@ namespace Valgor.Dragons.Core
         private int _syncedCastleLevel;
         private int _syncedTowerLevel = 1;
         private int _energyDecayAccumulator;
+        private string _lastCombatSummary = string.Empty;
 
         public DragonService(
             DragonSettings settings,
@@ -43,6 +45,8 @@ namespace Valgor.Dragons.Core
             Bond = new DragonBondService(_settings);
             Evolution = new DragonEvolutionService(_settings);
             Progression = new DragonProgressionService(_settings, _utcNow);
+            Abilities = new DragonAbilityService();
+            Combat = new DragonCombatService(_settings, Abilities);
             Roost = new DragonRoost(
                 _settings.DefaultRoostId,
                 "dragon-tower",
@@ -67,8 +71,11 @@ namespace Valgor.Dragons.Core
         public DragonBondService Bond { get; }
         public DragonEvolutionService Evolution { get; }
         public DragonProgressionService Progression { get; }
+        public DragonAbilityService Abilities { get; }
+        public DragonCombatService Combat { get; }
         public DragonStateMachine StateMachine => _stateMachine;
         public IReadOnlyDictionary<string, DragonInstance> Dragons => _dragons;
+        public string LastCombatSummary => _lastCombatSummary;
         public event EventHandler<DragonChangedEvent>? Changed;
 
         public void BindWallet(IDragonResourceWallet? wallet, Action? persistWallet = null)
@@ -114,6 +121,7 @@ namespace Valgor.Dragons.Core
             {
                 Growth.EnsureSeedDefaults(dragon);
                 Progression.EnsureCombatStats(dragon);
+                Abilities.EnsureDefaults(dragon);
             }
 
             SyncBuildingLevels(_syncedCastleLevel, _syncedTowerLevel);
@@ -241,6 +249,7 @@ namespace Valgor.Dragons.Core
             dragon.Health = _settings.MaxHealth;
             dragon.Experience = 0;
             Progression.ApplyStageFromLevel(dragon);
+            Abilities.EnsureDefaults(dragon);
             _eggJourneyPhase = DragonEggJourneyPhase.Born;
         }
 
@@ -517,6 +526,11 @@ namespace Valgor.Dragons.Core
                 return false;
             }
 
+            if (!Combat.CanSupportCombat(dragon, out error))
+            {
+                return false;
+            }
+
             var previous = dragon.State;
             if (!Deployment.TryDeploy(dragon, marchId, out error))
             {
@@ -530,7 +544,15 @@ namespace Valgor.Dragons.Core
 
         public bool TryDeployFirstReadyToMarch(string marchId, out string error)
         {
-            var ready = _dragons.Values.FirstOrDefault(d => d.State == DragonState.Ready);
+            var ready = _dragons.Values.FirstOrDefault(d =>
+                d.State == DragonState.Ready &&
+                Combat.CanSupportCombat(d, out _));
+            if (ready == null)
+            {
+                // Fallback: qualquer READY (mensagem de energia/saúde no deploy).
+                ready = _dragons.Values.FirstOrDefault(d => d.State == DragonState.Ready);
+            }
+
             if (ready == null)
             {
                 error = "Nenhum dragão READY disponível.";
@@ -546,6 +568,11 @@ namespace Valgor.Dragons.Core
                 !TryGet(dragonId, out var dragon))
             {
                 error = "Nenhum dragão destacado nesta marcha.";
+                return false;
+            }
+
+            if (!Combat.CanSupportCombat(dragon, out error))
+            {
                 return false;
             }
 
@@ -569,18 +596,113 @@ namespace Valgor.Dragons.Core
                 return false;
             }
 
+            var injured = dragon.PendingCombatInjury;
             var previous = dragon.State;
-            if (!Deployment.TryRecall(dragon, injured: false, out error))
+            if (!Deployment.TryRecall(dragon, injured, out error))
             {
                 return false;
             }
 
+            dragon.PendingCombatInjury = false;
             Bond.AddBondPoints(dragon, _settings.BondPointsPerMission);
             Growth.AddGrowthPoints(dragon, _settings.GrowthPointsPerMission);
             Recovery.TryStartRecovery(dragon, _utcNow(), out _);
             Persist();
             Raise(dragonId, previous, dragon.State);
             return true;
+        }
+
+        public bool TrySetAbilitySlot(string dragonId, int slotIndex, string abilityId, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon))
+            {
+                error = "Dragão não encontrado.";
+                return false;
+            }
+
+            if (slotIndex < 0 || slotIndex > 2)
+            {
+                error = "Slot inválido (0–2).";
+                return false;
+            }
+
+            var ability = DragonAbilityId.None;
+            if (!string.IsNullOrWhiteSpace(abilityId) &&
+                !DragonAbilityCatalog.TryParse(abilityId, out ability))
+            {
+                error = "Habilidade inválida.";
+                return false;
+            }
+
+            var slot = (DragonAbilitySlot)slotIndex;
+            if (!Abilities.TrySetSlot(dragon, slot, ability, out error))
+            {
+                return false;
+            }
+
+            Persist();
+            Raise(dragonId, dragon.State, dragon.State);
+            return true;
+        }
+
+        public string DescribeDragonAbilities(string dragonId)
+        {
+            if (!TryGet(dragonId, out var dragon) || dragon.DragonLevel < 1)
+            {
+                return "Habilidades indisponíveis.";
+            }
+
+            Abilities.EnsureDefaults(dragon);
+            var unlocked = Abilities.GetUnlocked(dragon.DragonLevel);
+            var loadout = Abilities.DescribeLoadout(dragon);
+            return $"Loadout: {loadout}. Desbloqueadas: {unlocked.Count}.";
+        }
+
+        public bool TryApplyCombatOutcomeForMarch(
+            string marchId,
+            bool victory,
+            int difficultyBand,
+            out string error,
+            out string summary)
+        {
+            summary = string.Empty;
+            if (!Deployment.TryGetDragonForMarch(marchId, out var dragonId) ||
+                !TryGet(dragonId, out var dragon) ||
+                !DragonCatalog.TryGet(dragon.DefinitionId, out var definition))
+            {
+                error = "Nenhum dragão em combate nesta marcha.";
+                return false;
+            }
+
+            var difficulty = difficultyBand switch
+            {
+                0 => DragonCombatDifficulty.Trivial,
+                1 => DragonCombatDifficulty.Easy,
+                2 => DragonCombatDifficulty.Fair,
+                3 => DragonCombatDifficulty.Hard,
+                _ => DragonCombatDifficulty.Failed
+            };
+
+            var power = Combat.ResolveSupportPower(dragon, definition);
+            var result = Combat.ApplyOutcome(dragon, victory, difficulty, power);
+            dragon.PendingCombatInjury = result.Injured;
+            _lastCombatSummary = result.Summary;
+            summary = result.Summary;
+            Persist();
+            Raise(dragonId, dragon.State, dragon.State);
+            error = string.Empty;
+            return true;
+        }
+
+        public int GetSupportPowerForMarch(string marchId)
+        {
+            if (!Deployment.TryGetDragonForMarch(marchId, out var dragonId) ||
+                !TryGet(dragonId, out var dragon))
+            {
+                return 0;
+            }
+
+            return ResolveCombatPower(dragon);
         }
 
         public bool TryEvolve(string dragonId, out string error)
@@ -762,10 +884,7 @@ namespace Valgor.Dragons.Core
                 return 0;
             }
 
-            var power = definition.BasePower *
-                        DragonGrowthService.PowerMultiplier(dragon.GrowthStage) *
-                        DragonBondService.PowerMultiplier(dragon.BondLevel);
-            return (int)Math.Round(power);
+            return Combat.ResolveSupportPower(dragon, definition);
         }
 
         private void Raise(string dragonId, DragonState previous, DragonState current) =>
@@ -796,7 +915,10 @@ namespace Valgor.Dragons.Core
             ApplyQaTimingOverrides(settings);
             var service = new DragonService(
                 settings,
-                repository ?? new DragonRepository(settings.PersistenceKey, settings.LegacyPersistenceKey),
+                repository ?? new DragonRepository(
+                    settings.PersistenceKey,
+                    settings.LegacyPersistenceKey,
+                    settings.LegacyV4PersistenceKey),
                 utcNow);
             service.BindWallet(wallet, persistWallet);
             service.LoadOrInitialize();

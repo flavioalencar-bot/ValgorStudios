@@ -5,11 +5,12 @@ Sistema de dragões em `Assets/Valgor/Dragons`.
 ## Objetivo
 
 **Fase 1:** Castelo Nv.20 → ovo → incubação → nascimento Nv.1.  
-**Fase 2:** progressão Nv.1→30 (XP, alimentação, vínculo, energia, saúde, caps, rituais, timers, aceleradores).
+**Fase 2:** progressão Nv.1→30 (XP, alimentação, vínculo, energia, saúde, caps, rituais, timers, aceleradores).  
+**Fase 3:** habilidades (3 slots) + combate PvE como suporte automático.
 
 ## Limite
 
-Integração via `IDragonGateway`. Sem combate completo, PvP, montaria ou múltiplos dragões nesta fase.
+Integração via `IDragonGateway`. Sem PvP, montaria completa, múltiplos dragões ou controle manual em batalha.
 
 ## Jornada do ovo (Fase 1)
 
@@ -27,18 +28,25 @@ Rituais ao atingir 6 / 11 / 16 / 21 / 26
 Estágios visuais: Ovo → Filhote → Jovem → Adolescente → Adulto jovem → Adulto → Ancestral
 ```
 
-Catálogo: `DragonStageVisualConfig` / `DragonStageVisualCatalog` (placeholders substituíveis).  
-E2E: `-dragonPhase2E2E` → `docs/releases/dragon-phase2-p1-evidence/`
+## Combate PvE (Fase 3)
+
+```text
+READY (energia/saúde OK) → DEPLOYED (marcha)
+→ engajar criatura → suporte automático (habilidades)
+→ resolver (poder heróis + suporte dragão)
+→ gastar energia / dano em saúde → recall → Recovering/Injured
+```
 
 | API | Papel |
 |-----|--------|
-| `SyncBuildingLevels` | Caps Castelo/Torre |
-| `TryStartLevelUp` | Inicia evolução ou ritual |
-| `TryInstantCompleteLevelUp` | Acelerador (diamantes) |
-| `DescribeDragonProgression` | Texto HUD |
+| `TrySetAbilitySlot` | Configura loadout (0–2) |
+| `DescribeDragonAbilities` | Texto HUD |
+| `TryEnterCombatForMarch` | Valida energia/saúde no engage |
+| `TryApplyCombatOutcomeForMarch` | Aplica custo/dano/XP/ferida |
+| `GetSupportPowerForMarch` | Poder com multiplicadores de habilidade |
 
-Persistência: `valgor.dragons.v5` (migra `v4` automaticamente).
+Persistência: `valgor.dragons.v6` (migra `v5`/`v4`).
 
 ## Seed
 
-- `dragon-ember-1` (`ember-whelp`) — LOCKED até a jornada; após nascimento, progressão Fase 2.
+- `dragon-ember-1` (`ember-whelp`) — LOCKED até a jornada; após nascimento, progressão + combate.

@@ -227,6 +227,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Dragão Fase 3: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildDragonPhase3Cli</summary>
+        public static void BuildDragonPhase3Cli()
+        {
+            var report = Build("Valgor-QA-Dragon-Phase3");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Dragon Phase3 Build OK: {GetOutputExe("Valgor-QA-Dragon-Phase3")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Dragon Phase3 Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

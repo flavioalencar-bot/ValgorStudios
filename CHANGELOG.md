@@ -9,6 +9,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- **Dragão Fase 3:** habilidades (3 slots), combate PvE como suporte automático, gasto de energia/saúde, ferimento/recall, persistência `valgor.dragons.v6` (migra v5/v4)
+
+### Added
+
 - **Dragão Fase 2 P1:** catálogo `DragonStageVisualConfig` (7 estágios), placeholders 3D próprios, troca estável no ritual, harness E2E `-dragonPhase2E2E`, evidências `dragon-phase2-p1-evidence`
 
 ### Added

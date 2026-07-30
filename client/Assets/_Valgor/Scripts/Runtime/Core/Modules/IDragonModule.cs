@@ -168,6 +168,24 @@ namespace Valgor.Core.Modules
 
         bool TryInstantCompleteLevelUp(string dragonId, out string error);
 
+        /// <summary>Fase 3 — configura slot de habilidade (0–2). abilityId vazio limpa o slot.</summary>
+        bool TrySetAbilitySlot(string dragonId, int slotIndex, string abilityId, out string error);
+
+        string DescribeDragonAbilities(string dragonId);
+
+        /// <summary>
+        /// Aplica resultado do combate PvE ao dragão da marcha (energia/saúde/XP/ferida).
+        /// difficultyBand: 0 Trivial … 3 Hard, outros = Failed.
+        /// </summary>
+        bool TryApplyCombatOutcomeForMarch(
+            string marchId,
+            bool victory,
+            int difficultyBand,
+            out string error,
+            out string summary);
+
+        int GetSupportPowerForMarch(string marchId);
+
         void Tick();
 
         void Persist();
