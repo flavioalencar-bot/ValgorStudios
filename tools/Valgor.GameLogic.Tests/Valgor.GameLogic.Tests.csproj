@@ -81,6 +81,7 @@
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Simulation\WorldSimulationServices.cs" Link="WorldMap\WorldSimulationServices.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\CityProgressionQa.cs" Link="GameCore\CityProgressionQa.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\DragonPhase2Qa.cs" Link="GameCore\DragonPhase2Qa.cs" />
+    <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\DragonPhases14HomologQa.cs" Link="GameCore\DragonPhases14HomologQa.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\IHeroesGateway.cs" Link="GameCore\IHeroesGateway.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\ProvisionalHeroesGateway.cs" Link="GameCore\ProvisionalHeroesGateway.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\Core\Modules\IDragonModule.cs" Link="GameCore\IDragonModule.cs" />

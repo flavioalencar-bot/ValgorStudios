@@ -90,5 +90,7 @@ namespace Valgor.Dragons.Deployment
 
         public bool TryGetDragonForMarch(string marchId, out string dragonId) =>
             _marchToDragon.TryGetValue(marchId, out dragonId!);
+
+        public void ClearAllAssignments() => _marchToDragon.Clear();
     }
 }

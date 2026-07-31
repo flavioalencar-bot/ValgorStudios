@@ -1,0 +1,119 @@
+Homologação Dragão Fases 1–4 — E2E completo
+started=2026-07-31T19:32:14.4071570Z
+base=fbee9bc persistence=valgor.dragons.v7
+compiledIn=True
+--- Hard reset seed (Castelo 1 / ovo Locked) ---
+reset OK castle=1 phase=LOCKED
+--- T1 Bloqueio Castelo Nv.19 ---
+shot=t01-castle19-tower-locked
+milestone=castle-nv19
+PASS T1
+--- T2 Unlock Castelo Nv.20 ---
+shot=t02-castle20-unlocked
+milestone=castle-nv20
+PASS T2
+--- T3 Nascimento Nv.1 ---
+shot=t03-dragon-nv1
+PASS T3
+milestone=dragon-nv1
+--- Progressão + caps Castelo/Torre + rituais ---
+tower→1 for dragonLv=5 cap=5
+OK 1→2 ritual=False stage=Filhote
+OK 2→3 ritual=False stage=Filhote
+OK 3→4 ritual=False stage=Filhote
+OK 4→5 ritual=False stage=Filhote
+level OK nv5 Nv.5
+milestone=dragon-nv5
+tower→6 for dragonLv=15 cap=15
+shot=ritual-5-to-6-during
+shot=after-nv6-Jovem
+milestone=dragon-nv6
+OK 5→6 ritual=True stage=Jovem
+OK 6→7 ritual=False stage=Jovem
+OK 7→8 ritual=False stage=Jovem
+OK 8→9 ritual=False stage=Jovem
+OK 9→10 ritual=False stage=Jovem
+shot=ritual-10-to-11-during
+shot=after-nv11-Adolescente
+milestone=dragon-nv11
+OK 10→11 ritual=True stage=Adolescente
+OK 11→12 ritual=False stage=Adolescente
+OK 12→13 ritual=False stage=Adolescente
+OK 13→14 ritual=False stage=Adolescente
+OK 14→15 ritual=False stage=Adolescente
+level OK nv15 Nv.15
+milestone=dragon-nv15
+cap15 bloqueou 16: Limite atual Nv.15 (Castelo/Torre). Evolua os edifícios para avançar.
+shot=t04-pve-advanced-blocked-nv15
+tower→7 for dragonLv=16 cap=17
+shot=ritual-15-to-16-during
+shot=after-nv16-Adulto jovem
+milestone=dragon-nv16
+OK 15→16 ritual=True stage=Adulto jovem
+level OK nv16-ritual Nv.16
+milestone=dragon-nv16
+shot=t05-pve-unlocked-nv16
+tower→9 for dragonLv=20 cap=20
+OK 16→17 ritual=False stage=Adulto jovem
+OK 17→18 ritual=False stage=Adulto jovem
+OK 18→19 ritual=False stage=Adulto jovem
+OK 19→20 ritual=False stage=Adulto jovem
+level OK nv20 Nv.20
+milestone=dragon-nv20
+castelo20 bloqueou 21: Limite atual Nv.20 (Castelo/Torre). Evolua os edifícios para avançar.
+shot=t06-mount-ritual-blocked-nv20
+tower→9 for dragonLv=21 cap=21
+shot=ritual-20-to-21-during
+shot=after-nv21-Adulto
+milestone=dragon-nv21
+OK 20→21 ritual=True stage=Adulto
+level OK nv21-ritual-vinculo Nv.21
+milestone=dragon-nv21
+shot=t07-mount-unlocked-nv21
+tower→12 for dragonLv=26 cap=21
+OK 21→22 ritual=False stage=Adulto
+OK 22→23 ritual=False stage=Adulto
+OK 23→24 ritual=False stage=Adulto
+OK 24→25 ritual=False stage=Adulto
+shot=ritual-25-to-26-during
+shot=after-nv26-Ancestral
+milestone=dragon-nv26
+OK 25→26 ritual=True stage=Ancestral
+level OK nv26-ritual Nv.26
+milestone=dragon-nv26
+--- Habilidades + PvE vitória/derrota/ferimento ---
+Loadout: 1:Sopro de Brasa · 2:Escama Protetora · 3:Surto de Cinzas. Desbloqueadas: 5.
+vitória: Vitória suporte · poder 318 · −20 energia · −9 vida
+derrota: Derrota suporte · −25 energia · −32 vida
+shot=t08-pve-injured-recall
+PASS habilidades + PvE
+--- Montaria Vortex + marcha ---
+Vortex · montado · vínculo montaria Nv.1 (8 pts)
+shot=t09-mount-vortex-equipped
+marcha presença stage=Ancestral mounted=True
+shot=t10-march-return
+PASS montaria + marcha + retorno
+--- Nv.30 Ancestral ---
+tower→14 for dragonLv=30 cap=30
+OK 26→27 ritual=False stage=Ancestral
+OK 27→28 ritual=False stage=Ancestral
+OK 28→29 ritual=False stage=Ancestral
+OK 29→30 ritual=False stage=Ancestral
+level OK nv30 Nv.30
+visual nv30 expected=Ancestral
+milestone=dragon-nv30
+shot=t11-nv30-ancestral
+PASS Nv.30 Ancestral
+--- Save/reload + offline ---
+reload OK Nv.30 mounted=True v7
+shot=t12-save-reload
+PASS save/reload offline
+--- Responsividade 1080×640 ---
+shot=t13-responsive-1080x640
+resolution=1080x640
+PASS responsividade
+--- Regressão marcadores T1–T3 ---
+PASS regressão T1–T3 preservada
+p0=0 p1=0
+RESULT=PASS E2E Fases 1–4 completo
+ended=2026-07-31T19:33:35.2671725Z

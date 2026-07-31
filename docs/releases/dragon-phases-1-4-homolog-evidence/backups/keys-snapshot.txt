@@ -1,0 +1,294 @@
+﻿
+    valgor.dragons.v3.roost.id_h1458211387    REG_BINARY    647261676F6E2D746F77657200
+    valgor.dragons.v3.roost.building_h1900402784    REG_BINARY    647261676F6E2D746F77657200
+    valgor.dragons.v3.roost.cap_h876328836    REG_DWORD    0x3
+    valgor.dragons.v3.roost.level_h843337824    REG_DWORD    0x1
+    valgor.dragons.v3.roost.occ_h876333401    REG_BINARY    647261676F6E2D656D6265722D312C647261676F6E2D6173682D3100
+    valgor.dragons.v3.ids_h1283559859    REG_BINARY    647261676F6E2D656D6265722D312C647261676F6E2D6173682D3100
+    valgor.dragons.v3.d.dragon-ember-1.def_h546174803    REG_BINARY    656D6265722D7768656C7000
+    valgor.dragons.v3.d.dragon-ember-1.state_h2070823395    REG_DWORD    0x4
+    valgor.dragons.v3.d.dragon-ember-1.hunger_h324541623    REG_DWORD    0x64
+    valgor.dragons.v3.d.dragon-ember-1.updated_h1989278817    REG_BINARY    
+323032362D30372D32395431373A33373A33322E333535353832345A00
+    valgor.dragons.v3.d.dragon-ember-1.march_h2096077601    REG_BINARY    00
+    valgor.dragons.v3.d.dragon-ember-1.roost_h2071401377    REG_BINARY    647261676F6E2D746F77657200
+    valgor.dragons.v3.d.dragon-ember-1.growth_h47528709    REG_DWORD    0x3
+    valgor.dragons.v3.d.dragon-ember-1.gpts_h844056740    REG_DWORD    0x8
+    valgor.dragons.v3.d.dragon-ember-1.bond_h844247827    REG_DWORD    0x0
+    valgor.dragons.v3.d.dragon-ember-1.bpts_h844234049    REG_DWORD    0x5
+    valgor.dragons.v3.d.dragon-ash-1.def_h667071732    REG_BINARY    6173682D6472616B6500
+    valgor.dragons.v3.d.dragon-ash-1.state_h562890820    REG_DWORD    0x0
+    valgor.dragons.v3.d.dragon-ash-1.hunger_h2490732848    REG_DWORD    0x0
+    valgor.dragons.v3.d.dragon-ash-1.updated_h2821083590    REG_BINARY    
+323032362D30372D32395431373A33373A33322E333535353832345A00
+    valgor.dragons.v3.d.dragon-ash-1.march_h602297862    REG_BINARY    00
+    valgor.dragons.v3.d.dragon-ash-1.roost_h561443462    REG_BINARY    647261676F6E2D746F77657200
+    valgor.dragons.v3.d.dragon-ash-1.growth_h2133571778    REG_DWORD    0x0
+    valgor.dragons.v3.d.dragon-ash-1.gpts_h538339363    REG_DWORD    0x0
+    valgor.dragons.v3.d.dragon-ash-1.bond_h538190548    REG_DWORD    0x0
+    valgor.dragons.v3.d.dragon-ash-1.bpts_h538162054    REG_DWORD    0x0
+    valgor.city.production.v1.w.Gold_h2997000542    REG_BINARY    3338323000
+    valgor.city.production.v1.w.Food_h2997032156    REG_BINARY    3239373000
+    valgor.city.production.v1.w.Wood_h2996425581    REG_BINARY    3234363000
+    valgor.city.production.v1.w.Stone_h102859229    REG_BINARY    3137323000
+    valgor.city.production.v1.w.Iron_h2996770916    REG_BINARY    38353000
+    valgor.city.production.v1.w.DragonEssence_h2435440807    REG_BINARY    373500
+    valgor.city.production.v1.w.Diamonds_h2042090537    REG_BINARY    353000
+    valgor.worldmap.filters.v1.villages_h2208520385    REG_DWORD    0x1
+    valgor.worldmap.filters.v1.resources_h839141975    REG_DWORD    0x1
+    valgor.worldmap.filters.v1.creatures_h4088550814    REG_DWORD    0x1
+    valgor.worldmap.filters.v1.dragons_h3089125324    REG_DWORD    0x1
+    valgor.worldmap.filters.v1.landmarks_h4038933903    REG_DWORD    0x1
+    valgor.worldmap.filters.v1.occupied_h1362126124    REG_DWORD    0x1
+    valgor.worldmap.filters.v1.available_h2809678135    REG_DWORD    0x1
+    valgor.worldmap.v1.advance_h2949041129    REG_BINARY    323032362D30372D32395432313A32343A34342E393438363639335A00
+    valgor.worldmap.v1.energy_h379310289    REG_DWORD    0xf423f
+    valgor.worldmap.v1.selected_h2109245466    REG_BINARY    6D6F756E742D676F6C656D00
+    valgor.worldmap.v1.n.home-city.status_h928034380    REG_DWORD    0x1
+    valgor.worldmap.v1.n.home-city.amount_h1296934388    REG_BINARY    3000
+    valgor.worldmap.v1.n.home-city.occ_h3866548407    REG_BINARY    00
+    valgor.worldmap.v1.n.home-city.rstate_h960789245    REG_DWORD    0x0
+    valgor.worldmap.v1.n.forest-village.status_h4069948225    REG_DWORD    0x1
+    valgor.worldmap.v1.n.forest-village.amount_h160460857    REG_BINARY    3000
+    valgor.worldmap.v1.n.forest-village.occ_h1185352730    REG_BINARY    00
+    valgor.worldmap.v1.n.forest-village.rstate_h4031326128    REG_DWORD    0x0
+    valgor.worldmap.v1.n.forest-wood.status_h4219908334    REG_DWORD    0x1
+    valgor.worldmap.v1.n.forest-wood.amount_h441317654    REG_BINARY    38303000
+    valgor.worldmap.v1.n.forest-wood.occ_h1594802389    REG_BINARY    00
+    valgor.worldmap.v1.n.forest-wood.rstate_h3944610975    REG_DWORD    0x0
+    valgor.worldmap.v1.n.forest-wolf.status_h2317991663    REG_DWORD    0x1
+    valgor.worldmap.v1.n.forest-wolf.amount_h2850128215    REG_BINARY    3000
+    valgor.worldmap.v1.n.forest-wolf.occ_h1481928628    REG_BINARY    00
+    valgor.worldmap.v1.n.forest-wolf.rstate_h2284129886    REG_DWORD    0x0
+    valgor.worldmap.v1.n.forest-stone.status_h1868647870    REG_DWORD    0x1
+    valgor.worldmap.v1.n.forest-stone.amount_h1483167942    REG_BINARY    3000
+    valgor.worldmap.v1.n.forest-stone.occ_h835671045    REG_BINARY    00
+    valgor.worldmap.v1.n.forest-stone.rstate_h1907269967    REG_DWORD    0x0
+    valgor.worldmap.v1.n.mount-iron.status_h1792898899    REG_DWORD    0x1
+    valgor.worldmap.v1.n.mount-iron.amount_h1120403115    REG_BINARY    35303000
+    valgor.worldmap.v1.n.mount-iron.occ_h1916680392    REG_BINARY    00
+    valgor.worldmap.v1.n.mount-iron.rstate_h1760144034    REG_DWORD    0x0
+    valgor.worldmap.v1.n.mount-golem.status_h3854230341    REG_DWORD    0x1
+    valgor.worldmap.v1.n.mount-golem.amount_h4239439677    REG_BINARY    3000
+    valgor.worldmap.v1.n.mount-golem.occ_h2543629470    REG_BINARY    00
+    valgor.worldmap.v1.n.mount-golem.rstate_h3806416564    REG_DWORD    0x0
+    valgor.worldmap.v1.n.mount-dragon.status_h347123640    REG_DWORD    0x1
+    valgor.worldmap.v1.n.mount-dragon.amount_h4091275328    REG_BINARY    3000
+    valgor.worldmap.v1.n.mount-dragon.occ_h497157059    REG_BINARY    00
+    valgor.worldmap.v1.n.mount-dragon.rstate_h380985417    REG_DWORD    0x0
+    valgor.worldmap.v1.n.mount-peak.status_h2503230742    REG_DWORD    0x1
+    valgor.worldmap.v1.n.mount-peak.amount_h2136421422    REG_BINARY    3000
+    valgor.worldmap.v1.n.mount-peak.occ_h3097624237    REG_BINARY    00
+    valgor.worldmap.v1.n.mount-peak.rstate_h2541844391    REG_DWORD    0x0
+    valgor.worldmap.v1.n.coast-harbor.status_h3467157898    REG_DWORD    0x1
+    valgor.worldmap.v1.n.coast-harbor.amount_h1633714    REG_BINARY    3000
+    valgor.worldmap.v1.n.coast-harbor.occ_h3978356145    REG_BINARY    00
+    valgor.worldmap.v1.n.coast-harbor.rstate_h3513848123    REG_DWORD    0x0
+    valgor.worldmap.v1.n.coast-gold.status_h4079569550    REG_DWORD    0x1
+    valgor.worldmap.v1.n.coast-gold.amount_h613774774    REG_BINARY    33353000
+    valgor.worldmap.v1.n.coast-gold.occ_h1039298357    REG_BINARY    00
+    valgor.worldmap.v1.n.coast-gold.rstate_h4117068095    REG_DWORD    0x0
+    valgor.worldmap.v1.n.coast-crab.status_h786463548    REG_DWORD    0x1
+    valgor.worldmap.v1.n.coast-crab.amount_h235377348    REG_BINARY    3000
+    valgor.worldmap.v1.n.coast-crab.occ_h1496432583    REG_BINARY    00
+    valgor.worldmap.v1.n.coast-crab.rstate_h811133645    REG_DWORD    0x0
+    valgor.worldmap.v1.n.coast-outpost.status_h1164279128    REG_DWORD    0x1
+    valgor.worldmap.v1.n.coast-outpost.amount_h319067616    REG_BINARY    3000
+    valgor.worldmap.v1.n.coast-outpost.occ_h1418511651    REG_BINARY    00
+    valgor.worldmap.v1.n.coast-outpost.rstate_h1207340777    REG_DWORD    0x0
+    valgor.worldmap.v1.n.desert-stone.status_h528497462    REG_DWORD    0x0
+    valgor.worldmap.v1.n.desert-stone.amount_h161417806    REG_BINARY    36303000
+    valgor.worldmap.v1.n.desert-stone.occ_h163625101    REG_BINARY    00
+    valgor.worldmap.v1.n.desert-stone.rstate_h567119559    REG_DWORD    0x0
+    valgor.worldmap.v1.n.desert-scorpion.status_h2444275520    REG_DWORD    0x0
+    valgor.worldmap.v1.n.desert-scorpion.amount_h2831846392    REG_BINARY    3000
+    valgor.worldmap.v1.n.desert-scorpion.occ_h3873292347    REG_BINARY    00
+    valgor.worldmap.v1.n.desert-scorpion.rstate_h2486222065    REG_DWORD    0x0
+    valgor.worldmap.v1.n.ruins-obelisk.status_h1635731650    REG_DWORD    0x0
+    valgor.worldmap.v1.n.ruins-obelisk.amount_h2179708922    REG_BINARY    3000
+    valgor.worldmap.v1.n.ruins-obelisk.occ_h2303097977    REG_BINARY    00
+    valgor.worldmap.v1.n.ruins-obelisk.rstate_h1682430323    REG_DWORD    0x0
+    valgor.worldmap.v1.n.portal-guardian.status_h489429075    REG_DWORD    0x0
+    valgor.worldmap.v1.n.portal-guardian.amount_h4111900587    REG_BINARY    3000
+    valgor.worldmap.v1.n.portal-guardian.occ_h1898478024    REG_BINARY    00
+    valgor.worldmap.v1.n.portal-guardian.rstate_h456674210    REG_DWORD    0x0
+    valgor.worldmap.v1.c.forest-wolf.state_h739529153    REG_DWORD    0x0
+    valgor.worldmap.v1.c.forest-wolf.march_h769801603    REG_BINARY    00
+    valgor.worldmap.v1.c.mount-golem.state_h401765739    REG_DWORD    0x0
+    valgor.worldmap.v1.c.mount-golem.march_h408045225    REG_BINARY    00
+    valgor.worldmap.v1.c.coast-crab.state_h494123538    REG_DWORD    0x0
+    valgor.worldmap.v1.c.coast-crab.march_h483104336    REG_BINARY    00
+    valgor.worldmap.v1.c.desert-scorpion.state_h2875996046    REG_DWORD    0x0
+    valgor.worldmap.v1.c.desert-scorpion.march_h2891967948    REG_BINARY    00
+    valgor.worldmap.camera.v2.x_h4188658815    REG_BINARY    3000
+    valgor.worldmap.camera.v2.y_h4188658814    REG_BINARY    333000
+    valgor.worldmap.camera.v2.z_h4188658813    REG_BINARY    3000
+    valgor.worldmap.camera.v2.zoom_h2113033744    REG_BINARY    313500
+    valgor.city.production.v1.city-progression-qa.meta_h329194390    REG_BINARY    
+323032362D30372D32395432323A34383A35332E303339333239305A00
+    valgor.city.production.v1.city-progression-qa.b.farm.acc_h426911632    REG_BINARY    3135353700
+    valgor.city.production.v1.city-progression-qa.b.farm.ts_h4177753334    REG_BINARY    
+323032362D30372D32395432323A34383A35322E353536333839365A00
+    valgor.city.production.v1.city-progression-qa.b.lumbermill.acc_h3463629101    REG_BINARY    35373300
+    valgor.city.production.v1.city-progression-qa.b.lumbermill.ts_h3749173547    REG_BINARY    
+323032362D30372D32395432323A34383A35322E353536333839365A00
+    valgor.city.production.v1.city-progression-qa.b.quarry.acc_h1808108308    REG_BINARY    33373400
+    valgor.city.production.v1.city-progression-qa.b.quarry.ts_h3438704370    REG_BINARY    
+323032362D30372D32395432323A34383A35322E353536333839365A00
+    valgor.city.production.v1.city-progression-qa.b.mine.acc_h408040615    REG_BINARY    3000
+    valgor.city.production.v1.city-progression-qa.b.mine.ts_h12365281    REG_BINARY    
+323032362D30372D32395432323A34383A35322E353536333839365A00
+    valgor.city.production.v1.city-progression-qa.b.market.acc_h3494613708    REG_BINARY    34323600
+    valgor.city.production.v1.city-progression-qa.b.market.ts_h3099359786    REG_BINARY    
+323032362D30372D32395432323A34383A35322E353536333839365A00
+    valgor.city.production.v1.city-progression-qa.b.dragon-tower.acc_h97738351    REG_BINARY    343600
+    valgor.city.production.v1.city-progression-qa.b.dragon-tower.ts_h2996424233    REG_BINARY    
+323032362D30372D32395432323A34383A35322E353536333839365A00
+    valgor.city.production.v1.city-progression-qa.slot.castle.lv_h3954752761    REG_DWORD    0x1e
+    valgor.city.production.v1.city-progression-qa.slot.castle.st_h3954752708    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.slot.farm.lv_h1567400493    REG_DWORD    0x5
+    valgor.city.production.v1.city-progression-qa.slot.farm.st_h1567399696    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.slot.lumbermill.lv_h3232999280    REG_DWORD    0x2
+    valgor.city.production.v1.city-progression-qa.slot.lumbermill.st_h3232999693    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.slot.quarry.lv_h478727337    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.quarry.st_h478726292    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.slot.mine.lv_h1130219322    REG_DWORD    0x0
+    valgor.city.production.v1.city-progression-qa.slot.mine.st_h1130219591    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.warehouse.lv_h2004813840    REG_DWORD    0x5
+    valgor.city.production.v1.city-progression-qa.slot.warehouse.st_h2004814509    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.slot.academy.lv_h2306965155    REG_DWORD    0x8
+    valgor.city.production.v1.city-progression-qa.slot.academy.st_h2306964766    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.slot.institute.lv_h1823128972    REG_DWORD    0x0
+    valgor.city.production.v1.city-progression-qa.slot.institute.st_h1823128369    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.hospital.lv_h1949757697    REG_DWORD    0x0
+    valgor.city.production.v1.city-progression-qa.slot.hospital.st_h1949757436    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.market.lv_h1797217009    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.market.st_h1797217484    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.slot.temple.lv_h480969072    REG_DWORD    0x0
+    valgor.city.production.v1.city-progression-qa.slot.temple.st_h480969485    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.dragon-tower.lv_h251283314    REG_DWORD    0xf
+    valgor.city.production.v1.city-progression-qa.slot.dragon-tower.st_h251283855    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.slot.arena.lv_h2372818508    REG_DWORD    0x0
+    valgor.city.production.v1.city-progression-qa.slot.arena.st_h2372817905    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.laboratory.lv_h2367260118    REG_DWORD    0x0
+    valgor.city.production.v1.city-progression-qa.slot.laboratory.st_h2367261163    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.wall.lv_h2184766979    REG_DWORD    0x1
+    valgor.city.production.v1.city-progression-qa.slot.wall.st_h2184766846    REG_DWORD    0x3
+    valgor.city.production.v1.city-progression-qa.w.Gold_h2939669330    REG_BINARY    39393939393939393900
+    valgor.city.production.v1.city-progression-qa.w.Food_h2939700944    REG_BINARY    39393939393436393900
+    valgor.city.production.v1.city-progression-qa.w.Wood_h2939094369    REG_BINARY    39393939393939393900
+    valgor.city.production.v1.city-progression-qa.w.Stone_h2496426577    REG_BINARY    39393939393939393900
+    valgor.city.production.v1.city-progression-qa.w.Iron_h2939718504    REG_BINARY    39393939393939393900
+    valgor.city.production.v1.city-progression-qa.w.DragonEssence_h902811691    REG_BINARY    39393939393937333400
+    valgor.city.production.v1.city-progression-qa.w.Diamonds_h3122874149    REG_BINARY    39393939393939393900
+    valgor.worldmap.energy.v1.city-progression-qa.current_h1727558618    REG_DWORD    0xf423f
+    valgor.worldmap.energy.v1.city-progression-qa.max_h2308136903    REG_DWORD    0xf423f
+    valgor.worldmap.energy.v1.city-progression-qa.updated_h3519420006    REG_BINARY    
+323032362D30372D32395432323A34383A34392E373832333731355A00
+    valgor.player.v1.id_h2173847763    REG_BINARY    386236313964623562646461343065393830346532313636366262376335363300
+    valgor.player.v1.name_h792917337    REG_BINARY    466C6176696F00
+    valgor.player.v1.createdUtc_h3331624988    REG_BINARY    323032362D30372D32395431373A33373A32352E343937393835305A00
+    valgor.player.v1.introDone_h2367910832    REG_DWORD    0x1
+    valgor.player.v1.tutorialStep_h2768564896    REG_DWORD    0xb
+    valgor.player.v1.lastScene_h2358247594    REG_BINARY    4369747900
+    valgor.player.v1.castleLevel_h2034904100    REG_DWORD    0x1e
+    valgor.worldmap.energy.v1.current_h559189206    REG_DWORD    0xf423f
+    valgor.worldmap.energy.v1.max_h3650785995    REG_DWORD    0xf423f
+    valgor.worldmap.energy.v1.updated_h931795562    REG_BINARY    
+323032362D30372D32395432313A32343A34342E393438363639335A00
+    valgor.worldmap.energy.v1.interval_h3050307616    REG_BINARY    363000
+    valgor.worldmap.energy.v1.regen_h2857228068    REG_DWORD    0x1
+    valgor.dragons.v3.meta_h3702633424    REG_BINARY    323032362D30372D32395432313A34373A32322E373631363836395A00
+    valgor.city.production.v1.meta_h3804429210    REG_BINARY    
+323032362D30372D32395432313A32343A34362E323833303238315A00
+    valgor.city.production.v1.b.farm.acc_h1107991708    REG_BINARY    3000
+    valgor.city.production.v1.b.farm.ts_h1855682426    REG_BINARY    
+323032362D30372D32395432313A32343A34342E393536303834365A00
+    valgor.city.production.v1.b.lumbermill.acc_h2700870945    REG_BINARY    33363800
+    valgor.city.production.v1.b.lumbermill.ts_h3205457831    REG_BINARY    
+323032362D30372D32395432313A32343A34342E393536303834365A00
+    valgor.city.production.v1.b.quarry.acc_h2654679064    REG_BINARY    32393500
+    valgor.city.production.v1.b.quarry.ts_h4245261438    REG_BINARY    
+323032362D30372D32395432313A32343A34342E393536303834365A00
+    valgor.city.production.v1.b.mine.acc_h380609195    REG_BINARY    3000
+    valgor.city.production.v1.b.mine.ts_h3395447917    REG_BINARY    
+323032362D30372D32395432313A32343A34342E393536303834365A00
+    valgor.city.production.v1.b.market.acc_h4247023040    REG_BINARY    33333100
+    valgor.city.production.v1.b.market.ts_h128698278    REG_BINARY    
+323032362D30372D32395432313A32343A34342E393536303834365A00
+    valgor.city.production.v1.b.dragon-tower.acc_h2869874531    REG_BINARY    333600
+    valgor.city.production.v1.b.dragon-tower.ts_h217117093    REG_BINARY    
+323032362D30372D32395432313A32343A34342E393536303834365A00
+    valgor.city.production.v1.slot.castle.lv_h3212807413    REG_DWORD    0x1
+    valgor.city.production.v1.slot.castle.st_h3212808136    REG_DWORD    0x3
+    valgor.city.production.v1.slot.farm.lv_h3879313441    REG_DWORD    0x1
+    valgor.city.production.v1.slot.farm.st_h3879312924    REG_DWORD    0x3
+    valgor.city.production.v1.slot.lumbermill.lv_h3022108028    REG_DWORD    0x1
+    valgor.city.production.v1.slot.lumbermill.st_h3022108161    REG_DWORD    0x3
+    valgor.city.production.v1.slot.quarry.lv_h2708904869    REG_DWORD    0x1
+    valgor.city.production.v1.slot.quarry.st_h2708904600    REG_DWORD    0x3
+    valgor.city.production.v1.slot.mine.lv_h575209782    REG_DWORD    0x1
+    valgor.city.production.v1.slot.mine.st_h575210827    REG_DWORD    0x3
+    valgor.city.production.v1.slot.warehouse.lv_h2041170844    REG_DWORD    0x1
+    valgor.city.production.v1.slot.warehouse.st_h2041171233    REG_DWORD    0x3
+    valgor.city.production.v1.slot.academy.lv_h4199493935    REG_DWORD    0x0
+    valgor.city.production.v1.slot.academy.st_h4199493266    REG_DWORD    0x1
+    valgor.city.production.v1.slot.institute.lv_h1106556928    REG_DWORD    0x0
+    valgor.city.production.v1.slot.institute.st_h1106556605    REG_DWORD    0x0
+    valgor.city.production.v1.slot.hospital.lv_h1030302989    REG_DWORD    0x1
+    valgor.city.production.v1.slot.hospital.st_h1030302448    REG_DWORD    0x3
+    valgor.city.production.v1.slot.market.lv_h2354603517    REG_DWORD    0x1
+    valgor.city.production.v1.slot.market.st_h2354603712    REG_DWORD    0x3
+    valgor.city.production.v1.slot.temple.lv_h2350059388    REG_DWORD    0x1
+    valgor.city.production.v1.slot.temple.st_h2350059521    REG_DWORD    0x3
+    valgor.city.production.v1.slot.dragon-tower.lv_h540223614    REG_DWORD    0x1
+    valgor.city.production.v1.slot.dragon-tower.st_h540223875    REG_DWORD    0x3
+    valgor.city.production.v1.slot.arena.lv_h2688308672    REG_DWORD    0x1
+    valgor.city.production.v1.slot.arena.st_h2688308349    REG_DWORD    0x3
+    valgor.city.production.v1.slot.laboratory.lv_h593359834    REG_DWORD    0x1
+    valgor.city.production.v1.slot.laboratory.st_h593360103    REG_DWORD    0x3
+    valgor.city.production.v1.slot.wall.lv_h192783375    REG_DWORD    0x1
+    valgor.city.production.v1.slot.wall.st_h192782962    REG_DWORD    0x3
+    valgor.city.resource-items.v1.city-progression-qa_h2638444839    REG_BINARY    7061636B2D666F6F642D736D616C6C3D383B
+7061636B2D776F6F642D736D616C6C3D33383B7061636B2D73746F6E652D736D616C6C3D363B7061636B2D69726F6E2D736D616C6C3D363B7061636
+B2D676F6C642D736D616C6C3D363B626F782D666F6F642D62617369633D343B626F782D776F6F642D62617369633D31303B626F782D73746F6E652D
+62617369633D333B626F782D69726F6E2D62617369633D333B626F782D676F6C642D62617369633D333B63686573742D626C75652D666F6F643D323
+B63686573742D626C75652D776F6F643D333B63686573742D626C75652D73746F6E653D323B63686573742D626C75652D69726F6E3D313B63686573
+742D626C75652D676F6C643D313B63686573742D707572706C652D666F6F643D313B63686573742D707572706C652D776F6F643D313B63726174652
+D73656C6563742D666F6F643D313B63726174652D73656C6563742D776F6F643D313B7061636B2D657373656E63653D3300
+    valgor.player.v1.research.gatherBoost_h1219155585    REG_DWORD    0x1
+    valgor.worldmap.filters.v1.cities_h1429239311    REG_DWORD    0x1
+    valgor.worldmap.v1.meta_h3842035726    REG_BINARY    323032362D30372D32395432313A32343A34342E393530363231315A00
+    valgor.worldmap.camera.v2.saved_h993468130    REG_DWORD    0x1
+    valgor.dragons.v5.phase2-e2e.meta_h2579299514    REG_BINARY    
+323032362D30372D32395432323A34383A35332E303432323638315A00
+    valgor.dragons.v5.phase2-e2e.journey_h4065392471    REG_DWORD    0x5
+    valgor.dragons.v5.phase2-e2e.castle_h4156000587    REG_DWORD    0x1e
+    valgor.dragons.v5.phase2-e2e.tower_h3520990876    REG_DWORD    0xf
+    valgor.dragons.v5.phase2-e2e.ver_h2941481638    REG_DWORD    0x5
+    valgor.dragons.v5.phase2-e2e.roost.id_h988032145    REG_BINARY    647261676F6E2D746F77657200
+    valgor.dragons.v5.phase2-e2e.roost.building_h2478639050    REG_BINARY    647261676F6E2D746F77657200
+    valgor.dragons.v5.phase2-e2e.roost.cap_h2540305006    REG_DWORD    0x3
+    valgor.dragons.v5.phase2-e2e.roost.level_h413201482    REG_DWORD    0xf
+    valgor.dragons.v5.phase2-e2e.roost.occ_h2540291763    REG_BINARY    647261676F6E2D656D6265722D3100
+    valgor.dragons.v5.phase2-e2e.ids_h2941475993    REG_BINARY    647261676F6E2D656D6265722D3100
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.def_h348406841    REG_BINARY    656D6265722D7768656C7000
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.state_h1435936201    REG_DWORD    0x4
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.hunger_h682507293    REG_DWORD    0x64
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.updated_h2958040395    REG_BINARY    
+323032362D30372D32395432323A34383A35312E393432343132325A00
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.march_h1447233931    REG_BINARY    00
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.roost_h1436374923    REG_BINARY    647261676F6E2D746F77657200
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.growth_h575396079    REG_DWORD    0x5
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.gpts_h2907226126    REG_DWORD    0x0
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.bond_h2907413241    REG_DWORD    0xa
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.bpts_h2907403435    REG_DWORD    0x0
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.lvl_h348397448    REG_DWORD    0x1e
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.care_h2907387339    REG_DWORD    0x3
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.xp_h3004019190    REG_DWORD    0xf
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.energy_h814994844    REG_DWORD    0x52
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.health_h701034626    REG_DWORD    0x64
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.lvling_h529521448    REG_DWORD    0x0
+    valgor.dragons.v5.phase2-e2e.d.dragon-ember-1.pend_h2907051169    REG_DWORD    0x0
+
+

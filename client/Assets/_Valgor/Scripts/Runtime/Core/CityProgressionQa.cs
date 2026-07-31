@@ -58,7 +58,8 @@ namespace Valgor.Core
 
                 _active = IsCompiledIn || HasFlag(CliFlag) || HasFlag(CliUpgradeUxTestFlag) ||
                           HasFlag(CliResponsiveUiTestFlag) ||
-                          HasFlag(DragonPhase2Qa.CliFlag) || HasFlag(DragonPhase2Qa.CliE2EFlag);
+                          HasFlag(DragonPhase2Qa.CliFlag) || HasFlag(DragonPhase2Qa.CliE2EFlag) ||
+                          HasFlag(DragonPhases14HomologQa.CliFlag);
                 return _active.Value;
             }
         }

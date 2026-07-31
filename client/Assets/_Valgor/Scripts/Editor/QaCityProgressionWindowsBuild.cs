@@ -261,6 +261,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Homolog F1–4: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildDragonPhase4HomologCli</summary>
+        public static void BuildDragonPhase4HomologCli()
+        {
+            var report = Build("Valgor-QA-Dragon-Phase4-Homolog");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Dragon Phase4 Homolog Build OK: {GetOutputExe("Valgor-QA-Dragon-Phase4-Homolog")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Dragon Phase4 Homolog Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

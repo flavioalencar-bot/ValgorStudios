@@ -60,6 +60,7 @@ namespace Valgor.Dragons.Core
         public int RoostOccupantCount => Roost.OccupantIds.Count;
         public int RoostCapacity => Roost.Capacity;
         public int EggUnlockCastleLevel => _settings.EggUnlockCastleLevel;
+        public string PersistenceKey => _settings.PersistenceKey;
         public bool IsDragonContentUnlocked =>
             _eggJourneyPhase >= DragonEggJourneyPhase.Unlocked ||
             _syncedCastleLevel >= _settings.EggUnlockCastleLevel;
@@ -1003,6 +1004,17 @@ namespace Valgor.Dragons.Core
             _dragons[ember.InstanceId] = ember;
             Roost.OccupantIds.Clear();
             Roost.OccupantIds.Add(ember.InstanceId);
+        }
+
+        /// <summary>QA/homologação: volta ao ovo Locked sem save de jogador real.</summary>
+        public void QaResetToLockedEgg()
+        {
+            Deployment.ClearAllAssignments();
+            _dragons.Clear();
+            _syncedCastleLevel = 0;
+            SeedPhase1Egg();
+            Persist();
+            NotifyChanged();
         }
 
         private void MigrateLegacyJourneyIfNeeded()

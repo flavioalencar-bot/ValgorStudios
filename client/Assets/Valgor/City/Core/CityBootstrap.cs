@@ -91,6 +91,12 @@ namespace Valgor.City
                                      gameObject.AddComponent<Valgor.City.Qa.ResponsiveUiAutoTest>();
                     responsive.Begin(qa, Controller);
                 }
+                else if (Valgor.Core.DragonPhases14HomologQa.IsActive)
+                {
+                    var homolog = gameObject.GetComponent<Valgor.City.Qa.DragonPhases14HomologAutoTest>() ??
+                                  gameObject.AddComponent<Valgor.City.Qa.DragonPhases14HomologAutoTest>();
+                    homolog.Begin(qa, Controller, Dragons);
+                }
                 else if (Valgor.Core.DragonPhase2Qa.IsE2ETest)
                 {
                     var e2e = gameObject.GetComponent<Valgor.City.Qa.DragonPhase2E2EAutoTest>() ??
