@@ -93,6 +93,15 @@ namespace Valgor.Dragons.Combat
                 power *= Mount.DragonMountService.MountPowerMultiplier(dragon.MountBondLevel);
             }
 
+            if (dragon.BattleRole == DragonBattleRole.Assault)
+            {
+                power *= 1.0 + _settings.AssaultPowerBonusRatio;
+            }
+            else if (dragon.BattleRole == DragonBattleRole.Guard)
+            {
+                power *= 1.0 + (_settings.GuardDefenseBonusRatio * 0.5);
+            }
+
             return Math.Max(1, (int)Math.Round(power));
         }
 
@@ -117,6 +126,15 @@ namespace Valgor.Dragons.Combat
                 energyCost += ability.ExtraEnergyCost;
                 damageMult *= ability.DamageTakenMultiplier;
                 heal += ability.PostCombatHeal;
+            }
+
+            if (dragon.BattleRole == DragonBattleRole.Guard)
+            {
+                damageMult *= _settings.GuardDamageTakenMultiplier;
+            }
+            else if (dragon.BattleRole == DragonBattleRole.Assault)
+            {
+                damageMult *= 1.08;
             }
 
             var baseDamage = BaseDamageForBand(difficulty, victory);

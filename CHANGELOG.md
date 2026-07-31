@@ -9,6 +9,10 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- **Dragão Fase 5 (D030):** raid PvE a cidades NPC com Muralha/Hospital/Armazém/saque, Support/Assault/Guard, Ira do Dominador, defesa offline idempotente, save `valgor.dragons.v8`
+
+### Added
+
 - **Dragão Fase 4:** montaria estratégica, vínculo com herói, treino, presença visual na marcha (`MarchArmyView`), bônus de vínculo no suporte PvE, persistência `valgor.dragons.v7`
 
 ### Added

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 using Valgor.WorldMap.Marches;
+using Valgor.WorldMap.Raids;
 
 namespace Valgor.WorldMap.Core
 {
@@ -14,8 +15,17 @@ namespace Valgor.WorldMap.Core
         public string? SelectedNodeId { get; set; }
         public Dictionary<string, WorldNodeInstance> Nodes { get; } = new();
         public Dictionary<string, WorldCreatureInstance> Creatures { get; } = new();
+        public Dictionary<string, CityRaidInstance> Raids { get; } = new();
         public MarchOrder? March { get; set; }
         public MarchOrder? LastCompletedMarch { get; set; }
+        public CityBattleReport? LastBattleReport { get; set; }
+        /// <summary>Fase 5: IDs processados (batalha/saque/relatório/defesa).</summary>
+        public ProcessedOperationRegistry ProcessedOperations { get; set; } = new();
+        /// <summary>Fase 5: eventos de invasão NPC pendentes/concluídos.</summary>
+        public List<DefenseEvent> DefenseEvents { get; set; } = new();
+        public int BoundWallLevel { get; set; }
+        public int BoundHospitalLevel { get; set; }
+        public int BoundWarehouseLevel { get; set; }
     }
 
     public interface IWorldMapRepository
@@ -75,8 +85,20 @@ namespace Valgor.WorldMap.Core
                 Energy = source.Energy,
                 SelectedNodeId = source.SelectedNodeId,
                 March = source.March?.Clone(),
-                LastCompletedMarch = source.LastCompletedMarch?.Clone()
+                LastCompletedMarch = source.LastCompletedMarch?.Clone(),
+                LastBattleReport = CloneReport(source.LastBattleReport),
+                ProcessedOperations = source.ProcessedOperations?.Clone() ?? new ProcessedOperationRegistry(),
+                BoundWallLevel = source.BoundWallLevel,
+                BoundHospitalLevel = source.BoundHospitalLevel,
+                BoundWarehouseLevel = source.BoundWarehouseLevel
             };
+            if (source.DefenseEvents != null)
+            {
+                foreach (var evt in source.DefenseEvents)
+                {
+                    clone.DefenseEvents.Add(LocalDefenseScheduler.CloneEvent(evt));
+                }
+            }
 
             foreach (var pair in source.Nodes)
             {
@@ -106,7 +128,42 @@ namespace Valgor.WorldMap.Core
                 };
             }
 
+            foreach (var pair in source.Raids)
+            {
+                clone.Raids[pair.Key] = pair.Value.Clone();
+            }
+
             return clone;
+        }
+
+        private static CityBattleReport? CloneReport(CityBattleReport? source)
+        {
+            if (source == null)
+            {
+                return null;
+            }
+
+            return new CityBattleReport
+            {
+                CreatedUtc = source.CreatedUtc,
+                TargetCityId = source.TargetCityId,
+                TargetDisplayName = source.TargetDisplayName,
+                Victory = source.Victory,
+                IsDefense = source.IsDefense,
+                AttackerPower = source.AttackerPower,
+                DefensePower = source.DefensePower,
+                Band = source.Band,
+                DragonRoleLabel = source.DragonRoleLabel,
+                TroopWoundedPercent = source.TroopWoundedPercent,
+                LootGranted = source.LootGranted,
+                DragonSummary = source.DragonSummary,
+                Summary = source.Summary,
+                BattleId = source.BattleId,
+                ReportId = source.ReportId,
+                WallDurabilityAfter = source.WallDurabilityAfter,
+                DominatorWrathUsed = source.DominatorWrathUsed,
+                DefenseEventId = source.DefenseEventId
+            };
         }
 
 #if UNITY_5_3_OR_NEWER
@@ -189,6 +246,74 @@ namespace Valgor.WorldMap.Core
                 {
                     snapshot.Creatures[definition.Id].EngagedMarchId = null;
                 }
+            }
+
+            foreach (var definition in CityRaidCatalog.All.Values)
+            {
+                var key = _keyPrefix + ".raid." + definition.CityNodeId;
+                if (!UnityEngine.PlayerPrefs.HasKey(key + ".state"))
+                {
+                    continue;
+                }
+
+                DateTime? recover = null;
+                if (UnityEngine.PlayerPrefs.HasKey(key + ".recover"))
+                {
+                    recover = ParseTime(UnityEngine.PlayerPrefs.GetString(key + ".recover"));
+                }
+
+                var march = UnityEngine.PlayerPrefs.GetString(key + ".march", string.Empty);
+                snapshot.Raids[definition.CityNodeId] = new CityRaidInstance(
+                    definition.CityNodeId,
+                    (CityRaidState)UnityEngine.PlayerPrefs.GetInt(key + ".state"))
+                {
+                    EngagedMarchId = string.IsNullOrEmpty(march) ? null : march,
+                    RecoverAtUtc = recover,
+                    WallCurrentDurability = long.Parse(
+                        UnityEngine.PlayerPrefs.GetString(key + ".wall", "0"),
+                        System.Globalization.CultureInfo.InvariantCulture),
+                    ActiveBattleId = NullIfEmpty(UnityEngine.PlayerPrefs.GetString(key + ".battle", string.Empty)),
+                    ActiveLootTransactionId = NullIfEmpty(UnityEngine.PlayerPrefs.GetString(key + ".lootTx", string.Empty))
+                };
+            }
+
+            LoadProcessedPrefs(snapshot);
+            LoadDefenseEventsPrefs(snapshot);
+
+            if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".bound.wall"))
+            {
+                snapshot.BoundWallLevel = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".bound.wall", 0);
+                snapshot.BoundHospitalLevel = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".bound.hospital", 0);
+                snapshot.BoundWarehouseLevel = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".bound.warehouse", 0);
+            }
+
+            if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".report.summary"))
+            {
+                snapshot.LastBattleReport = new CityBattleReport
+                {
+                    CreatedUtc = UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".report.at")
+                        ? ParseTime(UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.at"))
+                        : DateTime.UtcNow,
+                    TargetCityId = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.city", string.Empty),
+                    TargetDisplayName = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.name", string.Empty),
+                    Victory = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".report.win", 0) == 1,
+                    IsDefense = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".report.def", 0) == 1,
+                    AttackerPower = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".report.atk", 0),
+                    DefensePower = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".report.dp", 0),
+                    Band = (CreatureDifficultyBand)UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".report.band", 0),
+                    DragonRoleLabel = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.role", "Support"),
+                    TroopWoundedPercent = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".report.wound", 0),
+                    LootGranted = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".report.loot", 0) == 1,
+                    DragonSummary = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.dsum", string.Empty),
+                    Summary = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.summary", string.Empty),
+                    BattleId = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.bid", string.Empty),
+                    ReportId = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.rid", string.Empty),
+                    WallDurabilityAfter = long.Parse(
+                        UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.wallAfter", "0"),
+                        System.Globalization.CultureInfo.InvariantCulture),
+                    DominatorWrathUsed = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".report.wrath", 0) == 1,
+                    DefenseEventId = UnityEngine.PlayerPrefs.GetString(_keyPrefix + ".report.deid", string.Empty)
+                };
             }
 
             if (UnityEngine.PlayerPrefs.HasKey(_keyPrefix + ".march.id"))
@@ -290,6 +415,61 @@ namespace Valgor.WorldMap.Core
                 }
             }
 
+            foreach (var pair in snapshot.Raids)
+            {
+                var key = _keyPrefix + ".raid." + pair.Key;
+                UnityEngine.PlayerPrefs.SetInt(key + ".state", (int)pair.Value.State);
+                UnityEngine.PlayerPrefs.SetString(key + ".march", pair.Value.EngagedMarchId ?? string.Empty);
+                UnityEngine.PlayerPrefs.SetString(
+                    key + ".wall",
+                    pair.Value.WallCurrentDurability.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                UnityEngine.PlayerPrefs.SetString(key + ".battle", pair.Value.ActiveBattleId ?? string.Empty);
+                UnityEngine.PlayerPrefs.SetString(key + ".lootTx", pair.Value.ActiveLootTransactionId ?? string.Empty);
+                if (pair.Value.RecoverAtUtc.HasValue)
+                {
+                    UnityEngine.PlayerPrefs.SetString(key + ".recover", pair.Value.RecoverAtUtc.Value.ToString("O", inv));
+                }
+                else
+                {
+                    UnityEngine.PlayerPrefs.DeleteKey(key + ".recover");
+                }
+            }
+
+            SaveProcessedPrefs(snapshot);
+            SaveDefenseEventsPrefs(snapshot);
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".bound.wall", snapshot.BoundWallLevel);
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".bound.hospital", snapshot.BoundHospitalLevel);
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".bound.warehouse", snapshot.BoundWarehouseLevel);
+
+            if (snapshot.LastBattleReport == null)
+            {
+                UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + ".report.summary");
+            }
+            else
+            {
+                var r = snapshot.LastBattleReport;
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.at", r.CreatedUtc.ToString("O", inv));
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.city", r.TargetCityId);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.name", r.TargetDisplayName);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".report.win", r.Victory ? 1 : 0);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".report.def", r.IsDefense ? 1 : 0);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".report.atk", r.AttackerPower);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".report.dp", r.DefensePower);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".report.band", (int)r.Band);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.role", r.DragonRoleLabel);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".report.wound", r.TroopWoundedPercent);
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".report.loot", r.LootGranted ? 1 : 0);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.dsum", r.DragonSummary);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.summary", r.Summary);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.bid", r.BattleId ?? string.Empty);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.rid", r.ReportId ?? string.Empty);
+                UnityEngine.PlayerPrefs.SetString(
+                    _keyPrefix + ".report.wallAfter",
+                    r.WallDurabilityAfter.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".report.wrath", r.DominatorWrathUsed ? 1 : 0);
+                UnityEngine.PlayerPrefs.SetString(_keyPrefix + ".report.deid", r.DefenseEventId ?? string.Empty);
+            }
+
             if (snapshot.March == null)
             {
                 DeleteMarchPrefs(".march");
@@ -354,6 +534,104 @@ namespace Valgor.WorldMap.Core
             UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".deliveryId");
             UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".committed");
             UnityEngine.PlayerPrefs.DeleteKey(_keyPrefix + suffix + ".deliveredAt");
+        }
+
+        private void LoadProcessedPrefs(WorldMapSnapshot snapshot)
+        {
+            snapshot.ProcessedOperations = new ProcessedOperationRegistry();
+            FillIds(snapshot.ProcessedOperations.RaidIds, ".ops.raids");
+            FillIds(snapshot.ProcessedOperations.MarchIds, ".ops.marches");
+            FillIds(snapshot.ProcessedOperations.BattleIds, ".ops.battles");
+            FillIds(snapshot.ProcessedOperations.LootTransactionIds, ".ops.loots");
+            FillIds(snapshot.ProcessedOperations.ReportIds, ".ops.reports");
+            FillIds(snapshot.ProcessedOperations.WallRepairIds, ".ops.repairs");
+            FillIds(snapshot.ProcessedOperations.DefenseEventIds, ".ops.defenses");
+        }
+
+        private void SaveProcessedPrefs(WorldMapSnapshot snapshot)
+        {
+            var ops = snapshot.ProcessedOperations ?? new ProcessedOperationRegistry();
+            WriteIds(ops.RaidIds, ".ops.raids");
+            WriteIds(ops.MarchIds, ".ops.marches");
+            WriteIds(ops.BattleIds, ".ops.battles");
+            WriteIds(ops.LootTransactionIds, ".ops.loots");
+            WriteIds(ops.ReportIds, ".ops.reports");
+            WriteIds(ops.WallRepairIds, ".ops.repairs");
+            WriteIds(ops.DefenseEventIds, ".ops.defenses");
+        }
+
+        private void FillIds(HashSet<string> target, string suffix)
+        {
+            var raw = UnityEngine.PlayerPrefs.GetString(_keyPrefix + suffix, string.Empty);
+            if (string.IsNullOrEmpty(raw))
+            {
+                return;
+            }
+
+            foreach (var part in raw.Split('|'))
+            {
+                if (!string.IsNullOrWhiteSpace(part))
+                {
+                    target.Add(part);
+                }
+            }
+        }
+
+        private void WriteIds(HashSet<string> source, string suffix) =>
+            UnityEngine.PlayerPrefs.SetString(_keyPrefix + suffix, string.Join("|", source));
+
+        private void LoadDefenseEventsPrefs(WorldMapSnapshot snapshot)
+        {
+            snapshot.DefenseEvents = new List<DefenseEvent>();
+            var count = UnityEngine.PlayerPrefs.GetInt(_keyPrefix + ".defevt.count", 0);
+            for (var i = 0; i < count; i++)
+            {
+                var p = _keyPrefix + ".defevt." + i;
+                if (!UnityEngine.PlayerPrefs.HasKey(p + ".id"))
+                {
+                    continue;
+                }
+
+                snapshot.DefenseEvents.Add(new DefenseEvent
+                {
+                    DefenseEventId = UnityEngine.PlayerPrefs.GetString(p + ".id"),
+                    BattleId = UnityEngine.PlayerPrefs.GetString(p + ".battle"),
+                    ReportId = UnityEngine.PlayerPrefs.GetString(p + ".report"),
+                    ScheduledAtUtc = ParseTime(UnityEngine.PlayerPrefs.GetString(p + ".at")),
+                    Status = (DefenseEventStatus)UnityEngine.PlayerPrefs.GetInt(p + ".status"),
+                    ResultApplied = UnityEngine.PlayerPrefs.GetInt(p + ".applied", 0) == 1,
+                    Attacker = new NpcAttackerSnapshot
+                    {
+                        AttackerId = UnityEngine.PlayerPrefs.GetString(p + ".atk.id", "npc-raider"),
+                        DisplayName = UnityEngine.PlayerPrefs.GetString(p + ".atk.name", "Invasor NPC"),
+                        Power = UnityEngine.PlayerPrefs.GetInt(p + ".atk.power", 1),
+                        TroopCount = UnityEngine.PlayerPrefs.GetInt(p + ".atk.troops", 1)
+                    }
+                });
+            }
+        }
+
+        private void SaveDefenseEventsPrefs(WorldMapSnapshot snapshot)
+        {
+            var list = snapshot.DefenseEvents ?? new List<DefenseEvent>();
+            UnityEngine.PlayerPrefs.SetInt(_keyPrefix + ".defevt.count", list.Count);
+            for (var i = 0; i < list.Count; i++)
+            {
+                var e = list[i];
+                var p = _keyPrefix + ".defevt." + i;
+                UnityEngine.PlayerPrefs.SetString(p + ".id", e.DefenseEventId);
+                UnityEngine.PlayerPrefs.SetString(p + ".battle", e.BattleId);
+                UnityEngine.PlayerPrefs.SetString(p + ".report", e.ReportId);
+                UnityEngine.PlayerPrefs.SetString(
+                    p + ".at",
+                    e.ScheduledAtUtc.ToString("O", System.Globalization.CultureInfo.InvariantCulture));
+                UnityEngine.PlayerPrefs.SetInt(p + ".status", (int)e.Status);
+                UnityEngine.PlayerPrefs.SetInt(p + ".applied", e.ResultApplied ? 1 : 0);
+                UnityEngine.PlayerPrefs.SetString(p + ".atk.id", e.Attacker.AttackerId);
+                UnityEngine.PlayerPrefs.SetString(p + ".atk.name", e.Attacker.DisplayName);
+                UnityEngine.PlayerPrefs.SetInt(p + ".atk.power", e.Attacker.Power);
+                UnityEngine.PlayerPrefs.SetInt(p + ".atk.troops", e.Attacker.TroopCount);
+            }
         }
 
         private static string? NullIfEmpty(string value) => string.IsNullOrEmpty(value) ? null : value;

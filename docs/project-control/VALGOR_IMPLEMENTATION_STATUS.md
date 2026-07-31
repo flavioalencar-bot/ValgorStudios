@@ -66,8 +66,9 @@ Colunas Planejada / Código / Integrada / UI / Arte / Executável / Validada: **
 | Dragons | Fase 2 Nv.1→30 | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | dragons.v5 / rituais | Placeholder mesh |
 | Dragons | Alimentação / fome / stamina | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | DragonsController | — |
 | Dragons | Vínculo / evolução / recover | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | architecture/dragons.md | — |
-| Dragons | Deploy / combate | S | P | P | P | N | P | N | EM DESENVOLVIMENTO | Deploy flags | Combate mapa |
-| Dragons | Presença visual no mapa | S | P | P | P | N | P | N | EM DESENVOLVIMENTO | Nodes / markers | Arte |
+| Dragons | Deploy / combate | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | PvE + raid Fase 5 | Arte combate |
+| Dragons | Presença visual no mapa | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | MarchArmyView / Fase 4 | Arte definitiva |
+| Dragons | Raid cidades NPC / modos | S | S | S | S | P | S | P | LÓGICA PRONTA | D030 / dragons.v8 | Sem PvP real |
 | World Map | Cena + câmera + nós | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | WorldMapScene | Placeholder |
 | World Map | Regiões / territórios overlay | S | S | P | P | N | P | N | INTEGRADO | Territory overlay | Arte / regras |
 | World Map | Recursos / gather | S | S | S | S | P | S | P | VISÍVEL NO EXECUTÁVEL | March gather | — |
@@ -77,7 +78,7 @@ Colunas Planejada / Código / Integrada / UI / Arte / Executável / Validada: **
 | World Map | Alianças | S | N | N | N | N | N | N | NÃO INICIADO | Escopo pós-beta D008 | — |
 | World Map | Guerra territorial | S | N | N | N | N | N | N | NÃO INICIADO | Pós-beta | — |
 | World Map | Capital / Rei do Reino | S | N | N | N | N | N | N | NÃO INICIADO | Endgame | — |
-| PvP | Combate jogador×jogador | S | N | N | N | N | N | N | NÃO INICIADO | D008 | — |
+| PvP | Combate jogador×jogador | S | N | N | N | N | N | N | NÃO INICIADO | D008; D030 = só raid PvE NPC | — |
 | SvS | Server vs Server | S | N | N | N | N | N | N | NÃO INICIADO | D008 | — |
 | Monetização | Loja / IAP / gacha | S | N | N | N | N | N | N | NÃO INICIADO / FORA beta | D008 gacha | — |
 | Backend | Auth JWT | S | S | N* | N | N/A | N* | N | LÓGICA PRONTA | server Auth | *não no player beta |

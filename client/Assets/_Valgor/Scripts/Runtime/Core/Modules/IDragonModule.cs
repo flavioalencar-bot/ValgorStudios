@@ -206,6 +206,16 @@ namespace Valgor.Core.Modules
             out bool isMounted,
             out string bondedHeroId);
 
+        /// <summary>Fase 5 — Support / Assault / Guard.</summary>
+        bool TrySetBattleRole(string dragonId, string roleLabel, out string error);
+
+        string DescribeBattleRole(string dragonId);
+
+        string GetBattleRoleLabel(string dragonId);
+
+        /// <summary>Poder de guarda na cidade (modo Guard, dragão no ninho).</summary>
+        int GetHomeGuardPower();
+
         void Tick();
 
         void Persist();

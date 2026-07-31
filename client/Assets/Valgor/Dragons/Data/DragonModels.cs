@@ -77,7 +77,9 @@ namespace Valgor.Dragons.Data
         ScaleGuard = 2,
         BondRoar = 3,
         AshSurge = 4,
-        AncestralAegis = 5
+        AncestralAegis = 5,
+        /// <summary>Fase 5 — Ira do Dominador (Assault em raid de cidade, Nv.21+).</summary>
+        DominatorWrath = 6
     }
 
     public enum DragonAbilitySlot
@@ -85,6 +87,14 @@ namespace Valgor.Dragons.Data
         Primary = 0,
         Secondary = 1,
         Tertiary = 2
+    }
+
+    /// <summary>Modo do dragão em combate/raid (Fase 5).</summary>
+    public enum DragonBattleRole
+    {
+        Support = 0,
+        Assault = 1,
+        Guard = 2
     }
 
     public sealed class DragonChangedEvent : EventArgs
@@ -103,8 +113,9 @@ namespace Valgor.Dragons.Data
 
     public sealed class DragonSettings
     {
-        public string PersistenceKey { get; set; } = "valgor.dragons.v7";
-        public string LegacyPersistenceKey { get; set; } = "valgor.dragons.v6";
+        public string PersistenceKey { get; set; } = "valgor.dragons.v8";
+        public string LegacyPersistenceKey { get; set; } = "valgor.dragons.v7";
+        public string LegacyV6PersistenceKey { get; set; } = "valgor.dragons.v6";
         public string LegacyV5PersistenceKey { get; set; } = "valgor.dragons.v5";
         public string LegacyV4PersistenceKey { get; set; } = "valgor.dragons.v4";
         public string DefaultRoostId { get; set; } = "dragon-tower";
@@ -174,6 +185,11 @@ namespace Valgor.Dragons.Data
         public int MountBondPointsPerMission { get; set; } = 6;
         public long MountTrainFoodCost { get; set; } = 250;
         public long MountTrainEssenceCost { get; set; } = 12;
+
+        /// <summary>Fase 5 — bônus de modo Assault/Guard.</summary>
+        public double AssaultPowerBonusRatio { get; set; } = 0.18;
+        public double GuardDefenseBonusRatio { get; set; } = 0.22;
+        public double GuardDamageTakenMultiplier { get; set; } = 0.80;
     }
 
     public sealed class DragonDefinition
@@ -263,6 +279,9 @@ namespace Valgor.Dragons.Data
         /// <summary>Herói Montador equipado para formação/marcha.</summary>
         public bool IsMounted { get; set; }
 
+        /// <summary>Fase 5 — Support / Assault / Guard.</summary>
+        public DragonBattleRole BattleRole { get; set; } = DragonBattleRole.Support;
+
         public DragonInstance Clone() =>
             new(InstanceId, DefinitionId, State, Hunger, StateEndsAtUtc, AssignedMarchId, RoostId)
             {
@@ -286,7 +305,8 @@ namespace Valgor.Dragons.Data
                 BondedHeroId = BondedHeroId,
                 MountBondLevel = MountBondLevel,
                 MountBondPoints = MountBondPoints,
-                IsMounted = IsMounted
+                IsMounted = IsMounted,
+                BattleRole = BattleRole
             };
     }
 

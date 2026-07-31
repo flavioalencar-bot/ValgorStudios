@@ -9,6 +9,7 @@ using Valgor.WorldMap.Energy;
 using Valgor.WorldMap.Filters;
 using Valgor.WorldMap.Locate;
 using Valgor.WorldMap.Marches;
+using Valgor.WorldMap.Raids;
 using Valgor.WorldMap.Simulation;
 using Valgor.WorldMap.Territory;
 using Xunit;
@@ -269,6 +270,69 @@ public sealed class WorldMapInteractionTests
         Assert.False(session.Encounters.CanEngage("desert-scorpion", session.Energy, out var error));
         Assert.Contains("bloqueada", error, StringComparison.OrdinalIgnoreCase);
         Assert.False(session.TryEngageSelectedCreature(out _));
+    }
+
+    [Fact]
+    public void CityRaid_Catalog_HasEnemyTargets()
+    {
+        Assert.True(CityRaidCatalog.TryGet("ash-keep", out var ash));
+        Assert.Equal(110, ash.DefensePower);
+        Assert.True(CityRaidCatalog.TryGet("ruin-citadel", out var ruin));
+        Assert.True(ruin.DefensePower > ash.DefensePower);
+
+        var ashNode = Assert.IsType<WorldCityNode>(WorldNodeCatalog.Get("ash-keep"));
+        Assert.True(ashNode.IsRaidable);
+        Assert.Equal("Enemy", ashNode.Faction);
+
+        var ally = Assert.IsType<WorldCityNode>(WorldNodeCatalog.Get("coast-outpost"));
+        Assert.False(ally.IsRaidable);
+    }
+
+    [Fact]
+    public void CityRaid_EngageResolve_GrantsLoot_AndRecovers()
+    {
+        var session = CreateSession();
+        var wallet = new ResourceWallet();
+        ArriveAt("ash-keep", session);
+        session.Selection.Select(session.GetNode("ash-keep"));
+
+        var energyBefore = session.Energy;
+        Assert.True(session.TryEngageSelectedCityRaid(out var error), error);
+        Assert.Equal(CityRaidState.Engaged, session.Raids["ash-keep"].State);
+        Assert.True(session.Energy < energyBefore);
+
+        Assert.True(session.TryResolveSelectedCityRaid(wallet, out error, out var band), error);
+        Assert.NotEqual(CreatureDifficultyBand.Impossible, band);
+        Assert.True(wallet.Get(ResourceType.Gold) > 0);
+        Assert.NotNull(session.LastBattleReport);
+        Assert.True(session.LastBattleReport!.Victory);
+        Assert.True(session.LastBattleReport.LootGranted);
+        Assert.Equal(CityRaidState.Recovering, session.Raids["ash-keep"].State);
+
+        var recoverAt = session.Raids["ash-keep"].RecoverAtUtc!.Value;
+        _clock.UtcNow = recoverAt;
+        session.Tick();
+        Assert.Equal(CityRaidState.Available, session.Raids["ash-keep"].State);
+    }
+
+    [Fact]
+    public void CityRaid_RequiresMarchAtCity()
+    {
+        var session = CreateSession();
+        session.Selection.Select(session.GetNode("ash-keep"));
+        Assert.False(session.TryEngageSelectedCityRaid(out var error));
+        Assert.Contains("marcha", error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void CityHomeDefense_GuardHelpsRepel()
+    {
+        var session = CreateSession();
+        session.BindCityDefense(wallLevel: 10);
+        Assert.True(session.TrySimulateHomeDefense(attackerPower: 40, out _, out var report));
+        Assert.Contains("Defesa", report, StringComparison.OrdinalIgnoreCase);
+        Assert.NotNull(session.LastBattleReport);
+        Assert.True(session.LastBattleReport!.IsDefense);
     }
 
     private WorldMapSession CreateSession()

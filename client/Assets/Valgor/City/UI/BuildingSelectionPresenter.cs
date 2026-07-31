@@ -744,6 +744,10 @@ namespace Valgor.City.UI
                     AddPanelButton("Treinar montaria", ExecuteTrainMountBond);
                     AddPanelButton("Equipar montaria", ExecuteEquipMount);
                     AddPanelButton("Status montaria", ExecuteShowMountBond);
+                    AddPanelButton("Modo Support", () => ExecuteSetBattleRole("Support"));
+                    AddPanelButton("Modo Assault", () => ExecuteSetBattleRole("Assault"));
+                    AddPanelButton("Modo Guard", () => ExecuteSetBattleRole("Guard"));
+                    AddPanelButton("Status modo combate", ExecuteShowBattleRole);
                     break;
             }
         }
@@ -1113,6 +1117,62 @@ namespace Valgor.City.UI
                 }
 
                 _feedback.text = _dragons.DescribeMountBond(status.DragonId);
+                _feedback.style.display = DisplayStyle.Flex;
+                return;
+            }
+
+            _feedback.text = "Nenhum dragão nascido.";
+            _feedback.style.display = DisplayStyle.Flex;
+        }
+
+        private void ExecuteSetBattleRole(string role)
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1)
+                {
+                    continue;
+                }
+
+                if (_dragons.TrySetBattleRole(status.DragonId, role, out var error))
+                {
+                    _feedback.text = $"Modo {role}. " + _dragons.DescribeBattleRole(status.DragonId);
+                }
+                else
+                {
+                    _feedback.text = error;
+                }
+
+                _feedback.style.display = DisplayStyle.Flex;
+                _city.Persist();
+                RefreshCurrent();
+                return;
+            }
+
+            _feedback.text = "Nenhum dragão nascido.";
+            _feedback.style.display = DisplayStyle.Flex;
+        }
+
+        private void ExecuteShowBattleRole()
+        {
+            if (_dragons == null)
+            {
+                return;
+            }
+
+            foreach (var status in _dragons.GetDragonStatuses())
+            {
+                if (status.DragonLevel < 1)
+                {
+                    continue;
+                }
+
+                _feedback.text = _dragons.DescribeBattleRole(status.DragonId);
                 _feedback.style.display = DisplayStyle.Flex;
                 return;
             }

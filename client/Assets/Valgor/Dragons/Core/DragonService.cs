@@ -868,6 +868,88 @@ namespace Valgor.Dragons.Core
             return true;
         }
 
+        public bool TrySetBattleRole(string dragonId, string roleLabel, out string error)
+        {
+            if (!TryGet(dragonId, out var dragon) || dragon.DragonLevel < 1)
+            {
+                error = "Dragão não disponível.";
+                return false;
+            }
+
+            if (!TryParseBattleRole(roleLabel, out var role))
+            {
+                error = "Modo inválido. Use Support, Assault ou Guard.";
+                return false;
+            }
+
+            if (dragon.State is DragonState.Deployed or DragonState.Recovering or DragonState.Injured
+                or DragonState.Exhausted)
+            {
+                error = "Defina o modo do dragão no ninho (Torre).";
+                return false;
+            }
+
+            dragon.BattleRole = role;
+            Persist();
+            Raise(dragonId, dragon.State, dragon.State);
+            error = string.Empty;
+            return true;
+        }
+
+        public string DescribeBattleRole(string dragonId)
+        {
+            if (!TryGet(dragonId, out var dragon) || dragon.DragonLevel < 1)
+            {
+                return "Modo de combate indisponível.";
+            }
+
+            return dragon.BattleRole switch
+            {
+                DragonBattleRole.Assault =>
+                    $"Modo Assault: +{_settings.AssaultPowerBonusRatio:P0} poder de ataque (mais dano recebido).",
+                DragonBattleRole.Guard =>
+                    $"Modo Guard: +{_settings.GuardDefenseBonusRatio:P0} defesa / guarda da cidade (menos dano).",
+                _ => "Modo Support: suporte equilibrado em combate e marcha."
+            };
+        }
+
+        public string GetBattleRoleLabel(string dragonId) =>
+            TryGet(dragonId, out var dragon) ? dragon.BattleRole.ToString() : "Support";
+
+        public int GetHomeGuardPower()
+        {
+            foreach (var dragon in _dragons.Values)
+            {
+                if (dragon.DragonLevel < 1 ||
+                    dragon.BattleRole != DragonBattleRole.Guard ||
+                    dragon.State is DragonState.Deployed or DragonState.Injured or DragonState.Exhausted
+                        or DragonState.Recovering)
+                {
+                    continue;
+                }
+
+                return ResolveCombatPower(dragon);
+            }
+
+            return 0;
+        }
+
+        private static bool TryParseBattleRole(string? label, out DragonBattleRole role)
+        {
+            role = DragonBattleRole.Support;
+            if (string.IsNullOrWhiteSpace(label))
+            {
+                return false;
+            }
+
+            if (Enum.TryParse(label.Trim(), ignoreCase: true, out role))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public bool TryEvolve(string dragonId, out string error)
         {
             if (!TryGet(dragonId, out var dragon))
@@ -966,7 +1048,7 @@ namespace Valgor.Dragons.Core
                 EggJourneyPhase = _eggJourneyPhase,
                 SyncedCastleLevel = _syncedCastleLevel,
                 SyncedTowerLevel = _syncedTowerLevel,
-                PersistenceVersion = 5
+                PersistenceVersion = 8
             };
             foreach (var pair in _dragons)
             {
@@ -1092,6 +1174,7 @@ namespace Valgor.Dragons.Core
                 repository ?? new DragonRepository(
                     settings.PersistenceKey,
                     settings.LegacyPersistenceKey,
+                    settings.LegacyV6PersistenceKey,
                     settings.LegacyV5PersistenceKey,
                     settings.LegacyV4PersistenceKey),
                 utcNow);

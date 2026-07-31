@@ -11,6 +11,7 @@ using Valgor.WorldMap.Creatures;
 using Valgor.WorldMap.Data;
 using Valgor.WorldMap.Filters;
 using Valgor.WorldMap.Marches;
+using Valgor.WorldMap.Raids;
 using Valgor.WorldMap.Territory;
 using Valgor.UI;
 using Valgor.Core;
@@ -37,7 +38,9 @@ namespace Valgor.WorldMap.UI
         private Button _resolveButton = null!;
         private Button _returnButton = null!;
         private Button _cancelButton = null!;
+        private Button _wrathButton = null!;
         private Label _feedback = null!;
+        private bool _wrathRequested;
         private VisualElement _encounterPanel = null!;
         private Label _encounterTitle = null!;
         private Label _encounterBody = null!;
@@ -182,6 +185,7 @@ namespace Valgor.WorldMap.UI
             locate.Add(CreateCompactButton("Cidade", OnLocateHome));
             locate.Add(CreateCompactButton("Marcha", OnLocateMarch));
             locate.Add(CreateCompactButton("Selecionado", OnLocateSelected));
+            locate.Add(CreateCompactButton("Raid Cinzas", OnLocateAshKeep));
 
             _panel = new VisualElement();
             _panel.style.position = Position.Absolute;
@@ -214,12 +218,14 @@ namespace Valgor.WorldMap.UI
             _resolveButton = CreateButton("Resolver", OnResolve);
             _returnButton = CreateButton("Retornar", OnReturn);
             _cancelButton = CreateButton("Cancelar marcha", OnCancel);
+            _wrathButton = CreateButton("Ira do Dominador: OFF", OnToggleWrath);
             _panel.Add(_dispatchButton);
             _panel.Add(_collectButton);
             _panel.Add(_engageButton);
             _panel.Add(_resolveButton);
             _panel.Add(_returnButton);
             _panel.Add(_cancelButton);
+            _panel.Add(_wrathButton);
             _panel.Add(CreateButton("Fechar", () => _map.Session.Selection.Deselect()));
 
             _feedback = new Label();
@@ -318,6 +324,22 @@ namespace Valgor.WorldMap.UI
         private void OnLocateSelected()
         {
             _feedback.text = _map.TryLocateSelectedNode(out var error) ? "Nó centralizado." : error;
+            Refresh();
+        }
+
+        private void OnLocateAshKeep()
+        {
+            if (!_map.Session.Nodes.ContainsKey("ash-keep"))
+            {
+                _feedback.text = "Alvo de raid indisponível.";
+                Refresh();
+                return;
+            }
+
+            _map.Session.Selection.Select(_map.Session.GetNode("ash-keep"));
+            _feedback.text = _map.TryLocateSelectedNode(out var error)
+                ? "Fortaleza de Cinzas localizada."
+                : error;
             Refresh();
         }
 
@@ -426,8 +448,48 @@ namespace Valgor.WorldMap.UI
             Refresh();
         }
 
+        private void OnToggleWrath()
+        {
+            if (!_wrathRequested && !_map.Session.CanRequestDominatorWrath(out var reason))
+            {
+                _feedback.text = reason;
+                _wrathRequested = false;
+                _map.Session.SetDominatorWrathRequested(false);
+                Refresh();
+                return;
+            }
+
+            _wrathRequested = !_wrathRequested;
+            _map.Session.SetDominatorWrathRequested(_wrathRequested);
+            _feedback.text = _wrathRequested
+                ? "Ira do Dominador armada para o próximo raid Assault."
+                : "Ira do Dominador desarmada.";
+            Refresh();
+        }
+
         private void OnEngage()
         {
+            var selected = _map.Session.Selection.Selected;
+            if (selected != null &&
+                _map.Session.GetDefinition(selected.DefinitionId) is WorldCityNode { IsRaidable: true })
+            {
+                if (_map.Session.TryEngageSelectedCityRaid(out var raidError))
+                {
+                    _feedback.text = "Raid à cidade iniciado.";
+                    _encounterResult.text = "Raid em andamento. Resolva o combate.";
+                    _encounterResult.style.color = new Color(1f, 0.85f, 0.45f);
+                }
+                else
+                {
+                    _feedback.text = raidError;
+                    _encounterResult.text = raidError;
+                    _encounterResult.style.color = new Color(1f, 0.45f, 0.4f);
+                }
+
+                Refresh();
+                return;
+            }
+
             if (_map.Session.TryEngageSelectedCreature(out var error))
             {
                 _feedback.text = "Encontro iniciado — prepare o combate.";
@@ -446,6 +508,30 @@ namespace Valgor.WorldMap.UI
 
         private void OnResolve()
         {
+            var selected = _map.Session.Selection.Selected;
+            if (selected != null &&
+                _map.Session.GetDefinition(selected.DefinitionId) is WorldCityNode { IsRaidable: true })
+            {
+                if (_map.Session.TryResolveSelectedCityRaid(_economy?.Wallet, out var raidError, out var raidBand))
+                {
+                    _economy?.PersistWallet();
+                    var report = _map.Session.LastBattleReport;
+                    _feedback.text = report?.Summary ?? $"Raid vitorioso ({raidBand}).";
+                    _encounterResult.text = report?.Summary ?? $"Vitória — {raidBand}";
+                    _encounterResult.style.color = new Color(0.55f, 0.95f, 0.6f);
+                }
+                else
+                {
+                    var report = _map.Session.LastBattleReport;
+                    _feedback.text = report?.Summary ?? raidError;
+                    _encounterResult.text = report?.Summary ?? $"Derrota: {raidError}";
+                    _encounterResult.style.color = new Color(1f, 0.45f, 0.4f);
+                }
+
+                Refresh();
+                return;
+            }
+
             if (_map.Session.TryResolveSelectedCreature(_economy?.Wallet, out var error, out var band))
             {
                 _economy?.PersistWallet();
@@ -507,6 +593,34 @@ namespace Valgor.WorldMap.UI
             {
                 case WorldCityNode city:
                     builder.AppendLine(city.IsPlayerHome ? "Base do jogador." : "Cidade do mundo.");
+                    builder.AppendLine($"Facção: {city.Faction}");
+                    if (city.IsRaidable &&
+                        CityRaidCatalog.TryGet(city.Id, out var raidDef) &&
+                        _map.Session.TryGetRaid(city.Id, out var raidInst))
+                    {
+                        builder.AppendLine(_map.Session.DescribeSelectedRaidInspection());
+                        builder.AppendLine($"Raid: {FriendlyRaidState(raidInst.State)}");
+                        builder.AppendLine($"Seu poder: {_map.Session.GetAttackerPower()}");
+                        builder.AppendLine(_map.Session.DescribeRaidPreparation());
+                        builder.AppendLine($"Energia do raid: {raidDef.EnergyCost}");
+                        if (raidInst.RecoverAtUtc.HasValue)
+                        {
+                            var left = raidInst.RecoverAtUtc.Value - _map.Session.Clock.UtcNow;
+                            if (left < TimeSpan.Zero)
+                            {
+                                left = TimeSpan.Zero;
+                            }
+
+                            builder.AppendLine($"Recuperação em: {FormatDuration(left)}");
+                        }
+                    }
+
+                    if (_map.Session.LastBattleReport != null &&
+                        string.Equals(_map.Session.LastBattleReport.TargetCityId, city.Id, StringComparison.Ordinal))
+                    {
+                        builder.AppendLine($"Último relatório: {_map.Session.LastBattleReport.Summary}");
+                    }
+
                     break;
                 case WorldVillageNode village:
                     builder.AppendLine($"População: {village.Population}");
@@ -605,14 +719,24 @@ namespace Valgor.WorldMap.UI
                                  selected,
                                  definition,
                                  _map.Session.Marches.Active);
-            var canEngage = definition is WorldCreatureNode &&
+            var canEngageCreature = definition is WorldCreatureNode &&
                             _map.Session.Encounters.CanEngage(
                                 selected.DefinitionId,
                                 _map.Session.EnergyWallet.CurrentEnergy,
                                 out _);
-            var canResolve = definition is WorldCreatureNode &&
+            var canEngageRaid = definition is WorldCityNode { IsRaidable: true } &&
+                                _map.Session.CityRaids.CanRaid(
+                                    selected.DefinitionId,
+                                    _map.Session.EnergyWallet.CurrentEnergy,
+                                    out _);
+            var canEngage = canEngageCreature || canEngageRaid;
+            var canResolveCreature = definition is WorldCreatureNode &&
                              _map.Session.TryGetCreature(selected.DefinitionId, out var creatureState) &&
                              creatureState.State == WorldCreatureState.Engaged;
+            var canResolveRaid = definition is WorldCityNode { IsRaidable: true } &&
+                                 _map.Session.TryGetRaid(selected.DefinitionId, out var raidState) &&
+                                 raidState.State == CityRaidState.Engaged;
+            var canResolve = canResolveCreature || canResolveRaid;
             var canReturn = _map.Session.Marches.Active?.State is MarchState.Arrived or MarchState.Gathering;
             var canCancel = _map.Session.Marches.Active != null &&
                             _map.Session.Marches.StateMachine.CanCancel(_map.Session.Marches.Active.State);
@@ -623,6 +747,8 @@ namespace Valgor.WorldMap.UI
             _resolveButton.SetEnabled(canResolve);
             _returnButton.SetEnabled(canReturn);
             _cancelButton.SetEnabled(canCancel);
+            _wrathButton.text = _wrathRequested ? "Ira do Dominador: ON" : "Ira do Dominador: OFF";
+            _wrathButton.SetEnabled(definition is WorldCityNode { IsRaidable: true });
             _collectButton.style.backgroundColor = canCollect
                 ? new Color(0.25f, 0.55f, 0.3f)
                 : new Color(0.2f, 0.2f, 0.2f);
@@ -823,6 +949,15 @@ namespace Valgor.WorldMap.UI
             WorldCreatureState.Engaged => "Em combate",
             WorldCreatureState.Defeated => "Derrotado",
             WorldCreatureState.Respawning => "Renascendo",
+            _ => state.ToString()
+        };
+
+        private static string FriendlyRaidState(CityRaidState state) => state switch
+        {
+            CityRaidState.Available => "Disponível",
+            CityRaidState.Engaged => "Em raid",
+            CityRaidState.Raided => "Saqueada",
+            CityRaidState.Recovering => "Recuperando",
             _ => state.ToString()
         };
     }

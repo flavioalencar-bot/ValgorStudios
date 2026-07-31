@@ -35,6 +35,7 @@
 | D027 | 2026-07-29 | Dragões Fase 2 P1 | Visuais por estágio data-driven (`DragonStageVisualConfig`), troca só ao concluir ritual, E2E Unity `-dragonPhase2E2E` Nv.1→30 | Fechamento P1 Fase 2 | Placeholders próprios até asset definitivo; sem Fase 3 | Vigente |
 | D028 | 2026-07-30 | Dragões Fase 3 | Habilidades (3 slots) + combate PvE como suporte automático; energia/saúde; recall ferido; persistência `valgor.dragons.v6` | Continuação do módulo Dragão | Sem PvP/montaria/múltiplos/controle manual | Vigente |
 | D029 | 2026-07-30 | Dragões Fase 4 | Montaria estratégica + vínculo herói (Vortex/Elyra/Vespera) + presença visual na marcha; persistência `valgor.dragons.v7` | Continuação do módulo Dragão | Sem PvP/voo manual/múltiplos dragões | Vigente |
+| D030 | 2026-07-31 | Dragões Fase 5 | Raid **PvE** a cidades NPC (`ash-keep`, `ruin-citadel`) com Muralha/Hospital/Armazém/saque + modos Support/Assault/Guard + Ira do Dominador + defesa local offline idempotente; save `valgor.dragons.v8`. **Não** é PvP multiplayer — D008 permanece para PvP real | Continuação do módulo Dragão | Sem multiplayer, alianças/SvS, cerco multi-turno, múltiplos dragões | Vigente |
 
 ---
 

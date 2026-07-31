@@ -63,13 +63,24 @@ namespace Valgor.WorldMap.Data
             WorldNodeStatus status,
             float x,
             float z,
-            bool isPlayerHome = false)
+            bool isPlayerHome = false,
+            bool isRaidable = false,
+            int defensePower = 0,
+            string faction = "Neutral")
             : base(id, regionId, displayName, description, status, x, z)
         {
             IsPlayerHome = isPlayerHome;
+            IsRaidable = isRaidable;
+            DefensePower = Math.Max(0, defensePower);
+            Faction = string.IsNullOrWhiteSpace(faction) ? "Neutral" : faction;
         }
 
         public bool IsPlayerHome { get; }
+        /// <summary>Cidade NPC atacável (raid PvE provisório / Fase 5).</summary>
+        public bool IsRaidable { get; }
+        public int DefensePower { get; }
+        /// <summary>Player / Neutral / Allied / Enemy.</summary>
+        public string Faction { get; }
         public override WorldNodeKind Kind => WorldNodeKind.City;
     }
 

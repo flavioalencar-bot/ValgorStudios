@@ -5,6 +5,7 @@ using Valgor.City.Data;
 using Valgor.Core.Modules;
 using Valgor.Dragons.Core;
 using Valgor.Dragons.Data;
+using Valgor.Dragons.Combat;
 using Valgor.Dragons.Mount;
 using Valgor.WorldMap.Core;
 using Valgor.WorldMap.Data;
@@ -783,6 +784,59 @@ public sealed class DragonFoundationTests
         Assert.True(loaded.IsMounted);
         Assert.Equal(3, loaded.MountBondLevel);
         Assert.Equal(7, loaded.MountBondPoints);
+    }
+
+    [Fact]
+    public void Phase5_BattleRole_AssaultBoostsPower_GuardReducesDamage()
+    {
+        var service = CreateBornService(out _, advanceToReady: true);
+        Assert.True(service.TryGet("dragon-ember-1", out var ember));
+        ember.Energy = 100;
+        ember.Health = 100;
+        Assert.True(DragonCatalog.TryGet(ember.DefinitionId, out var definition));
+
+        ember.BattleRole = DragonBattleRole.Support;
+        var support = service.Combat.ResolveSupportPower(ember, definition);
+
+        Assert.True(service.TrySetBattleRole(ember.InstanceId, "Assault", out var error), error);
+        Assert.Equal(DragonBattleRole.Assault, ember.BattleRole);
+        var assault = service.Combat.ResolveSupportPower(ember, definition);
+        Assert.True(assault > support);
+
+        Assert.True(service.TrySetBattleRole(ember.InstanceId, "Guard", out error), error);
+        Assert.Equal(DragonBattleRole.Guard, ember.BattleRole);
+        Assert.True(service.GetHomeGuardPower() > 0);
+
+        ember.Health = 100;
+        ember.Energy = 100;
+        var before = ember.Health;
+        service.Combat.ApplyOutcome(ember, victory: true, DragonCombatDifficulty.Fair, assault);
+        var guardDamage = before - ember.Health;
+
+        ember.BattleRole = DragonBattleRole.Assault;
+        ember.Health = 100;
+        ember.Energy = 100;
+        before = ember.Health;
+        service.Combat.ApplyOutcome(ember, victory: true, DragonCombatDifficulty.Fair, assault);
+        var assaultDamage = before - ember.Health;
+        Assert.True(guardDamage <= assaultDamage);
+    }
+
+    [Fact]
+    public void Phase5_PersistsBattleRole()
+    {
+        var repo = new MemoryDragonRepository();
+        var first = CreateBornService(out _, repository: repo, advanceToReady: true);
+        Assert.True(first.TryGet("dragon-ember-1", out var ember));
+        Assert.True(first.TrySetBattleRole(ember.InstanceId, "Assault", out _));
+        first.Persist();
+
+        var second = new DragonService(new DragonSettings(), repo, () => DateTime.UtcNow);
+        second.BindWallet(new FakeWallet { Food = 1000, Essence = 100 });
+        second.LoadOrInitialize();
+        Assert.True(second.TryGet("dragon-ember-1", out var loaded));
+        Assert.Equal(DragonBattleRole.Assault, loaded.BattleRole);
+        Assert.Equal("Assault", second.GetBattleRoleLabel(loaded.InstanceId));
     }
 
     private sealed class ManualWorldMapClock : IWorldMapClock

@@ -200,6 +200,18 @@ namespace Valgor.Core.Modules
             return false;
         }
 
+        public bool TrySetBattleRole(string dragonId, string roleLabel, out string error)
+        {
+            error = "Sistema de dragões indisponível.";
+            return false;
+        }
+
+        public string DescribeBattleRole(string dragonId) => "Sistema de dragões indisponível.";
+
+        public string GetBattleRoleLabel(string dragonId) => "Support";
+
+        public int GetHomeGuardPower() => 0;
+
         public void Tick()
         {
         }

@@ -65,6 +65,17 @@
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\WorldCreatureCatalog.cs" Link="WorldMap\WorldCreatureCatalog.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\CreatureDifficultyResolver.cs" Link="WorldMap\CreatureDifficultyResolver.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Creatures\CreatureEncounterService.cs" Link="WorldMap\CreatureEncounterService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\CityRaidModels.cs" Link="WorldMap\CityRaidModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\RaidCombatModels.cs" Link="WorldMap\RaidCombatModels.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\WallCombatResolver.cs" Link="WorldMap\WallCombatResolver.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\CasualtyResolver.cs" Link="WorldMap\CasualtyResolver.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\WarehouseProtectionResolver.cs" Link="WorldMap\WarehouseProtectionResolver.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\RaidLootCalculator.cs" Link="WorldMap\RaidLootCalculator.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\CityRaidBattleResolver.cs" Link="WorldMap\CityRaidBattleResolver.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\RaidResultApplicationService.cs" Link="WorldMap\RaidResultApplicationService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\LocalDefenseServices.cs" Link="WorldMap\LocalDefenseServices.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\CityRaidEncounterService.cs" Link="WorldMap\CityRaidEncounterService.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\WorldMap\Raids\CityHomeDefenseService.cs" Link="WorldMap\CityHomeDefenseService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\PlayerEnergyWallet.cs" Link="WorldMap\PlayerEnergyWallet.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\EnergyRegenerationService.cs" Link="WorldMap\EnergyRegenerationService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\WorldMap\Energy\EnergyCostResolver.cs" Link="WorldMap\EnergyCostResolver.cs" />

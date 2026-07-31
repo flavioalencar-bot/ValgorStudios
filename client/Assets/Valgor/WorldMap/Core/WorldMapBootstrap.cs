@@ -61,6 +61,7 @@ namespace Valgor.WorldMap
             if (GameBootstrap.Services != null && GameBootstrap.Services.TryGet<WorldMapSession>(out var existing))
             {
                 existing.BindDragons(ResolveDragons());
+                BindCityDefense(existing);
                 EnsureSimulation(existing);
                 return existing;
             }
@@ -84,10 +85,17 @@ namespace Valgor.WorldMap
             }
 
             session.BindDragons(ResolveDragons());
+            BindCityDefense(session);
 
             GameBootstrap.Services?.Register(session);
             EnsureSimulation(session);
             return session;
+        }
+
+        private static void BindCityDefense(WorldMapSession session)
+        {
+            // Default provisório; testes / City podem sobrescrever via BindCityDefense(wallLevel).
+            session.BindCityDefense(1);
         }
 
         private static IDragonGateway ResolveDragons()

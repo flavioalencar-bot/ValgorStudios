@@ -85,7 +85,16 @@ namespace Valgor.Dragons.Combat
                 powerBonusRatio: 0.05,
                 damageTakenMultiplier: 0.60,
                 extraEnergyCost: 0,
-                postCombatHeal: 12)
+                postCombatHeal: 12),
+            [DragonAbilityId.DominatorWrath] = new(
+                DragonAbilityId.DominatorWrath,
+                "Ira do Dominador",
+                "Raid Assault: aumenta dano à muralha e ignora parte da defesa (1× por batalha).",
+                unlockLevel: 21,
+                powerBonusRatio: 0.20,
+                damageTakenMultiplier: 1.05,
+                extraEnergyCost: 8,
+                postCombatHeal: 0)
         };
 
         public static IReadOnlyDictionary<DragonAbilityId, DragonAbilityDefinition> All => Map;
