@@ -7,14 +7,14 @@ namespace Valgor.City.Camera
     [DefaultExecutionOrder(-40)]
     public sealed class CityCameraController : MonoBehaviour
     {
-        [SerializeField] private float minZoom = 9f;
-        [SerializeField] private float maxZoom = 14.5f;
+        [SerializeField] private float minZoom = 10f;
+        [SerializeField] private float maxZoom = 18f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
-        [SerializeField] private float initialZoom = 11.4f;
+        [SerializeField] private float initialZoom = 13.2f;
         [SerializeField] private float dragThresholdPixels = 10f;
 
-        private readonly CityBounds _bounds = new(-14f, 14f, -14f, 14f);
+        private readonly CityBounds _bounds = new(-22f, 22f, -22f, 22f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
         private Vector2 _pointerDown;
@@ -50,8 +50,8 @@ namespace Valgor.City.Camera
             _camera.orthographic = true;
             _camera.orthographicSize = initialZoom;
             transform.rotation = Quaternion.Euler(46f, 40f, 0f);
-            // Castelo no centro do quadro; terreno/horizonte cobrem as bordas.
-            transform.position = new Vector3(-11.8f, 16.2f, -12.4f);
+            // Castelo no centro; enquadra Portão (S) e Torre (N) no zoom inicial.
+            transform.position = new Vector3(-13.5f, 18.5f, -14.2f);
             ClampPosition();
         }
 

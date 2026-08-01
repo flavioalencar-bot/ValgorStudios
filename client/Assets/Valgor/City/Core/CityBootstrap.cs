@@ -128,17 +128,49 @@ namespace Valgor.City
 
         private BuildingView? _wallView;
         private int _lastWallVisualLevel = int.MinValue;
+        private CityWallVisualController? _wallVisual;
+        private CityEnvironmentTierController? _tierVisual;
 
         private void ApplyWallFortifications()
         {
+            EnsureEnvironmentControllers();
             var level = Controller != null ? Controller.GetBuildingLevel("wall") : 1;
-            if (level != _lastWallVisualLevel)
+            if (_wallVisual != null)
             {
-                _lastWallVisualLevel = level;
+                _wallVisual.ApplyLevel(level);
+            }
+            else if (level != _lastWallVisualLevel)
+            {
                 CityEnvironmentBuilder.ApplyWallLevel(transform, level);
             }
 
+            _lastWallVisualLevel = level;
+
+            var castleLevel = Controller != null ? Controller.GetBuildingLevel("castle") : 1;
+            _tierVisual?.ApplyCastleLevel(castleLevel);
+
             BindWallSelectionProxies();
+        }
+
+        private void EnsureEnvironmentControllers()
+        {
+            if (_wallVisual == null)
+            {
+                _wallVisual = gameObject.GetComponent<CityWallVisualController>() ??
+                              gameObject.AddComponent<CityWallVisualController>();
+                _wallVisual.Bind(transform);
+            }
+
+            if (_tierVisual == null)
+            {
+                _tierVisual = gameObject.GetComponent<CityEnvironmentTierController>() ??
+                              gameObject.AddComponent<CityEnvironmentTierController>();
+                var cityRoot = transform.Find("CityRoot");
+                if (cityRoot != null)
+                {
+                    _tierVisual.Bind(cityRoot);
+                }
+            }
         }
 
         private void BindWallSelectionProxies()
@@ -250,10 +282,11 @@ namespace Valgor.City
                 var definition = BuildingCatalog.Get(layout.Id);
                 var instance = new BuildingInstance(layout.Id, layout.Level, layout.State);
                 var position = CityLayout.WorldPosition(layout.Id);
+                var rotation = CityLayout.WorldRotation(layout.Id);
 
                 var slotObject = new GameObject($"Slot_{index + 1}_{layout.Id}");
                 slotObject.transform.SetParent(root, false);
-                slotObject.transform.position = position;
+                slotObject.transform.SetPositionAndRotation(position, rotation);
                 var slot = slotObject.AddComponent<BuildingSlot>();
                 slot.Initialize($"slot-{index + 1}", layout.Id, instance);
 

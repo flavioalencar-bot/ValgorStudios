@@ -9,6 +9,8 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- **Capital de Valgor (blueprint visual):** layout oficial Portão→Praça→Castelo→Torre, distritos, muralha/rios/tiers ambientais, `CityCapitalLayoutConfig` (15 IDs lógicos preservados)
+
 - **Dragão Fase 5 (D030):** raid PvE a cidades NPC com Muralha/Hospital/Armazém/saque, Support/Assault/Guard, Ira do Dominador, defesa offline idempotente, save `valgor.dragons.v8`
 
 ### Added

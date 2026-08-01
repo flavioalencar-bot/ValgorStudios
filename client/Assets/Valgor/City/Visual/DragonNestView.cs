@@ -64,6 +64,33 @@ namespace Valgor.City.Visual
 
         public void Refresh() => Refresh(force: false);
 
+        private static bool ShouldShowAbsent(DragonStatusInfo status)
+        {
+            var label = status.StateLabel ?? string.Empty;
+            return label.IndexOf("DEPLOYED", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   label.IndexOf("INJURED", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   label.IndexOf("RECOVERING", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private void LateUpdate()
+        {
+            if (!CityAmbientQualitySettings.AllowDragonIdleMotion || _spawned.Count == 0)
+            {
+                return;
+            }
+
+            // WingFlap / Idle leve — só apresentação.
+            var pulse = 1f + Mathf.Sin(Time.unscaledTime * 2.1f) * 0.015f;
+            for (var i = 0; i < _spawned.Count; i++)
+            {
+                var go = _spawned[i];
+                if (go != null)
+                {
+                    go.transform.localScale = Vector3.one * pulse;
+                }
+            }
+        }
+
         private void Refresh(bool force)
         {
             EnsureRoots();
@@ -90,6 +117,15 @@ namespace Valgor.City.Visual
             }
 
             var statusValue = primary.Value;
+            if (ShouldShowAbsent(statusValue))
+            {
+                ClearSpawned();
+                _displayedStage = null;
+                _displayedLevel = int.MinValue;
+                HideRitualOverlay();
+                return;
+            }
+
             var isEgg = statusValue.DragonLevel < 1 ||
                         statusValue.StateLabel.IndexOf("EGG", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
                         statusValue.StateLabel.IndexOf("HATCH", System.StringComparison.OrdinalIgnoreCase) >= 0 ||

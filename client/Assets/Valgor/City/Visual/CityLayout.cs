@@ -1,53 +1,36 @@
-using System.Collections.Generic;
 using UnityEngine;
 using Valgor.City.Data;
 
 namespace Valgor.City.Visual
 {
     /// <summary>
-    /// Distritos da cidade: Castelo no centro, economia a oeste/norte,
-    /// comércio ao sul, militar a leste, místico/NE com Torre.
+    /// API de layout da City. Coordenadas oficiais em <see cref="CityCapitalLayoutConfig"/>.
     /// </summary>
     public static class CityLayout
     {
-        private static readonly Dictionary<string, Vector2> Positions = new()
-        {
-            ["castle"] = new Vector2(0f, 0f),
-            // Economia (O / N) — agrupada e mais próxima do centro
-            ["farm"] = new Vector2(-10.5f, -2f),
-            ["lumbermill"] = new Vector2(-10.5f, 3.5f),
-            ["quarry"] = new Vector2(-7.5f, 9.5f),
-            ["mine"] = new Vector2(-1.2f, 10.8f),
-            // Comércio / suporte (S)
-            ["market"] = new Vector2(0f, -9.5f),
-            ["warehouse"] = new Vector2(5.8f, -9.2f),
-            ["hospital"] = new Vector2(-5.8f, -9.2f),
-            ["laboratory"] = new Vector2(3.2f, -11.2f),
-            ["institute"] = new Vector2(-3.2f, -11.2f),
-            // Militar (L)
-            ["arena"] = new Vector2(10.5f, 2.8f),
-            ["academy"] = new Vector2(10.2f, -3.8f),
-            // Místico / marco (NE)
-            ["temple"] = new Vector2(4.2f, 10.2f),
-            ["dragon-tower"] = new Vector2(8.6f, 8.6f),
-            // Defesa — portão principal (sul da muralha)
-            ["wall"] = new Vector2(0f, 14.8f)
-        };
-
         public static Vector3 WorldPosition(string buildingId)
         {
-            if (!Positions.TryGetValue(buildingId, out var xz))
+            var p = CityCapitalLayoutConfig.GetPosition(buildingId);
+            return new Vector3(p.X, p.Y, p.Z);
+        }
+
+        public static Quaternion WorldRotation(string buildingId)
+        {
+            if (!CityCapitalLayoutConfig.TryGet(buildingId, out var entry))
             {
-                xz = Vector2.zero;
+                return Quaternion.identity;
             }
 
-            return new Vector3(xz.x, 0f, xz.y);
+            return Quaternion.Euler(0f, entry.YawDegrees, 0f);
         }
+
+        public static CityDistrict DistrictOf(string buildingId) =>
+            CityCapitalLayoutConfig.GetDistrict(buildingId);
 
         public static Color IdentityColor(string buildingId) => buildingId switch
         {
             "castle" => new Color(0.52f, 0.5f, 0.46f),
-            "dragon-tower" => new Color(0.32f, 0.26f, 0.34f),
+            "dragon-tower" => new Color(0.28f, 0.22f, 0.3f),
             "wall" => new Color(0.5f, 0.48f, 0.44f),
             "farm" => new Color(0.4f, 0.5f, 0.28f),
             "lumbermill" => new Color(0.45f, 0.3f, 0.16f),
@@ -55,12 +38,12 @@ namespace Valgor.City.Visual
             "mine" => new Color(0.36f, 0.36f, 0.4f),
             "warehouse" => new Color(0.5f, 0.38f, 0.24f),
             "academy" => new Color(0.38f, 0.44f, 0.55f),
-            "institute" => new Color(0.4f, 0.45f, 0.52f),
+            "institute" => new Color(0.46f, 0.42f, 0.38f),
             "hospital" => new Color(0.58f, 0.55f, 0.52f),
             "market" => new Color(0.55f, 0.4f, 0.26f),
             "temple" => new Color(0.55f, 0.5f, 0.4f),
             "arena" => new Color(0.55f, 0.36f, 0.3f),
-            "laboratory" => new Color(0.32f, 0.48f, 0.5f),
+            "laboratory" => new Color(0.42f, 0.36f, 0.3f),
             _ => new Color(0.44f, 0.42f, 0.4f)
         };
 
