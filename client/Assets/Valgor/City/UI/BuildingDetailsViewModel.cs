@@ -20,12 +20,13 @@ namespace Valgor.City.UI
             bool openMode)
         {
             var dragons = city.Dragons;
+            var id = BuildingIdMigration.ToCanonical(building.DefinitionId);
             var sb = new StringBuilder();
             sb.AppendLine(definition.DisplayName);
             sb.AppendLine($"Nível: {building.Level}/{definition.MaxLevel}");
             sb.AppendLine($"Estado: {FriendlyState(building.State)}");
 
-            if (string.Equals(building.DefinitionId, "castle", System.StringComparison.Ordinal))
+            if (string.Equals(id, "castle", System.StringComparison.Ordinal))
             {
                 sb.AppendLine("Função: coração da cidade — limita o nível dos demais edifícios.");
                 sb.AppendLine($"Bônus atuais: Castelo Nv.{building.Level} (teto de upgrade).");
@@ -33,7 +34,7 @@ namespace Valgor.City.UI
                 sb.AppendLine($"Duração upgrade: {(int)definition.GetUpgradeDuration(building.Level).TotalSeconds}s");
                 sb.AppendLine(DescribeRequirementsShort(city, building));
             }
-            else if (string.Equals(building.DefinitionId, "warehouse", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "warehouse", System.StringComparison.Ordinal))
             {
                 sb.AppendLine($"Capacidade: {WarehouseRules.GetCapacity(building.Level):N0}");
                 sb.AppendLine($"Proteção de recursos: {WarehouseRules.GetProtection(building.Level):N0}");
@@ -47,7 +48,7 @@ namespace Valgor.City.UI
                     sb.AppendLine("Armazém aberto — estoque e proteção da cidade.");
                 }
             }
-            else if (string.Equals(building.DefinitionId, "academy", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "academy", System.StringComparison.Ordinal))
             {
                 sb.AppendLine("Função: centro de conhecimento da cidade (pesquisas na beta seguinte).");
                 sb.AppendLine(
@@ -57,24 +58,29 @@ namespace Valgor.City.UI
                 sb.AppendLine($"Próximo benefício: eleva o teto acadêmico para Nv.{building.Level + 1}");
                 sb.AppendLine(DescribeRequirementsShort(city, building));
             }
-            else if (string.Equals(building.DefinitionId, "wall", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "wall", System.StringComparison.Ordinal))
             {
                 sb.AppendLine(SupportBuildingRules.BuildWallDetails(building.Level));
                 sb.AppendLine($"Próximo nível: {System.Math.Min(definition.MaxLevel, building.Level + 1)}");
                 sb.AppendLine($"Duração upgrade: {(int)definition.GetUpgradeDuration(building.Level).TotalSeconds}s");
                 sb.AppendLine(DescribeRequirementsShort(city, building));
             }
-            else if (string.Equals(building.DefinitionId, "institute", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "hero-hall", System.StringComparison.Ordinal))
             {
-                sb.AppendLine("Função: instituto de estudos avançados (desbloqueios futuros).");
+                sb.AppendLine("Função: Salão dos Heróis — base nobre e vínculos de heróis.");
                 sb.AppendLine(
                     building.Level > 0
-                        ? $"Bônus atuais: Instituto Nv.{building.Level}."
+                        ? $"Bônus atuais: Salão Nv.{building.Level}."
                         : "Bônus atuais: — (ainda não construído).");
-                sb.AppendLine($"Próximo benefício: eleva o teto do instituto para Nv.{building.Level + 1}");
+                sb.AppendLine($"Próximo benefício: eleva o Salão para Nv.{building.Level + 1}");
                 sb.AppendLine(DescribeRequirementsShort(city, building));
+                if (openMode)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("Salão aberto — gestão de heróis pelo módulo existente.");
+                }
             }
-            else if (string.Equals(building.DefinitionId, "arena", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "arena", System.StringComparison.Ordinal))
             {
                 sb.AppendLine(SupportBuildingRules.BuildArenaDetails(building.Level));
                 if (openMode)
@@ -83,7 +89,7 @@ namespace Valgor.City.UI
                     sb.AppendLine("Arena aberta — formação e treino (sem PvP nesta beta).");
                 }
             }
-            else if (string.Equals(building.DefinitionId, "hospital", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "hospital", System.StringComparison.Ordinal))
             {
                 sb.AppendLine(SupportBuildingRules.BuildHospitalDetails(building.Level));
                 if (openMode)
@@ -92,7 +98,7 @@ namespace Valgor.City.UI
                     sb.AppendLine("Hospital aberto — capacidade provisória (sem fila de feridos ainda).");
                 }
             }
-            else if (string.Equals(building.DefinitionId, "temple", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "temple", System.StringComparison.Ordinal))
             {
                 sb.AppendLine(SupportBuildingRules.BuildTempleDetails(building.Level));
                 if (openMode)
@@ -101,10 +107,10 @@ namespace Valgor.City.UI
                     sb.AppendLine("Templo aberto — bônus de recuperação/proteção (sem religião/facção).");
                 }
             }
-            else if (string.Equals(building.DefinitionId, "market", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "market", System.StringComparison.Ordinal))
             {
                 sb.AppendLine(SupportBuildingRules.BuildMarketDetails(building.Level));
-                if (ProductionCatalog.TryGet(building.DefinitionId, out _))
+                if (ProductionCatalog.TryGet(id, out _))
                 {
                     sb.AppendLine(ProductionBuildingDetails.BuildBlock(building, city.Economy.Production));
                 }
@@ -115,16 +121,38 @@ namespace Valgor.City.UI
                     sb.AppendLine("Mercado aberto — estrutura de trocas preparada (sem comércio entre jogadores).");
                 }
             }
-            else if (string.Equals(building.DefinitionId, "laboratory", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "training-ground", System.StringComparison.Ordinal))
             {
-                sb.AppendLine(SupportBuildingRules.BuildLaboratoryDetails(building.Level));
+                sb.AppendLine(SupportBuildingRules.BuildTrainingGroundDetails(building.Level));
                 if (openMode)
                 {
                     sb.AppendLine();
-                    sb.AppendLine("Laboratório aberto — projetos tecnológicos (sem árvore nova de pesquisa).");
+                    sb.AppendLine("Campo aberto — treino de tropas em espaço aberto (independente da Academia).");
                 }
             }
-            else if (string.Equals(building.DefinitionId, "dragon-tower", System.StringComparison.Ordinal))
+            else if (string.Equals(id, "residence", System.StringComparison.Ordinal))
+            {
+                sb.AppendLine("Função: Residência oficial — habitação e população da capital.");
+                sb.AppendLine(SupportBuildingRules.DescribeUpgradeBenefit(id, building.Level));
+                sb.AppendLine(DescribeRequirementsShort(city, building));
+                if (openMode)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("Residência aberta — edifício lógico (casas decorativas são ambiente).");
+                }
+            }
+            else if (string.Equals(id, "foundry", System.StringComparison.Ordinal))
+            {
+                sb.AppendLine("Função: Fundição — forja e metalurgia do distrito industrial.");
+                sb.AppendLine(SupportBuildingRules.DescribeUpgradeBenefit(id, building.Level));
+                sb.AppendLine(DescribeRequirementsShort(city, building));
+                if (openMode)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("Fundição aberta — edifício lógico (efeitos de forja são só visuais).");
+                }
+            }
+            else if (string.Equals(id, "dragon-tower", System.StringComparison.Ordinal))
             {
                 sb.AppendLine(SupportBuildingRules.BuildDragonTowerDetails(building.Level, dragons));
                 if (openMode)
@@ -133,7 +161,7 @@ namespace Valgor.City.UI
                     sb.AppendLine("Ninho aberto — usa o módulo de dragões existente (alimentar / vínculo / recuperação).");
                 }
             }
-            else if (ProductionCatalog.TryGet(building.DefinitionId, out _))
+            else if (ProductionCatalog.TryGet(id, out _))
             {
                 sb.AppendLine(ProductionBuildingDetails.BuildBlock(building, city.Economy.Production));
             }

@@ -38,7 +38,7 @@ namespace Valgor.City.Production
         {
             if (_memory != null)
             {
-                return Clone(_memory);
+                return BuildingIdMigration.MigrateSnapshot(Clone(_memory));
             }
 
             var loaded = LoadFromPrefs();
@@ -88,33 +88,13 @@ namespace Valgor.City.Production
 
             foreach (var pair in BuildingCatalog.All)
             {
-                var lvKey = _keyPrefix + ".slot." + pair.Key + ".lv";
-                if (!UnityEngine.PlayerPrefs.HasKey(lvKey))
-                {
-                    continue;
-                }
-
-                var stKey = _keyPrefix + ".slot." + pair.Key + ".st";
-                var upKey = _keyPrefix + ".slot." + pair.Key + ".up";
-                var state = (BuildingState)UnityEngine.PlayerPrefs.GetInt(stKey, (int)BuildingState.Ready);
-                DateTime? upgradeAt = null;
-                if (UnityEngine.PlayerPrefs.HasKey(upKey))
-                {
-                    var raw = UnityEngine.PlayerPrefs.GetString(upKey);
-                    if (!string.IsNullOrEmpty(raw))
-                    {
-                        upgradeAt = ParseTime(raw);
-                    }
-                }
-
-                snapshot.BuildingProgress[pair.Key] = new BuildingProgressRecord
-                {
-                    DefinitionId = pair.Key,
-                    Level = UnityEngine.PlayerPrefs.GetInt(lvKey, 0),
-                    State = state,
-                    UpgradeCompletesAtUtc = upgradeAt
-                };
+                TryReadSlotProgress(snapshot, pair.Key);
             }
+
+            // Aliases legados (pré-17) — migrados depois via BuildingIdMigration.
+            TryReadSlotProgress(snapshot, "institute");
+            TryReadSlotProgress(snapshot, "laboratory");
+            TryReadSlotProgress(snapshot, "sawmill");
 
             foreach (ResourceType resource in Enum.GetValues(typeof(ResourceType)))
             {
@@ -125,7 +105,7 @@ namespace Valgor.City.Production
                 }
             }
 
-            return snapshot;
+            return BuildingIdMigration.MigrateSnapshot(snapshot);
 #else
             return null;
 #endif
@@ -170,6 +150,36 @@ namespace Valgor.City.Production
         }
 
 #if UNITY_5_3_OR_NEWER || UNITY
+        private void TryReadSlotProgress(ProductionSnapshot snapshot, string definitionId)
+        {
+            var lvKey = _keyPrefix + ".slot." + definitionId + ".lv";
+            if (!UnityEngine.PlayerPrefs.HasKey(lvKey))
+            {
+                return;
+            }
+
+            var stKey = _keyPrefix + ".slot." + definitionId + ".st";
+            var upKey = _keyPrefix + ".slot." + definitionId + ".up";
+            var state = (BuildingState)UnityEngine.PlayerPrefs.GetInt(stKey, (int)BuildingState.Ready);
+            DateTime? upgradeAt = null;
+            if (UnityEngine.PlayerPrefs.HasKey(upKey))
+            {
+                var raw = UnityEngine.PlayerPrefs.GetString(upKey);
+                if (!string.IsNullOrEmpty(raw))
+                {
+                    upgradeAt = ParseTime(raw);
+                }
+            }
+
+            snapshot.BuildingProgress[definitionId] = new BuildingProgressRecord
+            {
+                DefinitionId = definitionId,
+                Level = UnityEngine.PlayerPrefs.GetInt(lvKey, 0),
+                State = state,
+                UpgradeCompletesAtUtc = upgradeAt
+            };
+        }
+
         private static long ReadLong(string key)
         {
             var raw = UnityEngine.PlayerPrefs.GetString(key, "0");

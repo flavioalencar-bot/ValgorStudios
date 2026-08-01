@@ -1,16 +1,29 @@
 # 06 — Resultados de testes
 
-```text
-dotnet test tools/Valgor.GameLogic.Tests
-→ 186 pass / 0 fail
+## Comando
 
-CityCapital: 6/0 · Phase5: 18/0 · DragonFoundation: 35/0
+```powershell
+dotnet test tools/Valgor.GameLogic.Tests
 ```
 
-Invariantes cobertos:
+## Resultado (2026-08-01)
 
-- 15 IDs, sem duplicata
-- Castelo centro
-- Portão ao sul, Torre ao norte
-- Eixo X≈0
-- Tiers 1–6
+```text
+Total: 201
+Aprovados: 201
+Falhas: 0
+```
+
+| Suite | Contagem | Resultado |
+|-------|----------|-----------|
+| Completa | 201/0 | OK (≥186) |
+| CityCapitalLayoutTests | 6/0 | OK |
+| CityOfficialBuildingsTests | 5/0 | OK |
+| CityBuildingMigrationTests | 2/0 | OK |
+| CitySelectionTests | 7/0 | OK |
+| Phase5RaidResolverTests | 16 | OK |
+| DragonFoundationTests (incl. Phase5) | 35 | OK |
+| Phase5 (Raid + Dragon Phase5) | 18 | OK |
+
+Build QA: `scripts/build-qa-city-capital.ps1` → OK  
+`Valgor-QA-Capital-Blueprint/Valgor.exe` gerado.

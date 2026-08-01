@@ -19,20 +19,22 @@ namespace Valgor.City
         private static readonly (string Id, BuildingState State, int Level)[] BuildingLayout =
         {
             ("castle", BuildingState.Ready, 1),
+            ("wall", BuildingState.Ready, 1),
             ("farm", BuildingState.Ready, 1),
             ("lumbermill", BuildingState.Ready, 1),
             ("quarry", BuildingState.Ready, 1),
             ("mine", BuildingState.Available, 0),
             ("warehouse", BuildingState.Ready, 1),
-            ("academy", BuildingState.Available, 0),
-            ("institute", BuildingState.Locked, 0),
-            ("hospital", BuildingState.Available, 0),
+            ("residence", BuildingState.Available, 0),
             ("market", BuildingState.Ready, 1),
-            ("temple", BuildingState.Available, 0),
-            ("dragon-tower", BuildingState.Ready, 1),
+            ("training-ground", BuildingState.Available, 0),
+            ("foundry", BuildingState.Available, 0),
             ("arena", BuildingState.Available, 0),
-            ("laboratory", BuildingState.Available, 0),
-            ("wall", BuildingState.Ready, 1)
+            ("academy", BuildingState.Available, 0),
+            ("hospital", BuildingState.Available, 0),
+            ("temple", BuildingState.Available, 0),
+            ("hero-hall", BuildingState.Locked, 0),
+            ("dragon-tower", BuildingState.Ready, 1)
         };
 
         public bool IsLoaded { get; private set; }

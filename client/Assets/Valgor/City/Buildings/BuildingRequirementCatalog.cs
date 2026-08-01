@@ -21,7 +21,8 @@ namespace Valgor.City.Buildings
                 throw new ArgumentException("Id inválido.", nameof(buildingDefinitionId));
             }
 
-            if (Definitions.TryGetValue(buildingDefinitionId, out var definition))
+            var canonical = BuildingIdMigration.ToCanonical(buildingDefinitionId);
+            if (Definitions.TryGetValue(canonical, out var definition))
             {
                 return definition.Resolve(currentLevel);
             }
@@ -30,8 +31,11 @@ namespace Valgor.City.Buildings
             return new BuildingUpgradeRequirement(minimumCastleLevel: currentLevel + 1);
         }
 
-        public static bool TryGetDefinition(string buildingDefinitionId, out BuildingUpgradeDefinition definition) =>
-            Definitions.TryGetValue(buildingDefinitionId, out definition!);
+        public static bool TryGetDefinition(string buildingDefinitionId, out BuildingUpgradeDefinition definition)
+        {
+            var canonical = BuildingIdMigration.ToCanonical(buildingDefinitionId);
+            return Definitions.TryGetValue(canonical, out definition!);
+        }
 
         private static IReadOnlyDictionary<string, BuildingUpgradeDefinition> BuildCatalog()
         {
@@ -125,8 +129,8 @@ namespace Valgor.City.Buildings
                         [5] = WithBuildings(5, new BuildingLevelRequirement("warehouse", 2, "Armazém"))
                     }),
 
-                ["institute"] = new BuildingUpgradeDefinition(
-                    "institute",
+                ["hero-hall"] = new BuildingUpgradeDefinition(
+                    "hero-hall",
                     DynamicCastle(),
                     new Dictionary<int, BuildingUpgradeRequirement>
                     {
@@ -157,6 +161,15 @@ namespace Valgor.City.Buildings
                         [5] = WithBuildings(5, new BuildingLevelRequirement("warehouse", 2, "Armazém"))
                     }),
 
+                ["residence"] = new BuildingUpgradeDefinition(
+                    "residence",
+                    DynamicCastle(),
+                    new Dictionary<int, BuildingUpgradeRequirement>
+                    {
+                        [2] = WithBuildings(2, new BuildingLevelRequirement("farm", 1, "Fazenda")),
+                        [3] = WithBuildings(3, new BuildingLevelRequirement("warehouse", 1, "Armazém"))
+                    }),
+
                 // Templo → Castelo ≥ N; Hospital configurado.
                 ["temple"] = new BuildingUpgradeDefinition(
                     "temple",
@@ -181,28 +194,39 @@ namespace Valgor.City.Buildings
                         [5] = WithBuildings(5, new BuildingLevelRequirement("academy", 2, "Academia"))
                     }),
 
-                // Laboratório → Castelo ≥ N; Academia + Mina.
-                ["laboratory"] = new BuildingUpgradeDefinition(
-                    "laboratory",
+                // Campo de Treinamento → Castelo ≥ N; Academia + Arena.
+                ["training-ground"] = new BuildingUpgradeDefinition(
+                    "training-ground",
                     DynamicCastle(),
                     new Dictionary<int, BuildingUpgradeRequirement>
                     {
                         [2] = WithBuildings(
                             2,
                             new BuildingLevelRequirement("academy", 1, "Academia"),
-                            new BuildingLevelRequirement("mine", 1, "Mina")),
+                            new BuildingLevelRequirement("arena", 1, "Arena")),
                         [3] = WithBuildings(
                             3,
                             new BuildingLevelRequirement("academy", 1, "Academia"),
-                            new BuildingLevelRequirement("mine", 1, "Mina")),
+                            new BuildingLevelRequirement("arena", 1, "Arena")),
                         [4] = WithBuildings(
                             4,
                             new BuildingLevelRequirement("academy", 2, "Academia"),
-                            new BuildingLevelRequirement("mine", 2, "Mina")),
+                            new BuildingLevelRequirement("arena", 2, "Arena")),
                         [5] = WithBuildings(
                             5,
                             new BuildingLevelRequirement("academy", 2, "Academia"),
-                            new BuildingLevelRequirement("mine", 2, "Mina"))
+                            new BuildingLevelRequirement("arena", 2, "Arena"))
+                    }),
+
+                ["foundry"] = new BuildingUpgradeDefinition(
+                    "foundry",
+                    DynamicCastle(),
+                    new Dictionary<int, BuildingUpgradeRequirement>
+                    {
+                        [2] = WithBuildings(2, new BuildingLevelRequirement("mine", 1, "Mina")),
+                        [3] = WithBuildings(3, new BuildingLevelRequirement("mine", 1, "Mina")),
+                        [4] = WithBuildings(4, new BuildingLevelRequirement("mine", 2, "Mina")),
+                        [5] = WithBuildings(5, new BuildingLevelRequirement("quarry", 2, "Pedreira"))
                     }),
 
                 // Torre dos Dragões → Castelo ≥ N; Academia; Essência via custos do BuildingCatalog.

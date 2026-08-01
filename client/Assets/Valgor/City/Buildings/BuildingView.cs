@@ -204,6 +204,12 @@ namespace Valgor.City.Buildings
 
         public void SetConstructionProgress(float progress01, string timeLabel, bool active)
         {
+            // View pode ter sido destruída entre ticks de produção (smoke/coleta).
+            if (!this)
+            {
+                return;
+            }
+
             if (_constructionVisual == null && Instance != null)
             {
                 _constructionVisual = BuildingConstructionVisual.Ensure(transform, Instance.DefinitionId);

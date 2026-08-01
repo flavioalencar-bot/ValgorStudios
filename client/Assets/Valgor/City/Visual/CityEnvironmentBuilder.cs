@@ -234,6 +234,10 @@ namespace Valgor.City.Visual
                 Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, 0.25f), SurfaceKind.Dirt);
             Flat(root, "PadIndustrialSW", new Vector3(-13.5f, 0.005f, -13f), new Vector3(8f, 0.04f, 6f),
                 Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Wood, 0.15f), SurfaceKind.Dirt);
+            Flat(root, "PadFoundry", new Vector3(12.8f, 0.005f, -13f), new Vector3(6f, 0.04f, 5f),
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.25f), SurfaceKind.Dirt);
+            Flat(root, "PadResidence", new Vector3(-5.8f, 0.005f, -8.8f), new Vector3(5f, 0.04f, 4.5f),
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, 0.15f), SurfaceKind.Dirt);
             Flat(root, "PadRural", new Vector3(-14f, 0.005f, -7.2f), new Vector3(7f, 0.04f, 6f),
                 Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.2f), SurfaceKind.Vegetation);
             Flat(root, "PadMine", new Vector3(-15f, 0.7f, 11.5f), new Vector3(6f, 0.2f, 5f),

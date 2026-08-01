@@ -236,12 +236,22 @@ public sealed class BuildingRequirementCatalogTests
     }
 
     [Fact]
-    public void Laboratory_RequiresCastleAcademyAndMine()
+    public void TrainingGround_RequiresCastleAcademyAndArena()
+    {
+        var req = BuildingRequirementCatalog.GetRequirement("training-ground", currentLevel: 1);
+        Assert.Equal(2, req.MinimumCastleLevel);
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "academy");
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "arena");
+    }
+
+    [Fact]
+    public void LegacyLaboratoryAlias_MapsToTrainingGroundRequirements()
     {
         var req = BuildingRequirementCatalog.GetRequirement("laboratory", currentLevel: 1);
         Assert.Equal(2, req.MinimumCastleLevel);
         Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "academy");
-        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "mine");
+        Assert.Contains(req.RequiredBuildings, b => b.BuildingDefinitionId == "arena");
+        Assert.DoesNotContain(req.RequiredBuildings, b => b.BuildingDefinitionId == "mine");
     }
 
     [Fact]
@@ -272,13 +282,13 @@ public sealed class BuildingRequirementCatalogTests
     }
 
     [Fact]
-    public void Evaluator_Laboratory_ReportsMultipleBlocks()
+    public void Evaluator_TrainingGround_ReportsMultipleBlocks()
     {
-        var lab = new BuildingInstance("laboratory", 1, BuildingState.Ready);
-        var checks = BuildingRequirementEvaluator.Evaluate(lab, castleLevel: 1, _ => 0);
+        var field = new BuildingInstance("training-ground", 1, BuildingState.Ready);
+        var checks = BuildingRequirementEvaluator.Evaluate(field, castleLevel: 1, _ => 0);
         Assert.Contains(checks, c => !c.Satisfied && c.Label == "Castelo");
         Assert.Contains(checks, c => !c.Satisfied && c.Label == "Academia" && c.JumpToDefinitionId == "academy");
-        Assert.Contains(checks, c => !c.Satisfied && c.Label == "Mina" && c.JumpToDefinitionId == "mine");
+        Assert.Contains(checks, c => !c.Satisfied && c.Label == "Arena" && c.JumpToDefinitionId == "arena");
     }
 
     [Fact]

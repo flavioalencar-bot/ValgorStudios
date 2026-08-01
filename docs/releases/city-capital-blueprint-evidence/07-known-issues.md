@@ -2,16 +2,22 @@
 
 ## P0
 
-Nenhum na suíte de lógica.
+Nenhum.
 
 ## P1
 
-Nenhum na suíte de lógica.
+Nenhum bloqueante na auditoria 1080×640 (seleção Residência/Fundição/Campo/Salão/Muralha confirmadas via smoke + painéis).
 
-## Pendências / riscos
+## P2
 
-1. **Screenshots Unity** do player ainda não capturadas nesta entrega (pasta `screenshots/` pronta).
-2. Blueprint cita 17 edifícios; catálogo oficial tem **15** IDs — `institute`/`laboratory` cobrem Salão/Campo visualmente sem novos saves.
-3. Residência / Fundição do blueprint **não** possuem ID lógico — apenas pads/ambientação reservados.
-4. Animações Idle/WingFlap do Dragão são scale pulse leve; TakeOff/Landing ficam para etapa futura.
-5. Rebuild QA City recomendado para validar clique/câmera no player real.
+- Enquadramento da câmera no smoke às vezes corta o Portão/Salão; painéis e labels confirmam IDs.
+- Métricas Profiler (batches/tris/memória) e High quality não instrumentadas.
+- Warnings `JobTempAlloc` durante smoke longo.
+- Loop excessivo de log “Painel Abrir aberto” em alguns edifícios no smoke.
+- Visuais de vários edifícios ainda em blockout (exceto Castelo detalhado).
+- NRE em `BuildingView.SetConstructionProgress` durante Collect no smoke antigo — **corrigido** com guard `if (!this)`.
+
+## Notas
+
+- `lumbermill` = Serraria (alias `sawmill`).
+- Casas decorativas ≠ Residência oficial.

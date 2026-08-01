@@ -87,6 +87,12 @@ namespace Valgor.UI
             InvokeCityPresenter("DebugShowDecorationPlaceholder");
             yield return new WaitForSecondsRealtime(0.9f);
             yield return Capture("ctx-02-decoration-toast");
+            if (TryForceCastleVisualLevel(11))
+            {
+                yield return new WaitForSecondsRealtime(0.6f);
+                yield return Capture("city-castle-tier3");
+            }
+
             if (TryForceCastleVisualLevel(26))
             {
                 yield return new WaitForSecondsRealtime(0.6f);
@@ -338,13 +344,16 @@ namespace Valgor.UI
             yield return new WaitForSecondsRealtime(0.8f);
             yield return Capture("ux-24-academy-upgrade");
 
-            // 3ª entrega UX: Arena / Hospital / Torre / Templo / Mercado / Laboratório
+            // 3ª entrega UX: Arena / Hospital / Torre / Templo / Mercado / Campo / Residência / Fundição / Salão
             yield return CaptureSupportBuilding("arena", "ux-25");
             yield return CaptureSupportBuilding("hospital", "ux-26");
             yield return CaptureSupportBuilding("dragon-tower", "ux-27", feedAction: true);
             yield return CaptureSupportBuilding("temple", "ux-28");
             yield return CaptureSupportBuilding("market", "ux-29");
-            yield return CaptureSupportBuilding("laboratory", "ux-30");
+            yield return CaptureSupportBuilding("training-ground", "ux-30");
+            yield return CaptureSupportBuilding("residence", "ux-30b");
+            yield return CaptureSupportBuilding("foundry", "ux-30c");
+            yield return CaptureSupportBuilding("hero-hall", "ux-30d");
 
             // Muralha (evolutiva): Detalhes + Atualizar (padrão Academia).
             TrySelectCityBuilding("wall");

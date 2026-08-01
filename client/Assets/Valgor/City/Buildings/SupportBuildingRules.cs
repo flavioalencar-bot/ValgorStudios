@@ -86,16 +86,19 @@ namespace Valgor.City.Buildings
         public static int GetMarketFeePercent(int level) => level <= 0 ? 0 : Math.Max(5, 15 - level);
         public static int GetMarketDailyLimit(int level) => level <= 0 ? 0 : 3 + level;
 
-        public static string BuildLaboratoryDetails(int level)
+        public static string BuildTrainingGroundDetails(int level)
         {
             var lv = Math.Max(0, level);
             var sb = new StringBuilder();
-            sb.AppendLine($"Bônus tecnológico: +{GetLabTechBonusPercent(lv)}%");
-            sb.AppendLine($"Capacidade de projetos: {GetLabProjectSlots(lv)}");
-            sb.AppendLine($"Próximo desbloqueio: {(lv <= 0 ? "slot de projeto inicial" : $"projeto Nv.{lv + 1} (beta)")}");
-            sb.Append($"Próximo benefício: tech +{GetLabTechBonusPercent(lv + 1)}% · {GetLabProjectSlots(lv + 1)} projetos");
+            sb.AppendLine("Função: campo aberto de treino (alvos, armas, tropas).");
+            sb.AppendLine($"Bônus de treinamento: +{GetArenaTrainingBonusPercent(lv)}%");
+            sb.AppendLine($"Capacidade de campo: {GetArenaFormationCapacity(lv)}");
+            sb.Append($"Próximo benefício: treino +{GetArenaTrainingBonusPercent(lv + 1)}% · campo {GetArenaFormationCapacity(lv + 1)}");
             return sb.ToString();
         }
+
+        /// <summary>Compat: antigo laboratório → Campo de Treinamento.</summary>
+        public static string BuildLaboratoryDetails(int level) => BuildTrainingGroundDetails(level);
 
         public static int GetLabTechBonusPercent(int level) => level <= 0 ? 0 : 5 * level;
         public static int GetLabProjectSlots(int level) => level <= 0 ? 0 : level;
@@ -158,19 +161,25 @@ namespace Valgor.City.Buildings
         public static int GetDragonBondBonusPercent(int level) => level <= 0 ? 0 : 4 * level;
         public static int GetDragonRecoveryBonusPercent(int level) => level <= 0 ? 0 : 5 * level;
 
-        public static string DescribeUpgradeBenefit(string buildingDefinitionId, int level) =>
-            buildingDefinitionId switch
+        public static string DescribeUpgradeBenefit(string buildingDefinitionId, int level)
+        {
+            var id = BuildingIdMigration.ToCanonical(buildingDefinitionId);
+            return id switch
             {
                 "arena" => $"Formação {GetArenaFormationCapacity(level + 1)} · treino +{GetArenaTrainingBonusPercent(level + 1)}%",
                 "hospital" => $"Capacidade {GetHospitalCapacity(level + 1)} · recuperação +{GetHospitalRecoverySpeedPercent(level + 1)}%",
                 "temple" => $"Recuperação +{GetTempleRecoveryBonusPercent(level + 1)}% · proteção +{GetTempleProtectionBonusPercent(level + 1)}%",
                 "market" => $"Trocas {GetMarketTradeCapacity(level + 1)} · taxa {GetMarketFeePercent(level + 1)}%",
-                "laboratory" => $"Tech +{GetLabTechBonusPercent(level + 1)}% · {GetLabProjectSlots(level + 1)} projetos",
+                "training-ground" => $"Treino +{GetArenaTrainingBonusPercent(level + 1)}% · capacidade de campo {GetArenaFormationCapacity(level + 1)}",
+                "hero-hall" => "Heróis e vínculos · formação nobre",
+                "residence" => "População e habitação da capital",
+                "foundry" => "Forja e metalurgia · produção de ferro",
                 "dragon-tower" => $"Vínculo +{GetDragonBondBonusPercent(level + 1)}% · recuperação +{GetDragonRecoveryBonusPercent(level + 1)}%",
                 "wall" =>
                     $"Defesa +{GetWallCityDefense(level + 1)} · HP {GetWallHitPoints(level + 1):N0} · " +
                     $"resistência +{GetWallResistancePercent(level + 1)}%",
                 _ => string.Empty
             };
+        }
     }
 }

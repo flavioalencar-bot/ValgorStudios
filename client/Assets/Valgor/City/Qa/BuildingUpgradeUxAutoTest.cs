@@ -217,13 +217,13 @@ namespace Valgor.City.Qa
 
             yield return new WaitForSecondsRealtime(0.35f);
             _qa.TopUpNow();
-            if (_city.TryGetBuildingByDefinitionId("institute", out var instituteBefore))
+            if (_city.TryGetBuildingByDefinitionId("hero-hall", out var hallBefore))
             {
-                Assert(instituteBefore.State == BuildingState.Locked, "institute-starts-locked");
+                Assert(hallBefore.State == BuildingState.Locked, "hero-hall-starts-locked");
             }
             else
             {
-                Assert(false, "institute-exists");
+                Assert(false, "hero-hall-exists");
             }
 
             _qa.RequestSatisfyRequirement("academy", 1);
@@ -234,9 +234,9 @@ namespace Valgor.City.Qa
 
             yield return new WaitForSecondsRealtime(0.35f);
             _city.SyncBetaProgress();
-            if (_city.TryGetBuildingByDefinitionId("institute", out var instituteAfter))
+            if (_city.TryGetBuildingByDefinitionId("hero-hall", out var hallAfter))
             {
-                Assert(instituteAfter.State == BuildingState.Available, "institute-unlocks-after-academy");
+                Assert(hallAfter.State == BuildingState.Available, "hero-hall-unlocks-after-academy");
             }
 
             _qa.RequestSave();
@@ -248,11 +248,11 @@ namespace Valgor.City.Qa
             }
 
             yield return new WaitForSecondsRealtime(0.3f);
-            if (_city.TryGetBuildingByDefinitionId("institute", out var instituteReload) &&
+            if (_city.TryGetBuildingByDefinitionId("hero-hall", out var hallReload) &&
                 _city.GetBuildingLevel("academy") >= 1)
             {
-                Assert(instituteReload.State is BuildingState.Available or BuildingState.Ready,
-                    "institute-persists-unlocked");
+                Assert(hallReload.State is BuildingState.Available or BuildingState.Ready,
+                    "hero-hall-persists-unlocked");
             }
 
             _report.AppendLine($"pass={_pass} fail={_fail}");

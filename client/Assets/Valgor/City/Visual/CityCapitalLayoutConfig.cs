@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Valgor.City.Buildings;
 using Valgor.City.Camera;
 
 namespace Valgor.City.Visual
@@ -17,10 +18,6 @@ namespace Valgor.City.Visual
         Access = 7
     }
 
-    /// <summary>
-    /// Entrada de layout visual. Não altera estado lógico/save do edifício.
-    /// Catálogo oficial permanece com 15 IDs; Portão = visual da Muralha ao sul.
-    /// </summary>
     [Serializable]
     public sealed class CityBuildingLayoutEntry
     {
@@ -55,7 +52,7 @@ namespace Valgor.City.Visual
     }
 
     /// <summary>
-    /// Fonte única de coordenadas do blueprint "VALGOR — CAPITAL DO REINO".
+    /// Layout oficial — exatamente 17 edifícios canônicos.
     /// Eixo: Portão (S) → Praça → Castelo → Torre dos Dragões (N).
     /// </summary>
     public static class CityCapitalLayoutConfig
@@ -68,8 +65,11 @@ namespace Valgor.City.Visual
 
         public static IReadOnlyDictionary<string, CityBuildingLayoutEntry> All => Entries;
 
-        public static bool TryGet(string buildingId, out CityBuildingLayoutEntry entry) =>
-            Entries.TryGetValue(buildingId, out entry!);
+        public static bool TryGet(string buildingId, out CityBuildingLayoutEntry entry)
+        {
+            var canonical = BuildingIdMigration.ToCanonical(buildingId);
+            return Entries.TryGetValue(canonical, out entry!);
+        }
 
         public static CityPosition GetPosition(string buildingId) =>
             TryGet(buildingId, out var entry) ? entry.Position : new CityPosition(0f, 0f, 0f);
@@ -79,11 +79,7 @@ namespace Valgor.City.Visual
 
         public static int ResolveEnvironmentTier(int castleLevel)
         {
-            if (castleLevel <= 0)
-            {
-                return 1;
-            }
-
+            if (castleLevel <= 0) return 1;
             if (castleLevel <= 5) return 1;
             if (castleLevel <= 10) return 2;
             if (castleLevel <= 15) return 3;
@@ -92,12 +88,22 @@ namespace Valgor.City.Visual
             return 6;
         }
 
-        /// <summary>
-        /// Validações estruturais do blueprint (sem Unity).
-        /// </summary>
         public static IReadOnlyList<string> ValidateBlueprintInvariants()
         {
             var issues = new List<string>();
+            if (Entries.Count != BuildingIdMigration.OfficialCount)
+            {
+                issues.Add($"Esperados {BuildingIdMigration.OfficialCount} edifícios, encontrados {Entries.Count}.");
+            }
+
+            foreach (var id in BuildingIdMigration.CanonicalIds)
+            {
+                if (!Entries.ContainsKey(id))
+                {
+                    issues.Add($"Layout ausente: {id}");
+                }
+            }
+
             if (!TryGet("castle", out var castle) ||
                 Math.Abs(castle.Position.X) > 0.01f ||
                 Math.Abs(castle.Position.Z) > 0.01f)
@@ -115,7 +121,7 @@ namespace Valgor.City.Visual
                 issues.Add("Portão/Muralha lógica deve ancorar o extremo sul.");
             }
 
-            if (TryGet("castle", out _) && TryGet("wall", out _) && TryGet("dragon-tower", out _))
+            if (TryGet("wall", out _) && TryGet("castle", out _) && TryGet("dragon-tower", out _))
             {
                 var gate = GetPosition("wall");
                 var keep = GetPosition("castle");
@@ -131,9 +137,21 @@ namespace Valgor.City.Visual
                 }
             }
 
-            if (Entries.Count != 15)
+            if (TryGet("hero-hall", out var hall) && TryGet("castle", out _))
             {
-                issues.Add($"Esperados 15 edifícios lógicos, encontrados {Entries.Count}.");
+                if (hall.Position.X >= -2f || hall.Position.Z < 2f)
+                {
+                    issues.Add("Salão dos Heróis deve ficar a oeste/noroeste do Castelo.");
+                }
+            }
+
+            if (TryGet("training-ground", out var field) && TryGet("academy", out var academy))
+            {
+                if (Math.Abs(field.Position.X - academy.Position.X) < 0.5f &&
+                    Math.Abs(field.Position.Z - academy.Position.Z) < 0.5f)
+                {
+                    issues.Add("Campo de Treinamento e Academia não podem coincidir.");
+                }
             }
 
             return issues;
@@ -141,118 +159,42 @@ namespace Valgor.City.Visual
 
         private static Dictionary<string, CityBuildingLayoutEntry> BuildEntries()
         {
-            // Y > 0 = platô / relevo visual (só apresentação).
             return new Dictionary<string, CityBuildingLayoutEntry>(StringComparer.Ordinal)
             {
-                ["castle"] = new(
-                    "castle",
-                    new CityPosition(0f, 0f, 0f),
-                    CityDistrict.Royal,
-                    visualPriority: 100,
-                    blueprintRole: "Castelo — núcleo absoluto"),
-
-                // Instituto ocupa o slot visual do Salão dos Heróis (NW) sem novo ID de gameplay.
-                ["institute"] = new(
-                    "institute",
-                    new CityPosition(-6.8f, 0f, 5.2f),
-                    CityDistrict.Royal,
-                    visualPriority: 40,
-                    yawDegrees: 25f,
-                    blueprintRole: "Salão dos Heróis (mapa visual)"),
-
-                ["dragon-tower"] = new(
-                    "dragon-tower",
-                    new CityPosition(0f, 1.35f, 17.6f),
-                    CityDistrict.Dragon,
-                    visualPriority: 90,
-                    blueprintRole: "Torre dos Dragões — platô norte"),
-
-                ["hospital"] = new(
-                    "hospital",
-                    new CityPosition(-9.2f, 0f, 4.2f),
-                    CityDistrict.Sacred,
-                    visualPriority: 35,
-                    blueprintRole: "Hospital — distrito sagrado NW"),
-
-                ["temple"] = new(
-                    "temple",
-                    new CityPosition(9.0f, 0f, 4.8f),
-                    CityDistrict.Sacred,
-                    visualPriority: 35,
-                    blueprintRole: "Templo — distrito sagrado NE"),
-
-                ["arena"] = new(
-                    "arena",
-                    new CityPosition(11.2f, 0f, 0.8f),
-                    CityDistrict.Military,
-                    visualPriority: 45,
-                    blueprintRole: "Arena — leste do Castelo"),
-
-                // Laboratório ocupa o slot visual do Campo de Treinamento.
-                ["laboratory"] = new(
-                    "laboratory",
-                    new CityPosition(12.4f, 0f, -5.6f),
-                    CityDistrict.Military,
-                    visualPriority: 30,
-                    yawDegrees: -15f,
-                    blueprintRole: "Campo de Treinamento (mapa visual)"),
-
-                ["academy"] = new(
-                    "academy",
-                    new CityPosition(14.2f, 0.95f, 9.5f),
-                    CityDistrict.Military,
-                    visualPriority: 40,
-                    blueprintRole: "Academia — platô NE"),
-
-                ["market"] = new(
-                    "market",
-                    new CityPosition(-8.6f, 0f, -6.4f),
-                    CityDistrict.Economic,
-                    visualPriority: 50,
-                    blueprintRole: "Mercado — SW interno"),
-
-                ["warehouse"] = new(
-                    "warehouse",
-                    new CityPosition(5.6f, 0f, -9.0f),
-                    CityDistrict.Economic,
-                    visualPriority: 30,
-                    blueprintRole: "Armazém — SSE interno"),
-
-                ["lumbermill"] = new(
-                    "lumbermill",
-                    new CityPosition(-13.5f, 0f, -13.2f),
-                    CityDistrict.Industrial,
-                    visualPriority: 25,
-                    blueprintRole: "Serraria — sul externo oeste"),
-
-                ["quarry"] = new(
-                    "quarry",
-                    new CityPosition(15.2f, 0.85f, 12.2f),
-                    CityDistrict.Industrial,
-                    visualPriority: 25,
-                    blueprintRole: "Pedreira — NE montanhoso"),
-
-                ["mine"] = new(
-                    "mine",
-                    new CityPosition(-15.0f, 0.85f, 11.8f),
-                    CityDistrict.Industrial,
-                    visualPriority: 25,
-                    blueprintRole: "Mina — NW montanhoso"),
-
-                ["farm"] = new(
-                    "farm",
-                    new CityPosition(-14.2f, 0f, -7.5f),
-                    CityDistrict.Rural,
-                    visualPriority: 25,
-                    blueprintRole: "Fazenda — SW externo"),
-
-                // Único edifício lógico "wall"; âncora visual do Portão principal ao sul.
-                ["wall"] = new(
-                    "wall",
-                    new CityPosition(0f, 0f, -19.2f),
-                    CityDistrict.Access,
-                    visualPriority: 80,
-                    blueprintRole: "Portão Principal / Muralha")
+                ["castle"] = new("castle", new CityPosition(0f, 0f, 0f), CityDistrict.Royal, 100,
+                    blueprintRole: "Castelo"),
+                ["wall"] = new("wall", new CityPosition(0f, 0f, -19.2f), CityDistrict.Access, 80,
+                    blueprintRole: "Muralha / Portão"),
+                ["farm"] = new("farm", new CityPosition(-14.2f, 0f, -7.5f), CityDistrict.Rural, 25,
+                    blueprintRole: "Fazenda"),
+                ["lumbermill"] = new("lumbermill", new CityPosition(-13.5f, 0f, -13.2f), CityDistrict.Industrial, 25,
+                    blueprintRole: "Serraria"),
+                ["quarry"] = new("quarry", new CityPosition(15.2f, 0.85f, 12.2f), CityDistrict.Industrial, 25,
+                    blueprintRole: "Pedreira"),
+                ["mine"] = new("mine", new CityPosition(-15.0f, 0.85f, 11.8f), CityDistrict.Industrial, 25,
+                    blueprintRole: "Mina"),
+                ["warehouse"] = new("warehouse", new CityPosition(5.6f, 0f, -9.0f), CityDistrict.Economic, 30,
+                    blueprintRole: "Armazém"),
+                ["residence"] = new("residence", new CityPosition(-5.8f, 0f, -8.8f), CityDistrict.Economic, 35,
+                    yawDegrees: 12f, blueprintRole: "Residência"),
+                ["market"] = new("market", new CityPosition(-8.6f, 0f, -6.4f), CityDistrict.Economic, 50,
+                    blueprintRole: "Mercado"),
+                ["training-ground"] = new("training-ground", new CityPosition(12.4f, 0f, -5.6f), CityDistrict.Military, 30,
+                    yawDegrees: -15f, blueprintRole: "Campo de Treinamento"),
+                ["foundry"] = new("foundry", new CityPosition(12.8f, 0f, -13.0f), CityDistrict.Industrial, 30,
+                    blueprintRole: "Fundição"),
+                ["arena"] = new("arena", new CityPosition(11.2f, 0f, 0.8f), CityDistrict.Military, 45,
+                    blueprintRole: "Arena"),
+                ["academy"] = new("academy", new CityPosition(14.2f, 0.95f, 9.5f), CityDistrict.Military, 40,
+                    blueprintRole: "Academia"),
+                ["hospital"] = new("hospital", new CityPosition(-9.2f, 0f, 4.2f), CityDistrict.Sacred, 35,
+                    blueprintRole: "Hospital"),
+                ["temple"] = new("temple", new CityPosition(9.0f, 0f, 4.8f), CityDistrict.Sacred, 35,
+                    blueprintRole: "Templo"),
+                ["hero-hall"] = new("hero-hall", new CityPosition(-6.8f, 0f, 5.2f), CityDistrict.Royal, 40,
+                    yawDegrees: 25f, blueprintRole: "Salão dos Heróis"),
+                ["dragon-tower"] = new("dragon-tower", new CityPosition(0f, 1.35f, 17.6f), CityDistrict.Dragon, 90,
+                    blueprintRole: "Torre dos Dragões")
             };
         }
     }

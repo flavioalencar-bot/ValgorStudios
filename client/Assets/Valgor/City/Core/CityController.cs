@@ -250,7 +250,7 @@ namespace Valgor.City.Core
             Valgor.Core.BetaProgress.SyncCastleLevel(GetCastleLevel());
             foreach (var building in _buildings)
             {
-                if (string.Equals(building.DefinitionId, "laboratory", StringComparison.Ordinal) &&
+                if (string.Equals(building.DefinitionId, "training-ground", StringComparison.Ordinal) &&
                     building.Level >= 1 &&
                     building.State != BuildingState.Locked)
                 {
@@ -268,8 +268,8 @@ namespace Valgor.City.Core
         /// </summary>
         public void RefreshSoftLocks()
         {
-            if (!TryGetBuildingByDefinitionId("institute", out var institute) ||
-                institute.State != BuildingState.Locked)
+            if (!TryGetBuildingByDefinitionId("hero-hall", out var heroHall) ||
+                heroHall.State != BuildingState.Locked)
             {
                 return;
             }
@@ -279,9 +279,9 @@ namespace Valgor.City.Core
                 return;
             }
 
-            institute.ApplyPersisted(0, BuildingState.Available, upgradeCompletesAtUtc: null);
-            if (_views.TryGetValue(institute, out var view) &&
-                _definitions.TryGetValue(institute, out var definition))
+            heroHall.ApplyPersisted(0, BuildingState.Available, upgradeCompletesAtUtc: null);
+            if (_views.TryGetValue(heroHall, out var view) &&
+                _definitions.TryGetValue(heroHall, out var definition))
             {
                 view.RefreshStateColor();
                 view.RefreshLabel(definition);
@@ -359,9 +359,10 @@ namespace Valgor.City.Core
 
         public bool TryGetBuildingByDefinitionId(string definitionId, out BuildingInstance building)
         {
+            var canonical = BuildingIdMigration.ToCanonical(definitionId);
             foreach (var candidate in _buildings)
             {
-                if (string.Equals(candidate.DefinitionId, definitionId, StringComparison.Ordinal))
+                if (string.Equals(candidate.DefinitionId, canonical, StringComparison.Ordinal))
                 {
                     building = candidate;
                     return true;
@@ -487,20 +488,22 @@ namespace Valgor.City.Core
             var seed = new Dictionary<string, (int Level, BuildingState State)>(StringComparer.Ordinal)
             {
                 ["castle"] = (1, BuildingState.Ready),
+                ["wall"] = (1, BuildingState.Ready),
                 ["farm"] = (1, BuildingState.Ready),
                 ["lumbermill"] = (1, BuildingState.Ready),
                 ["quarry"] = (1, BuildingState.Ready),
                 ["mine"] = (0, BuildingState.Available),
                 ["warehouse"] = (1, BuildingState.Ready),
-                ["academy"] = (0, BuildingState.Available),
-                ["institute"] = (0, BuildingState.Locked),
-                ["hospital"] = (0, BuildingState.Available),
+                ["residence"] = (0, BuildingState.Available),
                 ["market"] = (1, BuildingState.Ready),
-                ["temple"] = (0, BuildingState.Available),
-                ["dragon-tower"] = (1, BuildingState.Ready),
+                ["training-ground"] = (0, BuildingState.Available),
+                ["foundry"] = (0, BuildingState.Available),
                 ["arena"] = (0, BuildingState.Available),
-                ["laboratory"] = (0, BuildingState.Available),
-                ["wall"] = (1, BuildingState.Ready)
+                ["academy"] = (0, BuildingState.Available),
+                ["hospital"] = (0, BuildingState.Available),
+                ["temple"] = (0, BuildingState.Available),
+                ["hero-hall"] = (0, BuildingState.Locked),
+                ["dragon-tower"] = (1, BuildingState.Ready)
             };
 
             foreach (var building in _buildings)
@@ -557,7 +560,7 @@ namespace Valgor.City.Core
                     Valgor.Core.BetaProgress.SyncCastleLevel(building.Level);
                 }
 
-                if (string.Equals(building.DefinitionId, "laboratory", StringComparison.Ordinal) &&
+                if (string.Equals(building.DefinitionId, "training-ground", StringComparison.Ordinal) &&
                     building.Level >= 1)
                 {
                     Valgor.Core.BetaProgress.UnlockGatherResearch();
@@ -594,6 +597,11 @@ namespace Valgor.City.Core
             {
                 var building = pair.Key;
                 var view = pair.Value;
+                if (!view)
+                {
+                    continue;
+                }
+
                 var definition = _definitions[building];
                 view.RefreshLabel(definition);
 

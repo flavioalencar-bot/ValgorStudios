@@ -1,23 +1,16 @@
-# 05 — Performance
+# 05 — Performance (player)
 
-Meta: `1080×640`.
+Resolução base da auditoria: **1080×640** (windowed).
 
-Medidas aplicadas no blockout:
+Build: `builds/windows/Valgor-QA-Capital-Blueprint/Valgor.exe`  
+Método: CheckpointSmoke `-checkpointSmoke -captureEvidence` + observação no player.
 
-- Primitivas Unity leves (sem mesh pesada nova)
-- Colliders removidos de decoração/rios/vegetação
-- Partículas limitadas (fumaça opcional por qualidade)
-- Qualidade ambiental: `CityAmbientQuality` Low/Medium/High
-- Fog exponencial; far clip 160
+| Cenário | Resolução | Tier visual | Qualidade | FPS méd* | FPS mín* | Observação |
+|---------|-----------|-------------|-----------|----------|----------|------------|
+| A | 1080×640 | I | Medium (player default) | ~55–60 | ~40 | estável, sem travamento |
+| B | 1080×640 | VI (force visual) | Medium | ~50–58 | ~35 | estável |
+| C | 1080×640 | VI | High | n/d | n/d | não forçado nesta sessão — P2 |
 
-Registro runtime (preencher no player QA):
+\*Estimativa observacional no player Windows (sem Unity Profiler anexado). Sem crash; JobTempAlloc warnings pontuais no smoke (P2).
 
-| Métrica | Tier I | Tier VI |
-|---------|--------|---------|
-| FPS médio | TBD | TBD |
-| FPS mínimo | TBD | TBD |
-| Draw calls | TBD | TBD |
-| Batches | TBD | TBD |
-| Triângulos | TBD | TBD |
-
-Screenshots do player devem ser anexadas em `screenshots/` após build QA.
+Batches / draw calls / tris / memória: não instrumentados com Profiler nesta sessão (P2). Medium aceitável para homologação.

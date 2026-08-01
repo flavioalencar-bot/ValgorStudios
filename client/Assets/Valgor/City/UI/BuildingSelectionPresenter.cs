@@ -510,7 +510,7 @@ namespace Valgor.City.UI
             BuildingInstance building,
             BuildingDefinition definition)
         {
-            var id = building.DefinitionId;
+            var id = BuildingIdMigration.ToCanonical(building.DefinitionId);
 
             // Primeira entrega: ações explícitas por edifício.
             if (string.Equals(id, "castle", StringComparison.Ordinal))
@@ -563,7 +563,10 @@ namespace Valgor.City.UI
                 string.Equals(id, "hospital", StringComparison.Ordinal) ||
                 string.Equals(id, "temple", StringComparison.Ordinal) ||
                 string.Equals(id, "market", StringComparison.Ordinal) ||
-                string.Equals(id, "laboratory", StringComparison.Ordinal))
+                string.Equals(id, "training-ground", StringComparison.Ordinal) ||
+                string.Equals(id, "hero-hall", StringComparison.Ordinal) ||
+                string.Equals(id, "residence", StringComparison.Ordinal) ||
+                string.Equals(id, "foundry", StringComparison.Ordinal))
             {
                 return new List<BuildingContextActionInfo>
                 {

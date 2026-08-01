@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Valgor.City.Buildings;
 using Valgor.City.Data;
 using Valgor.City.Production;
 using Valgor.Core;
@@ -49,9 +50,11 @@ namespace Valgor.City.Core
 
         public void ApplyOfflineAndPersist(IEnumerable<BuildingInstance> buildings)
         {
-            var snapshot = Repository.Load();
-            if (snapshot != null)
+            ProductionSnapshot? snapshot = null;
+            var raw = Repository.Load();
+            if (raw != null)
             {
+                snapshot = BuildingIdMigration.MigrateSnapshot(raw);
                 // Modo QA: níveis/construções do save QA, mas carteira sempre forçada depois.
                 if (!Valgor.Core.CityProgressionQa.IsActive)
                 {

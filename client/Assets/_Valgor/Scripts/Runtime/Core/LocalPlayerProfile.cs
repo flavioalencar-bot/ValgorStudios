@@ -209,9 +209,11 @@ namespace Valgor.Core
 
         private static readonly string[] CityBuildingIds =
         {
-            "castle", "farm", "lumbermill", "quarry", "mine", "warehouse", "academy",
-            "institute", "hospital", "market", "temple", "dragon-tower", "arena", "laboratory",
-            "wall"
+            "castle", "wall", "farm", "lumbermill", "quarry", "mine", "warehouse",
+            "residence", "market", "training-ground", "foundry", "arena", "academy",
+            "hospital", "temple", "hero-hall", "dragon-tower",
+            // aliases legados — wipe completo 15→17
+            "institute", "laboratory", "sawmill"
         };
 
         /// <summary>Passos do tutorial mínimo da Beta 0.1.</summary>

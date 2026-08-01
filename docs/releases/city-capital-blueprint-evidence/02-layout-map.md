@@ -11,14 +11,14 @@ Portão (S, z≈-20.5)
   → Torre dos Dragões (platô z≈17.6)
 ```
 
-## Distritos
+## Distritos (17 oficiais)
 
 ```text
-Norte elevado     → Dragões + Academia/Mina/Pedreira
-NW / NE internos  → Sagrado (Hospital / Templo) + Salão (institute)
-Leste             → Militar (Arena + Campo/laboratory)
-SW / S internos   → Econômico (Mercado / Armazém)
-Sul externo       → Industrial (Serraria) + Rural (Fazenda)
+Norte elevado     → Dragões + Academia / Mina / Pedreira
+NW / NE internos  → Sagrado (Hospital / Templo) + Salão dos Heróis (hero-hall)
+Leste             → Militar (Arena + Campo de Treinamento)
+SW / S internos   → Econômico (Mercado / Armazém / Residência)
+Sul externo       → Industrial (Serraria / Fundição) + Rural (Fazenda)
 Extremo sul       → Acesso (Portão / Muralha)
 ```
 
@@ -28,6 +28,6 @@ Extremo sul       → Acesso (Portão / Muralha)
 CityRoot
 ├── Terrain / Water / Roads / Walls / Districts
 ├── Decorations / Vegetation / AmbientFX / TierGroups
-├── Buildings (slots no host BuildingSlots)
+├── Buildings (17 slots canônicos)
 └── NPCs / Navigation
 ```

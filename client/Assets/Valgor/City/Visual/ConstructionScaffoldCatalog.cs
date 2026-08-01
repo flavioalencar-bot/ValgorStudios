@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Valgor.City.Buildings;
 
 namespace Valgor.City.Visual
 {
@@ -15,8 +16,10 @@ namespace Valgor.City.Visual
     /// <summary>Mapeia edifício → kit de andaime e ajustes locais (só apresentação).</summary>
     public static class ConstructionScaffoldCatalog
     {
-        public static ConstructionScaffoldSize ResolveSize(string buildingDefinitionId) =>
-            buildingDefinitionId switch
+        public static ConstructionScaffoldSize ResolveSize(string buildingDefinitionId)
+        {
+            var id = BuildingIdMigration.ToCanonical(buildingDefinitionId);
+            return id switch
             {
                 "castle" => ConstructionScaffoldSize.Castle,
                 "wall" => ConstructionScaffoldSize.Wall,
@@ -26,8 +29,10 @@ namespace Valgor.City.Visual
                 "hospital" => ConstructionScaffoldSize.Medium,
                 "arena" => ConstructionScaffoldSize.Large,
                 "temple" => ConstructionScaffoldSize.Medium,
-                "laboratory" => ConstructionScaffoldSize.Medium,
-                "institute" => ConstructionScaffoldSize.Medium,
+                "training-ground" => ConstructionScaffoldSize.Medium,
+                "hero-hall" => ConstructionScaffoldSize.Medium,
+                "residence" => ConstructionScaffoldSize.Medium,
+                "foundry" => ConstructionScaffoldSize.Medium,
                 "market" => ConstructionScaffoldSize.Medium,
                 "farm" => ConstructionScaffoldSize.Small,
                 "lumbermill" => ConstructionScaffoldSize.Small,
@@ -35,6 +40,7 @@ namespace Valgor.City.Visual
                 "mine" => ConstructionScaffoldSize.Small,
                 _ => ConstructionScaffoldSize.Medium
             };
+        }
 
         public static string PrefabResourceKey(ConstructionScaffoldSize size) => size switch
         {
