@@ -312,6 +312,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital Visual: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalVisualCli</summary>
+        public static void BuildCapitalVisualCli()
+        {
+            var report = Build("Valgor-QA-Capital-Visual");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital Visual Build OK: {GetOutputExe("Valgor-QA-Capital-Visual")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital Visual Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

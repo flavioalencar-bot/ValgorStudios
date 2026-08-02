@@ -1,0 +1,284 @@
+using UnityEngine;
+
+namespace Valgor.City.Visual
+{
+    /// <summary>
+    /// Props e identidade visual por distrito (sem gameplay / sem collider).
+    /// </summary>
+    public static class CityDistrictVisualBuilder
+    {
+        public static void BuildAll(Transform districts, Transform decorations, Transform ambient)
+        {
+            BuildRoyal(districts, decorations);
+            BuildDragon(districts, decorations);
+            BuildMilitary(districts, decorations);
+            BuildEconomic(districts, decorations);
+            BuildIndustrial(districts, decorations, ambient);
+            BuildSacred(districts, decorations);
+            BuildRural(districts, decorations);
+        }
+
+        private static void BuildRoyal(Transform districts, Transform decorations)
+        {
+            var root = Node(districts, "Royal");
+            // Plataforma do Castelo + jardim nobre (espaço livre no centro para seleção).
+            Dec(root, PrimitiveType.Cube, "CastlePlatform", new Vector3(0f, 0.06f, 0.4f),
+                new Vector3(8.5f, 0.12f, 8.5f),
+                Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.45f), SurfaceKind.Stone);
+            Dec(root, PrimitiveType.Cube, "CastleSteps", new Vector3(0f, 0.18f, -2.1f),
+                new Vector3(3.2f, 0.22f, 1.6f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
+            Dec(root, PrimitiveType.Cube, "NobleGardenL", new Vector3(-3.6f, 0.12f, 1.8f),
+                new Vector3(2.2f, 0.08f, 2.8f),
+                Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Gold, 0.08f), SurfaceKind.Vegetation);
+            Dec(root, PrimitiveType.Cube, "NobleGardenR", new Vector3(3.6f, 0.12f, 1.8f),
+                new Vector3(2.2f, 0.08f, 2.8f),
+                Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Gold, 0.08f), SurfaceKind.Vegetation);
+
+            if (CityAmbientQualitySettings.AllowFlags)
+            {
+                Banner(decorations, new Vector3(-2.8f, 0.3f, -1.4f));
+                Banner(decorations, new Vector3(2.8f, 0.3f, -1.4f));
+            }
+
+            if (CityAmbientQualitySettings.AllowTorches)
+            {
+                Brazier(decorations, new Vector3(-3.2f, 0.55f, -0.6f));
+                Brazier(decorations, new Vector3(3.2f, 0.55f, -0.6f));
+            }
+
+            // Salão dos Heróis — identidade própria (noroeste), sem invadir Castelo.
+            Dec(root, PrimitiveType.Cube, "HeroHallPadTrim", new Vector3(-6.8f, 0.05f, 5.2f),
+                new Vector3(4.2f, 0.06f, 3.8f),
+                Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.Gold, 0.12f), SurfaceKind.Stone);
+            Dec(decorations, PrimitiveType.Cube, "HeroStatueL", new Vector3(-7.8f, 0.85f, 4.4f),
+                new Vector3(0.45f, 1.5f, 0.45f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+            Dec(decorations, PrimitiveType.Cube, "HeroStatueR", new Vector3(-5.8f, 0.85f, 4.4f),
+                new Vector3(0.45f, 1.5f, 0.45f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+        }
+
+        private static void BuildDragon(Transform districts, Transform decorations)
+        {
+            var root = Node(districts, "Dragon");
+            Dec(root, PrimitiveType.Cylinder, "LandingPad", new Vector3(0f, 1.42f, 17.6f),
+                new Vector3(5.2f, 0.12f, 5.2f),
+                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, 0.25f), SurfaceKind.Stone);
+            Dec(root, PrimitiveType.Cube, "DragonApproach", new Vector3(0f, 0.95f, 13.2f),
+                new Vector3(2.2f, 0.18f, 5.5f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+            Dec(decorations, PrimitiveType.Cube, "DragonCrest", new Vector3(0f, 1.7f, 19.4f),
+                new Vector3(1.4f, 0.2f, 0.35f), CityVisualMaterials.Gold, SurfaceKind.Metal);
+            Dec(decorations, PrimitiveType.Cube, "ChainPostL", new Vector3(-2.4f, 1.8f, 16.4f),
+                new Vector3(0.25f, 1.1f, 0.25f), CityVisualMaterials.StoneDark, SurfaceKind.Metal);
+            Dec(decorations, PrimitiveType.Cube, "ChainPostR", new Vector3(2.4f, 1.8f, 16.4f),
+                new Vector3(0.25f, 1.1f, 0.25f), CityVisualMaterials.StoneDark, SurfaceKind.Metal);
+
+            if (CityAmbientQualitySettings.AllowTorches)
+            {
+                Brazier(decorations, new Vector3(-3.2f, 1.85f, 17.2f));
+                Brazier(decorations, new Vector3(3.2f, 1.85f, 17.2f));
+            }
+
+            if (CityCapitalEnvironmentConfig.AllowHighExclusiveProps)
+            {
+                Dec(decorations, PrimitiveType.Sphere, "CrystalHint", new Vector3(1.8f, 2.1f, 18.6f),
+                    Vector3.one * 0.45f, new Color(0.35f, 0.55f, 0.75f), SurfaceKind.Plain);
+            }
+        }
+
+        private static void BuildMilitary(Transform districts, Transform decorations)
+        {
+            var root = Node(districts, "Military");
+            // Arena — ringe
+            Dec(root, PrimitiveType.Cylinder, "ArenaRing", new Vector3(11.2f, 0.08f, 0.8f),
+                new Vector3(4.5f, 0.1f, 4.5f),
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.3f), SurfaceKind.Dirt);
+            Dec(decorations, PrimitiveType.Cube, "ArenaBanner", new Vector3(11.2f, 1.4f, 2.6f),
+                new Vector3(0.12f, 1.6f, 0.8f), CityVisualMaterials.RoofRed, SurfaceKind.Plain);
+
+            // Campo de Treinamento — aberto, alvos, cercas
+            Dec(root, PrimitiveType.Cube, "TrainingYard", new Vector3(12.4f, 0.06f, -5.6f),
+                new Vector3(5.5f, 0.08f, 4.8f),
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Wood, 0.2f), SurfaceKind.Dirt);
+            Dec(decorations, PrimitiveType.Cube, "DummyA", new Vector3(11.2f, 0.7f, -4.6f),
+                new Vector3(0.35f, 1.2f, 0.35f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "DummyB", new Vector3(13.4f, 0.7f, -6.2f),
+                new Vector3(0.35f, 1.2f, 0.35f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "TargetBoard", new Vector3(13.8f, 0.75f, -4.4f),
+                new Vector3(0.2f, 1.3f, 1.1f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "Tent", new Vector3(10.6f, 0.65f, -6.8f),
+                new Vector3(1.6f, 1.1f, 1.2f), CityVisualMaterials.RoofRed, SurfaceKind.Plain);
+            Fence(decorations, new Vector3(10.2f, 0.35f, -5.6f), new Vector3(0.12f, 0.7f, 4.2f));
+            Fence(decorations, new Vector3(14.6f, 0.35f, -5.6f), new Vector3(0.12f, 0.7f, 4.2f));
+
+            // Academia — mesa / mapas (fechado estratégico)
+            Dec(root, PrimitiveType.Cube, "AcademyCourtyard", new Vector3(14.2f, 0.92f, 9.5f),
+                new Vector3(4.2f, 0.08f, 3.6f),
+                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, 0.15f), SurfaceKind.Stone);
+            Dec(decorations, PrimitiveType.Cube, "StrategyTable", new Vector3(13.6f, 1.25f, 8.8f),
+                new Vector3(1.4f, 0.35f, 0.9f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "MapBoard", new Vector3(15.2f, 1.55f, 9.8f),
+                new Vector3(0.12f, 1.1f, 1.4f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+        }
+
+        private static void BuildEconomic(Transform districts, Transform decorations)
+        {
+            var root = Node(districts, "Economic");
+            Dec(decorations, PrimitiveType.Cube, "StallA", new Vector3(-8.2f, 0.55f, -7.4f),
+                new Vector3(1.5f, 1.0f, 1.1f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "StallB", new Vector3(-9.4f, 0.5f, -5.8f),
+                new Vector3(1.3f, 0.9f, 1.0f), CityVisualMaterials.RoofRed, SurfaceKind.Plain);
+            Dec(decorations, PrimitiveType.Cube, "Crates", new Vector3(-7.0f, 0.35f, -5.4f),
+                new Vector3(1.0f, 0.65f, 0.8f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cylinder, "BarrelStack", new Vector3(-6.0f, 0.4f, -6.8f),
+                new Vector3(0.7f, 0.7f, 0.7f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "Cart", new Vector3(-4.8f, 0.4f, -7.8f),
+                new Vector3(1.6f, 0.55f, 0.9f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "WarehouseCrates", new Vector3(5.2f, 0.4f, -9.8f),
+                new Vector3(1.4f, 0.7f, 1.0f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+
+            // Residência oficial — jardim próprio (distinto de casas decorativas).
+            Dec(root, PrimitiveType.Cube, "ResidenceGarden", new Vector3(-5.8f, 0.05f, -8.8f),
+                new Vector3(3.6f, 0.06f, 3.2f),
+                Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Path, 0.2f), SurfaceKind.Vegetation);
+            Dec(decorations, PrimitiveType.Cube, "ResidenceFence", new Vector3(-5.8f, 0.35f, -10.2f),
+                new Vector3(3.4f, 0.55f, 0.12f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+
+            if (CityCapitalEnvironmentConfig.AllowHighExclusiveProps)
+            {
+                Dec(decorations, PrimitiveType.Cube, "AwningExtra", new Vector3(-8.8f, 0.95f, -6.6f),
+                    new Vector3(2.2f, 0.08f, 1.4f), CityVisualMaterials.RoofBlue, SurfaceKind.Plain);
+            }
+        }
+
+        private static void BuildIndustrial(Transform districts, Transform decorations, Transform ambient)
+        {
+            var root = Node(districts, "Industrial");
+            Dec(decorations, PrimitiveType.Cube, "LogPile", new Vector3(-13.8f, 0.45f, -12.6f),
+                new Vector3(2.0f, 0.85f, 1.2f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "ToolRack", new Vector3(-12.4f, 0.7f, -13.8f),
+                new Vector3(1.2f, 1.1f, 0.25f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(decorations, PrimitiveType.Cube, "OreCart", new Vector3(-14.6f, 1.05f, 11.2f),
+                new Vector3(1.3f, 0.6f, 0.9f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+            Dec(decorations, PrimitiveType.Cube, "StoneHeap", new Vector3(14.6f, 1.0f, 11.6f),
+                new Vector3(1.5f, 0.7f, 1.2f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
+
+            // Fundição — fornalha visual (não confundir com prop genérico).
+            Dec(root, PrimitiveType.Cube, "FoundryYard", new Vector3(12.8f, 0.05f, -13f),
+                new Vector3(4.8f, 0.08f, 4.2f),
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.35f), SurfaceKind.Dirt);
+            Dec(decorations, PrimitiveType.Cube, "Furnace", new Vector3(13.6f, 0.95f, -12.4f),
+                new Vector3(1.4f, 1.6f, 1.2f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+            Dec(decorations, PrimitiveType.Cylinder, "Chimney", new Vector3(13.6f, 2.1f, -12.4f),
+                new Vector3(0.45f, 1.2f, 0.45f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+
+            var smokeScale = CityCapitalEnvironmentConfig.SmokeScale(CityAmbientQualitySettings.Current);
+            if (smokeScale > 0f && CityAmbientQualitySettings.AllowSmoke)
+            {
+                var smoke = Dec(ambient, PrimitiveType.Sphere, "FoundrySmoke",
+                    new Vector3(13.6f, 3.2f, -12.4f),
+                    new Vector3(1.2f, 1.6f, 1.2f) * smokeScale,
+                    new Color(0.5f, 0.5f, 0.5f, 0.3f), SurfaceKind.Plain);
+                var millSmoke = Dec(ambient, PrimitiveType.Sphere, "MillSmoke",
+                    new Vector3(-13.5f, 2.4f, -13.2f),
+                    new Vector3(1.1f, 1.4f, 1.1f) * smokeScale,
+                    new Color(0.55f, 0.55f, 0.55f, 0.28f), SurfaceKind.Plain);
+                _ = smoke;
+                _ = millSmoke;
+            }
+        }
+
+        private static void BuildSacred(Transform districts, Transform decorations)
+        {
+            var root = Node(districts, "Sacred");
+            Dec(root, PrimitiveType.Cube, "HospitalGarden", new Vector3(-9.2f, 0.05f, 4.2f),
+                new Vector3(4.5f, 0.06f, 4.5f),
+                Color.Lerp(CityVisualMaterials.Vegetation, Color.white, 0.08f), SurfaceKind.Vegetation);
+            Dec(decorations, PrimitiveType.Cylinder, "HealingPool", new Vector3(-9.8f, 0.25f, 3.4f),
+                new Vector3(1.2f, 0.15f, 1.2f), new Color(0.35f, 0.5f, 0.58f), SurfaceKind.Plain);
+            Dec(decorations, PrimitiveType.Cube, "HospitalBench", new Vector3(-8.2f, 0.3f, 5.2f),
+                new Vector3(1.2f, 0.35f, 0.4f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+
+            Dec(root, PrimitiveType.Cube, "TempleGarden", new Vector3(9.0f, 0.05f, 4.8f),
+                new Vector3(4.5f, 0.06f, 4.5f),
+                Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Gold, 0.1f), SurfaceKind.Vegetation);
+            Dec(decorations, PrimitiveType.Cylinder, "TempleBasin", new Vector3(9.6f, 0.35f, 4.0f),
+                new Vector3(1.0f, 0.25f, 1.0f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
+            Dec(decorations, PrimitiveType.Cube, "TemplePillar", new Vector3(8.2f, 1.0f, 5.6f),
+                new Vector3(0.4f, 1.8f, 0.4f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
+        }
+
+        private static void BuildRural(Transform districts, Transform decorations)
+        {
+            var root = Node(districts, "Rural");
+            Dec(root, PrimitiveType.Cube, "CropA", new Vector3(-14.8f, 0.12f, -6.5f),
+                new Vector3(2.4f, 0.2f, 1.6f),
+                Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Gold, 0.25f), SurfaceKind.Vegetation);
+            Dec(root, PrimitiveType.Cube, "CropB", new Vector3(-13.2f, 0.12f, -8.2f),
+                new Vector3(2.2f, 0.2f, 1.5f),
+                Color.Lerp(CityVisualMaterials.Vegetation, new Color(0.55f, 0.45f, 0.2f), 0.3f), SurfaceKind.Vegetation);
+            Fence(decorations, new Vector3(-15.6f, 0.35f, -7.5f), new Vector3(0.12f, 0.65f, 3.8f));
+            Dec(decorations, PrimitiveType.Cube, "HayBale", new Vector3(-12.6f, 0.4f, -6.2f),
+                new Vector3(0.9f, 0.7f, 0.7f),
+                Color.Lerp(CityVisualMaterials.Gold, CityVisualMaterials.Wood, 0.2f), SurfaceKind.Plain);
+            Dec(decorations, PrimitiveType.Cube, "FarmCart", new Vector3(-13.6f, 0.4f, -9.2f),
+                new Vector3(1.5f, 0.5f, 0.85f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+        }
+
+        private static void Banner(Transform parent, Vector3 pos)
+        {
+            Dec(parent, PrimitiveType.Cylinder, "BannerPole", pos, new Vector3(0.08f, 1.1f, 0.08f),
+                CityVisualMaterials.Wood, SurfaceKind.Wood);
+            Dec(parent, PrimitiveType.Cube, "BannerCloth", pos + new Vector3(0.5f, 0.7f, 0f),
+                new Vector3(0.95f, 0.6f, 0.05f), CityVisualMaterials.Gold, SurfaceKind.Plain);
+        }
+
+        private static void Brazier(Transform parent, Vector3 pos)
+        {
+            Dec(parent, PrimitiveType.Cylinder, "Brazier", pos, new Vector3(0.35f, 0.4f, 0.35f),
+                CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+            var flame = Dec(parent, PrimitiveType.Sphere, "BrazierFlame", pos + Vector3.up * 0.45f,
+                Vector3.one * 0.32f, new Color(1f, 0.5f, 0.18f), SurfaceKind.Plain);
+            CityVisualMaterials.ApplyEmissiveHint(flame.GetComponent<Renderer>(), new Color(1f, 0.4f, 0.1f), 0.6f);
+        }
+
+        private static void Fence(Transform parent, Vector3 pos, Vector3 scale) =>
+            Dec(parent, PrimitiveType.Cube, "Fence", pos, scale, CityVisualMaterials.Wood, SurfaceKind.Wood);
+
+        private static Transform Node(Transform parent, string name)
+        {
+            var existing = parent.Find(name);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var t = new GameObject(name).transform;
+            t.SetParent(parent, false);
+            return t;
+        }
+
+        private static GameObject Dec(
+            Transform parent,
+            PrimitiveType type,
+            string name,
+            Vector3 position,
+            Vector3 scale,
+            Color color,
+            SurfaceKind surface)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            go.name = name;
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = position;
+            go.transform.localScale = scale;
+            Object.Destroy(go.GetComponent<Collider>());
+            var ignore = LayerMask.NameToLayer("Ignore Raycast");
+            if (ignore >= 0)
+            {
+                go.layer = ignore;
+            }
+
+            CityVisualMaterials.ApplySurface(go.GetComponent<Renderer>(), color, surface);
+            return go;
+        }
+    }
+}

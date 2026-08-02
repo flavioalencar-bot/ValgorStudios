@@ -11,7 +11,7 @@ namespace Valgor.City.Camera
         [SerializeField] private float maxZoom = 18f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
-        [SerializeField] private float initialZoom = 13.2f;
+        [SerializeField] private float initialZoom = 14.2f;
         [SerializeField] private float dragThresholdPixels = 10f;
 
         private readonly CityBounds _bounds = new(-22f, 22f, -22f, 22f);
@@ -50,8 +50,8 @@ namespace Valgor.City.Camera
             _camera.orthographic = true;
             _camera.orthographicSize = initialZoom;
             transform.rotation = Quaternion.Euler(46f, 40f, 0f);
-            // Castelo no centro; enquadra Portão (S) e Torre (N) no zoom inicial.
-            transform.position = new Vector3(-13.5f, 18.5f, -14.2f);
+            // Castelo no centro; enquadra Portão (S), Praça, distritos e Torre (N).
+            transform.position = new Vector3(-12.8f, 19.2f, -13.6f);
             ClampPosition();
         }
 

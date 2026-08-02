@@ -9,6 +9,8 @@ e o projeto adere a [SemVer](https://semver.org/lang/pt-BR/).
 
 ### Added
 
+- **Capital visual refinement:** distritos enriquecidos, Estrada Imperial, praça, rios/pontes, tiers densos, `CityCapitalEnvironmentConfig`, build `Valgor-QA-Capital-Visual`
+
 - **Capital 17 oficiais:** Residência, Fundição, Campo de Treinamento (`training-ground`), Salão dos Heróis (`hero-hall`); migração `institute`/`laboratory`; layout canônico
 
 - **Capital de Valgor (blueprint visual):** layout oficial Portão→Praça→Castelo→Torre, distritos, muralha/rios/tiers ambientais (base dos 17 oficiais)
