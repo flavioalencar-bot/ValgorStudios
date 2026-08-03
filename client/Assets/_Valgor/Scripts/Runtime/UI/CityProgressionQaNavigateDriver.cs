@@ -77,24 +77,38 @@ namespace Valgor.UI
 
         private static IEnumerator CaptureCityOverview()
         {
-            var dir = Path.Combine(Application.dataPath, "..", "evidence", "capital-artpass2");
+            var dir = @"C:\Valgor_Studio\docs\releases\capital-final-ui\screenshots";
             Directory.CreateDirectory(dir);
+            Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+            yield return new WaitForSecondsRealtime(0.7f);
+            FrameLookAt(Vector3.zero, 17.6f);
+            yield return CaptureNamed(dir, "01-overview-1920x1080");
+            yield return CaptureNamed(dir, "20-full-ui");
+            yield return CaptureNamed(dir, "03-player-panel");
+            yield return CaptureNamed(dir, "04-resource-bar");
+            yield return CaptureNamed(dir, "05-build-queues");
+            yield return CaptureNamed(dir, "06-top-menus");
+            yield return CaptureNamed(dir, "07-bottom-menu");
+            yield return CaptureNamed(dir, "08-chat");
+
             Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
             yield return new WaitForSecondsRealtime(0.6f);
-            yield return CaptureNamed(dir, "01-overview");
-            yield return CaptureLookAt(dir, "02-castle", new Vector3(0f, 0f, 0f), 14.5f);
-            yield return CaptureLookAt(dir, "03-dragon-tower", new Vector3(0f, 1.3f, 17.6f), 12.5f);
-            yield return CaptureLookAt(dir, "04-plaza", new Vector3(0f, 0f, -3.2f), 12f);
-            yield return CaptureLookAt(dir, "05-rivers", new Vector3(-22f, 0f, 0f), 11f);
-            yield return CaptureLookAt(dir, "06-military", new Vector3(12f, 0f, -3f), 11f);
-            yield return CaptureLookAt(dir, "07-economic", new Vector3(-8f, 0f, -7f), 11f);
-            yield return CaptureLookAt(dir, "08-industrial", new Vector3(13f, 0f, -12f), 11f);
-            yield return CaptureLookAt(dir, "09-rural", new Vector3(-14f, 0f, -7.5f), 11f);
-            yield return CaptureLookAt(dir, "10-sacred", new Vector3(9f, 0f, 4.8f), 11f);
-            yield return CaptureLookAt(dir, "11-npcs-gate", new Vector3(0f, 0f, -18f), 10.5f);
-            yield return CaptureNamed(dir, "12-medium-overview");
-            FrameLookAt(new Vector3(0f, 0f, 0f), 17.6f);
-            Debug.Log($"[Valgor.QA] ArtPass2 captures → {dir}");
+            FrameLookAt(Vector3.zero, 17.6f);
+            yield return CaptureNamed(dir, "02-overview-1080x640");
+
+            yield return CaptureLookAt(dir, "09-building-labels", new Vector3(0f, 0f, -2f), 12.5f);
+            yield return CaptureLookAt(dir, "10-castle", new Vector3(0f, 0f, 0f), 14.5f);
+            yield return CaptureLookAt(dir, "11-dragon-tower", new Vector3(0f, 1.3f, 17.6f), 12.5f);
+            yield return CaptureLookAt(dir, "12-wall-gate", new Vector3(0f, 0f, -18f), 11f);
+            yield return CaptureLookAt(dir, "13-military", new Vector3(12f, 0f, -3f), 11f);
+            yield return CaptureLookAt(dir, "14-economic", new Vector3(-8f, 0f, -7f), 11f);
+            yield return CaptureLookAt(dir, "15-industrial", new Vector3(13f, 0f, -12f), 11f);
+            yield return CaptureLookAt(dir, "16-sacred", new Vector3(9f, 0f, 4.8f), 11f);
+            yield return CaptureLookAt(dir, "17-rural", new Vector3(-14f, 0f, -7.5f), 11f);
+            yield return CaptureLookAt(dir, "18-dragon-visible", new Vector3(0f, 1.3f, 17.6f), 11.5f);
+            yield return CaptureNamed(dir, "19-dragon-deployed");
+            FrameLookAt(Vector3.zero, 17.6f);
+            Debug.Log($"[Valgor.QA] Capital Final captures → {dir}");
         }
 
         private static IEnumerator CaptureLookAt(string dir, string name, Vector3 worldTarget, float ortho)

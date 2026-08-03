@@ -45,7 +45,7 @@ namespace Valgor.City.Buildings
             CacheRenderers();
             ApplyStateTint();
             _label = CreateLabel(FormatLabel(definition));
-            _label.gameObject.SetActive(false);
+            Valgor.City.UI.CityBuildingLabelManager.Ensure().Register(this, _label);
             _collectableMarker = CreateCollectableMarker();
             _upgradeArrow = CreateUpgradeArrow();
             _lockedBadge = CreateStatusBadge("LockedBadge", new Color(0.35f, 0.38f, 0.45f), isLock: true);
@@ -149,7 +149,15 @@ namespace Valgor.City.Buildings
 
             if (_label != null)
             {
-                _label.gameObject.SetActive(selected);
+                var world = _label.GetComponent<Valgor.City.UI.CityBuildingWorldLabel>();
+                if (world != null)
+                {
+                    world.SetForceVisible(selected);
+                }
+                else
+                {
+                    _label.gameObject.SetActive(selected);
+                }
             }
 
             if (Instance != null &&
@@ -283,17 +291,18 @@ namespace Valgor.City.Buildings
 
         private string FormatLabel(BuildingDefinition definition)
         {
+            var level = Math.Max(0, Instance.Level);
             if (Instance.State == BuildingState.Upgrading)
             {
-                return $"{definition.DisplayName} · Nv.{Instance.Level}→{Instance.Level + 1}";
+                return $"{level}→{level + 1} {definition.DisplayName}";
             }
 
             if (Instance.State == BuildingState.Available && Instance.Level <= 0)
             {
-                return $"{definition.DisplayName} · Construir";
+                return $"0 {definition.DisplayName}";
             }
 
-            return $"{definition.DisplayName} · Nv.{Math.Max(0, Instance.Level)}";
+            return $"{level} {definition.DisplayName}";
         }
 
         /// <summary>Bounds world do visual (ou collider) para posicionar o menu fora da silhueta.</summary>

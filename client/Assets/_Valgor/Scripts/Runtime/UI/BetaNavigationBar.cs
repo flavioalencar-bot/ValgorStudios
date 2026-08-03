@@ -77,19 +77,22 @@ namespace Valgor.UI
                 HideMissions();
                 Run(n => n.GoToCity());
             }));
+            bar.Add(DisabledNav("Itens"));
+            bar.Add(DisabledNav("Correio"));
+            bar.Add(DisabledNav("Aliança"));
             bar.Add(NavButton("Heróis", () =>
             {
                 PlayerPrefs.Save();
                 HideMissions();
                 Run(n => n.GoToHeroes());
             }));
-            bar.Add(NavButton("Dragões", () =>
+            bar.Add(NavButton("Dragão", () =>
             {
                 PlayerPrefs.Save();
                 HideMissions();
                 Run(n => n.GoToDragonTower());
             }));
-            bar.Add(NavButton("Mapa", () =>
+            bar.Add(NavButton("Mundo", () =>
             {
                 PlayerPrefs.Save();
                 HideMissions();
@@ -238,6 +241,16 @@ namespace Valgor.UI
             PlayerPrefs.SetInt("valgor.missions.v1.pendingDiamonds", pending);
             PlayerPrefs.Save();
             Debug.Log($"[Valgor] Missão: +{amount} diamantes enfileirados (pendente={pending}).");
+        }
+
+        private Button DisabledNav(string text)
+        {
+            var button = NavButton(text, () => { });
+            button.SetEnabled(false);
+            button.tooltip = "Em breve";
+            button.style.backgroundColor = new Color(0.12f, 0.12f, 0.13f, 0.7f);
+            button.style.color = BetaVisualTheme.TextMuted;
+            return button;
         }
 
         private Button NavButton(string text, Action action)

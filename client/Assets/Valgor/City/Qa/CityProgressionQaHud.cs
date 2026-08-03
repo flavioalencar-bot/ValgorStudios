@@ -73,6 +73,24 @@ namespace Valgor.City.Qa
                 resources.style.top = 34;
             }
 
+            var playerHud = root.Q("player-hud");
+            if (playerHud != null)
+            {
+                playerHud.style.top = 34;
+            }
+
+            var resourceBar = root.Q("resource-bar");
+            if (resourceBar != null)
+            {
+                resourceBar.style.top = 34;
+            }
+
+            var topMenus = root.Q("top-menus");
+            if (topMenus != null)
+            {
+                topMenus.style.top = 34;
+            }
+
             var toggle = new Button(TogglePanel) { text = "QA Progressão" };
             toggle.name = "qa-progress-toggle";
             toggle.style.position = Position.Absolute;

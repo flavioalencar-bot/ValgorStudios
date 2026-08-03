@@ -46,6 +46,7 @@ namespace Valgor.City.Visual
             CityNatureBuilder.Build(vegetation);
             BuildTierDecoration(tierGroups);
             BuildAmbientProps(decorations, ambient);
+            CityUrbanDensityBuilder.Build(decorations);
             CityFaunaBuilder.Build(ambient);
             var npcs = root.Find("NPCs") ?? Node(root, "NPCs");
             CityNpcAmbientBuilder.Build(npcs);
@@ -193,14 +194,20 @@ namespace Valgor.City.Visual
             var hill = Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.StoneDark, 0.35f);
             var mist = Color.Lerp(CityVisualMaterials.Vegetation, new Color(0.45f, 0.5f, 0.48f), 0.4f);
             const float radius = 42f;
-            const int hills = 12;
+            const int hills = CityCapitalFinalConfig.HorizonMountainCount;
             for (var i = 0; i < hills; i++)
             {
                 var angle = i * (360f / hills) * Mathf.Deg2Rad;
                 var pos = new Vector3(Mathf.Sin(angle) * radius, 1.2f, Mathf.Cos(angle) * radius);
                 var w = 8f + (i % 3) * 1.3f;
-                Part(PrimitiveType.Sphere, root, $"Hill_{i}", pos, new Vector3(w, 3.4f + i % 2, w * 0.85f), hill,
+                var h = 3.4f + (i % 4) * 0.55f;
+                Part(PrimitiveType.Sphere, root, $"Hill_{i}", pos, new Vector3(w, h, w * 0.85f), hill,
                     SurfaceKind.Vegetation);
+                if (i % 3 == 0)
+                {
+                    Part(PrimitiveType.Sphere, root, $"Peak_{i}", pos + Vector3.up * (h * 0.35f),
+                        new Vector3(w * 0.45f, h * 0.55f, w * 0.4f), mist, SurfaceKind.Vegetation);
+                }
             }
 
             Flat(root, "MistRing", Vector3.zero, new Vector3(96f, 0.04f, 96f), mist, SurfaceKind.Vegetation)
@@ -835,21 +842,24 @@ namespace Valgor.City.Visual
             var light = UnityEngine.Object.FindFirstObjectByType<Light>();
             if (light != null && light.type == LightType.Directional)
             {
-                light.color = new Color(1f, 0.92f, 0.78f);
-                light.intensity = 1.42f;
+                // Manhã/tarde cinematográfica — leitura preservada em Medium.
+                light.color = CityCapitalFinalConfig.CinematicLightingEnabled
+                    ? new Color(1f, 0.9f, 0.74f)
+                    : new Color(1f, 0.92f, 0.78f);
+                light.intensity = CityCapitalFinalConfig.CinematicLightingEnabled ? 1.48f : 1.42f;
                 light.shadows = LightShadows.Soft;
-                light.shadowStrength = 0.78f;
-                light.transform.rotation = Quaternion.Euler(52f, -36f, 0f);
+                light.shadowStrength = 0.72f;
+                light.transform.rotation = Quaternion.Euler(48f, -42f, 0f);
             }
 
             // Contraste legível em 1080×640 — ambient um pouco mais frio no céu.
             var haze = new Color(0.5f, 0.54f, 0.48f);
             ApplySky(haze,
-                new Color(0.5f, 0.58f, 0.7f),
-                new Color(0.48f, 0.44f, 0.36f),
+                new Color(0.52f, 0.6f, 0.72f),
+                new Color(0.5f, 0.45f, 0.36f),
                 new Color(0.22f, 0.2f, 0.18f),
                 haze,
-                CityAmbientQualitySettings.AllowLightFog ? 0.014f : 0.01f);
+                CityAmbientQualitySettings.AllowLightFog ? 0.012f : 0.009f);
         }
 
         public static void ApplyNightLighting()
