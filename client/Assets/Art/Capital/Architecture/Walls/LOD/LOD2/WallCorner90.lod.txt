@@ -1,0 +1,1 @@
+LOD2 placeholder for WallCorner90 — use LOD0 mesh until simplified.

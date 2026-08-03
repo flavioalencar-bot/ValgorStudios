@@ -18,7 +18,15 @@ namespace Valgor.City.Visual
             BuildMoat(water);
             BuildOuterMountains(terrain);
             BuildForestBelts(vegetation);
-            BuildDenseHousing(decorations);
+            if (CityArtPass3Config.Enabled && CityArtPass3Config.VernacularHousingEnabled)
+            {
+                CityArtPass3Builder.BuildVernacularHousing(decorations);
+            }
+            else
+            {
+                BuildDenseHousing(decorations);
+            }
+
             BuildRuralOuter(decorations);
         }
 
@@ -108,8 +116,33 @@ namespace Valgor.City.Visual
 
                 Prop(root, PrimitiveType.Cylinder, $"{prefix}_Trunk_{i}", pos + Vector3.up * 0.7f,
                     new Vector3(0.22f, 1.4f, 0.22f), trunk);
-                Prop(root, PrimitiveType.Sphere, $"{prefix}_Canopy_{i}", pos + Vector3.up * 1.7f,
-                    Vector3.one * (1.1f + (i % 3) * 0.15f), canopy);
+                if (CityArtPass3Config.Enabled && CityArtPass3Config.LayeredVegetationEnabled)
+                {
+                    var dark = Color.Lerp(canopy, CityVisualMaterials.StoneDark, 0.25f);
+                    // Pinheiro em camadas (sem bola única).
+                    var isPine = i % 3 == 0;
+                    if (isPine)
+                    {
+                        Prop(root, PrimitiveType.Cylinder, $"{prefix}_ConeA_{i}", pos + Vector3.up * 1.55f,
+                            new Vector3(1.0f, 0.7f, 1.0f), canopy);
+                        Prop(root, PrimitiveType.Cylinder, $"{prefix}_ConeB_{i}", pos + Vector3.up * 2.05f,
+                            new Vector3(0.7f, 0.55f, 0.7f), dark);
+                        Prop(root, PrimitiveType.Cylinder, $"{prefix}_ConeC_{i}", pos + Vector3.up * 2.45f,
+                            new Vector3(0.4f, 0.4f, 0.4f), canopy);
+                    }
+                    else
+                    {
+                        Prop(root, PrimitiveType.Sphere, $"{prefix}_CanopyA_{i}", pos + Vector3.up * 1.55f,
+                            new Vector3(1.15f, 0.7f, 1.0f), canopy);
+                        Prop(root, PrimitiveType.Sphere, $"{prefix}_CanopyB_{i}", pos + Vector3.up * 2.05f,
+                            new Vector3(0.85f, 0.65f, 0.85f), dark);
+                    }
+                }
+                else
+                {
+                    Prop(root, PrimitiveType.Sphere, $"{prefix}_Canopy_{i}", pos + Vector3.up * 1.7f,
+                        Vector3.one * (1.1f + (i % 3) * 0.15f), canopy);
+                }
             }
         }
 

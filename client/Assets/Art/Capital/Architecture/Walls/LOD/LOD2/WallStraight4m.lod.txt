@@ -1,0 +1,1 @@
+LOD2 placeholder for WallStraight4m — use LOD0 mesh until simplified.

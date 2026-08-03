@@ -104,8 +104,31 @@ namespace Valgor.City.Visual
                 new Vector3(0.22f * canopy, height * 0.5f, 0.22f * canopy), CityArtMaterialCategory.Wood);
             if (pine)
             {
-                Dec(root, PrimitiveType.Cylinder, name + "_Cone", pos + Vector3.up * (height + 0.55f),
-                    new Vector3(canopy * 0.9f, height * 0.55f, canopy * 0.9f), CityArtMaterialCategory.Grass);
+                if (CityArtPass3Config.Enabled && CityArtPass3Config.LayeredVegetationEnabled)
+                {
+                    for (var layer = 0; layer < CityArtPass3Config.NatureCanopyLayers; layer++)
+                    {
+                        var t = layer / (float)Math.Max(1, CityArtPass3Config.NatureCanopyLayers - 1);
+                        var y = height * 0.75f + layer * 0.45f * height;
+                        var w = canopy * (1.05f - t * 0.55f);
+                        Dec(root, PrimitiveType.Cylinder, $"{name}_Cone{layer}", pos + Vector3.up * y,
+                            new Vector3(w, height * 0.28f, w), CityArtMaterialCategory.Grass);
+                    }
+                }
+                else
+                {
+                    Dec(root, PrimitiveType.Cylinder, name + "_Cone", pos + Vector3.up * (height + 0.55f),
+                        new Vector3(canopy * 0.9f, height * 0.55f, canopy * 0.9f), CityArtMaterialCategory.Grass);
+                }
+            }
+            else if (CityArtPass3Config.Enabled && CityArtPass3Config.LayeredVegetationEnabled)
+            {
+                Dec(root, PrimitiveType.Sphere, name + "_CanopyA", pos + Vector3.up * (height * 1.05f),
+                    new Vector3(canopy * 1.25f, canopy * 0.75f, canopy * 1.1f), CityArtMaterialCategory.Grass);
+                Dec(root, PrimitiveType.Sphere, name + "_CanopyB", pos + Vector3.up * (height * 1.35f),
+                    new Vector3(canopy * 0.95f, canopy * 0.7f, canopy * 0.95f), CityArtMaterialCategory.Grass);
+                Dec(root, PrimitiveType.Sphere, name + "_CanopyC", pos + Vector3.up * (height * 1.55f) + new Vector3(0.15f, 0f, 0.1f),
+                    new Vector3(canopy * 0.65f, canopy * 0.55f, canopy * 0.65f), CityArtMaterialCategory.Grass);
             }
             else
             {

@@ -128,6 +128,38 @@ namespace Valgor.UI
             FrameLookAt(new Vector3(0f, 0.5f, -4f), 22f);
             yield return CaptureNamed(wallDir, "09-overview1080x640");
 
+            var art3Dir = @"C:\Valgor_Studio\docs\releases\city-capital-artpass3\screenshots";
+            System.IO.Directory.CreateDirectory(art3Dir);
+            yield return CaptureLookAt(art3Dir, "01-overview", new Vector3(0f, 0.5f, -2f), 24f);
+            yield return CaptureLookAt(art3Dir, "02-muralha-fechada", new Vector3(0f, 0.8f, -8f), 20f);
+            yield return CaptureLookAt(art3Dir, "03-portao-hf", new Vector3(0f, 0.5f, -19.2f), 11f);
+            yield return CaptureLookAt(art3Dir, "04-distrito-real", new Vector3(0f, 0f, 0f), 14f);
+            yield return CaptureLookAt(art3Dir, "05-distrito-dragoes", new Vector3(0f, 1.3f, 25.5f), 12f);
+            yield return CaptureLookAt(art3Dir, "06-distrito-economico", new Vector3(-8f, 0f, -7f), 11f);
+            yield return CaptureLookAt(art3Dir, "07-distrito-militar", new Vector3(12f, 0f, -3f), 11f);
+            yield return CaptureLookAt(art3Dir, "08-vegetacao", new Vector3(-14f, 0.5f, 4f), 14f);
+            yield return CaptureLookAt(art3Dir, "09-estradas-agua", new Vector3(-18f, 0.5f, 0f), 16f);
+            yield return CaptureLookAt(art3Dir, "10-atmosfera", new Vector3(0f, 0.5f, -10f), 13f);
+            Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
+            yield return null;
+            yield return CaptureNamed(art3Dir, "11-overview1080x640");
+
+            var sprint1Dir = @"C:\Valgor_Studio\docs\releases\capital-wall-sprint1\screenshots";
+            System.IO.Directory.CreateDirectory(sprint1Dir);
+            yield return CaptureLookAt(sprint1Dir, "01-overview", new Vector3(0f, 0.6f, -2f), 24f);
+            yield return CaptureLookAt(sprint1Dir, "02-portao", new Vector3(0f, 0.4f, -19.2f), 11f);
+            yield return CaptureLookAt(sprint1Dir, "03-torre", new Vector3(14f, 1.2f, 0f), 12f);
+            yield return CaptureLookAt(sprint1Dir, "04-canto", new Vector3(14f, 1.0f, 14f), 13f);
+            yield return CaptureLookAt(sprint1Dir, "05-topo-da-muralha", new Vector3(10f, 4.5f, -8f), 10f);
+            yield return CaptureLookAt(sprint1Dir, "06-perspectiva-norte", new Vector3(0f, 1.0f, 18f), 20f);
+            yield return CaptureLookAt(sprint1Dir, "07-perspectiva-sul", new Vector3(0f, 0.8f, -14f), 18f);
+            Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
+            yield return null;
+            yield return CaptureNamed(sprint1Dir, "08-1080x640");
+            Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+            yield return null;
+            yield return CaptureNamed(sprint1Dir, "09-1920x1080");
+
             yield return CaptureLookAt(dir, "13-military", new Vector3(12f, 0f, -3f), 11f);
             yield return CaptureLookAt(dir, "14-economic", new Vector3(-8f, 0f, -7f), 11f);
             yield return CaptureLookAt(dir, "15-industrial", new Vector3(13f, 0f, -12f), 11f);

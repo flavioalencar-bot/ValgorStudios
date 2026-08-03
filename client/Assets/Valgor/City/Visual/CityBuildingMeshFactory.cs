@@ -12,8 +12,12 @@ namespace Valgor.City.Visual
         private static Color Stone => CityVisualMaterials.StoneLight;
         private static Color StoneDark => CityVisualMaterials.StoneDark;
         private static Color Wood => CityVisualMaterials.Wood;
-        private static Color RoofRed => CityVisualMaterials.RoofRed;
-        private static Color RoofBlue => CityVisualMaterials.RoofBlue;
+        private static Color RoofRed => CityArtPass3Config.Enabled
+            ? new Color(0.52f, 0.28f, 0.22f)
+            : CityVisualMaterials.RoofRed;
+        private static Color RoofBlue => CityArtPass3Config.Enabled
+            ? new Color(0.34f, 0.36f, 0.40f)
+            : CityVisualMaterials.RoofBlue;
         private static Color Gold => CityVisualMaterials.Gold;
         private static Color Door => new(0.2f, 0.12f, 0.07f);
         private static Color Banner => new(0.55f, 0.16f, 0.14f);

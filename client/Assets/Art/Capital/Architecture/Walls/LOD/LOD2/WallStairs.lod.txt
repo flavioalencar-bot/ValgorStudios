@@ -1,0 +1,1 @@
+LOD2 placeholder for WallStairs — use LOD0 mesh until simplified.

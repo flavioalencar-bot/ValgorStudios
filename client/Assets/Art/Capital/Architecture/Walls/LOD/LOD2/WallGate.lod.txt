@@ -1,0 +1,1 @@
+LOD2 placeholder for WallGate — use LOD0 mesh until simplified.

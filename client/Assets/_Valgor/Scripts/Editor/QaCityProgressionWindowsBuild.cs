@@ -397,6 +397,40 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital Art Pass 3: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalArtPass3Cli</summary>
+        public static void BuildCapitalArtPass3Cli()
+        {
+            var report = Build("Valgor-QA-Capital-ArtPass3");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital ArtPass3 Build OK: {GetOutputExe("Valgor-QA-Capital-ArtPass3")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital ArtPass3 Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
+        /// <summary>CLI Capital Sprint 1 Fortress: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalSprint1Cli</summary>
+        public static void BuildCapitalSprint1Cli()
+        {
+            var report = Build("Valgor-QA-Capital-Sprint1");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital Sprint1 Build OK: {GetOutputExe("Valgor-QA-Capital-Sprint1")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital Sprint1 Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         /// <summary>CLI Capital Wall HF: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalWallHfCli</summary>
         public static void BuildCapitalWallHfCli()
         {

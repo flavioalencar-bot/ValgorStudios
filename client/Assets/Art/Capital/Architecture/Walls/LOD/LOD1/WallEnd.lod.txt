@@ -1,0 +1,1 @@
+LOD1 placeholder for WallEnd — use LOD0 mesh until simplified.

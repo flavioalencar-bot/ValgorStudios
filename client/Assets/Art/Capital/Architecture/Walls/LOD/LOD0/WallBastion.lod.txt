@@ -1,0 +1,1 @@
+LOD0 placeholder for WallBastion — use LOD0 mesh until simplified.

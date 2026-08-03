@@ -1,0 +1,1 @@
+LOD1 placeholder for WallWalk — use LOD0 mesh until simplified.

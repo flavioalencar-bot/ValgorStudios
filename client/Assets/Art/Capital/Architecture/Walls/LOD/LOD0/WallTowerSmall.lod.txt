@@ -1,0 +1,1 @@
+LOD0 placeholder for WallTowerSmall — use LOD0 mesh until simplified.

@@ -1,0 +1,1 @@
+LOD3 placeholder for WallStraight8m — use LOD0 mesh until simplified.

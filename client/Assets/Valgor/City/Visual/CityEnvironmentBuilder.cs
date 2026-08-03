@@ -42,14 +42,19 @@ namespace Valgor.City.Visual
             BuildDistrictRoads(roads);
             BuildPlateaus(terrain);
             CityDistrictVisualBuilder.BuildAll(districts, decorations, ambient);
-            BuildTrees(vegetation);
+            if (!(CityArtPass3Config.Enabled && CityArtPass3Config.LayeredVegetationEnabled))
+            {
+                BuildTrees(vegetation);
+            }
+
             CityNatureBuilder.Build(vegetation);
             BuildTierDecoration(tierGroups);
             BuildAmbientProps(decorations, ambient);
             CityUrbanDensityBuilder.Build(decorations);
             CityScenarioCompositionBuilder.Build(terrain, water, decorations, vegetation);
-            CityFaunaBuilder.Build(ambient);
             var npcs = root.Find("NPCs") ?? Node(root, "NPCs");
+            CityArtPass3Builder.Build(terrain, water, roads, districts, decorations, vegetation, npcs);
+            CityFaunaBuilder.Build(ambient);
             CityNpcAmbientBuilder.Build(npcs);
             CityDistrictAmbienceAudio.Build(root);
             SoftenLighting();
@@ -84,6 +89,13 @@ namespace Valgor.City.Visual
             var root = new GameObject("CityFortifications").transform;
             root.SetParent(parent, false);
             var level = Math.Max(0, wallLevel);
+            if (CityFortressWallConfig.Enabled && CityFortressWallPlacer.TryBuild(root, level))
+            {
+                CacheFortificationRenderers(root);
+                return;
+            }
+
+            // Fallback legado (Art Pass 3 / procedural) se o kit Sprint 1 falhar.
             BuildWallRing(root, level);
             BuildMainGate(root, level);
             CacheFortificationRenderers(root);
@@ -292,25 +304,35 @@ namespace Valgor.City.Visual
 
         private static void BuildDistrictPads(Transform root)
         {
+            var soft = CityArtPass3Config.Enabled && CityArtPass3Config.SoftDistrictPadsEnabled;
+            var soil = soft
+                ? Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.22f)
+                : Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f);
             Flat(root, "PadRoyal", new Vector3(0f, 0.004f, 1.5f), new Vector3(14f, 0.04f, 12f),
-                Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f), SurfaceKind.Path);
+                soft ? soil : Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f), SurfaceKind.Path);
             var dragonZ = CityCapitalLayoutConfig.GetPosition("dragon-tower").Z;
             Flat(root, "PadDragon", new Vector3(0f, 0.08f, dragonZ), new Vector3(14f, 0.12f, 14f),
-                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Vegetation, 0.35f), SurfaceKind.Dirt);
+                soft
+                    ? Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.2f)
+                    : Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Vegetation, 0.35f), SurfaceKind.Dirt);
             Flat(root, "PadSacredNW", new Vector3(-9f, 0.005f, 4.5f), new Vector3(7f, 0.04f, 7f),
-                Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Path, 0.35f), SurfaceKind.Dirt);
+                soil, SurfaceKind.Dirt);
             Flat(root, "PadSacredNE", new Vector3(9f, 0.005f, 4.8f), new Vector3(7f, 0.04f, 7f),
-                Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Path, 0.35f), SurfaceKind.Dirt);
+                soil, SurfaceKind.Dirt);
             Flat(root, "PadMilitary", new Vector3(12f, 0.005f, -1f), new Vector3(9f, 0.04f, 14f),
-                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.18f), SurfaceKind.Dirt);
+                soft
+                    ? Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.12f)
+                    : Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.18f), SurfaceKind.Dirt);
             Flat(root, "PadEconomic", new Vector3(-4f, 0.005f, -7.5f), new Vector3(16f, 0.04f, 7f),
-                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, 0.25f), SurfaceKind.Dirt);
+                soft
+                    ? Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, 0.15f)
+                    : Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, 0.25f), SurfaceKind.Dirt);
             Flat(root, "PadIndustrialSW", new Vector3(-13.5f, 0.005f, -13f), new Vector3(8f, 0.04f, 6f),
-                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Wood, 0.15f), SurfaceKind.Dirt);
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Wood, soft ? 0.08f : 0.15f), SurfaceKind.Dirt);
             Flat(root, "PadFoundry", new Vector3(12.8f, 0.005f, -13f), new Vector3(6f, 0.04f, 5f),
-                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.25f), SurfaceKind.Dirt);
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, soft ? 0.15f : 0.25f), SurfaceKind.Dirt);
             Flat(root, "PadResidence", new Vector3(-5.8f, 0.005f, -8.8f), new Vector3(5f, 0.04f, 4.5f),
-                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, 0.15f), SurfaceKind.Dirt);
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, soft ? 0.1f : 0.15f), SurfaceKind.Dirt);
             Flat(root, "PadRural", new Vector3(-14f, 0.005f, -7.2f), new Vector3(7f, 0.04f, 6f),
                 Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.2f), SurfaceKind.Vegetation);
             Flat(root, "PadMine", new Vector3(-15f, 0.7f, 11.5f), new Vector3(6f, 0.2f, 5f),
@@ -318,7 +340,7 @@ namespace Valgor.City.Visual
             Flat(root, "PadQuarry", new Vector3(15f, 0.7f, 12f), new Vector3(6f, 0.2f, 5f),
                 Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.Dirt, 0.25f), SurfaceKind.Stone);
             Flat(root, "PadAcademy", new Vector3(14f, 0.8f, 9.4f), new Vector3(6f, 0.2f, 5f),
-                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, 0.12f), SurfaceKind.Stone);
+                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, soft ? 0.05f : 0.12f), SurfaceKind.Stone);
         }
 
         private static void BuildPlateaus(Transform root)
@@ -603,90 +625,154 @@ namespace Valgor.City.Visual
 
         private static void BuildWallRing(Transform root, int wallLevel)
         {
-            var wall = Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.StoneDark, 0.35f);
-            var cap = CityVisualMaterials.StoneDark;
+            var art3 = CityArtPass3Config.Enabled && CityArtPass3Config.ClosedWallEnabled;
+            var wall = art3
+                ? CityArtPass3Builder.FortStone
+                : Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.StoneDark, 0.35f);
+            var cap = art3 ? CityArtPass3Builder.FortCap : CityVisualMaterials.StoneDark;
             var height = wallLevel <= 0 ? 3.4f : 3.6f + Math.Min(wallLevel, 6) * 0.34f;
             var thickness = wallLevel <= 0 ? 1.45f : 1.55f + Math.Min(wallLevel, 5) * 0.09f;
+            if (art3)
+            {
+                height += 0.35f;
+                thickness += 0.15f;
+            }
+
             var radius = CityCapitalLayoutConfig.WallRadius;
-            const int segments = 20;
-            // Segmento do sul (i≈0) fica aberto para o Portão Principal.
+            var segments = art3 ? CityArtPass3Config.WallSegments : 20;
+            // Abertura sul reservada ao Portão HF (BuildingId=wall). Anel fecha o restante.
             for (var i = 0; i < segments; i++)
             {
-                if (i is 0 or 1 or segments - 1)
+                var angle = i * (360f / segments) * Mathf.Deg2Rad + Mathf.PI;
+                // Sul = Cos≈-1 após +PI; abrir ~±18° para o WallGate.
+                var southDot = Mathf.Cos(angle); // após +PI, sul tem cos negativo grande
+                var isSouthOpening = southDot < -0.92f;
+                if (isSouthOpening)
                 {
                     continue;
                 }
 
-                var angle = i * (360f / segments) * Mathf.Deg2Rad;
-                // 0° = +Z no layout antigo; queremos Portão no -Z → rotacionar 180°.
-                angle += Mathf.PI;
                 var pos = new Vector3(Mathf.Sin(angle) * radius, height * 0.5f, Mathf.Cos(angle) * radius);
+                var segW = art3 ? (2f * Mathf.PI * radius / segments) * 0.95f : 3.6f;
                 var piece = FortPart(PrimitiveType.Cube, root, $"Wall_{i}", pos,
-                    new Vector3(3.6f, height, thickness), wall, SurfaceKind.Stone);
+                    new Vector3(segW, height, thickness), wall, SurfaceKind.Stone);
                 piece.transform.LookAt(new Vector3(0f, height * 0.5f, 0f));
                 // Passarela superior.
                 var walk = FortPart(PrimitiveType.Cube, root, $"WallWalk_{i}", pos + Vector3.up * (height * 0.42f),
-                    new Vector3(3.4f, 0.16f, thickness + 0.35f), CityVisualMaterials.Path, SurfaceKind.Path);
+                    new Vector3(segW * 0.92f, 0.16f, thickness + 0.35f), CityVisualMaterials.Path, SurfaceKind.Path);
                 walk.transform.rotation = piece.transform.rotation;
                 // Ameias (merlões).
                 for (var m = -1; m <= 1; m++)
                 {
                     var merlon = FortPart(PrimitiveType.Cube, root, $"WallMerlon_{i}_{m}",
-                        pos + piece.transform.right * (m * 1.05f) + Vector3.up * (height * 0.58f),
-                        new Vector3(0.7f, 0.55f, thickness + 0.2f), cap, SurfaceKind.Stone);
+                        pos + piece.transform.right * (m * (segW * 0.28f)) + Vector3.up * (height * 0.58f),
+                        new Vector3(Mathf.Max(0.45f, segW * 0.18f), 0.55f, thickness + 0.2f), cap, SurfaceKind.Stone);
                     merlon.transform.rotation = piece.transform.rotation;
                 }
 
                 var capGo = FortPart(PrimitiveType.Cube, root, $"WallCap_{i}", pos + Vector3.up * (height * 0.52f),
-                    new Vector3(3.6f, 0.22f, thickness + 0.12f), cap, SurfaceKind.Stone);
+                    new Vector3(segW, 0.22f, thickness + 0.12f), cap, SurfaceKind.Stone);
                 capGo.transform.rotation = piece.transform.rotation;
 
-                if (i % 4 == 2)
+                var towerEvery = art3 ? 5 : 4;
+                if (i % towerEvery == 2)
                 {
-                    var towerH = height + 1.05f;
-                    var tower = FortPart(PrimitiveType.Cube, root, $"WallTower_{i}",
+                    var towerH = height + 1.15f;
+                    var tower = FortPart(art3 ? PrimitiveType.Cylinder : PrimitiveType.Cube, root, $"WallTower_{i}",
                         pos + Vector3.up * (height * 0.28f),
-                        new Vector3(1.25f, towerH, 1.25f), cap, SurfaceKind.Stone);
+                        new Vector3(1.35f, towerH, 1.35f), cap, SurfaceKind.Stone);
                     tower.transform.rotation = piece.transform.rotation;
                     FortPart(PrimitiveType.Cube, root, $"WallTowerRoof_{i}",
                         pos + Vector3.up * (height * 0.28f + towerH * 0.55f),
-                        new Vector3(1.45f, 0.4f, 1.45f), CityVisualMaterials.RoofBlue, SurfaceKind.Roof);
+                        new Vector3(1.55f, 0.4f, 1.55f),
+                        art3 ? CityArtPass3Builder.FortCap : CityVisualMaterials.RoofBlue, SurfaceKind.Roof);
                     if (CityAmbientQualitySettings.AllowFlags)
                     {
                         Flag(root, pos + Vector3.up * (height * 0.28f + towerH * 0.75f) + piece.transform.forward * -0.2f);
                     }
                 }
             }
+
+            if (art3)
+            {
+                BuildCornerTowers(root, wallLevel, height, radius, cap);
+            }
+        }
+
+        private static void BuildCornerTowers(Transform root, int wallLevel, float wallHeight, float radius, Color cap)
+        {
+            _ = wallLevel;
+            float[] corners = { 45f, 135f, 225f, 315f };
+            for (var i = 0; i < corners.Length && i < CityArtPass3Config.CornerTowerCount; i++)
+            {
+                var angle = corners[i] * Mathf.Deg2Rad + Mathf.PI;
+                var pos = new Vector3(Mathf.Sin(angle) * radius, wallHeight * 0.55f, Mathf.Cos(angle) * radius);
+                var h = wallHeight + 1.8f;
+                FortPart(PrimitiveType.Cylinder, root, $"CornerTower_{i}", pos,
+                    new Vector3(1.7f, h, 1.7f), cap, SurfaceKind.Stone);
+                FortPart(PrimitiveType.Cylinder, root, $"CornerTowerCap_{i}", pos + Vector3.up * (h * 0.55f),
+                    new Vector3(1.95f, 0.35f, 1.95f), CityArtPass3Builder.FortStone, SurfaceKind.Stone);
+                // Merlões do canto.
+                for (var m = 0; m < 4; m++)
+                {
+                    var ma = m * 90f * Mathf.Deg2Rad;
+                    FortPart(PrimitiveType.Cube, root, $"CornerMerlon_{i}_{m}",
+                        pos + new Vector3(Mathf.Sin(ma) * 0.75f, h * 0.58f, Mathf.Cos(ma) * 0.75f),
+                        new Vector3(0.45f, 0.5f, 0.45f), cap, SurfaceKind.Stone);
+                }
+
+                if (CityAmbientQualitySettings.AllowFlags)
+                {
+                    Flag(root, pos + Vector3.up * (h * 0.7f));
+                }
+            }
         }
 
         private static void BuildMainGate(Transform root, int wallLevel)
         {
-            var stone = CityVisualMaterials.StoneLight;
-            var dark = CityVisualMaterials.StoneDark;
+            var art3 = CityArtPass3Config.Enabled && CityArtPass3Config.ClosedWallEnabled;
+            var stone = art3 ? CityArtPass3Builder.FortStone : CityVisualMaterials.StoneLight;
+            var dark = art3 ? CityArtPass3Builder.FortCap : CityVisualMaterials.StoneDark;
             var z = CityCapitalLayoutConfig.MainGateZ;
             var towerH = wallLevel <= 0 ? 2.6f : 3.0f + Math.Min(wallLevel, 5) * 0.28f;
-            FortPart(PrimitiveType.Cube, root, "GateL", new Vector3(-2.35f, towerH * 0.5f, z),
-                new Vector3(1.65f, towerH, 1.7f), dark, SurfaceKind.Stone);
-            FortPart(PrimitiveType.Cube, root, "GateR", new Vector3(2.35f, towerH * 0.5f, z),
-                new Vector3(1.65f, towerH, 1.7f), dark, SurfaceKind.Stone);
-            // Arco de pedra em camadas.
-            FortPart(PrimitiveType.Cube, root, "GateArch", new Vector3(0f, towerH + 0.25f, z),
-                new Vector3(5.6f, 0.65f, 1.8f), stone, SurfaceKind.Stone);
-            FortPart(PrimitiveType.Cube, root, "GateArchInner", new Vector3(0f, towerH - 0.15f, z),
-                new Vector3(3.4f, 0.45f, 1.5f), dark, SurfaceKind.Stone);
-            FortPart(PrimitiveType.Cube, root, "GateGold", new Vector3(0f, towerH + 0.65f, z),
-                new Vector3(1.7f, 0.2f, 0.5f), CityVisualMaterials.Gold, SurfaceKind.Metal);
 
-            // Portas de madeira reforçadas + ferragens.
-            var doorH = Math.Min(3.0f, towerH * 0.9f);
-            FortPart(PrimitiveType.Cube, root, "GateDoorL", new Vector3(-0.65f, doorH * 0.5f, z - 0.12f),
-                new Vector3(1.2f, doorH, 0.28f), CityVisualMaterials.Wood, SurfaceKind.Wood);
-            FortPart(PrimitiveType.Cube, root, "GateDoorR", new Vector3(0.65f, doorH * 0.5f, z - 0.12f),
-                new Vector3(1.2f, doorH, 0.28f), CityVisualMaterials.Wood, SurfaceKind.Wood);
-            FortPart(PrimitiveType.Cube, root, "GateHinge", new Vector3(0f, doorH * 0.55f, z - 0.28f),
-                new Vector3(0.14f, doorH * 0.7f, 0.1f), CityVisualMaterials.Gold, SurfaceKind.Metal);
-            FortPart(PrimitiveType.Cube, root, "GateBar", new Vector3(0f, doorH * 0.35f, z - 0.28f),
-                new Vector3(2.0f, 0.12f, 0.1f), CityVisualMaterials.Gold, SurfaceKind.Metal);
+            // Art Pass 3: Portão HF (BuildingId=wall) é o volume principal —
+            // ambiente só conecta asas + ponte (sem segundo portão cinza).
+            if (!art3)
+            {
+                FortPart(PrimitiveType.Cube, root, "GateL", new Vector3(-2.35f, towerH * 0.5f, z),
+                    new Vector3(1.65f, towerH, 1.7f), dark, SurfaceKind.Stone);
+                FortPart(PrimitiveType.Cube, root, "GateR", new Vector3(2.35f, towerH * 0.5f, z),
+                    new Vector3(1.65f, towerH, 1.7f), dark, SurfaceKind.Stone);
+                FortPart(PrimitiveType.Cube, root, "GateArch", new Vector3(0f, towerH + 0.25f, z),
+                    new Vector3(5.6f, 0.65f, 1.8f), stone, SurfaceKind.Stone);
+                FortPart(PrimitiveType.Cube, root, "GateArchInner", new Vector3(0f, towerH - 0.15f, z),
+                    new Vector3(3.4f, 0.45f, 1.5f), dark, SurfaceKind.Stone);
+                FortPart(PrimitiveType.Cube, root, "GateGold", new Vector3(0f, towerH + 0.65f, z),
+                    new Vector3(1.7f, 0.2f, 0.5f), CityVisualMaterials.Gold, SurfaceKind.Metal);
+
+                var doorH = Math.Min(3.0f, towerH * 0.9f);
+                FortPart(PrimitiveType.Cube, root, "GateDoorL", new Vector3(-0.65f, doorH * 0.5f, z - 0.12f),
+                    new Vector3(1.2f, doorH, 0.28f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+                FortPart(PrimitiveType.Cube, root, "GateDoorR", new Vector3(0.65f, doorH * 0.5f, z - 0.12f),
+                    new Vector3(1.2f, doorH, 0.28f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+                FortPart(PrimitiveType.Cube, root, "GateHinge", new Vector3(0f, doorH * 0.55f, z - 0.28f),
+                    new Vector3(0.14f, doorH * 0.7f, 0.1f), CityVisualMaterials.Gold, SurfaceKind.Metal);
+                FortPart(PrimitiveType.Cube, root, "GateBar", new Vector3(0f, doorH * 0.35f, z - 0.28f),
+                    new Vector3(2.0f, 0.12f, 0.1f), CityVisualMaterials.Gold, SurfaceKind.Metal);
+            }
+            else
+            {
+                // Asas de conexão anel → WallGate HF.
+                FortPart(PrimitiveType.Cube, root, "GateWingL", new Vector3(-4.6f, towerH * 0.55f, z + 0.4f),
+                    new Vector3(2.4f, towerH * 1.05f, 1.5f), dark, SurfaceKind.Stone);
+                FortPart(PrimitiveType.Cube, root, "GateWingR", new Vector3(4.6f, towerH * 0.55f, z + 0.4f),
+                    new Vector3(2.4f, towerH * 1.05f, 1.5f), dark, SurfaceKind.Stone);
+                FortPart(PrimitiveType.Cube, root, "GateWingWalkL", new Vector3(-4.6f, towerH * 1.05f, z + 0.4f),
+                    new Vector3(2.3f, 0.16f, 1.7f), CityVisualMaterials.Path, SurfaceKind.Path);
+                FortPart(PrimitiveType.Cube, root, "GateWingWalkR", new Vector3(4.6f, towerH * 1.05f, z + 0.4f),
+                    new Vector3(2.3f, 0.16f, 1.7f), CityVisualMaterials.Path, SurfaceKind.Path);
+            }
 
             // Ponte de acesso.
             Flat(root, "GateBridge", new Vector3(0f, 0.1f, z - 2.2f), new Vector3(3.4f, 0.14f, 3.2f),
@@ -698,19 +784,19 @@ namespace Valgor.City.Visual
 
             if (CityAmbientQualitySettings.AllowTorches)
             {
-                Torch(root, new Vector3(-2.35f, towerH * 0.85f, z + 0.85f));
-                Torch(root, new Vector3(2.35f, towerH * 0.85f, z + 0.85f));
+                Torch(root, new Vector3(-4.2f, towerH * 0.85f, z + 0.85f));
+                Torch(root, new Vector3(4.2f, towerH * 0.85f, z + 0.85f));
                 Torch(root, new Vector3(-1.4f, 0.9f, z - 3.2f));
                 Torch(root, new Vector3(1.4f, 0.9f, z - 3.2f));
             }
 
             if (CityAmbientQualitySettings.AllowFlags)
             {
-                Flag(root, new Vector3(-3.5f, towerH * 0.75f, z + 0.45f));
-                Flag(root, new Vector3(3.5f, towerH * 0.75f, z + 0.45f));
+                Flag(root, new Vector3(-5.2f, towerH * 0.75f, z + 0.45f));
+                Flag(root, new Vector3(5.2f, towerH * 0.75f, z + 0.45f));
             }
 
-            // Portões laterais nas pontes E/W.
+            // Portões laterais nas pontes E/W/N.
             SideGate(root, new Vector3(CityCapitalLayoutConfig.WallRadius, 0f, 0f), true, wallLevel);
             SideGate(root, new Vector3(-CityCapitalLayoutConfig.WallRadius, 0f, 0f), true, wallLevel);
             SideGate(root, new Vector3(0f, 0f, CityCapitalLayoutConfig.WallRadius), false, wallLevel);
