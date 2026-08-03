@@ -166,6 +166,14 @@ namespace Valgor.City.Visual
                     Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.28f),
                     SurfaceKind.Dirt)
                 .transform.localPosition = new Vector3(0f, -0.01f, 0f);
+
+            // Manchas de gramado / terra para quebrar o “tapete” plano.
+            var meadow = Color.Lerp(CityVisualMaterials.Vegetation, new Color(0.4f, 0.52f, 0.28f), 0.35f);
+            var dry = Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Vegetation, 0.45f);
+            Flat(root, "MeadowPatchA", new Vector3(-10f, 0.008f, 8f), new Vector3(8f, 0.04f, 6f), meadow, SurfaceKind.Vegetation);
+            Flat(root, "MeadowPatchB", new Vector3(11f, 0.008f, -9f), new Vector3(7f, 0.04f, 7f), meadow, SurfaceKind.Vegetation);
+            Flat(root, "DryPatchA", new Vector3(-8f, 0.008f, -12f), new Vector3(6f, 0.04f, 5f), dry, SurfaceKind.Dirt);
+            Flat(root, "DryPatchB", new Vector3(9f, 0.008f, 10f), new Vector3(5.5f, 0.04f, 5f), dry, SurfaceKind.Dirt);
         }
 
         private static void BuildHorizon(Transform root)
@@ -394,8 +402,8 @@ namespace Valgor.City.Visual
         {
             var wall = CityVisualMaterials.StoneLight;
             var cap = CityVisualMaterials.StoneDark;
-            var height = wallLevel <= 0 ? 1.0f : 1.55f + Math.Min(wallLevel, 6) * 0.28f;
-            var thickness = wallLevel <= 0 ? 0.45f : 0.55f + Math.Min(wallLevel, 5) * 0.06f;
+            var height = wallLevel <= 0 ? 1.85f : 2.15f + Math.Min(wallLevel, 6) * 0.32f;
+            var thickness = wallLevel <= 0 ? 0.72f : 0.85f + Math.Min(wallLevel, 5) * 0.08f;
             var radius = CityCapitalLayoutConfig.WallRadius;
             const int segments = 20;
             // Segmento do sul (i≈0) fica aberto para o Portão Principal.

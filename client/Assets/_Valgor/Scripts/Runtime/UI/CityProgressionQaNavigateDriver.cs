@@ -66,9 +66,26 @@ namespace Valgor.UI
                 yield break;
             }
 
+            // Evita foco pendente (ex.: Torre) roubar o overview da Capital no boot QA.
+            BetaFocusHints.PendingBuildingDefinitionId = null;
             yield return nav.GoToCity();
             yield return WaitForScene("City", 90f);
+            yield return new WaitForSecondsRealtime(1.2f);
+            yield return CaptureCityOverview();
             Debug.Log("[Valgor.QA] City carregada — modo homologação pronto.");
+        }
+
+        private static IEnumerator CaptureCityOverview()
+        {
+            var dir = Path.Combine(Application.dataPath, "..", "evidence", "capital-overview");
+            Directory.CreateDirectory(dir);
+            var path = Path.Combine(dir, "overview-boot.png");
+            Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
+            yield return new WaitForSecondsRealtime(0.5f);
+            yield return new WaitForEndOfFrame();
+            ScreenCapture.CaptureScreenshot(path);
+            yield return new WaitForSecondsRealtime(1.5f);
+            Debug.Log($"[Valgor.QA] Overview capture → {path}");
         }
 
         private static IEnumerator CaptureMenu(string name)

@@ -16,12 +16,12 @@ namespace Valgor.City.Visual
         {
             var baseCount = quality switch
             {
-                CityAmbientQuality.Low => 8,
-                CityAmbientQuality.Medium => 14,
-                CityAmbientQuality.High => 22,
-                _ => 14
+                CityAmbientQuality.Low => 12,
+                CityAmbientQuality.Medium => 22,
+                CityAmbientQuality.High => 32,
+                _ => 22
             };
-            return Math.Clamp(baseCount + Math.Max(0, environmentTier - 1) * 2, 6, 36);
+            return Math.Clamp(baseCount + Math.Max(0, environmentTier - 1) * 3, 8, 48);
         }
 
         public static int DistrictPropBudget(CityAmbientQuality quality, int environmentTier)

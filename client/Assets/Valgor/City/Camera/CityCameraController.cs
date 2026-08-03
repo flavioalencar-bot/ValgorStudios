@@ -7,11 +7,17 @@ namespace Valgor.City.Camera
     [DefaultExecutionOrder(-40)]
     public sealed class CityCameraController : MonoBehaviour
     {
+        // Pose base homologada (castle centrado); zoom aberto p/ Torre (N) + Portão (S).
+        private const float OverviewZoom = 17.6f;
+        private const float OverviewPosX = -12.8f;
+        private const float OverviewPosY = 19.2f;
+        private const float OverviewPosZ = -13.6f;
+
         [SerializeField] private float minZoom = 10f;
-        [SerializeField] private float maxZoom = 18f;
+        [SerializeField] private float maxZoom = 24f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
-        [SerializeField] private float initialZoom = 14.2f;
+        [SerializeField] private float initialZoom = OverviewZoom;
         [SerializeField] private float dragThresholdPixels = 10f;
 
         private readonly CityBounds _bounds = new(-22f, 22f, -22f, 22f);
@@ -25,6 +31,7 @@ namespace Valgor.City.Camera
         private float _suppressFocusUntilUnscaled;
         private bool _poseLocked;
         private PoseSnapshot _lockedPose;
+        private float _holdOverviewUntilUnscaled;
 
         /// <summary>True se o último gesto foi arrasto de câmera — não selecionar prédio.</summary>
         public static bool ShouldSuppressBuildingClick =>
@@ -48,11 +55,35 @@ namespace Valgor.City.Camera
         {
             _camera = GetComponent<UnityEngine.Camera>();
             _camera.orthographic = true;
-            _camera.orthographicSize = initialZoom;
-            transform.rotation = Quaternion.Euler(46f, 40f, 0f);
-            // Castelo no centro; enquadra Portão (S), Praça, distritos e Torre (N).
-            transform.position = new Vector3(-12.8f, 19.2f, -13.6f);
-            ClampPosition();
+            ResetToOverview();
+        }
+
+        private void Start()
+        {
+            // Garante overview após bootstrap (evita herdar pose da cena).
+            if (!_poseLocked)
+            {
+                ResetToOverview();
+            }
+        }
+
+        /// <summary>Enquadramento inicial da Capital (pull-back SW).</summary>
+        public void ResetToOverview()
+        {
+            if (_poseLocked)
+            {
+                return;
+            }
+
+            CancelFocus();
+            ApplyOverviewPoseSilent();
+            // Evita FocusOn / pan fantasma (ativação de janela) logo após o boot.
+            _suppressFocusUntilUnscaled = Mathf.Max(
+                _suppressFocusUntilUnscaled,
+                Time.unscaledTime + 2.5f);
+            _holdOverviewUntilUnscaled = Mathf.Max(
+                _holdOverviewUntilUnscaled,
+                Time.unscaledTime + 2.5f);
         }
 
         private void Update()
@@ -63,8 +94,31 @@ namespace Valgor.City.Camera
                 return;
             }
 
+            if (Time.unscaledTime < _holdOverviewUntilUnscaled)
+            {
+                ApplyOverviewPoseSilent();
+                return;
+            }
+
             HandleMouse();
             HandleTouch();
+        }
+
+        private void ApplyOverviewPoseSilent()
+        {
+            EnsureCamera();
+            if (maxZoom < OverviewZoom)
+            {
+                maxZoom = OverviewZoom;
+            }
+
+            initialZoom = OverviewZoom;
+            _camera.orthographic = true;
+            _camera.orthographicSize = OverviewZoom;
+            transform.rotation = Quaternion.Euler(46f, 40f, 0f);
+            // Pull-back SW: Portão (S) + Castelo + Torre (N) + distritos na mesma vista.
+            transform.position = new Vector3(OverviewPosX, OverviewPosY, OverviewPosZ);
+            ClampPosition();
         }
 
         private void HandleMouse()
@@ -339,7 +393,8 @@ namespace Valgor.City.Camera
         private void ClampPosition()
         {
             var clamped = _bounds.ClampPosition(new CityPosition(transform.position.x, transform.position.y, transform.position.z));
-            transform.position = new Vector3(clamped.X, Mathf.Clamp(clamped.Y, 10f, 20f), clamped.Z);
+            // Altura acompanha pose inicial / zoom aberto (ex.: Y=22.5 no overview da Capital).
+            transform.position = new Vector3(clamped.X, Mathf.Clamp(clamped.Y, 10f, 28f), clamped.Z);
         }
 
         private Vector3 _focusFrom;

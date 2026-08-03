@@ -73,6 +73,7 @@ namespace Valgor.City
             ConfigureCamera();
             if (Valgor.Core.CityProgressionQa.IsActive)
             {
+                FindFirstObjectByType<Valgor.City.Camera.CityCameraController>()?.ResetToOverview();
                 // Garante HUD com valores QA após CreateHud (antes o TopUp era cedo demais).
                 Valgor.City.Qa.CityProgressionQaBootstrap.TopUpWallet(Economy.Wallet);
                 Valgor.City.Qa.CityProgressionQaBootstrap.TopUpEnergyPrefs();
@@ -237,6 +238,15 @@ namespace Valgor.City
             Economy.ApplyPendingMissionRewards();
             BetaJourneyGuide.NotifyReturnedToCity();
             PlayerPrefs.Save();
+            if (CityProgressionQa.IsActive)
+            {
+                // Homologação visual: overview estável, sem foco de journey.
+                BetaFocusHints.PendingBuildingDefinitionId = null;
+                Controller.Selection.Deselect();
+                FindFirstObjectByType<Valgor.City.Camera.CityCameraController>()?.ResetToOverview();
+                return;
+            }
+
             if (BetaFocusHints.TryConsumeBuildingFocus(out var buildingId))
             {
                 Controller.TrySelectByDefinitionId(buildingId);
@@ -335,13 +345,18 @@ namespace Valgor.City
             var camera = UnityEngine.Camera.main;
             if (camera == null)
             {
+                camera = UnityEngine.Object.FindFirstObjectByType<UnityEngine.Camera>();
+            }
+
+            if (camera == null)
+            {
+                Debug.LogError("[Valgor.City] Nenhuma câmera encontrada para CityCameraController.");
                 return;
             }
 
-            if (camera.GetComponent<Valgor.City.Camera.CityCameraController>() == null)
-            {
-                camera.gameObject.AddComponent<Valgor.City.Camera.CityCameraController>();
-            }
+            var camCtrl = camera.GetComponent<Valgor.City.Camera.CityCameraController>() ??
+                          camera.gameObject.AddComponent<Valgor.City.Camera.CityCameraController>();
+            camCtrl.ResetToOverview();
 
             if (camera.GetComponent<Valgor.City.Input.CityBuildingPointerInput>() == null)
             {

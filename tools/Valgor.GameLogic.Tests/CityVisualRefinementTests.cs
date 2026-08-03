@@ -33,7 +33,7 @@ public sealed class CityVisualRefinementTests
     public void EnvironmentConfig_BudgetsAreSane()
     {
         Assert.True(CityCapitalEnvironmentConfig.ImperialRoadWidth > 3f);
-        Assert.InRange(CityCapitalEnvironmentConfig.VegetationCount(CityAmbientQuality.Medium, 1), 8, 30);
+        Assert.InRange(CityCapitalEnvironmentConfig.VegetationCount(CityAmbientQuality.Medium, 1), 12, 48);
         Assert.True(
             CityCapitalEnvironmentConfig.VegetationCount(CityAmbientQuality.High, 6) >=
             CityCapitalEnvironmentConfig.VegetationCount(CityAmbientQuality.Medium, 1));
