@@ -19,6 +19,20 @@ namespace Valgor.City.Visual
 
             HideSceneGround();
 
+            if (CityPaintedMapConfig.Enabled)
+            {
+                // Mapa pintado Art Pass 2.0 — sem terreno/muralha/densidade 3D.
+                SoftenLighting();
+                CityArtMaterialLibrary.WarmPalette();
+                CityPaintedMapBuilder.Build(root);
+                Node(root, "Walls");
+                Node(root, "Buildings");
+                Node(root, "NPCs");
+                Node(root, "Navigation");
+                CityArtPass2PerfProbe.Ensure();
+                return;
+            }
+
             var terrain = Node(root, "Terrain");
             var water = Node(root, "Water");
             var roads = Node(root, "Roads");
@@ -33,9 +47,21 @@ namespace Valgor.City.Visual
             Node(root, "Navigation");
 
             BuildTerrain(terrain);
-            BuildHorizon(terrain);
+            if (CityCapitalWorldConfig.Enabled)
+            {
+                CityTerrainCompositionBuilder.Build(root);
+            }
+            else
+            {
+                BuildHorizon(terrain);
+            }
+
             CityReliefBuilder.Build(terrain);
-            BuildRivers(water);
+            if (!CityCapitalWorldConfig.Enabled)
+            {
+                BuildRivers(water);
+            }
+
             BuildDistrictPads(districts);
             if (CityRoyalDistrictConfig.Enabled)
             {
@@ -48,7 +74,15 @@ namespace Valgor.City.Visual
 
             BuildRoads(roads);
             BuildDistrictRoads(roads);
-            BuildPlateaus(terrain);
+            if (!CityCapitalWorldConfig.Enabled)
+            {
+                BuildPlateaus(terrain);
+            }
+            else
+            {
+                // Platô/penhasco da Torre vêm do CityTerrainCompositionBuilder (V1/V2 aware).
+            }
+
             CityDistrictVisualBuilder.BuildAll(districts, decorations, ambient);
             if (!(CityArtPass3Config.Enabled && CityArtPass3Config.LayeredVegetationEnabled))
             {
@@ -84,6 +118,12 @@ namespace Valgor.City.Visual
         {
             if (cityHost == null)
             {
+                return;
+            }
+
+            if (CityPaintedMapConfig.Enabled)
+            {
+                // Muralha já está no mapa pintado — não spawnar anel 3D.
                 return;
             }
 
@@ -321,42 +361,59 @@ namespace Valgor.City.Visual
             var soil = soft
                 ? Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.22f)
                 : Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f);
-            Flat(root, "PadRoyal", new Vector3(0f, 0.004f, 1.5f), new Vector3(14f, 0.04f, 12f),
+            var castle = CityCapitalLayoutConfig.GetPosition("castle");
+            Flat(root, "PadRoyal", new Vector3(castle.X, 0.004f, castle.Z + 0.4f), new Vector3(14f, 0.04f, 12f),
                 soft || CityRoyalDistrictConfig.Enabled
                     ? Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.18f)
                     : Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f),
                 SurfaceKind.Path);
-            var dragonZ = CityCapitalLayoutConfig.GetPosition("dragon-tower").Z;
-            Flat(root, "PadDragon", new Vector3(0f, 0.08f, dragonZ), new Vector3(14f, 0.12f, 14f),
+            var dragon = CityCapitalLayoutConfig.GetPosition("dragon-tower");
+            Flat(root, "PadDragon", new Vector3(dragon.X, 0.08f, dragon.Z), new Vector3(10f, 0.12f, 10f),
                 soft
                     ? Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.2f)
                     : Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Vegetation, 0.35f), SurfaceKind.Dirt);
-            Flat(root, "PadSacredNW", new Vector3(-9f, 0.005f, 4.5f), new Vector3(7f, 0.04f, 7f),
-                soil, SurfaceKind.Dirt);
-            Flat(root, "PadSacredNE", new Vector3(9f, 0.005f, 4.8f), new Vector3(7f, 0.04f, 7f),
-                soil, SurfaceKind.Dirt);
-            Flat(root, "PadMilitary", new Vector3(12f, 0.005f, -1f), new Vector3(9f, 0.04f, 14f),
+            PlacePad(root, "PadHospital", "hospital", 7f, soil, SurfaceKind.Dirt);
+            PlacePad(root, "PadTemple", "temple", 7f, soil, SurfaceKind.Dirt);
+            PlacePad(root, "PadArena", "arena", 8f,
                 soft
                     ? Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.12f)
                     : Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.18f), SurfaceKind.Dirt);
-            Flat(root, "PadEconomic", new Vector3(-4f, 0.005f, -7.5f), new Vector3(16f, 0.04f, 7f),
+            PlacePad(root, "PadMarket", "market", 7f,
                 soft
                     ? Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, 0.15f)
                     : Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, 0.25f), SurfaceKind.Dirt);
-            Flat(root, "PadIndustrialSW", new Vector3(-13.5f, 0.005f, -13f), new Vector3(8f, 0.04f, 6f),
-                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Wood, soft ? 0.08f : 0.15f), SurfaceKind.Dirt);
-            Flat(root, "PadFoundry", new Vector3(12.8f, 0.005f, -13f), new Vector3(6f, 0.04f, 5f),
+            PlacePad(root, "PadTraining", "training-ground", 7f,
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, soft ? 0.1f : 0.2f), SurfaceKind.Dirt);
+            PlacePad(root, "PadFoundry", "foundry", 6f,
                 Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, soft ? 0.15f : 0.25f), SurfaceKind.Dirt);
-            Flat(root, "PadResidence", new Vector3(-5.8f, 0.005f, -8.8f), new Vector3(5f, 0.04f, 4.5f),
+            PlacePad(root, "PadResidence", "residence", 5f,
                 Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Path, soft ? 0.1f : 0.15f), SurfaceKind.Dirt);
-            Flat(root, "PadRural", new Vector3(-14f, 0.005f, -7.2f), new Vector3(7f, 0.04f, 6f),
+            PlacePad(root, "PadFarm", "farm", 6.5f,
                 Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.2f), SurfaceKind.Vegetation);
-            Flat(root, "PadMine", new Vector3(-15f, 0.7f, 11.5f), new Vector3(6f, 0.2f, 5f),
-                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.Dirt, 0.3f), SurfaceKind.Stone);
-            Flat(root, "PadQuarry", new Vector3(15f, 0.7f, 12f), new Vector3(6f, 0.2f, 5f),
-                Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.Dirt, 0.25f), SurfaceKind.Stone);
-            Flat(root, "PadAcademy", new Vector3(14f, 0.8f, 9.4f), new Vector3(6f, 0.2f, 5f),
-                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, soft ? 0.05f : 0.12f), SurfaceKind.Stone);
+            PlacePad(root, "PadMine", "mine", 5.5f,
+                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.Dirt, 0.3f), SurfaceKind.Stone, y: 0.55f);
+            PlacePad(root, "PadQuarry", "quarry", 5.5f,
+                Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.Dirt, 0.25f), SurfaceKind.Stone, y: 0.55f);
+            PlacePad(root, "PadAcademy", "academy", 6f,
+                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, soft ? 0.05f : 0.12f),
+                SurfaceKind.Stone, y: 0.75f);
+            PlacePad(root, "PadHeroHall", "hero-hall", 5.5f, soil, SurfaceKind.Dirt);
+            PlacePad(root, "PadWarehouse", "warehouse", 5f, soil, SurfaceKind.Dirt);
+            PlacePad(root, "PadLumber", "lumbermill", 5f,
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Wood, soft ? 0.08f : 0.15f), SurfaceKind.Dirt);
+        }
+
+        private static void PlacePad(
+            Transform root,
+            string name,
+            string buildingId,
+            float size,
+            Color color,
+            SurfaceKind kind,
+            float y = 0.005f)
+        {
+            var p = CityCapitalLayoutConfig.GetPosition(buildingId);
+            Flat(root, name, new Vector3(p.X, y, p.Z), new Vector3(size, 0.04f, size), color, kind);
         }
 
         private static void BuildPlateaus(Transform root)
@@ -1014,24 +1071,24 @@ namespace Valgor.City.Visual
             var light = UnityEngine.Object.FindFirstObjectByType<Light>();
             if (light != null && light.type == LightType.Directional)
             {
-                // Manhã/tarde cinematográfica — leitura preservada em Medium.
                 light.color = CityCapitalFinalConfig.CinematicLightingEnabled
-                    ? new Color(1f, 0.86f, 0.62f)
-                    : new Color(1f, 0.92f, 0.78f);
-                light.intensity = CityCapitalFinalConfig.CinematicLightingEnabled ? 1.55f : 1.42f;
+                    ? new Color(1f, 0.9f, 0.72f)
+                    : new Color(1f, 0.94f, 0.84f);
+                light.intensity = CityCapitalFinalConfig.CinematicLightingEnabled ? 1.72f : 1.58f;
                 light.shadows = LightShadows.Soft;
-                light.shadowStrength = 0.68f;
-                light.transform.rotation = Quaternion.Euler(42f, -48f, 0f);
+                light.shadowStrength = 0.55f;
+                // Ilumina a fachada sul (frente Tripo / Portão) sem escurecer o overview.
+                light.transform.rotation = Quaternion.Euler(48f, 165f, 0f);
             }
 
-            // Contraste legível em 1080×640 — ambient um pouco mais frio no céu.
-            var haze = new Color(0.5f, 0.54f, 0.48f);
+            // Contraste legível — ambient mais claro para ler pedra Tripo como no preview.
+            var haze = new Color(0.55f, 0.58f, 0.54f);
             ApplySky(haze,
-                new Color(0.52f, 0.6f, 0.72f),
-                new Color(0.5f, 0.45f, 0.36f),
-                new Color(0.22f, 0.2f, 0.18f),
+                new Color(0.62f, 0.68f, 0.78f),
+                new Color(0.58f, 0.54f, 0.46f),
+                new Color(0.28f, 0.26f, 0.24f),
                 haze,
-                CityAmbientQualitySettings.AllowLightFog ? 0.012f : 0.009f);
+                CityAmbientQualitySettings.AllowLightFog ? 0.008f : 0.006f);
         }
 
         public static void ApplyNightLighting()

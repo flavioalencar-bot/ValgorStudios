@@ -1,0 +1,24 @@
+concurrency: 2
+defaults:
+  for: game-mobile
+  then: "convert:format=GLTF"
+  out: ./out
+jobs:
+  - name: Mountain_A
+    input: "Large modular medieval fantasy mountain for an isometric mobile strategy game. Broad rocky silhouette, layered granite cliffs, natural erosion, moderate height, wide stable base, realistic but game-optimized proportions. No buildings, no ruins, no people, no trees, no water, no snow, no background. Isolated complete 360-degree asset, flat base, central ground pivot, clean topology, PBR rock material, suitable for Unity, mobile and PC optimized."
+    out: ../lote1-mountains/Mountain_A
+  - name: Mountain_B
+    input: "Tall narrow fantasy mountain module for an isometric mobile strategy game. Steep layered rock faces, dramatic vertical silhouette, weathered granite, natural ledges and crevices. No buildings, no vegetation, no snow, no water, no characters, no background. Isolated 360-degree model, flat base, central pivot at ground level, clean topology, PBR materials, optimized for Unity mobile and PC."
+    out: ../lote1-mountains/Mountain_B
+  - name: Mountain_C
+    input: "Wide low mountain ridge for a medieval fantasy mobile strategy game. Long horizontal silhouette, layered rocky slopes, natural erosion, several peaks, designed for distant horizon composition. No buildings, trees, water, characters or background. Lightweight isolated mesh, clean topology, PBR rock material, ground pivot, suitable for LOD and Unity mobile."
+    out: ../lote1-mountains/Mountain_C
+  - name: Mountain_D
+    input: "Massive fantasy mountain backdrop with multiple peaks and deep rocky valleys, designed as distant scenery for an isometric medieval strategy game. Strong silhouette, low gameplay detail, broad base, atmospheric scale. No buildings, vegetation, water, snow, people or background. Optimized mesh, clean topology, PBR material, no collider, suitable for Unity horizon LOD."
+    out: ../lote1-mountains/Mountain_D
+  - name: DistantMountain_A
+    input: "Distant low-detail fantasy mountain silhouette for isometric mobile strategy horizon. Broad soft peaks, atmospheric scale, minimal surface detail. No buildings, vegetation, water, snow, characters or background. Lightweight isolated mesh, PBR rock, ground pivot, Unity LOD billboard-friendly."
+    out: ../lote1-mountains/DistantMountain_A
+  - name: DistantMountain_B
+    input: "Secondary distant mountain ridge for isometric medieval fantasy horizon. Soft multi-peak silhouette, low poly budget, no gameplay detail. No buildings, trees, water, characters or background. Clean mesh, PBR rock, ground pivot, Unity mobile optimized."
+    out: ../lote1-mountains/DistantMountain_B

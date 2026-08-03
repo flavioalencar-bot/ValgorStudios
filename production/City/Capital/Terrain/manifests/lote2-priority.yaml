@@ -1,0 +1,30 @@
+concurrency: 2
+defaults:
+  for: game-mobile
+  then: "convert:format=GLTF"
+  out: ./out
+jobs:
+  - name: Cliff_DragonTower
+    input: "Monumental rocky cliff and elevated plateau designed to support a Dragon Tower in a medieval fantasy isometric strategy game. Broad flat upper platform, dramatic south-facing cliff wall, natural access slope and carved stone stair path, dark weathered granite, strong silhouette. No tower, no buildings, no dragon, no vegetation, no water, no characters, no background. Isolated 360-degree asset, clean topology, PBR material, central ground pivot, optimized for Unity mobile and PC."
+    out: ../lote2-cliffs-plateaus/Cliff_DragonTower
+  - name: Cliff_A
+    input: "Modular vertical granite cliff for a medieval fantasy isometric strategy game. Tall rock face, layered stone, natural cracks, irregular top edge and stable flat back for terrain assembly. No vegetation, buildings, water, characters or background. Isolated 360-degree asset, clean topology, PBR rock material, ground pivot, optimized for Unity mobile."
+    out: ../lote2-cliffs-plateaus/Cliff_A
+  - name: Plateau_Central
+    input: "Large central terrain plateau for a medieval fantasy isometric mobile strategy game. Broad mostly flat playable top, subtle natural elevation, organic irregular edges, gentle slopes and stone foundation suitable for placing a capital city and multiple buildings. No buildings, roads, vegetation, water, characters or background. Clean low-cost terrain mesh, PBR earth and rock materials, ground pivot, Unity optimized."
+    out: ../lote2-cliffs-plateaus/Plateau_Central
+  - name: Plateau_Academy
+    input: "Medium elevated terrain plateau designed for a fantasy academy building in an isometric mobile strategy game. Flat construction area, gentle access ramp, rocky edges and natural terrain transitions. No building, vegetation, water, characters or background. Isolated clean mesh, PBR terrain material, ground pivot, optimized for Unity."
+    out: ../lote2-cliffs-plateaus/Plateau_Academy
+  - name: Waterfall_Large
+    input: "Large modular fantasy waterfall structure for an isometric mobile strategy game. Tall rocky drop, natural channel, upper and lower rock basins, designed to use separate Unity water and particle effects. No animated water mesh, no buildings, vegetation, characters or background. Isolated rock structure, clean topology, PBR material, ground pivot, optimized for mobile and PC."
+    out: ../lote4-waterfalls-bridges/Waterfall_Large
+  - name: StoneBridge_A
+    input: "Medieval fantasy stone bridge for an isometric mobile strategy game. Single broad arch, weathered light granite, low protective side walls, wide enough for troops and carts, monumental but game-optimized. No terrain, water, buildings, vegetation, characters or background. Isolated 360-degree model, flat connection ends, central ground pivot, PBR materials, Unity optimized."
+    out: ../lote4-waterfalls-bridges/StoneBridge_A
+  - name: Rock_Large_A
+    input: "Large weathered fantasy granite rock formation for an isometric mobile strategy game. Strong natural silhouette, layered stone, cracks and irregular base. No vegetation, water, buildings, characters or background. Isolated 360-degree mesh, clean topology, PBR rock material, central ground pivot, mobile optimized."
+    out: ../lote5-rocks/Rock_Large_A
+  - name: River_Straight
+    input: "Modular straight river channel terrain asset for an isometric mobile fantasy strategy game. Natural curved banks, shallow central channel, stone and soil edges, designed to receive a separate Unity water material. No water surface, no vegetation, no bridge, no buildings, no characters, no background. Clean topology, flat modular ends, ground pivot, optimized for Unity mobile."
+    out: ../lote3-rivers/River_Straight

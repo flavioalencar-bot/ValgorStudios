@@ -1,0 +1,20 @@
+{
+  "jobs": {
+    "Mountain_A": {
+      "status": "success",
+      "attempts": 1,
+      "task_id": "2c776e81-ecdd-4991-959d-ce3c5da2a32f",
+      "output_dir": "..\\lote1-mountains\\Mountain_A\\tripo-out\\mountain-a-convert-2c776e81"
+    },
+    "Mountain_B": {
+      "status": "success",
+      "attempts": 1,
+      "task_id": "c98d8da4-0ffd-41ae-8e3e-9d41f183b0bf",
+      "output_dir": "..\\lote1-mountains\\Mountain_B\\tripo-out\\mountain-b-convert-c98d8da4"
+    },
+    "Mountain_C": {
+      "status": "pending",
+      "attempts": 1
+    }
+  }
+}

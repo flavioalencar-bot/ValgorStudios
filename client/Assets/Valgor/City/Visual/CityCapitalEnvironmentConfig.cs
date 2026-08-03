@@ -2,9 +2,10 @@ using System;
 
 namespace Valgor.City.Visual
 {
-    /// <summary>
-    /// Parâmetros ambientais da Capital (sem layout lógico de edifícios).
-    /// </summary>
+        /// <summary>
+        /// Parâmetros ambientais da Capital (sem layout lógico de edifícios).
+        /// Fundação de terreno: ver <see cref="CityCapitalWorldConfig"/>.
+        /// </summary>
     public static class CityCapitalEnvironmentConfig
     {
         /// <summary>Art Pass 1.0 — arquitetura/materiais dos marcos (sem gameplay).</summary>
@@ -12,7 +13,8 @@ namespace Valgor.City.Visual
         public const int ArtMaterialCategoryCount = CityArtMaterialCatalog.CategoryCount;
 
         public const float ImperialRoadWidth = 3.6f;
-        public const float PlazaCenterZ = -3.2f;
+        /// <summary>Praça no eixo Portão→Castelo (sul do keep), deixando frente do castelo legível.</summary>
+        public const float PlazaCenterZ = -5.5f;
         public const float CastlePlatformY = 0.08f;
         public const float DragonPlateauY = 2.05f;
 

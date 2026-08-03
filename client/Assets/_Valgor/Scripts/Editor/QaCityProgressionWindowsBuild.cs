@@ -482,6 +482,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital World Foundation: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalWorldFoundationCli</summary>
+        public static void BuildCapitalWorldFoundationCli()
+        {
+            var report = Build("Valgor-QA-Capital-WorldFoundation");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital WorldFoundation Build OK: {GetOutputExe("Valgor-QA-Capital-WorldFoundation")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital WorldFoundation Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

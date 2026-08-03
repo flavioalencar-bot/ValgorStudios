@@ -46,6 +46,16 @@ namespace Valgor.City
         private void Awake()
         {
             Valgor.City.Qa.CityProgressionQaBootstrap.ApplyBeforeEconomy();
+            if (Valgor.Core.CityProgressionQa.IsLayoutV2Preview)
+            {
+                CityCapitalLayoutRuntime.UsePreviewV2();
+                Debug.Log("[Valgor.City] Capital Layout V2 Preview ativo (sem migração de save).");
+            }
+            else
+            {
+                CityCapitalLayoutRuntime.UseOfficialV1();
+            }
+
             Economy = ResolveEconomy();
             Dragons = ResolveDragons(Economy);
             Controller = new CityController(Economy, new BuildingSelectionService());
@@ -88,7 +98,16 @@ namespace Valgor.City
                 var hudQa = gameObject.GetComponent<Valgor.City.Qa.CityProgressionQaHud>() ??
                             gameObject.AddComponent<Valgor.City.Qa.CityProgressionQaHud>();
                 hudQa.Initialize(qa);
-                if (Valgor.Core.CityProgressionQa.IsResponsiveUiTest)
+                if (Valgor.Core.CityProgressionQa.IsLayoutV2Preview)
+                {
+                    Valgor.City.Qa.CapitalLayoutV2PreviewDriver.EnsureAndBegin();
+                }
+
+                if (Valgor.Core.CityProgressionQa.IsWorldPreview)
+                {
+                    Valgor.City.Qa.CapitalWorldFoundationPreviewDriver.EnsureAndBegin();
+                }
+                else if (Valgor.Core.CityProgressionQa.IsResponsiveUiTest)
                 {
                     var responsive = gameObject.GetComponent<Valgor.City.Qa.ResponsiveUiAutoTest>() ??
                                      gameObject.AddComponent<Valgor.City.Qa.ResponsiveUiAutoTest>();
@@ -335,6 +354,12 @@ namespace Valgor.City
 
             // Pipeline de arte: tenta HF; ausente → proxy procedural permanece.
             CityArtReplacementController.Ensure().ApplyAll(Controller.Views);
+
+            if (CityPaintedMapConfig.Enabled &&
+                CityPaintedMapConfig.Mode == CityPaintedMapMode.InclinedBillboard)
+            {
+                CityPaintedMapHotspotBinder.SnapAll(transform);
+            }
         }
 
         private void CreateHud()

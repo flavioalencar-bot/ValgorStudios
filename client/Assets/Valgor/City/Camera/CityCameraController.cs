@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Valgor.City.Visual;
 
 namespace Valgor.City.Camera
 {
@@ -8,16 +9,30 @@ namespace Valgor.City.Camera
     public sealed class CityCameraController : MonoBehaviour
     {
         // Overview aberto: muralha circular + rios + Torre + Portão na mesma vista.
-        private const float OverviewZoom = 22f;
-        private const float OverviewPitch = 46f;
-        private const float OverviewYaw = 40f;
-        private const float OverviewHeight = 22f;
+        // Painted map: ângulo mais top-down para ler o Art Pass 2.0.
+        // Layout V2 preview: yaw maior para incluir Torre NE sem cortar.
+        private static float OverviewZoom =>
+            CityPaintedMapConfig.Enabled
+                ? CityPaintedMapConfig.OverviewZoom
+                : CityCapitalLayoutRuntime.IsPreviewV2 ? 24f : 20f;
+        private static float OverviewPitch =>
+            CityPaintedMapConfig.Enabled
+                ? CityPaintedMapConfig.OverviewPitch
+                : CityCapitalLayoutRuntime.IsPreviewV2 ? 48f : 50f;
+        private static float OverviewYaw =>
+            CityPaintedMapConfig.Enabled
+                ? CityPaintedMapConfig.OverviewYaw
+                : CityCapitalLayoutRuntime.IsPreviewV2 ? 28f : 18f;
+        private static float OverviewHeight =>
+            CityPaintedMapConfig.Enabled
+                ? 26f
+                : CityCapitalLayoutRuntime.IsPreviewV2 ? 26f : 20f;
 
         [SerializeField] private float minZoom = 10f;
-        [SerializeField] private float maxZoom = 28f;
+        [SerializeField] private float maxZoom = 32f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
-        [SerializeField] private float initialZoom = OverviewZoom;
+        [SerializeField] private float initialZoom = 20f;
         [SerializeField] private float dragThresholdPixels = 10f;
 
         private readonly CityBounds _bounds = new(-28f, 28f, -28f, 28f);
@@ -117,10 +132,18 @@ namespace Valgor.City.Camera
             _camera.orthographicSize = OverviewZoom;
             var rot = Quaternion.Euler(OverviewPitch, OverviewYaw, 0f);
             transform.rotation = rot;
-            // Centraliza o Castelo (origem): Portão S + Torre N + muralha na mesma vista.
+            // V1: origem. V2 preview: Castelo recuado — inclui Portão S + Torre NE + muralha.
             var forward = rot * Vector3.forward;
             var t = OverviewHeight / Mathf.Max(0.05f, -forward.y);
-            transform.position = -forward * t;
+            var focus = Vector3.zero;
+            if (CityCapitalLayoutRuntime.IsPreviewV2 &&
+                CityCapitalLayoutConfig.TryGet("castle", out var castleEntry))
+            {
+                var p = castleEntry.Position;
+                focus = new Vector3(p.X + 1.2f, 0f, p.Z * 0.35f);
+            }
+
+            transform.position = focus - forward * t;
             ClampPosition();
         }
 

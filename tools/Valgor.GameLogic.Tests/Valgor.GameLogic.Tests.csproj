@@ -38,10 +38,16 @@
     <Compile Include="..\..\client\Assets\Valgor\City\Camera\CityBounds.cs" Link="City\CityBounds.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Buildings\BuildingIdMigration.cs" Link="City\BuildingIdMigration.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalLayoutConfig.cs" Link="City\CityCapitalLayoutConfig.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalLayoutRuntime.cs" Link="City\CityCapitalLayoutRuntime.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalLayoutMigration.cs" Link="City\CityCapitalLayoutMigration.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalWorldConfig.cs" Link="City\CityCapitalWorldConfig.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityTerrainAssetCatalog.cs" Link="City\CityTerrainAssetCatalog.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityAmbientQuality.cs" Link="City\CityAmbientQuality.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalEnvironmentConfig.cs" Link="City\CityCapitalEnvironmentConfig.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtMaterialCatalog.cs" Link="City\CityArtMaterialCatalog.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtPass2Config.cs" Link="City\CityArtPass2Config.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityPaintedMapConfig.cs" Link="City\CityPaintedMapConfig.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityPaintedMapHotspotUvs.cs" Link="City\CityPaintedMapHotspotUvs.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtPass3Config.cs" Link="City\CityArtPass3Config.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityFortressWallConfig.cs" Link="City\CityFortressWallConfig.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityRoyalDistrictConfig.cs" Link="City\CityRoyalDistrictConfig.cs" />

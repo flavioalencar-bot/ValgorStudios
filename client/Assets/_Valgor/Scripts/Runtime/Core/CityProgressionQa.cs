@@ -12,8 +12,17 @@ namespace Valgor.Core
         public const string ScriptingDefine = "VALGOR_CITY_PROGRESSION_QA";
         public const string CliFlag = "-cityProgressionQA";
         public const string CliAutoTestFlag = "-cityProgressionQATest";
+        public const string CliCaptureFlag = "-cityProgressionQACapture";
         public const string CliUpgradeUxTestFlag = "-buildingUpgradeUxTest";
         public const string CliResponsiveUiTestFlag = "-responsiveUiTest";
+        /// <summary>Preview do Capital Layout V2 — não migra save, não promove oficial.</summary>
+        public const string CliLayoutV2PreviewFlag = "-capitalLayoutV2Preview";
+        /// <summary>Preview da fundação ambiental (terreno/rios/horizonte).</summary>
+        public const string CliWorldPreviewFlag = "-capitalWorldPreview";
+        public const string LayoutV2EvidenceDir =
+            @"C:\Valgor_Studio\docs\releases\capital-layout-v2\screenshots";
+        public const string WorldFoundationEvidenceDir =
+            @"C:\Valgor_Studio\docs\releases\capital-world-foundation\screenshots";
         public const string ResponsiveEvidenceDir =
             @"C:\Valgor_Studio\docs\releases\ui-responsive-p1-fix-evidence";
         public const string SaveSlotId = "city-progression-qa";
@@ -29,11 +38,15 @@ namespace Valgor.Core
         public const float HomologDurationSeconds = 3f;
 
         public const string BannerText = "MODO HOMOLOGAÇÃO";
+        public const string LayoutV2PreviewBanner = "Capital Layout V2 Preview — sem migração de save";
+        public const string WorldPreviewBanner = "Capital World Foundation Preview";
 
         private static bool? _active;
         private static bool? _autoTest;
         private static bool? _upgradeUxTest;
         private static bool? _responsiveUiTest;
+        private static bool? _layoutV2Preview;
+        private static bool? _worldPreview;
 
         public static bool IsCompiledIn
         {
@@ -57,10 +70,29 @@ namespace Valgor.Core
                 }
 
                 _active = IsCompiledIn || HasFlag(CliFlag) || HasFlag(CliUpgradeUxTestFlag) ||
-                          HasFlag(CliResponsiveUiTestFlag) ||
+                          HasFlag(CliResponsiveUiTestFlag) || HasFlag(CliLayoutV2PreviewFlag) ||
+                          HasFlag(CliWorldPreviewFlag) ||
                           HasFlag(DragonPhase2Qa.CliFlag) || HasFlag(DragonPhase2Qa.CliE2EFlag) ||
                           HasFlag(DragonPhases14HomologQa.CliFlag);
                 return _active.Value;
+            }
+        }
+
+        public static bool IsLayoutV2Preview
+        {
+            get
+            {
+                _layoutV2Preview ??= HasFlag(CliLayoutV2PreviewFlag);
+                return _layoutV2Preview.Value;
+            }
+        }
+
+        public static bool IsWorldPreview
+        {
+            get
+            {
+                _worldPreview ??= HasFlag(CliWorldPreviewFlag);
+                return _worldPreview.Value;
             }
         }
 
@@ -69,7 +101,8 @@ namespace Valgor.Core
             get
             {
                 _autoTest ??= IsActive && HasFlag(CliAutoTestFlag) && !HasFlag(CliUpgradeUxTestFlag) &&
-                              !HasFlag(CliResponsiveUiTestFlag) && !HasFlag(DragonPhase2Qa.CliE2EFlag);
+                              !HasFlag(CliResponsiveUiTestFlag) && !HasFlag(DragonPhase2Qa.CliE2EFlag) &&
+                              !HasFlag(CliLayoutV2PreviewFlag) && !HasFlag(CliWorldPreviewFlag);
                 return _autoTest.Value;
             }
         }
@@ -92,6 +125,9 @@ namespace Valgor.Core
             }
         }
 
+        /// <summary>Tour de câmera + screenshots de evidência (só com -cityProgressionQACapture).</summary>
+        public static bool IsCapturePass => IsActive && HasFlag(CliCaptureFlag);
+
         /// <summary>Força estado (Editor/testes). Não afeta build normal em runtime.</summary>
         public static void ForceActiveForTests(bool active, bool autoTest = false)
         {
@@ -99,6 +135,26 @@ namespace Valgor.Core
             _autoTest = autoTest;
             _upgradeUxTest = false;
             _responsiveUiTest = false;
+            _layoutV2Preview = false;
+            _worldPreview = false;
+        }
+
+        public static void ForceLayoutV2PreviewForTests(bool enabled)
+        {
+            _layoutV2Preview = enabled;
+            if (enabled)
+            {
+                _active = true;
+            }
+        }
+
+        public static void ForceWorldPreviewForTests(bool enabled)
+        {
+            _worldPreview = enabled;
+            if (enabled)
+            {
+                _active = true;
+            }
         }
 
         private static bool HasFlag(string flag)

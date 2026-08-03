@@ -61,21 +61,18 @@ namespace Valgor.City.Visual
         public const float MainGateZ = -20.5f;
         public const float ImperialRoadHalfWidth = 1.55f;
 
+        /// <summary>
+        /// Yaw do Castelo: frente Tripo (escadaria/bandeiras no −Z do GLB) aponta ao Portão (−Z).
+        /// Mesh Tier 6 já tem a entrada no −Z local — yaw 0, sem inverter.
+        /// </summary>
+        public const float CastleFacingGateYawDegrees = 0f;
+
         private static readonly Dictionary<string, CityBuildingLayoutEntry> Entries = BuildEntries();
 
-        public static IReadOnlyDictionary<string, CityBuildingLayoutEntry> All => Entries;
-
-        public static bool TryGet(string buildingId, out CityBuildingLayoutEntry entry)
-        {
-            var canonical = BuildingIdMigration.ToCanonical(buildingId);
-            return Entries.TryGetValue(canonical, out entry!);
-        }
-
-        public static CityPosition GetPosition(string buildingId) =>
-            TryGet(buildingId, out var entry) ? entry.Position : new CityPosition(0f, 0f, 0f);
-
-        public static CityDistrict GetDistrict(string buildingId) =>
-            TryGet(buildingId, out var entry) ? entry.District : CityDistrict.Royal;
+        public static IReadOnlyDictionary<string, CityBuildingLayoutEntry> All =>
+            CityCapitalLayoutRuntime.ActiveVersion == CityCapitalLayoutRuntime.Version2
+                ? CityCapitalLayoutV2.Entries
+                : Entries;
 
         public static int ResolveEnvironmentTier(int castleLevel)
         {
@@ -88,7 +85,35 @@ namespace Valgor.City.Visual
             return 6;
         }
 
+        public static bool TryGet(string buildingId, out CityBuildingLayoutEntry entry)
+        {
+            if (CityCapitalLayoutRuntime.ActiveVersion == CityCapitalLayoutRuntime.Version2)
+            {
+                return CityCapitalLayoutV2.TryGet(buildingId, out entry);
+            }
+
+            var canonical = BuildingIdMigration.ToCanonical(buildingId);
+            return Entries.TryGetValue(canonical, out entry!);
+        }
+
+        public static CityPosition GetPosition(string buildingId) =>
+            TryGet(buildingId, out var entry) ? entry.Position : new CityPosition(0f, 0f, 0f);
+
+        public static CityDistrict GetDistrict(string buildingId) =>
+            TryGet(buildingId, out var entry) ? entry.District : CityDistrict.Royal;
+
+        /// <summary>Invariantes da versão ativa (V1 oficial ou V2 preview).</summary>
         public static IReadOnlyList<string> ValidateBlueprintInvariants()
+        {
+            if (CityCapitalLayoutRuntime.ActiveVersion == CityCapitalLayoutRuntime.Version2)
+            {
+                return CityCapitalLayoutV2.ValidateInvariants();
+            }
+
+            return ValidateV1Invariants();
+        }
+
+        private static IReadOnlyList<string> ValidateV1Invariants()
         {
             var issues = new List<string>();
             if (Entries.Count != BuildingIdMigration.OfficialCount)
@@ -104,28 +129,28 @@ namespace Valgor.City.Visual
                 }
             }
 
-            if (!TryGet("castle", out var castle) ||
+            if (!Entries.TryGetValue("castle", out var castle) ||
                 Math.Abs(castle.Position.X) > 0.01f ||
                 Math.Abs(castle.Position.Z) > 0.01f)
             {
                 issues.Add("Castelo deve estar no centro (0,0).");
             }
 
-            if (!TryGet("dragon-tower", out var tower) || tower.Position.Z < 14f)
+            if (!Entries.TryGetValue("dragon-tower", out var tower) || tower.Position.Z < 14f)
             {
                 issues.Add("Torre dos Dragões deve ficar ao norte elevado.");
             }
 
-            if (!TryGet("wall", out var wall) || wall.Position.Z > -16f)
+            if (!Entries.TryGetValue("wall", out var wall) || wall.Position.Z > -16f)
             {
                 issues.Add("Portão/Muralha lógica deve ancorar o extremo sul.");
             }
 
-            if (TryGet("wall", out _) && TryGet("castle", out _) && TryGet("dragon-tower", out _))
+            if (Entries.ContainsKey("wall") && Entries.ContainsKey("castle") && Entries.ContainsKey("dragon-tower"))
             {
-                var gate = GetPosition("wall");
-                var keep = GetPosition("castle");
-                var north = GetPosition("dragon-tower");
+                var gate = Entries["wall"].Position;
+                var keep = Entries["castle"].Position;
+                var north = Entries["dragon-tower"].Position;
                 if (Math.Abs(gate.X) > 0.5f || Math.Abs(keep.X) > 0.5f || Math.Abs(north.X) > 1.5f)
                 {
                     issues.Add("Eixo monumental Portão→Castelo→Torre deve permanecer alinhado em X≈0.");
@@ -135,9 +160,29 @@ namespace Valgor.City.Visual
                 {
                     issues.Add("Ordem do eixo deve ser Portão (S) < Castelo < Torre (N).");
                 }
+
+                if (Math.Abs(gate.Z - MainGateZ) > 0.05f)
+                {
+                    issues.Add($"Portão deve coincidir com MainGateZ ({MainGateZ}).");
+                }
             }
 
-            if (TryGet("hero-hall", out var hall) && TryGet("castle", out _))
+            if (Entries.TryGetValue("castle", out var castleFacing))
+            {
+                var yaw = castleFacing.YawDegrees % 360f;
+                if (yaw < 0f)
+                {
+                    yaw += 360f;
+                }
+
+                if (Math.Abs(yaw - CastleFacingGateYawDegrees) > 0.5f &&
+                    Math.Abs(yaw - (CastleFacingGateYawDegrees - 360f)) > 0.5f)
+                {
+                    issues.Add("Castelo deve encarar o Portão (yaw 0°; frente Tripo no −Z local).");
+                }
+            }
+
+            if (Entries.TryGetValue("hero-hall", out var hall))
             {
                 if (hall.Position.X >= -2f || hall.Position.Z < 2f)
                 {
@@ -145,7 +190,8 @@ namespace Valgor.City.Visual
                 }
             }
 
-            if (TryGet("training-ground", out var field) && TryGet("academy", out var academy))
+            if (Entries.TryGetValue("training-ground", out var field) &&
+                Entries.TryGetValue("academy", out var academy))
             {
                 if (Math.Abs(field.Position.X - academy.Position.X) < 0.5f &&
                     Math.Abs(field.Position.Z - academy.Position.Z) < 0.5f)
@@ -162,8 +208,8 @@ namespace Valgor.City.Visual
             return new Dictionary<string, CityBuildingLayoutEntry>(StringComparer.Ordinal)
             {
                 ["castle"] = new("castle", new CityPosition(0f, 0f, 0f), CityDistrict.Royal, 100,
-                    blueprintRole: "Castelo"),
-                ["wall"] = new("wall", new CityPosition(0f, 0f, -19.2f), CityDistrict.Access, 80,
+                    yawDegrees: CastleFacingGateYawDegrees, blueprintRole: "Castelo"),
+                ["wall"] = new("wall", new CityPosition(0f, 0f, MainGateZ), CityDistrict.Access, 80,
                     blueprintRole: "Muralha / Portão"),
                 ["farm"] = new("farm", new CityPosition(-14.2f, 0f, -7.5f), CityDistrict.Rural, 25,
                     blueprintRole: "Fazenda"),
