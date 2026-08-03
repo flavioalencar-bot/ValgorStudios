@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Valgor.City.Visual
 {
@@ -21,7 +21,7 @@ namespace Valgor.City.Visual
         private static void BuildRoyal(Transform districts, Transform decorations)
         {
             var root = Node(districts, "Royal");
-            // Plataforma do Castelo + jardim nobre (espaço livre no centro para seleção).
+            // Plataforma do Castelo + jardim nobre (espaÃ§o livre no centro para seleÃ§Ã£o).
             Dec(root, PrimitiveType.Cube, "CastlePlatform", new Vector3(0f, 0.06f, 0.4f),
                 new Vector3(8.5f, 0.12f, 8.5f),
                 Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.45f), SurfaceKind.Stone);
@@ -46,7 +46,7 @@ namespace Valgor.City.Visual
                 Brazier(decorations, new Vector3(3.2f, 0.55f, -0.6f));
             }
 
-            // Salão dos Heróis — identidade própria (noroeste), sem invadir Castelo.
+            // SalÃ£o dos HerÃ³is â€” identidade prÃ³pria (noroeste), sem invadir Castelo.
             Dec(root, PrimitiveType.Cube, "HeroHallPadTrim", new Vector3(-6.8f, 0.05f, 5.2f),
                 new Vector3(4.2f, 0.06f, 3.8f),
                 Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.Gold, 0.12f), SurfaceKind.Stone);
@@ -59,52 +59,31 @@ namespace Valgor.City.Visual
         private static void BuildDragon(Transform districts, Transform decorations)
         {
             var root = Node(districts, "Dragon");
-            Dec(root, PrimitiveType.Cylinder, "LandingPad", new Vector3(0f, 1.42f, 17.6f),
-                new Vector3(5.2f, 0.12f, 5.2f),
-                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, 0.25f), SurfaceKind.Stone);
-            Dec(root, PrimitiveType.Cube, "DragonApproach", new Vector3(0f, 0.95f, 13.2f),
-                new Vector3(2.2f, 0.18f, 5.5f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
-            Dec(decorations, PrimitiveType.Cube, "DragonCrest", new Vector3(0f, 1.7f, 19.4f),
-                new Vector3(1.4f, 0.2f, 0.35f), CityVisualMaterials.Gold, SurfaceKind.Metal);
-            Dec(decorations, PrimitiveType.Cube, "ChainPostL", new Vector3(-2.4f, 1.8f, 16.4f),
-                new Vector3(0.25f, 1.1f, 0.25f), CityVisualMaterials.StoneDark, SurfaceKind.Metal);
-            Dec(decorations, PrimitiveType.Cube, "ChainPostR", new Vector3(2.4f, 1.8f, 16.4f),
-                new Vector3(0.25f, 1.1f, 0.25f), CityVisualMaterials.StoneDark, SurfaceKind.Metal);
+            _ = root;
+            var tz = CityCapitalLayoutConfig.GetPosition("dragon-tower").Z;
+
+            // Platô principal: CityEnvironmentBuilder.BuildPlateaus (sincronizado com layout).
+            Dec(decorations, PrimitiveType.Cube, "DragonCrest", new Vector3(0f, 2.4f, tz - 3.2f),
+                new Vector3(1.5f, 0.22f, 0.4f), CityVisualMaterials.Gold, SurfaceKind.Metal);
 
             if (CityAmbientQualitySettings.AllowTorches)
             {
-                Brazier(decorations, new Vector3(-3.2f, 1.85f, 17.2f));
-                Brazier(decorations, new Vector3(3.2f, 1.85f, 17.2f));
+                Brazier(decorations, new Vector3(-3.0f, 2.35f, tz - 3.6f));
+                Brazier(decorations, new Vector3(3.0f, 2.35f, tz - 3.6f));
             }
-
-            if (CityCapitalEnvironmentConfig.AllowHighExclusiveProps)
-            {
-                Dec(decorations, PrimitiveType.Sphere, "CrystalHint", new Vector3(1.8f, 2.1f, 18.6f),
-                    Vector3.one * 0.45f, new Color(0.35f, 0.55f, 0.75f), SurfaceKind.Plain);
-            }
-
-            // Art Pass 2 — ninhos decorativos, pedra negra, correntes extras (fora de NestOccupants).
-            Dec(decorations, PrimitiveType.Sphere, "NestDecorA", new Vector3(-1.6f, 1.7f, 15.8f),
-                new Vector3(0.9f, 0.35f, 0.9f), CityVisualMaterials.Dirt, SurfaceKind.Dirt);
-            Dec(decorations, PrimitiveType.Sphere, "NestDecorB", new Vector3(1.8f, 1.7f, 15.6f),
-                new Vector3(0.8f, 0.3f, 0.8f), CityVisualMaterials.Dirt, SurfaceKind.Dirt);
-            Dec(decorations, PrimitiveType.Cube, "BlackStoneA", new Vector3(-4.2f, 1.3f, 18.2f),
-                new Vector3(1.4f, 0.9f, 1.2f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
-            Dec(decorations, PrimitiveType.Cube, "ChainLink", new Vector3(0f, 2.4f, 16.2f),
-                new Vector3(4.6f, 0.08f, 0.08f), CityVisualMaterials.Gold, SurfaceKind.Metal);
         }
 
         private static void BuildMilitary(Transform districts, Transform decorations)
         {
             var root = Node(districts, "Military");
-            // Arena — ringe
+            // Arena â€” ringe
             Dec(root, PrimitiveType.Cylinder, "ArenaRing", new Vector3(11.2f, 0.08f, 0.8f),
                 new Vector3(4.5f, 0.1f, 4.5f),
                 Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.3f), SurfaceKind.Dirt);
             Dec(decorations, PrimitiveType.Cube, "ArenaBanner", new Vector3(11.2f, 1.4f, 2.6f),
                 new Vector3(0.12f, 1.6f, 0.8f), CityVisualMaterials.RoofRed, SurfaceKind.Plain);
 
-            // Campo de Treinamento — aberto, alvos, cercas
+            // Campo de Treinamento â€” aberto, alvos, cercas
             Dec(root, PrimitiveType.Cube, "TrainingYard", new Vector3(12.4f, 0.06f, -5.6f),
                 new Vector3(5.5f, 0.08f, 4.8f),
                 Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Wood, 0.2f), SurfaceKind.Dirt);
@@ -119,7 +98,7 @@ namespace Valgor.City.Visual
             Fence(decorations, new Vector3(10.2f, 0.35f, -5.6f), new Vector3(0.12f, 0.7f, 4.2f));
             Fence(decorations, new Vector3(14.6f, 0.35f, -5.6f), new Vector3(0.12f, 0.7f, 4.2f));
 
-            // Academia — mesa / mapas (fechado estratégico)
+            // Academia â€” mesa / mapas (fechado estratÃ©gico)
             Dec(root, PrimitiveType.Cube, "AcademyCourtyard", new Vector3(14.2f, 0.92f, 9.5f),
                 new Vector3(4.2f, 0.08f, 3.6f),
                 Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, 0.15f), SurfaceKind.Stone);
@@ -127,7 +106,7 @@ namespace Valgor.City.Visual
                 new Vector3(1.4f, 0.35f, 0.9f), CityVisualMaterials.Wood, SurfaceKind.Wood);
             Dec(decorations, PrimitiveType.Cube, "MapBoard", new Vector3(15.2f, 1.55f, 9.8f),
                 new Vector3(0.12f, 1.1f, 1.4f), CityVisualMaterials.Wood, SurfaceKind.Wood);
-            // Art Pass 2 — escudos, armas, catapulta decorativa, fogueira.
+            // Art Pass 2 â€” escudos, armas, catapulta decorativa, fogueira.
             Dec(decorations, PrimitiveType.Cube, "ShieldRack", new Vector3(10.4f, 0.85f, 1.6f),
                 new Vector3(0.15f, 1.3f, 1.2f), CityVisualMaterials.Wood, SurfaceKind.Wood);
             Dec(decorations, PrimitiveType.Cube, "ShieldA", new Vector3(10.55f, 0.95f, 1.3f),
@@ -160,7 +139,7 @@ namespace Valgor.City.Visual
             Dec(decorations, PrimitiveType.Cube, "WarehouseCrates", new Vector3(5.2f, 0.4f, -9.8f),
                 new Vector3(1.4f, 0.7f, 1.0f), CityVisualMaterials.Wood, SurfaceKind.Wood);
 
-            // Residência oficial — jardim próprio (distinto de casas decorativas).
+            // ResidÃªncia oficial â€” jardim prÃ³prio (distinto de casas decorativas).
             Dec(root, PrimitiveType.Cube, "ResidenceGarden", new Vector3(-5.8f, 0.05f, -8.8f),
                 new Vector3(3.6f, 0.06f, 3.2f),
                 Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Path, 0.2f), SurfaceKind.Vegetation);
@@ -173,7 +152,7 @@ namespace Valgor.City.Visual
                     new Vector3(2.2f, 0.08f, 1.4f), CityVisualMaterials.RoofBlue, SurfaceKind.Plain);
             }
 
-            // Art Pass 2 — tecidos / mercadorias.
+            // Art Pass 2 â€” tecidos / mercadorias.
             Dec(decorations, PrimitiveType.Cube, "ClothPile", new Vector3(-7.6f, 0.35f, -6.2f),
                 new Vector3(0.9f, 0.45f, 0.7f), CityVisualMaterials.RoofBlue, SurfaceKind.Plain);
             Dec(decorations, PrimitiveType.Cube, "GoodsSack", new Vector3(-6.4f, 0.3f, -7.6f),
@@ -194,7 +173,7 @@ namespace Valgor.City.Visual
             Dec(decorations, PrimitiveType.Cube, "StoneHeap", new Vector3(14.6f, 1.0f, 11.6f),
                 new Vector3(1.5f, 0.7f, 1.2f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
 
-            // Fundição — fornalha visual (não confundir com prop genérico).
+            // FundiÃ§Ã£o â€” fornalha visual (nÃ£o confundir com prop genÃ©rico).
             Dec(root, PrimitiveType.Cube, "FoundryYard", new Vector3(12.8f, 0.05f, -13f),
                 new Vector3(4.8f, 0.08f, 4.2f),
                 Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.StoneDark, 0.35f), SurfaceKind.Dirt);
@@ -202,7 +181,7 @@ namespace Valgor.City.Visual
                 new Vector3(1.4f, 1.6f, 1.2f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
             Dec(decorations, PrimitiveType.Cylinder, "Chimney", new Vector3(13.6f, 2.1f, -12.4f),
                 new Vector3(0.45f, 1.2f, 0.45f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
-            // Art Pass 2 — forja, minério, ferramentas, carrinho.
+            // Art Pass 2 â€” forja, minÃ©rio, ferramentas, carrinho.
             Dec(decorations, PrimitiveType.Cube, "Anvil", new Vector3(12.2f, 0.45f, -12.8f),
                 new Vector3(0.7f, 0.45f, 0.45f), CityVisualMaterials.StoneDark, SurfaceKind.Metal);
             Dec(decorations, PrimitiveType.Cube, "OrePile", new Vector3(14.4f, 0.4f, -13.6f),
@@ -244,7 +223,7 @@ namespace Valgor.City.Visual
                 new Vector3(1.0f, 0.25f, 1.0f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
             Dec(decorations, PrimitiveType.Cube, "TemplePillar", new Vector3(8.2f, 1.0f, 5.6f),
                 new Vector3(0.4f, 1.8f, 0.4f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
-            // Art Pass 2 — flores, velas, árvores sagradas.
+            // Art Pass 2 â€” flores, velas, Ã¡rvores sagradas.
             Dec(decorations, PrimitiveType.Sphere, "SacredTree", new Vector3(10.4f, 1.3f, 5.8f),
                 new Vector3(1.2f, 1.0f, 1.2f), CityVisualMaterials.Vegetation, SurfaceKind.Vegetation);
             Dec(decorations, PrimitiveType.Cylinder, "SacredTrunk", new Vector3(10.4f, 0.5f, 5.8f),
@@ -273,7 +252,7 @@ namespace Valgor.City.Visual
                 Color.Lerp(CityVisualMaterials.Gold, CityVisualMaterials.Wood, 0.2f), SurfaceKind.Plain);
             Dec(decorations, PrimitiveType.Cube, "FarmCart", new Vector3(-13.6f, 0.4f, -9.2f),
                 new Vector3(1.5f, 0.5f, 0.85f), CityVisualMaterials.Wood, SurfaceKind.Wood);
-            // Art Pass 2 — espantalho, moinho, poço.
+            // Art Pass 2 â€” espantalho, moinho, poÃ§o.
             Dec(decorations, PrimitiveType.Cylinder, "ScarecrowPole", new Vector3(-14.0f, 0.9f, -5.8f),
                 new Vector3(0.12f, 0.9f, 0.12f), CityVisualMaterials.Wood, SurfaceKind.Wood);
             Dec(decorations, PrimitiveType.Cube, "Scarecrow", new Vector3(-14.0f, 1.5f, -5.8f),

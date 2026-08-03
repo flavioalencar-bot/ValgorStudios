@@ -1,0 +1,135 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f78ae958dbc2d3a4e912151bd764e1bb, type: 3}
+  m_Name: CityArtAssetCatalog
+  m_EditorClassIdentifier: 
+  packId: CapitalArtPack_Core_v1
+  entries:
+  - AssetId: building.castle
+    BuildingId: castle
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 1
+    SlotReady: 1
+  - AssetId: building.wall
+    BuildingId: wall
+    HighFidelityPrefab: {fileID: 1716513498180551006, guid: ce721c15ce267db4daf13d8419db8a4a, type: 3}
+    MediumPrefab: {fileID: 1716513498180551006, guid: ce721c15ce267db4daf13d8419db8a4a, type: 3}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.farm
+    BuildingId: farm
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.lumbermill
+    BuildingId: lumbermill
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.quarry
+    BuildingId: quarry
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.mine
+    BuildingId: mine
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.warehouse
+    BuildingId: warehouse
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.residence
+    BuildingId: residence
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.market
+    BuildingId: market
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.training-ground
+    BuildingId: training-ground
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.foundry
+    BuildingId: foundry
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.arena
+    BuildingId: arena
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.academy
+    BuildingId: academy
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.hospital
+    BuildingId: hospital
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.temple
+    BuildingId: temple
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.hero-hall
+    BuildingId: hero-hall
+    HighFidelityPrefab: {fileID: 0}
+    MediumPrefab: {fileID: 0}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1
+  - AssetId: building.dragon-tower
+    BuildingId: dragon-tower
+    HighFidelityPrefab: {fileID: 2973814021421754504, guid: 131261ff9ea91364686cf6aedb5a6317, type: 3}
+    MediumPrefab: {fileID: 2973814021421754504, guid: 131261ff9ea91364686cf6aedb5a6317, type: 3}
+    LowPrefab: {fileID: 0}
+    UsesExistingCastleLoader: 0
+    SlotReady: 1

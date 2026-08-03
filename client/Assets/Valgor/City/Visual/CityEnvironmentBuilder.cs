@@ -294,8 +294,9 @@ namespace Valgor.City.Visual
         {
             Flat(root, "PadRoyal", new Vector3(0f, 0.004f, 1.5f), new Vector3(14f, 0.04f, 12f),
                 Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f), SurfaceKind.Path);
-            Flat(root, "PadDragon", new Vector3(0f, 1.2f, 17.2f), new Vector3(10f, 0.25f, 8f),
-                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.RoofBlue, 0.2f), SurfaceKind.Stone);
+            var dragonZ = CityCapitalLayoutConfig.GetPosition("dragon-tower").Z;
+            Flat(root, "PadDragon", new Vector3(0f, 0.08f, dragonZ), new Vector3(14f, 0.12f, 14f),
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Vegetation, 0.35f), SurfaceKind.Dirt);
             Flat(root, "PadSacredNW", new Vector3(-9f, 0.005f, 4.5f), new Vector3(7f, 0.04f, 7f),
                 Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Path, 0.35f), SurfaceKind.Dirt);
             Flat(root, "PadSacredNE", new Vector3(9f, 0.005f, 4.8f), new Vector3(7f, 0.04f, 7f),
@@ -322,15 +323,81 @@ namespace Valgor.City.Visual
 
         private static void BuildPlateaus(Transform root)
         {
-            // Bases elevadas sob Torre / Academia / Mina / Pedreira.
-            FlatShared(root, "PlateauDragonRim", new Vector3(0f, 0.9f, 17.5f), new Vector3(12.5f, 1.0f, 10.5f),
-                CityArtMaterialCategory.StoneDark);
-            FlatShared(root, "PlateauDragonShelf", new Vector3(0f, 1.35f, 17.8f), new Vector3(8.5f, 0.35f, 7.2f),
-                CityArtMaterialCategory.StoneDark);
-            FlatShared(root, "PlateauDragonRockA", new Vector3(-4.2f, 1.1f, 15.5f), new Vector3(2.4f, 0.9f, 2.0f),
-                CityArtMaterialCategory.StoneDark);
-            FlatShared(root, "PlateauDragonRockB", new Vector3(4.0f, 1.05f, 19.2f), new Vector3(2.2f, 0.8f, 2.2f),
-                CityArtMaterialCategory.StoneDark);
+            var dragonZ = CityCapitalLayoutConfig.GetPosition("dragon-tower").Z;
+            const float topY = 2.05f;
+
+            // Platô rochoso da Torre (norte) — penhasco, escada, pedras, vegetação.
+            FlatShared(root, "PlateauDragonMass", new Vector3(0f, topY * 0.5f, dragonZ),
+                new Vector3(8.2f, topY, 7.4f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonMassL", new Vector3(-2.8f, topY * 0.42f, dragonZ + 1.8f),
+                new Vector3(3.8f, topY * 0.85f, 3.6f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonMassR", new Vector3(2.6f, topY * 0.4f, dragonZ - 1.2f),
+                new Vector3(3.4f, topY * 0.8f, 3.2f), CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlateauDragonCap", new Vector3(0f, topY + 0.1f, dragonZ),
+                new Vector3(5.6f, 0.24f, 5.2f), CityArtMaterialCategory.StoneLight);
+
+            // Penhasco sul (face à Capital).
+            FlatShared(root, "PlateauDragonCliff", new Vector3(0f, 1.25f, dragonZ - 4.3f),
+                new Vector3(9.2f, 2.7f, 2.3f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonCliffL", new Vector3(-3.5f, 1.0f, dragonZ - 5.1f),
+                new Vector3(3.1f, 2.2f, 2.4f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonCliffR", new Vector3(3.3f, 0.95f, dragonZ - 4.9f),
+                new Vector3(2.9f, 2.1f, 2.3f), CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlateauDragonCliffBase", new Vector3(0f, 0.28f, dragonZ - 5.9f),
+                new Vector3(10.2f, 0.6f, 2.0f), CityArtMaterialCategory.Dirt);
+
+            // Escadaria ceremonial.
+            FlatShared(root, "PlateauDragonStairBed", new Vector3(0f, 0.12f, dragonZ - 7.5f),
+                new Vector3(4.3f, 0.16f, 5.0f), CityArtMaterialCategory.Dirt);
+            FlatShared(root, "PlateauDragonStair1", new Vector3(0f, 0.3f, dragonZ - 7.7f),
+                new Vector3(3.9f, 0.22f, 0.8f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonStair2", new Vector3(0f, 0.58f, dragonZ - 7.1f),
+                new Vector3(3.55f, 0.22f, 0.75f), CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlateauDragonStair3", new Vector3(0f, 0.88f, dragonZ - 6.55f),
+                new Vector3(3.25f, 0.22f, 0.75f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonStair4", new Vector3(0f, 1.18f, dragonZ - 6.05f),
+                new Vector3(2.95f, 0.22f, 0.7f), CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlateauDragonStair5", new Vector3(0f, 1.48f, dragonZ - 5.6f),
+                new Vector3(2.65f, 0.22f, 0.65f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonStair6", new Vector3(0f, 1.78f, dragonZ - 5.2f),
+                new Vector3(2.4f, 0.22f, 0.6f), CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlateauDragonStair7", new Vector3(0f, 2.02f, dragonZ - 4.8f),
+                new Vector3(2.2f, 0.2f, 0.55f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonRailL", new Vector3(-2.05f, 1.2f, dragonZ - 6.3f),
+                new Vector3(0.22f, 1.85f, 4.1f), CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlateauDragonRailR", new Vector3(2.05f, 1.2f, dragonZ - 6.3f),
+                new Vector3(0.22f, 1.85f, 4.1f), CityArtMaterialCategory.StoneLight);
+
+            // Pedras + vegetação.
+            FlatShared(root, "PlateauDragonRockA", new Vector3(-5.3f, 0.75f, dragonZ + 2.3f),
+                new Vector3(2.1f, 1.5f, 1.8f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonRockB", new Vector3(5.1f, 0.7f, dragonZ + 1.7f),
+                new Vector3(1.9f, 1.4f, 2.0f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonRockC", new Vector3(-4.5f, 0.85f, dragonZ - 2.5f),
+                new Vector3(1.8f, 1.7f, 1.6f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonRockD", new Vector3(4.3f, 0.65f, dragonZ - 2.9f),
+                new Vector3(1.7f, 1.3f, 1.9f), CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlateauDragonRockE", new Vector3(-2.7f, 0.5f, dragonZ - 7.0f),
+                new Vector3(1.3f, 1.0f, 1.2f), CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonRockF", new Vector3(2.5f, 0.45f, dragonZ - 7.2f),
+                new Vector3(1.2f, 0.9f, 1.3f), CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlateauDragonBushA", new Vector3(-6.3f, 0.55f, dragonZ + 3.1f),
+                Vector3.one * 1.15f, CityArtMaterialCategory.Grass);
+            FlatShared(root, "PlateauDragonBushB", new Vector3(6.1f, 0.52f, dragonZ + 2.7f),
+                Vector3.one * 1.1f, CityArtMaterialCategory.Grass);
+            FlatShared(root, "PlateauDragonBushC", new Vector3(-5.5f, 0.48f, dragonZ - 4.7f),
+                Vector3.one * 0.9f, CityArtMaterialCategory.Grass);
+            FlatShared(root, "PlateauDragonBushD", new Vector3(5.3f, 0.45f, dragonZ - 4.9f),
+                Vector3.one * 0.88f, CityArtMaterialCategory.Grass);
+            FlatShared(root, "PlateauDragonBushE", new Vector3(-2.9f, 0.42f, dragonZ - 8.2f),
+                Vector3.one * 0.75f, CityArtMaterialCategory.Grass);
+            FlatShared(root, "PlateauDragonBushF", new Vector3(2.7f, 0.4f, dragonZ - 8.4f),
+                Vector3.one * 0.75f, CityArtMaterialCategory.Grass);
+
+            // Via de aproximação Capital → Torre.
+            FlatShared(root, "PlateauDragonApproach", new Vector3(0f, 0.08f, (dragonZ + 2f) * 0.5f),
+                new Vector3(2.6f, 0.12f, Mathf.Max(6f, dragonZ - 10f)), CityArtMaterialCategory.StoneDark);
+
             Flat(root, "PlateauAcademy", new Vector3(14.2f, 0.55f, 9.5f), new Vector3(5.5f, 0.55f, 4.5f),
                 CityVisualMaterials.StoneDark, SurfaceKind.Stone);
             Flat(root, "PlateauMine", new Vector3(-15f, 0.5f, 11.8f), new Vector3(5f, 0.5f, 4.2f),

@@ -11,6 +11,8 @@ namespace Valgor.City.Visual
         public const string NamingPrefix = "VAL_Capital_";
         public const string HighFidelityChildName = "ArtHF";
         public const string VisualRootName = "Visual";
+        /// <summary>Root visual exclusivo da muralha (filho de Visual) — sem lógica.</summary>
+        public const string WallVisualRootName = "WallVisualRoot";
         public const string CatalogResourcesKey = "Valgor/CityArtAssetCatalog";
         public const int LodLevels = 4;
 
@@ -85,6 +87,48 @@ namespace Valgor.City.Visual
         public static bool MatchesNamingConvention(string prefabName) =>
             !string.IsNullOrWhiteSpace(prefabName) &&
             prefabName.StartsWith(NamingPrefix, StringComparison.Ordinal);
+
+        /// <summary>
+        /// Impede cruzamento Castle ↔ DragonTower no catálogo/runtime.
+        /// Prefab null/empty = sem HF (ok).
+        /// </summary>
+        public static bool PrefabMatchesBuilding(string buildingId, string prefabName)
+        {
+            if (string.IsNullOrWhiteSpace(prefabName))
+            {
+                return true;
+            }
+
+            var id = (buildingId ?? string.Empty).Trim().ToLowerInvariant();
+            var name = prefabName.Trim();
+            var isDragonTowerPrefab =
+                name.IndexOf("DragonTower", StringComparison.OrdinalIgnoreCase) >= 0;
+            var isCastlePrefab =
+                name.IndexOf("Castle", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                !isDragonTowerPrefab;
+            var isWallGatePrefab =
+                name.IndexOf("WallGate", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                (name.IndexOf("Wall", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                 !isCastlePrefab &&
+                 !isDragonTowerPrefab);
+
+            if (id == "castle")
+            {
+                return isCastlePrefab && !isDragonTowerPrefab && !isWallGatePrefab;
+            }
+
+            if (id == "dragon-tower")
+            {
+                return isDragonTowerPrefab;
+            }
+
+            if (id == "wall")
+            {
+                return isWallGatePrefab;
+            }
+
+            return true;
+        }
 
         public static bool IsForbiddenScript(string typeName)
         {
@@ -245,16 +289,6 @@ namespace Valgor.City.Visual
             bool lowLoaded,
             int qualityRank)
         {
-            if (entry != null && entry.UsesExistingCastleLoader)
-            {
-                return new CityArtResolveResult(
-                    entry.AssetId,
-                    buildingId,
-                    CityArtResolveMode.ExistingCastleLoader,
-                    string.Empty,
-                    usedFallback: false);
-            }
-
             if (entry == null || !entry.SlotReady)
             {
                 return new CityArtResolveResult(
@@ -265,7 +299,7 @@ namespace Valgor.City.Visual
                     usedFallback: true);
             }
 
-            // qualityRank: 2=High, 1=Medium, 0=Low
+            // qualityRank: 2=High, 1=Medium, 0=Low — HF do catálogo tem prioridade sobre loader legado.
             if (qualityRank >= 2 && highLoaded)
             {
                 return new CityArtResolveResult(
@@ -294,6 +328,17 @@ namespace Valgor.City.Visual
             {
                 return new CityArtResolveResult(
                     entry.AssetId, buildingId, CityArtResolveMode.HighFidelity, entry.ResourcesKeyHigh, false);
+            }
+
+            // Sem pack HF: Castelo continua no loader Resources homologado.
+            if (entry.UsesExistingCastleLoader)
+            {
+                return new CityArtResolveResult(
+                    entry.AssetId,
+                    buildingId,
+                    CityArtResolveMode.ExistingCastleLoader,
+                    string.Empty,
+                    usedFallback: false);
             }
 
             return new CityArtResolveResult(

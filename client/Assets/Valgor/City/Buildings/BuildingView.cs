@@ -77,6 +77,13 @@ namespace Valgor.City.Buildings
                 return;
             }
 
+            // Pipeline HF: se ArtHF está ativo, não sobrescrever com tiers Resources.
+            var artHf = _visual.Find(CityArtPipelineConfig.HighFidelityChildName);
+            if (artHf != null && artHf.gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
             var cam = UnityEngine.Object.FindFirstObjectByType<Valgor.City.Camera.CityCameraController>();
             var pose = cam?.CapturePose();
             cam?.SuppressFocus(0.85f);

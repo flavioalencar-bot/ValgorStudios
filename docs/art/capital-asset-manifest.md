@@ -5,9 +5,9 @@
 
 | Asset | Prioridade | Status | Fonte | LOD | Material | Integrado |
 | ----- | ---------: | ------ | ----- | --- | -------- | --------- |
-| architecture.castle | 1 | Ready* | CastleRealVisualLoader (Resources) | 1–6 tiers | Art Pass | Sim (loader existente) |
-| architecture.dragon-tower | 1 | Missing | — | 0–3 | pedra/metal | Não (proxy) |
-| architecture.wall-segment-a..d | 1 | Missing | — | 0–2 | pedra | Não |
+| architecture.castle | 1 | Ready* | CastleRealVisualLoader (tiers Resources) | 1–6 | Art Pass | Loader sim; **sem** HF Import_v1 |
+| architecture.dragon-tower | 1 | Integrated** | `VAL_Capital_Architecture_DragonTower` | Import mesh | URP Lit BaseColor | Sim (norte Z≈17.6) |
+| architecture.wall-segment-a..d / building.wall | 1 | Integrated** | `VAL_Capital_Architecture_WallGate` | LOD0 | URP Lit BaseColor | Sim (`BuildingId=wall`) |
 | architecture.gate | 1 | Missing | — | 0–2 | pedra/metal | Não |
 | architecture.bridge | 1 | Missing | — | 0–2 | pedra | Não |
 | architecture.fountain | 1 | Missing | — | 0–2 | pedra/água | Não |
@@ -19,8 +19,9 @@
 | environment.mountain-distant | 1 | Missing | — | Low | rocha/névoa | Não |
 | building.* (17 oficiais) | 1 | Missing** | slots prontos | 0–2 | por distrito | Fallback |
 
-\* Castelo já usa arte real por tier; slot do catálogo marca `UsesExistingCastleLoader`.  
-\*\* Conteúdo HF ausente → proxy procedural homologado.
+\* Castelo: tiers Resources + `UsesExistingCastleLoader` (sem HF Import_v1 — correção 2026-08-03).  
+\*\* Mesh Import_v1 remapeado para `dragon-tower` → `VAL_Capital_Architecture_DragonTower`. Nunca Castle→DragonTower.  
+\*\*\* Conteúdo HF ausente nos demais → proxy procedural homologado.
 
 ## Status permitidos
 

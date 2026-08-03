@@ -14,7 +14,7 @@ namespace Valgor.City.Visual
         public const float ImperialRoadWidth = 3.6f;
         public const float PlazaCenterZ = -3.2f;
         public const float CastlePlatformY = 0.08f;
-        public const float DragonPlateauY = 1.2f;
+        public const float DragonPlateauY = 2.05f;
 
         public static int VegetationCount(CityAmbientQuality quality, int environmentTier)
         {

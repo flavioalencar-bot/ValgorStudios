@@ -41,6 +41,7 @@ namespace Valgor.City.Visual
                     break;
                 case "dragon-tower":
                     BuildDragonTower(visual.transform, color);
+                    CityDragonTowerArtDressing.Attach(visual.transform);
                     break;
                 case "farm":
                     BuildFarm(visual.transform, color);

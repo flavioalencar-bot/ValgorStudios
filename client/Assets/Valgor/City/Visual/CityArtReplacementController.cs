@@ -62,6 +62,14 @@ namespace Valgor.City.Visual
                 return false;
             }
 
+            if (!CityArtPipelineConfig.PrefabMatchesBuilding(buildingId, prefab.name))
+            {
+                Debug.LogError(
+                    $"[Valgor.Art] Mapeamento proibido: BuildingId '{buildingId}' ← prefab '{prefab.name}'. " +
+                    "Castle≠DragonTower. Abortando swap (fallback).");
+                return false;
+            }
+
             var issues = CityArtPrefabValidation.Validate(prefab);
             if (issues.Count > 0)
             {
@@ -83,18 +91,53 @@ namespace Valgor.City.Visual
 
             // Evita duplicar no mesmo slot.
             var key = view.GetInstanceID() + ":" + buildingId;
+            var artParent = ResolveArtParent(visual, buildingId);
             ClearPreviousArt(visual);
             HideProceduralProxies(visual);
 
-            var instance = Instantiate(prefab, visual, false);
+            var instance = Instantiate(prefab, artParent, false);
             instance.name = CityArtPipelineConfig.HighFidelityChildName;
             instance.transform.localPosition = Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
-            instance.transform.localScale = Vector3.one;
+            // Preserva escala bakeada do prefab (não forçar 1).
+            instance.transform.localScale = prefab.transform.localScale;
             StripGameplayColliders(instance);
+
+            if (string.Equals(buildingId, "dragon-tower", System.StringComparison.Ordinal))
+            {
+                CityDragonTowerArtDressing.Attach(visual);
+                CityDragonTowerArtDressing.PlaceHighFidelityOnPlateau(instance.transform);
+            }
+
             _applied.Add(key);
             view.RecacheRenderersAfterArtSwap();
+            Debug.Log(
+                $"[Valgor.Art] ArtHF aplicado em '{buildingId}' prefab={prefab.name} " +
+                $"parent={artParent.name} scale={instance.transform.localScale} " +
+                $"renderers={instance.GetComponentsInChildren<Renderer>(true).Length}");
             return true;
+        }
+
+        /// <summary>Muralha usa WallVisualRoot sob Visual; demais usam Visual direto.</summary>
+        private static Transform ResolveArtParent(Transform visual, string buildingId)
+        {
+            if (!string.Equals(buildingId, "wall", System.StringComparison.Ordinal))
+            {
+                return visual;
+            }
+
+            var wallRoot = visual.Find(CityArtPipelineConfig.WallVisualRootName);
+            if (wallRoot == null)
+            {
+                var go = new GameObject(CityArtPipelineConfig.WallVisualRootName);
+                wallRoot = go.transform;
+                wallRoot.SetParent(visual, false);
+                wallRoot.localPosition = Vector3.zero;
+                wallRoot.localRotation = Quaternion.identity;
+                wallRoot.localScale = Vector3.one;
+            }
+
+            return wallRoot;
         }
 
         private static void ClearPreviousArt(Transform visual)
@@ -104,6 +147,16 @@ namespace Valgor.City.Visual
             {
                 Destroy(existing.gameObject);
             }
+
+            var wallRoot = visual.Find(CityArtPipelineConfig.WallVisualRootName);
+            if (wallRoot != null)
+            {
+                var wallArt = wallRoot.Find(CityArtPipelineConfig.HighFidelityChildName);
+                if (wallArt != null)
+                {
+                    Destroy(wallArt.gameObject);
+                }
+            }
         }
 
         private static void HideProceduralProxies(Transform visual)
@@ -112,15 +165,17 @@ namespace Valgor.City.Visual
             {
                 var child = visual.GetChild(i);
                 var n = child.name;
-                if (n == CityArtPipelineConfig.HighFidelityChildName)
+                if (n == CityArtPipelineConfig.HighFidelityChildName ||
+                    n == CityArtPipelineConfig.WallVisualRootName)
                 {
                     continue;
                 }
 
-                // Preserva castelo real / dressing já homologados.
-                if (n.StartsWith(CastleRealVisualLoader.RealChildPrefix, System.StringComparison.Ordinal) ||
-                    n.StartsWith("CastleDressing", System.StringComparison.Ordinal) ||
-                    n.StartsWith("ArtDressing", System.StringComparison.Ordinal))
+                // Preserva dressing e ninho (DragonNestView); tiers/proxy ficam ocultos com ArtHF.
+                if (n.StartsWith("CastleDressing", System.StringComparison.Ordinal) ||
+                    n.StartsWith("CastleArtDressing", System.StringComparison.Ordinal) ||
+                    n.StartsWith("ArtDressing", System.StringComparison.Ordinal) ||
+                    string.Equals(n, "NestOccupants", System.StringComparison.Ordinal))
                 {
                     continue;
                 }

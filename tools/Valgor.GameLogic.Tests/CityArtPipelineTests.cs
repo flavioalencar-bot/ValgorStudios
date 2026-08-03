@@ -49,6 +49,44 @@ public sealed class CityArtAssetCatalogTests
             "VAL_Capital_Architecture_Castle_Tier06",
             CityArtPipelineConfig.PrefabName("Architecture", "Castle", "Tier06"));
     }
+
+    [Fact]
+    public void PrefabMapping_CastleNeverAcceptsDragonTower()
+    {
+        Assert.False(CityArtPipelineConfig.PrefabMatchesBuilding(
+            "castle", "VAL_Capital_Architecture_DragonTower"));
+        Assert.True(CityArtPipelineConfig.PrefabMatchesBuilding(
+            "castle", "VAL_Capital_Architecture_Castle_Import_v1"));
+        Assert.True(CityArtPipelineConfig.PrefabMatchesBuilding(
+            "castle", "Castle_Tier1"));
+    }
+
+    [Fact]
+    public void PrefabMapping_DragonTowerRequiresDragonTowerName()
+    {
+        Assert.True(CityArtPipelineConfig.PrefabMatchesBuilding(
+            "dragon-tower", "VAL_Capital_Architecture_DragonTower"));
+        Assert.False(CityArtPipelineConfig.PrefabMatchesBuilding(
+            "dragon-tower", "VAL_Capital_Architecture_Castle_Import_v1"));
+    }
+
+    [Fact]
+    public void PrefabMapping_WallRequiresWallGateName()
+    {
+        Assert.True(CityArtPipelineConfig.PrefabMatchesBuilding(
+            "wall", "VAL_Capital_Architecture_WallGate"));
+        Assert.False(CityArtPipelineConfig.PrefabMatchesBuilding(
+            "wall", "VAL_Capital_Architecture_DragonTower"));
+        Assert.False(CityArtPipelineConfig.PrefabMatchesBuilding(
+            "castle", "VAL_Capital_Architecture_WallGate"));
+    }
+
+    [Fact]
+    public void WallVisualRootName_IsDedicated()
+    {
+        Assert.Equal("WallVisualRoot", CityArtPipelineConfig.WallVisualRootName);
+        Assert.NotEqual(CityArtPipelineConfig.VisualRootName, CityArtPipelineConfig.WallVisualRootName);
+    }
 }
 
 public sealed class CityArtFallbackTests
@@ -77,13 +115,25 @@ public sealed class CityArtFallbackTests
     }
 
     [Fact]
-    public void Castle_UsesExistingLoaderMode()
+    public void Castle_WithoutHf_UsesExistingLoaderMode()
     {
         var slots = CityArtAssetCatalogLogic.CreateDefaultBuildingSlots();
         var castle = CityArtAssetCatalogLogic.FindByBuildingId(slots, "castle");
         var result = CityArtAssetCatalogLogic.Resolve(
             castle, "castle", highLoaded: false, mediumLoaded: false, lowLoaded: false, qualityRank: 2);
         Assert.Equal(CityArtResolveMode.ExistingCastleLoader, result.Mode);
+        Assert.False(result.UsedFallback);
+    }
+
+    [Fact]
+    public void Castle_WithHf_PrefersHighFidelityOverLoader()
+    {
+        var slots = CityArtAssetCatalogLogic.CreateDefaultBuildingSlots();
+        var castle = CityArtAssetCatalogLogic.FindByBuildingId(slots, "castle");
+        Assert.True(castle!.UsesExistingCastleLoader);
+        var result = CityArtAssetCatalogLogic.Resolve(
+            castle, "castle", highLoaded: true, mediumLoaded: false, lowLoaded: false, qualityRank: 2);
+        Assert.Equal(CityArtResolveMode.HighFidelity, result.Mode);
         Assert.False(result.UsedFallback);
     }
 }

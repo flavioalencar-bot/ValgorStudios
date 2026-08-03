@@ -397,6 +397,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital Wall HF: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalWallHfCli</summary>
+        public static void BuildCapitalWallHfCli()
+        {
+            var report = Build("Valgor-QA-Capital-WallHF");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital WallHF Build OK: {GetOutputExe("Valgor-QA-Capital-WallHF")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital WallHF Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

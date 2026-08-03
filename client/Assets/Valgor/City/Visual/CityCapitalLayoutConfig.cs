@@ -193,7 +193,7 @@ namespace Valgor.City.Visual
                     blueprintRole: "Templo"),
                 ["hero-hall"] = new("hero-hall", new CityPosition(-6.8f, 0f, 5.2f), CityDistrict.Royal, 40,
                     yawDegrees: 25f, blueprintRole: "Salão dos Heróis"),
-                ["dragon-tower"] = new("dragon-tower", new CityPosition(0f, 1.35f, 17.6f), CityDistrict.Dragon, 90,
+                ["dragon-tower"] = new("dragon-tower", new CityPosition(0f, 1.35f, 25.5f), CityDistrict.Dragon, 90,
                     blueprintRole: "Torre dos Dragões")
             };
         }

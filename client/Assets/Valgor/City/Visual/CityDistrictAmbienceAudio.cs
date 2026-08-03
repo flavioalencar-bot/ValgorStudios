@@ -25,7 +25,7 @@ namespace Valgor.City.Visual
             Zone(host, "fazenda", new Vector3(-14f, 1.2f, -7.5f), 5.5f);
             Zone(host, "forja", new Vector3(13f, 1.5f, -13f), 5f);
             Zone(host, "rio", new Vector3(-24f, 0.8f, 0f), 8f);
-            Zone(host, "torre-dragoes", new Vector3(0f, 3f, 17.6f), 6.5f);
+            Zone(host, "torre-dragoes", new Vector3(0f, 3f, 25.5f), 6.5f);
         }
 
         private static void Zone(Transform parent, string id, Vector3 pos, float radius)

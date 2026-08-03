@@ -98,14 +98,42 @@ namespace Valgor.UI
 
             yield return CaptureLookAt(dir, "09-building-labels", new Vector3(0f, 0f, -2f), 12.5f);
             yield return CaptureLookAt(dir, "10-castle", new Vector3(0f, 0f, 0f), 14.5f);
-            yield return CaptureLookAt(dir, "11-dragon-tower", new Vector3(0f, 1.3f, 17.6f), 12.5f);
-            yield return CaptureLookAt(dir, "12-wall-gate", new Vector3(0f, 0f, -18f), 11f);
+            yield return CaptureLookAt(dir, "11-dragon-tower", new Vector3(0f, 1.3f, 25.5f), 11.5f);
+
+            // Evidência apresentação Torre (escala/platô/norte).
+            var fixDir = @"C:\Valgor_Studio\docs\releases\capital-dragon-tower-presentation\screenshots";
+            Directory.CreateDirectory(fixDir);
+            yield return CaptureLookAt(fixDir, "01-castle-dominant", new Vector3(0f, 0f, 0f), 14.5f);
+            yield return CaptureLookAt(fixDir, "02-dragon-tower-plateau", new Vector3(0f, 1.3f, 25.5f), 11.5f);
+            yield return CaptureLookAt(fixDir, "03-overview-separated", new Vector3(0f, 0.5f, 11f), 24f);
+            yield return CaptureLookAt(fixDir, "04-axis-castle-to-tower", new Vector3(0f, 0.8f, 13f), 20f);
+
+            yield return CaptureLookAt(dir, "12-wall-gate", new Vector3(0f, 0f, -19.2f), 11f);
+
+            // Evidência muralha HF.
+            var wallDir = @"C:\Valgor_Studio\docs\releases\capital-wall-high-fidelity\screenshots";
+            Directory.CreateDirectory(wallDir);
+            Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+            yield return new WaitForSecondsRealtime(0.4f);
+            yield return CaptureLookAt(wallDir, "01-overview", new Vector3(0f, 0.5f, -4f), 22f);
+            yield return CaptureLookAt(wallDir, "02-portao", new Vector3(0f, 0f, -19.2f), 11f);
+            yield return CaptureLookAt(wallDir, "03-closeup", new Vector3(0f, 1.2f, -19.2f), 8.5f);
+            yield return CaptureLookAt(wallDir, "04-isometrica", new Vector3(0f, 0.8f, -12f), 16f);
+            yield return CaptureLookAt(wallDir, "05-selecao", new Vector3(0f, 0.5f, -19.2f), 10.5f);
+            yield return CaptureLookAt(wallDir, "06-painel", new Vector3(0f, 0.5f, -19.2f), 10.5f);
+            yield return CaptureLookAt(wallDir, "07-castelo", new Vector3(0f, 0f, 0f), 14.5f);
+            yield return CaptureLookAt(wallDir, "08-torre", new Vector3(0f, 1.3f, 25.5f), 11.5f);
+            Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
+            yield return new WaitForSecondsRealtime(0.45f);
+            FrameLookAt(new Vector3(0f, 0.5f, -4f), 22f);
+            yield return CaptureNamed(wallDir, "09-overview1080x640");
+
             yield return CaptureLookAt(dir, "13-military", new Vector3(12f, 0f, -3f), 11f);
             yield return CaptureLookAt(dir, "14-economic", new Vector3(-8f, 0f, -7f), 11f);
             yield return CaptureLookAt(dir, "15-industrial", new Vector3(13f, 0f, -12f), 11f);
             yield return CaptureLookAt(dir, "16-sacred", new Vector3(9f, 0f, 4.8f), 11f);
             yield return CaptureLookAt(dir, "17-rural", new Vector3(-14f, 0f, -7.5f), 11f);
-            yield return CaptureLookAt(dir, "18-dragon-visible", new Vector3(0f, 1.3f, 17.6f), 11.5f);
+            yield return CaptureLookAt(dir, "18-dragon-visible", new Vector3(0f, 1.3f, 25.5f), 11.5f);
             yield return CaptureNamed(dir, "19-dragon-deployed");
             FrameLookAt(Vector3.zero, 22f);
             Debug.Log($"[Valgor.QA] Capital Final captures → {dir}");
