@@ -64,6 +64,16 @@ namespace Valgor.City.Visual
             Garden(root, new Vector3(-4.6f, 0.12f, -2.4f), small: true);
             Garden(root, new Vector3(4.6f, 0.12f, -2.4f), small: true);
 
+            // Muralhas internas / páteo (Art Pass 2) — não substitui o prefab.
+            Dec(root, PrimitiveType.Cube, "InnerWallN", new Vector3(0f, 1.0f, -2.4f),
+                new Vector3(5.8f, 1.6f, 0.35f), CityArtMaterialCategory.StoneDark);
+            Dec(root, PrimitiveType.Cube, "InnerWallL", new Vector3(-2.9f, 1.0f, 0.2f),
+                new Vector3(0.35f, 1.6f, 4.2f), CityArtMaterialCategory.StoneDark);
+            Dec(root, PrimitiveType.Cube, "InnerWallR", new Vector3(2.9f, 1.0f, 0.2f),
+                new Vector3(0.35f, 1.6f, 4.2f), CityArtMaterialCategory.StoneDark);
+            Dec(root, PrimitiveType.Cube, "CourtPave", new Vector3(0f, 0.22f, 0.6f),
+                new Vector3(4.6f, 0.1f, 3.8f), CityArtMaterialCategory.StoneLight);
+
             if (CityAmbientQualitySettings.AllowTorches)
             {
                 Torch(root, new Vector3(-1.7f, 0.9f, 4.4f));

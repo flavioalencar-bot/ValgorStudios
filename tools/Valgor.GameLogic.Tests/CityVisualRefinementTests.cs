@@ -72,6 +72,21 @@ public sealed class CityVisualRefinementTests
         Assert.Equal("pedra clara", CityArtMaterialCatalog.DisplayName(CityArtMaterialCategory.StoneLight));
         Assert.Equal("água", CityArtMaterialCatalog.DisplayName(CityArtMaterialCategory.Water));
     }
+
+    [Fact]
+    public void ArtPass2_ConfigBudgets_AreComplete()
+    {
+        Assert.True(CityArtPass2Config.Enabled);
+        Assert.Equal(11, CityArtPass2Config.NatureSpeciesCount);
+        Assert.Equal(CityArtPass2Config.NatureSpeciesCount, CityArtPass2Config.NatureSpecies.Length);
+        Assert.Equal(9, CityArtPass2Config.NpcCategoryCount);
+        Assert.Equal(CityArtPass2Config.NpcCategoryCount, CityArtPass2Config.NpcCategories.Length);
+        Assert.Equal(5, CityArtPass2Config.FaunaKindCount);
+        Assert.Equal(8, CityArtPass2Config.DistrictAmbienceCount);
+        Assert.Equal(6, CityArtPass2Config.DistrictRoadStyles);
+        Assert.Contains("pinheiro", CityArtPass2Config.NatureSpecies);
+        Assert.Contains("torre-dragoes", CityArtPass2Config.DistrictAmbiences);
+    }
 }
 
 public sealed class CityAmbientQualityTests

@@ -41,6 +41,7 @@
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityAmbientQuality.cs" Link="City\CityAmbientQuality.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalEnvironmentConfig.cs" Link="City\CityCapitalEnvironmentConfig.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtMaterialCatalog.cs" Link="City\CityArtMaterialCatalog.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtPass2Config.cs" Link="City\CityArtPass2Config.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Production\OfflineProductionCalculator.cs" Link="City\OfflineProductionCalculator.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Production\ResourceProductionService.cs" Link="City\ResourceProductionService.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Production\ResourceCollectionService.cs" Link="City\ResourceCollectionService.cs" />

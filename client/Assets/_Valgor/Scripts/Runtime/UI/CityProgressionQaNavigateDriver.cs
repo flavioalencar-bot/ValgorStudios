@@ -77,18 +77,24 @@ namespace Valgor.UI
 
         private static IEnumerator CaptureCityOverview()
         {
-            var dir = Path.Combine(Application.dataPath, "..", "evidence", "capital-artpass1");
+            var dir = Path.Combine(Application.dataPath, "..", "evidence", "capital-artpass2");
             Directory.CreateDirectory(dir);
             Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
             yield return new WaitForSecondsRealtime(0.6f);
             yield return CaptureNamed(dir, "01-overview");
             yield return CaptureLookAt(dir, "02-castle", new Vector3(0f, 0f, 0f), 14.5f);
             yield return CaptureLookAt(dir, "03-dragon-tower", new Vector3(0f, 1.3f, 17.6f), 12.5f);
-            yield return CaptureLookAt(dir, "04-gate", new Vector3(0f, 0f, -19.2f), 11.5f);
-            yield return CaptureLookAt(dir, "05-plaza", new Vector3(0f, 0f, -3.2f), 12f);
-            yield return CaptureLookAt(dir, "06-imperial-road", new Vector3(0f, 0f, -11f), 13f);
+            yield return CaptureLookAt(dir, "04-plaza", new Vector3(0f, 0f, -3.2f), 12f);
+            yield return CaptureLookAt(dir, "05-rivers", new Vector3(-22f, 0f, 0f), 11f);
+            yield return CaptureLookAt(dir, "06-military", new Vector3(12f, 0f, -3f), 11f);
+            yield return CaptureLookAt(dir, "07-economic", new Vector3(-8f, 0f, -7f), 11f);
+            yield return CaptureLookAt(dir, "08-industrial", new Vector3(13f, 0f, -12f), 11f);
+            yield return CaptureLookAt(dir, "09-rural", new Vector3(-14f, 0f, -7.5f), 11f);
+            yield return CaptureLookAt(dir, "10-sacred", new Vector3(9f, 0f, 4.8f), 11f);
+            yield return CaptureLookAt(dir, "11-npcs-gate", new Vector3(0f, 0f, -18f), 10.5f);
+            yield return CaptureNamed(dir, "12-medium-overview");
             FrameLookAt(new Vector3(0f, 0f, 0f), 17.6f);
-            Debug.Log($"[Valgor.QA] ArtPass1 captures → {dir}");
+            Debug.Log($"[Valgor.QA] ArtPass2 captures → {dir}");
         }
 
         private static IEnumerator CaptureLookAt(string dir, string name, Vector3 worldTarget, float ortho)

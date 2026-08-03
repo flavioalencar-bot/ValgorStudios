@@ -21,6 +21,14 @@ namespace Valgor.City.Visual
         public static bool AllowSmoke => Current >= CityAmbientQuality.Medium;
         public static bool AllowWaterFx => Current >= CityAmbientQuality.Medium;
         public static bool AllowBirds => Current >= CityAmbientQuality.High;
+        public static bool AllowButterflies => Current >= CityAmbientQuality.Medium;
+        public static bool AllowFishHints => Current >= CityAmbientQuality.High;
+        public static bool AllowFireflies => Current >= CityAmbientQuality.High;
+        public static bool AllowNpcs => Current >= CityAmbientQuality.Medium;
+        public static bool AllowFlagMotion => Current >= CityAmbientQuality.Medium;
+        public static bool AllowLightFog => Current >= CityAmbientQuality.Medium;
+        public static bool AllowDustLeaves => Current >= CityAmbientQuality.High;
+        public static bool AllowDistrictAudio => Current >= CityAmbientQuality.Medium;
         public static bool AllowDragonIdleMotion => Current >= CityAmbientQuality.Medium;
         public static bool AllowDragonExtraMotion => Current >= CityAmbientQuality.High;
 

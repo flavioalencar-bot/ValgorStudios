@@ -34,18 +34,28 @@ namespace Valgor.City.Visual
 
             BuildTerrain(terrain);
             BuildHorizon(terrain);
+            CityReliefBuilder.Build(terrain);
             BuildRivers(water);
             BuildDistrictPads(districts);
             BuildPlaza(roads);
             BuildRoads(roads);
+            BuildDistrictRoads(roads);
             BuildPlateaus(terrain);
             CityDistrictVisualBuilder.BuildAll(districts, decorations, ambient);
             BuildTrees(vegetation);
+            CityNatureBuilder.Build(vegetation);
             BuildTierDecoration(tierGroups);
             BuildAmbientProps(decorations, ambient);
+            CityFaunaBuilder.Build(ambient);
+            var npcs = root.Find("NPCs") ?? Node(root, "NPCs");
+            CityNpcAmbientBuilder.Build(npcs);
+            CityDistrictAmbienceAudio.Build(root);
             SoftenLighting();
             CityArtMaterialLibrary.WarmPalette();
+            CityAtmosphereFx.Attach(root);
             TryStaticBatch(root);
+            CityArtPass2PerfProbe.Ensure();
+            TryAttachLodHints(root);
         }
 
         public static void ApplyWallLevel(Transform cityHost, int wallLevel)
@@ -229,6 +239,18 @@ namespace Valgor.City.Visual
             Part(PrimitiveType.Cube, root, "BridgeEastRailS", new Vector3(20.8f, 0.35f, -1.0f),
                 new Vector3(3.0f, 0.25f, 0.12f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
 
+            // Margens úmidas + vegetação ribeirinha.
+            FlatShared(root, "WetBankW", new Vector3(-22.6f, 0.01f, 0f), new Vector3(0.7f, 0.08f, 40f),
+                CityArtMaterialCategory.Dirt);
+            FlatShared(root, "WetBankE", new Vector3(22.6f, 0.01f, 0f), new Vector3(0.7f, 0.08f, 40f),
+                CityArtMaterialCategory.Dirt);
+            FlatShared(root, "ReedClumpW1", new Vector3(-22.9f, 0.12f, 8f), new Vector3(0.9f, 0.35f, 2.2f),
+                CityArtMaterialCategory.Grass);
+            FlatShared(root, "ReedClumpW2", new Vector3(-23.1f, 0.12f, -6f), new Vector3(0.9f, 0.35f, 2.0f),
+                CityArtMaterialCategory.Grass);
+            FlatShared(root, "ReedClumpE1", new Vector3(23.0f, 0.12f, 5f), new Vector3(0.9f, 0.35f, 2.2f),
+                CityArtMaterialCategory.Grass);
+
             if (CityAmbientQualitySettings.AllowWaterFx)
             {
                 Part(PrimitiveType.Cube, root, "FallWest", new Vector3(-24.5f, 0.35f, 10f),
@@ -237,6 +259,13 @@ namespace Valgor.City.Visual
                     new Vector3(1.2f, 1.1f, 0.35f), Color.Lerp(water, Color.white, 0.25f), SurfaceKind.Plain);
                 Part(PrimitiveType.Cube, root, "FallWest2", new Vector3(-25.0f, 0.3f, -9f),
                     new Vector3(1.0f, 0.9f, 0.3f), Color.Lerp(water, Color.white, 0.2f), SurfaceKind.Plain);
+                // Espuma / reflexo discreto.
+                PartShared(PrimitiveType.Cube, root, "FoamWest", new Vector3(-24.5f, 0.02f, 9.2f),
+                    new Vector3(1.6f, 0.05f, 1.2f), CityArtMaterialCategory.Water);
+                PartShared(PrimitiveType.Cube, root, "FoamEast", new Vector3(24.5f, 0.02f, -7.2f),
+                    new Vector3(1.6f, 0.05f, 1.2f), CityArtMaterialCategory.Water);
+                PartShared(PrimitiveType.Cube, root, "ReflectHintW", new Vector3(-24.5f, -0.08f, 0f),
+                    new Vector3(3.6f, 0.04f, 20f), CityArtMaterialCategory.Water);
             }
 
             Part(PrimitiveType.Sphere, root, "RockW1", new Vector3(-23.2f, 0.2f, 6f), new Vector3(1.4f, 0.7f, 1.1f),
@@ -246,6 +275,8 @@ namespace Valgor.City.Visual
             Part(PrimitiveType.Sphere, root, "RockE1", new Vector3(23.4f, 0.2f, -5f), new Vector3(1.5f, 0.75f, 1.2f),
                 CityVisualMaterials.StoneDark, SurfaceKind.Stone);
             Part(PrimitiveType.Sphere, root, "RockE2", new Vector3(23.8f, 0.18f, 8f), new Vector3(1.3f, 0.65f, 1.1f),
+                CityVisualMaterials.StoneLight, SurfaceKind.Stone);
+            Part(PrimitiveType.Sphere, root, "RockW3", new Vector3(-22.8f, 0.15f, 1f), new Vector3(0.9f, 0.45f, 0.8f),
                 CityVisualMaterials.StoneLight, SurfaceKind.Stone);
         }
 
@@ -346,7 +377,7 @@ namespace Valgor.City.Visual
                 new Vector3(1.0f, 0.35f, 1.0f), CityArtMaterialCategory.Dirt);
             PartShared(PrimitiveType.Cube, root, "PlanterWHedge", new Vector3(-4.6f, 0.5f, z),
                 new Vector3(0.85f, 0.3f, 0.85f), CityArtMaterialCategory.Grass);
-            // Estátuas discretas (fora do eixo).
+            // Estátuas + monumento (fora do eixo de seleção do Castelo).
             PartShared(PrimitiveType.Cylinder, root, "StatueBaseE", new Vector3(5.5f, 0.25f, z + 2.2f),
                 new Vector3(0.55f, 0.25f, 0.55f), CityArtMaterialCategory.StoneDark);
             PartShared(PrimitiveType.Cube, root, "StatueE", new Vector3(5.5f, 0.85f, z + 2.2f),
@@ -355,6 +386,23 @@ namespace Valgor.City.Visual
                 new Vector3(0.55f, 0.25f, 0.55f), CityArtMaterialCategory.StoneDark);
             PartShared(PrimitiveType.Cube, root, "StatueW", new Vector3(-5.5f, 0.85f, z + 2.2f),
                 new Vector3(0.35f, 1.0f, 0.35f), CityArtMaterialCategory.StoneLight);
+            PartShared(PrimitiveType.Cylinder, root, "MonumentBase", new Vector3(0f, 0.2f, z + 3.6f),
+                new Vector3(1.1f, 0.25f, 1.1f), CityArtMaterialCategory.StoneDark);
+            PartShared(PrimitiveType.Cube, root, "MonumentObelisk", new Vector3(0f, 1.35f, z + 3.6f),
+                new Vector3(0.45f, 2.1f, 0.45f), CityArtMaterialCategory.StoneLight);
+            PartShared(PrimitiveType.Cube, root, "MonumentCrest", new Vector3(0f, 2.55f, z + 3.6f),
+                new Vector3(0.7f, 0.2f, 0.2f), CityArtMaterialCategory.Metal);
+            // Jardins ornamentais + árvores da praça (laterais).
+            PartShared(PrimitiveType.Sphere, root, "OrnTreeL", new Vector3(-5.8f, 1.4f, z + 1.2f),
+                new Vector3(1.3f, 1.1f, 1.3f), CityArtMaterialCategory.Grass);
+            PartShared(PrimitiveType.Cylinder, root, "OrnTrunkL", new Vector3(-5.8f, 0.55f, z + 1.2f),
+                new Vector3(0.22f, 0.55f, 0.22f), CityArtMaterialCategory.Wood);
+            PartShared(PrimitiveType.Sphere, root, "OrnTreeR", new Vector3(5.8f, 1.4f, z + 1.2f),
+                new Vector3(1.3f, 1.1f, 1.3f), CityArtMaterialCategory.Grass);
+            PartShared(PrimitiveType.Cylinder, root, "OrnTrunkR", new Vector3(5.8f, 0.55f, z + 1.2f),
+                new Vector3(0.22f, 0.55f, 0.22f), CityArtMaterialCategory.Wood);
+            PartShared(PrimitiveType.Cube, root, "FlowerBedN", new Vector3(0f, 0.12f, z + 4.6f),
+                new Vector3(3.2f, 0.16f, 0.9f), CityArtMaterialCategory.Grass);
 
             if (CityAmbientQualitySettings.AllowFlags)
             {
@@ -426,6 +474,33 @@ namespace Valgor.City.Visual
             Road(secondary, "SecToHeroHall", new Vector3(-3.4f, 0.03f, 2.6f), new Vector3(1.3f, 0.07f, 6f), -20f);
             Road(secondary, "SecToFoundry", new Vector3(8.5f, 0.03f, -10f), new Vector3(1.3f, 0.07f, 7f), 40f);
             Road(secondary, "SecToResidence", new Vector3(-5.0f, 0.03f, -7.2f), new Vector3(1.25f, 0.07f, 5f), -10f);
+        }
+
+        /// <summary>Identidade de pavimento por distrito (Art Pass 2.0).</summary>
+        private static void BuildDistrictRoads(Transform root)
+        {
+            var styles = Node(root, "DistrictRoads");
+            // Militar — pedra desgastada.
+            FlatShared(styles, "MilRoad", new Vector3(11.5f, 0.035f, -2f), new Vector3(2.2f, 0.08f, 10f),
+                CityArtMaterialCategory.StoneDark);
+            // Industrial — terra compactada.
+            FlatShared(styles, "IndRoad", new Vector3(12f, 0.03f, -10f), new Vector3(2.0f, 0.08f, 8f),
+                CityArtMaterialCategory.Dirt);
+            FlatShared(styles, "IndRoadMine", new Vector3(-12f, 0.85f, 10f), new Vector3(2.0f, 0.08f, 7f),
+                CityArtMaterialCategory.Dirt);
+            // Rural — barro.
+            FlatShared(styles, "RuralRoad", new Vector3(-12.5f, 0.03f, -8f), new Vector3(2.0f, 0.08f, 8f),
+                CityArtMaterialCategory.Dirt);
+            // Sagrado — pedra clara.
+            FlatShared(styles, "SacredRoadE", new Vector3(7.5f, 0.04f, 3.5f), new Vector3(1.9f, 0.08f, 6f),
+                CityArtMaterialCategory.StoneLight);
+            FlatShared(styles, "SacredRoadW", new Vector3(-7.5f, 0.04f, 3.2f), new Vector3(1.9f, 0.08f, 6f),
+                CityArtMaterialCategory.StoneLight);
+            // Mercado — mistura pedra/terra.
+            FlatShared(styles, "MarketBed", new Vector3(-7.5f, 0.028f, -6.5f), new Vector3(3.2f, 0.07f, 5.5f),
+                CityArtMaterialCategory.Dirt);
+            FlatShared(styles, "MarketStone", new Vector3(-7.5f, 0.04f, -6.5f), new Vector3(2.4f, 0.06f, 4.5f),
+                CityArtMaterialCategory.StoneLight);
         }
 
         private static void Road(
@@ -760,20 +835,21 @@ namespace Valgor.City.Visual
             var light = UnityEngine.Object.FindFirstObjectByType<Light>();
             if (light != null && light.type == LightType.Directional)
             {
-                light.color = new Color(1f, 0.9f, 0.72f);
-                light.intensity = 1.35f;
+                light.color = new Color(1f, 0.92f, 0.78f);
+                light.intensity = 1.42f;
                 light.shadows = LightShadows.Soft;
-                light.shadowStrength = 0.72f;
-                light.transform.rotation = Quaternion.Euler(48f, -40f, 0f);
+                light.shadowStrength = 0.78f;
+                light.transform.rotation = Quaternion.Euler(52f, -36f, 0f);
             }
 
-            var haze = new Color(0.52f, 0.56f, 0.5f);
+            // Contraste legível em 1080×640 — ambient um pouco mais frio no céu.
+            var haze = new Color(0.5f, 0.54f, 0.48f);
             ApplySky(haze,
-                new Color(0.55f, 0.62f, 0.72f),
-                new Color(0.5f, 0.46f, 0.38f),
-                new Color(0.26f, 0.24f, 0.2f),
+                new Color(0.5f, 0.58f, 0.7f),
+                new Color(0.48f, 0.44f, 0.36f),
+                new Color(0.22f, 0.2f, 0.18f),
                 haze,
-                0.018f);
+                CityAmbientQualitySettings.AllowLightFog ? 0.014f : 0.01f);
         }
 
         public static void ApplyNightLighting()
@@ -928,7 +1004,8 @@ namespace Valgor.City.Visual
                 cityRoot.Find("Terrain"),
                 cityRoot.Find("Roads"),
                 cityRoot.Find("Decorations"),
-                cityRoot.Find("Vegetation")
+                cityRoot.Find("Vegetation"),
+                cityRoot.Find("Districts")
             };
             for (var i = 0; i < batchRoots.Length; i++)
             {
@@ -947,6 +1024,24 @@ namespace Valgor.City.Visual
                     Debug.LogWarning($"[Valgor.City] StaticBatch skip {node.name}: {ex.Message}");
                 }
             }
+        }
+
+        private static void TryAttachLodHints(Transform cityRoot)
+        {
+            if (cityRoot == null || CityAmbientQualitySettings.Current == CityAmbientQuality.Low)
+            {
+                return;
+            }
+
+            // LOD simples: horizonte / relevo longe — desliga sob Low já; sob Medium/High usa cull distance via Camera.
+            var cam = UnityEngine.Camera.main;
+            if (cam == null)
+            {
+                return;
+            }
+
+            cam.layerCullSpherical = true;
+            // Frustum culling nativo do Unity permanece ativo; occlusion só se volume existir na cena.
         }
     }
 }

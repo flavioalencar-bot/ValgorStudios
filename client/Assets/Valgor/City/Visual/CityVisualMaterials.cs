@@ -127,13 +127,14 @@ namespace Valgor.City.Visual
                     // Contraste baixo — evita “ruído de protótipo”.
                     var v = kind switch
                     {
-                        SurfaceKind.Stone => 0.88f + n * 0.08f + m * 0.04f,
+                        // Art Pass 2: rachaduras / sujeira / desgaste leves no noise.
+                        SurfaceKind.Stone => 0.86f + n * 0.09f + m * 0.04f + ((x * 3 + y * 5) % 17 == 0 ? -0.06f : 0f),
                         SurfaceKind.Wood => 0.9f + n * 0.06f,
                         SurfaceKind.Roof => 0.9f + (n * 0.05f) + ((x + y) % 8 < 1 ? -0.04f : 0f),
                         SurfaceKind.Metal => 0.92f + n * 0.05f,
-                        SurfaceKind.Vegetation => 0.88f + n * 0.1f,
-                        SurfaceKind.Dirt => 0.86f + n * 0.1f,
-                        SurfaceKind.Path => 0.9f + m * 0.06f + (n * 0.04f),
+                        SurfaceKind.Vegetation => 0.86f + n * 0.11f + ((x + y * 2) % 13 == 0 ? 0.04f : 0f),
+                        SurfaceKind.Dirt => 0.84f + n * 0.12f + m * 0.05f,
+                        SurfaceKind.Path => 0.88f + m * 0.07f + (n * 0.05f) + ((x % 9 == 0 || y % 7 == 0) ? -0.05f : 0f),
                         _ => 1f
                     };
 
