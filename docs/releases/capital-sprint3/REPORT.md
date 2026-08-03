@@ -1,7 +1,7 @@
 # Capital Sprint 3 — Layer Architecture — Relatório
 
 **Data:** 2026-08-03  
-**Commit:** `cbc44f1` — `feat(city): replace capital architecture placeholders`  
+**Commit:** `feat(city): replace capital architecture placeholders` (`546fa43`)  
 **Build:** `builds/windows/Valgor-QA-Capital-Sprint3/Valgor.exe`  
 **Testes unitários:** 256/0  
 **AutoTest player:** OK (tier swap smooth)  
