@@ -47,6 +47,7 @@ namespace Valgor.City.Visual
             BuildTierDecoration(tierGroups);
             BuildAmbientProps(decorations, ambient);
             CityUrbanDensityBuilder.Build(decorations);
+            CityScenarioCompositionBuilder.Build(terrain, water, decorations, vegetation);
             CityFaunaBuilder.Build(ambient);
             var npcs = root.Find("NPCs") ?? Node(root, "NPCs");
             CityNpcAmbientBuilder.Build(npcs);
@@ -54,6 +55,8 @@ namespace Valgor.City.Visual
             SoftenLighting();
             CityArtMaterialLibrary.WarmPalette();
             CityAtmosphereFx.Attach(root);
+            // Muralha sempre presente no boot (nível visual mínimo 1) — reforça leitura da Capital.
+            ApplyWallLevel(parent, 1);
             TryStaticBatch(root);
             CityArtPass2PerfProbe.Ensure();
             TryAttachLodHints(root);
@@ -533,10 +536,10 @@ namespace Valgor.City.Visual
 
         private static void BuildWallRing(Transform root, int wallLevel)
         {
-            var wall = CityVisualMaterials.StoneLight;
+            var wall = Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.StoneDark, 0.35f);
             var cap = CityVisualMaterials.StoneDark;
-            var height = wallLevel <= 0 ? 2.05f : 2.35f + Math.Min(wallLevel, 6) * 0.34f;
-            var thickness = wallLevel <= 0 ? 0.85f : 0.95f + Math.Min(wallLevel, 5) * 0.09f;
+            var height = wallLevel <= 0 ? 3.4f : 3.6f + Math.Min(wallLevel, 6) * 0.34f;
+            var thickness = wallLevel <= 0 ? 1.45f : 1.55f + Math.Min(wallLevel, 5) * 0.09f;
             var radius = CityCapitalLayoutConfig.WallRadius;
             const int segments = 20;
             // Segmento do sul (i≈0) fica aberto para o Portão Principal.
@@ -844,12 +847,12 @@ namespace Valgor.City.Visual
             {
                 // Manhã/tarde cinematográfica — leitura preservada em Medium.
                 light.color = CityCapitalFinalConfig.CinematicLightingEnabled
-                    ? new Color(1f, 0.9f, 0.74f)
+                    ? new Color(1f, 0.86f, 0.62f)
                     : new Color(1f, 0.92f, 0.78f);
-                light.intensity = CityCapitalFinalConfig.CinematicLightingEnabled ? 1.48f : 1.42f;
+                light.intensity = CityCapitalFinalConfig.CinematicLightingEnabled ? 1.55f : 1.42f;
                 light.shadows = LightShadows.Soft;
-                light.shadowStrength = 0.72f;
-                light.transform.rotation = Quaternion.Euler(48f, -42f, 0f);
+                light.shadowStrength = 0.68f;
+                light.transform.rotation = Quaternion.Euler(42f, -48f, 0f);
             }
 
             // Contraste legível em 1080×640 — ambient um pouco mais frio no céu.

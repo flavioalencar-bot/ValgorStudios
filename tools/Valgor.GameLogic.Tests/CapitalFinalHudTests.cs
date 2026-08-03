@@ -81,7 +81,7 @@ public sealed class CityBuildingWorldLabelTests
     {
         Assert.True(ValgorHudLayoutConfig.BuildingLabelMinOrtho < ValgorHudLayoutConfig.BuildingLabelMaxOrtho);
         Assert.InRange(ValgorHudLayoutConfig.BuildingLabelMinOrtho, 8f, 12f);
-        Assert.InRange(ValgorHudLayoutConfig.BuildingLabelMaxOrtho, 16f, 22f);
+        Assert.InRange(ValgorHudLayoutConfig.BuildingLabelMaxOrtho, 16f, 28f);
     }
 }
 
@@ -131,7 +131,8 @@ public sealed class CapitalFinalLayoutTests
     public void Horizon_MountainBudget_IsRaised()
     {
         Assert.Equal(16, CityCapitalFinalConfig.HorizonMountainCount);
-        Assert.True(CityCapitalFinalConfig.CinematicLightingEnabled);
+        Assert.True(CityCapitalFinalConfig.ScenarioCompositionEnabled);
+        Assert.Equal(22f, CityCapitalFinalConfig.OverviewOrthographicSize);
     }
 }
 

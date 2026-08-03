@@ -14,7 +14,7 @@ namespace Valgor.UI
         public const float BottomBarHeight = 64f;
         public const float SideShortcutWidth = 48f;
         public const float Margin = 10f;
-        public const float BuildingLabelMaxOrtho = 18.5f;
+        public const float BuildingLabelMaxOrtho = 24f;
         public const float BuildingLabelMinOrtho = 9.5f;
 
         public static readonly int[] SupportedWidths = { 1920, 1600, 1366, 1280, 1080 };

@@ -7,20 +7,20 @@ namespace Valgor.City.Camera
     [DefaultExecutionOrder(-40)]
     public sealed class CityCameraController : MonoBehaviour
     {
-        // Pose base homologada (castle centrado); zoom aberto p/ Torre (N) + Portão (S).
-        private const float OverviewZoom = 17.6f;
-        private const float OverviewPosX = -12.8f;
-        private const float OverviewPosY = 19.2f;
-        private const float OverviewPosZ = -13.6f;
+        // Overview aberto: muralha circular + rios + Torre + Portão na mesma vista.
+        private const float OverviewZoom = 22f;
+        private const float OverviewPitch = 46f;
+        private const float OverviewYaw = 40f;
+        private const float OverviewHeight = 22f;
 
         [SerializeField] private float minZoom = 10f;
-        [SerializeField] private float maxZoom = 24f;
+        [SerializeField] private float maxZoom = 28f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
         [SerializeField] private float initialZoom = OverviewZoom;
         [SerializeField] private float dragThresholdPixels = 10f;
 
-        private readonly CityBounds _bounds = new(-22f, 22f, -22f, 22f);
+        private readonly CityBounds _bounds = new(-28f, 28f, -28f, 28f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
         private Vector2 _pointerDown;
@@ -115,9 +115,12 @@ namespace Valgor.City.Camera
             initialZoom = OverviewZoom;
             _camera.orthographic = true;
             _camera.orthographicSize = OverviewZoom;
-            transform.rotation = Quaternion.Euler(46f, 40f, 0f);
-            // Pull-back SW: Portão (S) + Castelo + Torre (N) + distritos na mesma vista.
-            transform.position = new Vector3(OverviewPosX, OverviewPosY, OverviewPosZ);
+            var rot = Quaternion.Euler(OverviewPitch, OverviewYaw, 0f);
+            transform.rotation = rot;
+            // Centraliza o Castelo (origem): Portão S + Torre N + muralha na mesma vista.
+            var forward = rot * Vector3.forward;
+            var t = OverviewHeight / Mathf.Max(0.05f, -forward.y);
+            transform.position = -forward * t;
             ClampPosition();
         }
 
@@ -313,6 +316,12 @@ namespace Valgor.City.Camera
                 _suppressFocusUntilUnscaled,
                 Time.unscaledTime + Mathf.Max(0.05f, seconds));
             CancelFocus();
+        }
+
+        /// <summary>Libera o hold de overview para capturas / frames manuais.</summary>
+        public void ReleaseOverviewHold()
+        {
+            _holdOverviewUntilUnscaled = 0f;
         }
 
         public void CancelFocus()

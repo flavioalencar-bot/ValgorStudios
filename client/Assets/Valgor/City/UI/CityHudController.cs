@@ -148,9 +148,10 @@ namespace Valgor.City.UI
             chip.tooltip = title;
 
             var icon = new Label(IconGlyph(iconKey));
-            icon.style.color = ValgorUiTheme.AgedGold;
-            icon.style.fontSize = 13;
+            icon.style.color = IconColor(iconKey);
+            icon.style.fontSize = 14;
             icon.style.marginRight = 4;
+            icon.style.unityFontStyleAndWeight = FontStyle.Bold;
             icon.pickingMode = PickingMode.Ignore;
             chip.Add(icon);
 
@@ -173,6 +174,17 @@ namespace Valgor.City.UI
             ValgorIconCatalog.Gold => "★",
             ValgorIconCatalog.Diamonds => "◇",
             _ => "•"
+        };
+
+        private static Color IconColor(string key) => key switch
+        {
+            ValgorIconCatalog.Food => new Color(0.55f, 0.78f, 0.32f),
+            ValgorIconCatalog.Wood => new Color(0.55f, 0.38f, 0.22f),
+            ValgorIconCatalog.Stone => new Color(0.62f, 0.62f, 0.66f),
+            ValgorIconCatalog.Ore => new Color(0.55f, 0.58f, 0.7f),
+            ValgorIconCatalog.Gold => new Color(0.92f, 0.78f, 0.28f),
+            ValgorIconCatalog.Diamonds => new Color(0.55f, 0.82f, 0.95f),
+            _ => ValgorUiTheme.AgedGold
         };
 
         private void BuildTopMenus(VisualElement root)

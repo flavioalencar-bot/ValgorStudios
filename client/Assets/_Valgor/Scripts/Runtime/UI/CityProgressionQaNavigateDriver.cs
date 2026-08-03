@@ -81,7 +81,7 @@ namespace Valgor.UI
             Directory.CreateDirectory(dir);
             Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
             yield return new WaitForSecondsRealtime(0.7f);
-            FrameLookAt(Vector3.zero, 17.6f);
+            FrameLookAt(Vector3.zero, 22f);
             yield return CaptureNamed(dir, "01-overview-1920x1080");
             yield return CaptureNamed(dir, "20-full-ui");
             yield return CaptureNamed(dir, "03-player-panel");
@@ -93,7 +93,7 @@ namespace Valgor.UI
 
             Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
             yield return new WaitForSecondsRealtime(0.6f);
-            FrameLookAt(Vector3.zero, 17.6f);
+            FrameLookAt(Vector3.zero, 22f);
             yield return CaptureNamed(dir, "02-overview-1080x640");
 
             yield return CaptureLookAt(dir, "09-building-labels", new Vector3(0f, 0f, -2f), 12.5f);
@@ -107,7 +107,7 @@ namespace Valgor.UI
             yield return CaptureLookAt(dir, "17-rural", new Vector3(-14f, 0f, -7.5f), 11f);
             yield return CaptureLookAt(dir, "18-dragon-visible", new Vector3(0f, 1.3f, 17.6f), 11.5f);
             yield return CaptureNamed(dir, "19-dragon-deployed");
-            FrameLookAt(Vector3.zero, 17.6f);
+            FrameLookAt(Vector3.zero, 22f);
             Debug.Log($"[Valgor.QA] Capital Final captures → {dir}");
         }
 
@@ -126,14 +126,19 @@ namespace Valgor.UI
                 return;
             }
 
+            var camGo = cam.gameObject;
+            camGo.SendMessage("ReleaseOverviewHold", SendMessageOptions.DontRequireReceiver);
+            camGo.SendMessage("SuppressFocus", 3f, SendMessageOptions.DontRequireReceiver);
+
             cam.orthographic = true;
             cam.orthographicSize = ortho;
             var rot = Quaternion.Euler(46f, 40f, 0f);
             cam.transform.rotation = rot;
             var forward = rot * Vector3.forward;
-            const float height = 19.2f;
+            var height = Mathf.Clamp(ortho * 1.05f, 14f, 28f);
             var t = height / Mathf.Max(0.05f, -forward.y);
-            cam.transform.position = worldTarget - forward * t + Vector3.up * height;
+            // Sem somar height de novo — isso deslocava a cidade para o rodapé da tela.
+            cam.transform.position = worldTarget - forward * t;
         }
 
         private static IEnumerator CaptureNamed(string dir, string name)

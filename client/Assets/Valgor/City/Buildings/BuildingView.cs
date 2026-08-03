@@ -498,21 +498,30 @@ namespace Valgor.City.Buildings
             labelObject.transform.localPosition = Vector3.up * (_labelHeight + 0.35f);
             labelObject.transform.rotation = Quaternion.Euler(30f, 45f, 0f);
 
+            // Placa escura (nome) + badge verde (nível) — leitura da referência de produto.
             var plate = GameObject.CreatePrimitive(PrimitiveType.Cube);
             plate.name = "LabelPlate";
             plate.transform.SetParent(labelObject.transform, false);
-            plate.transform.localPosition = Vector3.zero;
-            plate.transform.localScale = new Vector3(2.8f, 0.38f, 0.08f);
+            plate.transform.localPosition = new Vector3(0.25f, 0f, 0f);
+            plate.transform.localScale = new Vector3(2.6f, 0.42f, 0.08f);
             Destroy(plate.GetComponent<Collider>());
-            CityVisualMaterials.Apply(plate.GetComponent<Renderer>(), new Color(0.12f, 0.11f, 0.1f, 0.92f));
+            CityVisualMaterials.Apply(plate.GetComponent<Renderer>(), new Color(0.1f, 0.11f, 0.13f, 0.94f));
+
+            var badge = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            badge.name = "LabelLevelBadge";
+            badge.transform.SetParent(labelObject.transform, false);
+            badge.transform.localPosition = new Vector3(-1.35f, 0f, 0f);
+            badge.transform.localScale = new Vector3(0.7f, 0.42f, 0.09f);
+            Destroy(badge.GetComponent<Collider>());
+            CityVisualMaterials.Apply(badge.GetComponent<Renderer>(), new Color(0.16f, 0.42f, 0.28f, 0.95f));
 
             var label = labelObject.AddComponent<TextMesh>();
             label.text = displayName;
             label.anchor = TextAnchor.MiddleCenter;
             label.alignment = TextAlignment.Center;
-            label.characterSize = 0.12f;
-            label.fontSize = 42;
-            label.color = new Color(0.95f, 0.9f, 0.78f);
+            label.characterSize = 0.11f;
+            label.fontSize = 44;
+            label.color = new Color(0.96f, 0.93f, 0.84f);
             return label;
         }
 
