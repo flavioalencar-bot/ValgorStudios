@@ -43,6 +43,7 @@
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtMaterialCatalog.cs" Link="City\CityArtMaterialCatalog.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtPass2Config.cs" Link="City\CityArtPass2Config.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalFinalConfig.cs" Link="City\CityCapitalFinalConfig.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtPipelineConfig.cs" Link="City\CityArtPipelineConfig.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\UI\ValgorHudConfig.cs" Link="UI\ValgorHudConfig.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\UI\Chat\IChatProvider.cs" Link="UI\IChatProvider.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Production\OfflineProductionCalculator.cs" Link="City\OfflineProductionCalculator.cs" />

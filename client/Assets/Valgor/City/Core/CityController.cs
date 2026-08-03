@@ -89,6 +89,8 @@ namespace Valgor.City.Core
         public bool TryGetView(BuildingInstance instance, out BuildingView view) =>
             _views.TryGetValue(instance, out view!);
 
+        public IEnumerable<BuildingView> Views => _views.Values;
+
         public bool TrySelectByDefinitionId(string definitionId)
         {
             foreach (var building in _buildings)

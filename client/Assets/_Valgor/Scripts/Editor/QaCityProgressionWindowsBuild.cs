@@ -380,6 +380,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital Art Pipeline: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalArtPipelineCli</summary>
+        public static void BuildCapitalArtPipelineCli()
+        {
+            var report = Build("Valgor-QA-Capital-ArtPipeline");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital ArtPipeline Build OK: {GetOutputExe("Valgor-QA-Capital-ArtPipeline")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital ArtPipeline Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

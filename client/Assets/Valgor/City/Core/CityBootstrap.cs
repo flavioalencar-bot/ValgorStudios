@@ -332,6 +332,9 @@ namespace Valgor.City
                     nest.Bind(Dragons);
                 }
             }
+
+            // Pipeline de arte: tenta HF; ausente → proxy procedural permanece.
+            CityArtReplacementController.Ensure().ApplyAll(Controller.Views);
         }
 
         private void CreateHud()

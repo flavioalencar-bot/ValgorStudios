@@ -31,6 +31,8 @@ namespace Valgor.City.Buildings
         public event Action<BuildingView>? Clicked;
         public event Action? CollectRequested;
         public BuildingInstance Instance { get; private set; } = null!;
+        public Transform LogicRoot => transform;
+        public Transform? VisualRoot => _visual != null ? _visual : transform.Find("Visual");
 
         public void NotifyClicked() => Clicked?.Invoke(this);
 
@@ -139,6 +141,14 @@ namespace Valgor.City.Buildings
             CacheRenderers();
             ApplyStateTint();
             ApplyCastlePresentationLabelHeight();
+        }
+
+        /// <summary>Após swap de arte de alta fidelidade (pipeline).</summary>
+        public void RecacheRenderersAfterArtSwap()
+        {
+            _visual ??= transform.Find("Visual");
+            CacheRenderers();
+            ApplyStateTint();
         }
 
         public void SetSelected(bool selected)
