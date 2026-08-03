@@ -37,7 +37,15 @@ namespace Valgor.City.Visual
             CityReliefBuilder.Build(terrain);
             BuildRivers(water);
             BuildDistrictPads(districts);
-            BuildPlaza(roads);
+            if (CityRoyalDistrictConfig.Enabled)
+            {
+                // Sprint 2 assume praça / complexo imperial (BuildPlaza legado omitido).
+            }
+            else
+            {
+                BuildPlaza(roads);
+            }
+
             BuildRoads(roads);
             BuildDistrictRoads(roads);
             BuildPlateaus(terrain);
@@ -54,6 +62,11 @@ namespace Valgor.City.Visual
             CityScenarioCompositionBuilder.Build(terrain, water, decorations, vegetation);
             var npcs = root.Find("NPCs") ?? Node(root, "NPCs");
             CityArtPass3Builder.Build(terrain, water, roads, districts, decorations, vegetation, npcs);
+            if (CityRoyalDistrictConfig.Enabled)
+            {
+                CityRoyalDistrictBuilder.Build(roads, decorations, vegetation);
+            }
+
             CityFaunaBuilder.Build(ambient);
             CityNpcAmbientBuilder.Build(npcs);
             CityDistrictAmbienceAudio.Build(root);
@@ -309,7 +322,10 @@ namespace Valgor.City.Visual
                 ? Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.22f)
                 : Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f);
             Flat(root, "PadRoyal", new Vector3(0f, 0.004f, 1.5f), new Vector3(14f, 0.04f, 12f),
-                soft ? soil : Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f), SurfaceKind.Path);
+                soft || CityRoyalDistrictConfig.Enabled
+                    ? Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.18f)
+                    : Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f),
+                SurfaceKind.Path);
             var dragonZ = CityCapitalLayoutConfig.GetPosition("dragon-tower").Z;
             Flat(root, "PadDragon", new Vector3(0f, 0.08f, dragonZ), new Vector3(14f, 0.12f, 14f),
                 soft

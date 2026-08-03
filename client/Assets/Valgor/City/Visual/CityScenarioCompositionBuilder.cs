@@ -187,6 +187,12 @@ namespace Valgor.City.Visual
                     continue;
                 }
 
+                if (CityRoyalDistrictConfig.Enabled &&
+                    new Vector2(pos.x, pos.z).magnitude < CityRoyalDistrictConfig.VernacularExclusionRadius)
+                {
+                    continue;
+                }
+
                 if (pos.z < -16f && Mathf.Abs(pos.x) < 4f)
                 {
                     continue;

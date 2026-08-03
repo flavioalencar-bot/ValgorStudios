@@ -414,6 +414,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital Sprint 2 Royal District: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalSprint2Cli</summary>
+        public static void BuildCapitalSprint2Cli()
+        {
+            var report = Build("Valgor-QA-Capital-Sprint2");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital Sprint2 Build OK: {GetOutputExe("Valgor-QA-Capital-Sprint2")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital Sprint2 Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         /// <summary>CLI Capital Sprint 1 Fortress: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalSprint1Cli</summary>
         public static void BuildCapitalSprint1Cli()
         {

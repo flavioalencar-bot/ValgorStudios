@@ -25,6 +25,11 @@ namespace Valgor.City.Visual
             Dec(root, PrimitiveType.Cube, "CastlePlatform", new Vector3(0f, 0.06f, 0.4f),
                 new Vector3(8.5f, 0.12f, 8.5f),
                 Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.45f), SurfaceKind.Stone);
+            if (CityRoyalDistrictConfig.Enabled)
+            {
+                return;
+            }
+
             Dec(root, PrimitiveType.Cube, "CastleSteps", new Vector3(0f, 0.18f, -2.1f),
                 new Vector3(3.2f, 0.22f, 1.6f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
             Dec(root, PrimitiveType.Cube, "NobleGardenL", new Vector3(-3.6f, 0.12f, 1.8f),

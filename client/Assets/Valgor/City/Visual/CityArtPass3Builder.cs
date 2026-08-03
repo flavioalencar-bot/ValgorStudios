@@ -35,7 +35,11 @@ namespace Valgor.City.Visual
 
             if (CityArtPass3Config.DistrictDressingEnabled)
             {
-                BuildImperialDistrict(root, districts);
+                if (!CityRoyalDistrictConfig.Enabled)
+                {
+                    BuildImperialDistrict(root, districts);
+                }
+
                 BuildDragonEnvirons(root);
                 BuildEconomicDistrict(root);
                 BuildMilitaryDistrict(root);
@@ -118,6 +122,15 @@ namespace Valgor.City.Visual
             if (Mathf.Abs(pos.x) < 2.4f && pos.z < 2.5f)
             {
                 return true;
+            }
+
+            if (CityRoyalDistrictConfig.Enabled)
+            {
+                var exclusion = CityRoyalDistrictConfig.VernacularExclusionRadius;
+                if (new Vector2(pos.x, pos.z).magnitude < exclusion)
+                {
+                    return true;
+                }
             }
 
             if (pos.z < -16f && Mathf.Abs(pos.x) < 4.2f)

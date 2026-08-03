@@ -160,6 +160,23 @@ namespace Valgor.UI
             yield return null;
             yield return CaptureNamed(sprint1Dir, "09-1920x1080");
 
+            var sprint2Dir = @"C:\Valgor_Studio\docs\releases\capital-sprint2\screenshots";
+            System.IO.Directory.CreateDirectory(sprint2Dir);
+            yield return CaptureLookAt(sprint2Dir, "01-overview", new Vector3(0f, 0.6f, -2f), 22f);
+            yield return CaptureLookAt(sprint2Dir, "02-praca", new Vector3(0f, 0.4f, -3.2f), 12f);
+            yield return CaptureLookAt(sprint2Dir, "03-fonte", new Vector3(0f, 0.8f, -3.2f), 8.5f);
+            yield return CaptureLookAt(sprint2Dir, "04-castelo", new Vector3(0f, 0.2f, 0f), 13f);
+            yield return CaptureLookAt(sprint2Dir, "05-jardins", new Vector3(-4f, 0.4f, -2f), 11f);
+            yield return CaptureLookAt(sprint2Dir, "06-residencias", new Vector3(-6f, 0.5f, 2f), 11f);
+            yield return CaptureLookAt(sprint2Dir, "07-portao", new Vector3(0f, 0.4f, -19.2f), 11f);
+            yield return CaptureLookAt(sprint2Dir, "08-visao-aerea", new Vector3(0f, 1.0f, 2f), 26f);
+            Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
+            yield return null;
+            yield return CaptureNamed(sprint2Dir, "09-1080x640");
+            Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+            yield return null;
+            yield return CaptureNamed(sprint2Dir, "10-1920x1080");
+
             yield return CaptureLookAt(dir, "13-military", new Vector3(12f, 0f, -3f), 11f);
             yield return CaptureLookAt(dir, "14-economic", new Vector3(-8f, 0f, -7f), 11f);
             yield return CaptureLookAt(dir, "15-industrial", new Vector3(13f, 0f, -12f), 11f);
