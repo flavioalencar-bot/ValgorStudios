@@ -329,6 +329,23 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital Art Pass 1: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalArtPass1Cli</summary>
+        public static void BuildCapitalArtPass1Cli()
+        {
+            var report = Build("Valgor-QA-Capital-ArtPass1");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital ArtPass1 Build OK: {GetOutputExe("Valgor-QA-Capital-ArtPass1")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital ArtPass1 Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

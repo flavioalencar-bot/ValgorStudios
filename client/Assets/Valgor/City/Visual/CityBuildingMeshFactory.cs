@@ -35,6 +35,9 @@ namespace Valgor.City.Visual
                         Debug.LogWarning($"[Valgor.City] Castle real missing ({castleDetail}) — procedural fallback.");
                         CastleTierVisual.Build(visual.transform, color, visualTier: 1);
                     }
+
+                    // Art Pass 1.0 — vestimenta externa (não altera prefab lógico).
+                    CityCastleArtDressing.Attach(visual.transform);
                     break;
                 case "dragon-tower":
                     BuildDragonTower(visual.transform, color);
@@ -103,46 +106,69 @@ namespace Valgor.City.Visual
             var ember = new Color(0.85f, 0.38f, 0.12f);
             var crystal = new Color(0.4f, 0.55f, 0.9f);
 
-            // Base de pedra escura (colina + anéis).
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 0.4f, 0f), new Vector3(4.0f, 0.4f, 4.0f), Dirt, SurfaceKind.Dirt);
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 0.85f, 0f), new Vector3(3.2f, 0.3f, 3.2f), dark, SurfaceKind.Stone);
+            // Platô rochoso irregular (Art Pass 1.0).
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 0.35f, 0.2f), new Vector3(5.2f, 0.45f, 5.0f), Dirt, SurfaceKind.Dirt);
+            Part(PrimitiveType.Cube, root, new Vector3(-1.8f, 0.55f, 1.1f), new Vector3(1.6f, 0.7f, 1.4f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(1.6f, 0.5f, -0.8f), new Vector3(1.4f, 0.6f, 1.5f), StoneDark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 0.95f, 0f), new Vector3(3.6f, 0.35f, 3.6f), dark, SurfaceKind.Stone);
 
-            // Fuste circular contínuo (poucas seções).
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 3.4f, 0f), new Vector3(2.2f, 2.5f, 2.2f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 6.4f, 0f), new Vector3(1.7f, 1.4f, 1.7f), mid, SurfaceKind.Stone);
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 8.5f, 0f), new Vector3(1.15f, 1.0f, 1.15f), dark, SurfaceKind.Stone);
+            // Fuste + pilares.
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 3.5f, 0f), new Vector3(2.35f, 2.6f, 2.35f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 6.5f, 0f), new Vector3(1.85f, 1.45f, 1.85f), mid, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 8.6f, 0f), new Vector3(1.2f, 1.05f, 1.2f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(-1.35f, 2.4f, 0.9f), new Vector3(0.35f, 1.8f, 0.35f), StoneDark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(1.35f, 2.4f, 0.9f), new Vector3(0.35f, 1.8f, 0.35f), StoneDark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(-1.2f, 2.2f, -1.0f), new Vector3(0.3f, 1.5f, 0.3f), StoneDark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(1.2f, 2.2f, -1.0f), new Vector3(0.3f, 1.5f, 0.3f), StoneDark, SurfaceKind.Stone);
 
-            // Plataformas.
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 4.85f, 0f), new Vector3(2.7f, 0.12f, 2.7f), Stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 7.3f, 0f), new Vector3(2.05f, 0.1f, 2.05f), Stone, SurfaceKind.Stone);
+            // Plataformas / cornijas.
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 4.95f, 0f), new Vector3(2.9f, 0.14f, 2.9f), Stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 7.4f, 0f), new Vector3(2.2f, 0.12f, 2.2f), Stone, SurfaceKind.Stone);
 
-            // Brasão de dragão (placa frontal).
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 4.2f, 1.15f), new Vector3(0.7f, 0.9f, 0.12f), Gold, SurfaceKind.Metal);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 4.45f, 1.22f), new Vector3(0.35f, 0.35f, 0.08f), ember, SurfaceKind.Plain);
-
-            // Brasas / cristais (poucos, legíveis).
-            var emberA = Part(PrimitiveType.Sphere, root, new Vector3(1.15f, 5.15f, 0.2f), Vector3.one * 0.32f, ember, SurfaceKind.Plain);
-            CityVisualMaterials.ApplyEmissiveHint(emberA.GetComponent<Renderer>(), ember, 0.5f);
-            var crystalA = Part(PrimitiveType.Sphere, root, new Vector3(-1.05f, 5.15f, -0.25f), Vector3.one * 0.26f, crystal, SurfaceKind.Plain);
+            // Brasão + brasas + cristais discretos.
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 4.3f, 1.25f), new Vector3(0.8f, 1.0f, 0.14f), Gold, SurfaceKind.Metal);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 4.55f, 1.32f), new Vector3(0.38f, 0.38f, 0.08f), ember, SurfaceKind.Plain);
+            var emberA = Part(PrimitiveType.Sphere, root, new Vector3(1.25f, 5.25f, 0.25f), Vector3.one * 0.34f, ember, SurfaceKind.Plain);
+            CityVisualMaterials.ApplyEmissiveHint(emberA.GetComponent<Renderer>(), ember, 0.55f);
+            var emberB = Part(PrimitiveType.Sphere, root, new Vector3(-1.2f, 3.2f, 1.1f), Vector3.one * 0.28f, ember, SurfaceKind.Plain);
+            CityVisualMaterials.ApplyEmissiveHint(emberB.GetComponent<Renderer>(), ember, 0.45f);
+            var crystalA = Part(PrimitiveType.Sphere, root, new Vector3(-1.1f, 5.25f, -0.3f), Vector3.one * 0.24f, crystal, SurfaceKind.Plain);
             CityVisualMaterials.ApplyEmissiveHint(crystalA.GetComponent<Renderer>(), crystal, 0.4f);
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 3.9f, 0f), new Vector3(2.35f, 0.08f, 2.35f), ember, SurfaceKind.Metal);
+            var crystalB = Part(PrimitiveType.Sphere, root, new Vector3(0.85f, 7.7f, 0.4f), Vector3.one * 0.18f, crystal, SurfaceKind.Plain);
+            CityVisualMaterials.ApplyEmissiveHint(crystalB.GetComponent<Renderer>(), crystal, 0.35f);
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 4.0f, 0f), new Vector3(2.45f, 0.08f, 2.45f), ember, SurfaceKind.Metal);
 
-            // Coroa cônica azul (diferente do keep quadrado).
-            ConeRoof(root, new Vector3(0f, 9.55f, 0f), 1.55f, 1.2f, RoofBlue);
-            SmallFlag(root, new Vector3(0f, 10.9f, 0f), ember);
+            // Correntes decorativas (elos simples).
+            Part(PrimitiveType.Cube, root, new Vector3(-1.6f, 3.6f, 1.35f), new Vector3(0.08f, 1.4f, 0.08f),
+                Color.Lerp(StoneDark, Gold, 0.2f), SurfaceKind.Metal);
+            Part(PrimitiveType.Cube, root, new Vector3(1.6f, 3.6f, 1.35f), new Vector3(0.08f, 1.4f, 0.08f),
+                Color.Lerp(StoneDark, Gold, 0.2f), SurfaceKind.Metal);
+            Part(PrimitiveType.Sphere, root, new Vector3(-1.6f, 2.8f, 1.35f), Vector3.one * 0.16f, Gold, SurfaceKind.Metal);
+            Part(PrimitiveType.Sphere, root, new Vector3(1.6f, 2.8f, 1.35f), Vector3.one * 0.16f, Gold, SurfaceKind.Metal);
 
-            // Porta.
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.55f, 1.25f), new Vector3(0.7f, 1.25f, 0.18f), Door, SurfaceKind.Wood);
+            ConeRoof(root, new Vector3(0f, 9.7f, 0f), 1.65f, 1.25f, RoofBlue);
+            SmallFlag(root, new Vector3(0f, 11.1f, 0f), ember);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.6f, 1.35f), new Vector3(0.75f, 1.35f, 0.2f), Door, SurfaceKind.Wood);
 
-            // Área de pouso.
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 1.2f, 2.7f), new Vector3(3.2f, 0.18f, 3.2f), Stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 1.38f, 2.7f), new Vector3(2.4f, 0.12f, 2.4f), Wood, SurfaceKind.Wood);
-            var padGlow = Part(PrimitiveType.Cylinder, root, new Vector3(0f, 1.48f, 2.7f), new Vector3(1.3f, 0.06f, 1.3f), ember, SurfaceKind.Plain);
-            CityVisualMaterials.ApplyEmissiveHint(padGlow.GetComponent<Renderer>(), ember, 0.45f);
+            // Plataforma de pouso ampla — área livre para o Dragão (NestOccupants intacto).
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 1.15f, 2.85f), new Vector3(3.8f, 0.2f, 3.8f), Stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(0f, 1.35f, 2.85f), new Vector3(2.9f, 0.12f, 2.9f), Wood, SurfaceKind.Wood);
+            var padGlow = Part(PrimitiveType.Cylinder, root, new Vector3(0f, 1.45f, 2.85f), new Vector3(1.5f, 0.06f, 1.5f), ember, SurfaceKind.Plain);
+            CityVisualMaterials.ApplyEmissiveHint(padGlow.GetComponent<Renderer>(), ember, 0.5f);
+            // Braseiros na borda do pad.
+            Brazier(root, new Vector3(-1.55f, 1.55f, 3.9f), ember);
+            Brazier(root, new Vector3(1.55f, 1.55f, 3.9f), ember);
 
             var nestRoot = new GameObject("NestOccupants");
             nestRoot.transform.SetParent(root, false);
-            nestRoot.transform.localPosition = new Vector3(0f, 1.7f, 2.7f);
+            nestRoot.transform.localPosition = new Vector3(0f, 1.7f, 2.85f);
+        }
+
+        private static void Brazier(Transform root, Vector3 pos, Color ember)
+        {
+            Part(PrimitiveType.Cylinder, root, pos, new Vector3(0.35f, 0.22f, 0.35f), StoneDark, SurfaceKind.Stone);
+            var glow = Part(PrimitiveType.Sphere, root, pos + Vector3.up * 0.28f, Vector3.one * 0.28f, ember, SurfaceKind.Plain);
+            CityVisualMaterials.ApplyEmissiveHint(glow.GetComponent<Renderer>(), ember, 0.55f);
         }
 
         // ─── P0: Fazenda ───────────────────────────────────────────────
@@ -271,15 +297,28 @@ namespace Valgor.City.Visual
             var stone = Color.Lerp(Stone, color, 0.2f);
             var dark = Color.Lerp(StoneDark, color, 0.15f);
 
-            Plinth(root, 4.2f, 2.4f);
-            Part(PrimitiveType.Cube, root, new Vector3(-1.55f, 1.4f, 0f), new Vector3(1.2f, 2.6f, 1.3f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(1.55f, 1.4f, 0f), new Vector3(1.2f, 2.6f, 1.3f), dark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.85f, 0f), new Vector3(4.0f, 0.5f, 1.5f), stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.25f, 0.55f), new Vector3(1.7f, 2.2f, 0.2f), Door, SurfaceKind.Wood);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 3.2f, 0f), new Vector3(1.2f, 0.16f, 0.4f), Gold, SurfaceKind.Metal);
-            ConeRoof(root, new Vector3(-1.55f, 3.0f, 0f), 1.35f, 0.7f, RoofBlue);
-            ConeRoof(root, new Vector3(1.55f, 3.0f, 0f), 1.35f, 0.7f, RoofBlue);
-            SmallFlag(root, new Vector3(0f, 3.7f, 0f), Banner);
+            Plinth(root, 4.6f, 2.8f);
+            // Torres do portão + arco.
+            Part(PrimitiveType.Cube, root, new Vector3(-1.7f, 1.55f, 0f), new Vector3(1.35f, 2.9f, 1.5f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(1.7f, 1.55f, 0f), new Vector3(1.35f, 2.9f, 1.5f), dark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 3.15f, 0f), new Vector3(4.5f, 0.55f, 1.7f), stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 3.55f, 0f), new Vector3(3.2f, 0.35f, 1.4f), dark, SurfaceKind.Stone);
+            // Portas de madeira reforçadas + ferragens.
+            Part(PrimitiveType.Cube, root, new Vector3(-0.45f, 1.35f, 0.65f), new Vector3(0.85f, 2.4f, 0.22f), Door, SurfaceKind.Wood);
+            Part(PrimitiveType.Cube, root, new Vector3(0.45f, 1.35f, 0.65f), new Vector3(0.85f, 2.4f, 0.22f), Door, SurfaceKind.Wood);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.9f, 0.78f), new Vector3(0.12f, 1.6f, 0.08f), Gold, SurfaceKind.Metal);
+            Part(PrimitiveType.Cube, root, new Vector3(-0.45f, 1.35f, 0.78f), new Vector3(0.55f, 0.1f, 0.08f), Gold, SurfaceKind.Metal);
+            Part(PrimitiveType.Cube, root, new Vector3(0.45f, 1.35f, 0.78f), new Vector3(0.55f, 0.1f, 0.08f), Gold, SurfaceKind.Metal);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 3.7f, 0f), new Vector3(1.4f, 0.18f, 0.45f), Gold, SurfaceKind.Metal);
+            ConeRoof(root, new Vector3(-1.7f, 3.3f, 0f), 1.45f, 0.75f, RoofBlue);
+            ConeRoof(root, new Vector3(1.7f, 3.3f, 0f), 1.45f, 0.75f, RoofBlue);
+            SmallFlag(root, new Vector3(-1.7f, 4.2f, 0f), Banner);
+            SmallFlag(root, new Vector3(1.7f, 4.2f, 0f), Banner);
+            // Ponte de acesso curta.
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.12f, 1.55f), new Vector3(2.8f, 0.14f, 1.6f),
+                CityVisualMaterials.Path, SurfaceKind.Path);
+            Part(PrimitiveType.Cube, root, new Vector3(-1.35f, 0.35f, 1.9f), new Vector3(0.18f, 0.55f, 1.2f), Wood, SurfaceKind.Wood);
+            Part(PrimitiveType.Cube, root, new Vector3(1.35f, 0.35f, 1.9f), new Vector3(0.18f, 0.55f, 1.2f), Wood, SurfaceKind.Wood);
         }
 
         // ─── Demais (kits estáveis) ────────────────────────────────────

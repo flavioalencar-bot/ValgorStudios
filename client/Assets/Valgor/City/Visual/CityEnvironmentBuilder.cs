@@ -44,6 +44,8 @@ namespace Valgor.City.Visual
             BuildTierDecoration(tierGroups);
             BuildAmbientProps(decorations, ambient);
             SoftenLighting();
+            CityArtMaterialLibrary.WarmPalette();
+            TryStaticBatch(root);
         }
 
         public static void ApplyWallLevel(Transform cityHost, int wallLevel)
@@ -280,8 +282,14 @@ namespace Valgor.City.Visual
         private static void BuildPlateaus(Transform root)
         {
             // Bases elevadas sob Torre / Academia / Mina / Pedreira.
-            Flat(root, "PlateauDragonRim", new Vector3(0f, 0.9f, 17.5f), new Vector3(11.5f, 0.9f, 9.5f),
-                CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+            FlatShared(root, "PlateauDragonRim", new Vector3(0f, 0.9f, 17.5f), new Vector3(12.5f, 1.0f, 10.5f),
+                CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonShelf", new Vector3(0f, 1.35f, 17.8f), new Vector3(8.5f, 0.35f, 7.2f),
+                CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonRockA", new Vector3(-4.2f, 1.1f, 15.5f), new Vector3(2.4f, 0.9f, 2.0f),
+                CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "PlateauDragonRockB", new Vector3(4.0f, 1.05f, 19.2f), new Vector3(2.2f, 0.8f, 2.2f),
+                CityArtMaterialCategory.StoneDark);
             Flat(root, "PlateauAcademy", new Vector3(14.2f, 0.55f, 9.5f), new Vector3(5.5f, 0.55f, 4.5f),
                 CityVisualMaterials.StoneDark, SurfaceKind.Stone);
             Flat(root, "PlateauMine", new Vector3(-15f, 0.5f, 11.8f), new Vector3(5f, 0.5f, 4.2f),
@@ -293,47 +301,73 @@ namespace Valgor.City.Visual
         private static void BuildPlaza(Transform root)
         {
             var z = CityCapitalEnvironmentConfig.PlazaCenterZ;
-            // Praça octogonal aproximada: anel + piso + núcleo + quatro acessos livres.
-            Flat(root, "PlazaRim", new Vector3(0f, 0.02f, z), new Vector3(12.5f, 0.08f, 12.5f),
-                Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneDark, 0.25f), SurfaceKind.Path);
-            Flat(root, "Plaza", new Vector3(0f, 0.035f, z), new Vector3(9.6f, 0.1f, 9.6f),
-                CityVisualMaterials.Path, SurfaceKind.Path);
-            Flat(root, "PlazaCore", new Vector3(0f, 0.05f, z), new Vector3(3.6f, 0.12f, 3.6f),
-                Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.4f), SurfaceKind.Stone);
-            Flat(root, "PlazaOctagonHint", new Vector3(0f, 0.055f, z), new Vector3(7.2f, 0.04f, 7.2f),
-                Color.Lerp(CityVisualMaterials.StoneLight, CityVisualMaterials.Gold, 0.08f), SurfaceKind.Stone);
+            // Praça nobre — piso em pedra, fora do eixo de seleção do Castelo.
+            FlatShared(root, "PlazaRim", new Vector3(0f, 0.02f, z), new Vector3(13.2f, 0.08f, 13.2f),
+                CityArtMaterialCategory.StoneDark);
+            FlatShared(root, "Plaza", new Vector3(0f, 0.035f, z), new Vector3(10.2f, 0.1f, 10.2f),
+                CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlazaCore", new Vector3(0f, 0.05f, z), new Vector3(4.2f, 0.12f, 4.2f),
+                CityArtMaterialCategory.StoneLight);
+            FlatShared(root, "PlazaRing", new Vector3(0f, 0.055f, z), new Vector3(7.8f, 0.05f, 7.8f),
+                CityArtMaterialCategory.Metal);
 
-            // Fonte central (sem collider — não bloqueia Castelo).
-            Part(PrimitiveType.Cylinder, root, "FountainBase", new Vector3(0f, 0.32f, z),
-                new Vector3(1.7f, 0.32f, 1.7f), CityVisualMaterials.StoneLight, SurfaceKind.Stone);
-            Part(PrimitiveType.Cylinder, root, "FountainStem", new Vector3(0f, 0.7f, z),
-                new Vector3(0.45f, 0.35f, 0.45f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cylinder, root, "FountainWater", new Vector3(0f, 0.55f, z),
-                new Vector3(1.2f, 0.1f, 1.2f), new Color(0.3f, 0.45f, 0.55f), SurfaceKind.Plain);
+            // Fonte refinada (Ignore Raycast — não bloqueia Castelo).
+            PartShared(PrimitiveType.Cylinder, root, "FountainBase", new Vector3(0f, 0.38f, z),
+                new Vector3(2.0f, 0.38f, 2.0f), CityArtMaterialCategory.StoneLight);
+            PartShared(PrimitiveType.Cylinder, root, "FountainBowl", new Vector3(0f, 0.72f, z),
+                new Vector3(1.55f, 0.18f, 1.55f), CityArtMaterialCategory.StoneDark);
+            PartShared(PrimitiveType.Cylinder, root, "FountainStem", new Vector3(0f, 1.05f, z),
+                new Vector3(0.4f, 0.45f, 0.4f), CityArtMaterialCategory.StoneLight);
+            PartShared(PrimitiveType.Cylinder, root, "FountainTop", new Vector3(0f, 1.45f, z),
+                new Vector3(0.85f, 0.16f, 0.85f), CityArtMaterialCategory.StoneDark);
+            PartShared(PrimitiveType.Cylinder, root, "FountainWater", new Vector3(0f, 0.68f, z),
+                new Vector3(1.35f, 0.1f, 1.35f), CityArtMaterialCategory.Water);
 
-            Flat(root, "Crest", new Vector3(0f, 0.09f, z), new Vector3(1.25f, 0.05f, 1.25f),
-                CityVisualMaterials.Gold, SurfaceKind.Metal);
+            // Brasão de Valgor no piso (anel ao redor da fonte — não cobre o Castelo).
+            FlatShared(root, "ValgorCrest", new Vector3(0f, 0.07f, z - 2.4f), new Vector3(1.6f, 0.06f, 1.6f),
+                CityArtMaterialCategory.Metal);
+            PartShared(PrimitiveType.Cube, root, "CrestGem", new Vector3(0f, 0.18f, z - 2.4f),
+                new Vector3(0.55f, 0.12f, 0.55f), CityArtMaterialCategory.Metal);
 
-            // Bancos e canteiros nos quatro acessos (fora do eixo imperial).
-            Part(PrimitiveType.Cube, root, "BenchN", new Vector3(-2.8f, 0.28f, z + 2.6f),
-                new Vector3(1.4f, 0.28f, 0.4f), CityVisualMaterials.Wood, SurfaceKind.Wood);
-            Part(PrimitiveType.Cube, root, "BenchS", new Vector3(2.8f, 0.28f, z - 2.6f),
-                new Vector3(1.4f, 0.28f, 0.4f), CityVisualMaterials.Wood, SurfaceKind.Wood);
-            Part(PrimitiveType.Cube, root, "PlanterE", new Vector3(4.2f, 0.22f, z),
-                new Vector3(0.9f, 0.3f, 0.9f), CityVisualMaterials.Vegetation, SurfaceKind.Vegetation);
-            Part(PrimitiveType.Cube, root, "PlanterW", new Vector3(-4.2f, 0.22f, z),
-                new Vector3(0.9f, 0.3f, 0.9f), CityVisualMaterials.Vegetation, SurfaceKind.Vegetation);
+            // Bancos, canteiros e estátuas pequenas nos acessos laterais.
+            PartShared(PrimitiveType.Cube, root, "BenchNE", new Vector3(-3.2f, 0.3f, z + 3.0f),
+                new Vector3(1.6f, 0.3f, 0.42f), CityArtMaterialCategory.Wood);
+            PartShared(PrimitiveType.Cube, root, "BenchNW", new Vector3(3.2f, 0.3f, z + 3.0f),
+                new Vector3(1.6f, 0.3f, 0.42f), CityArtMaterialCategory.Wood);
+            PartShared(PrimitiveType.Cube, root, "BenchSE", new Vector3(-3.2f, 0.3f, z - 3.0f),
+                new Vector3(1.6f, 0.3f, 0.42f), CityArtMaterialCategory.Wood);
+            PartShared(PrimitiveType.Cube, root, "BenchSW", new Vector3(3.2f, 0.3f, z - 3.0f),
+                new Vector3(1.6f, 0.3f, 0.42f), CityArtMaterialCategory.Wood);
+            PartShared(PrimitiveType.Cube, root, "PlanterE", new Vector3(4.6f, 0.24f, z),
+                new Vector3(1.0f, 0.35f, 1.0f), CityArtMaterialCategory.Dirt);
+            PartShared(PrimitiveType.Cube, root, "PlanterEHedge", new Vector3(4.6f, 0.5f, z),
+                new Vector3(0.85f, 0.3f, 0.85f), CityArtMaterialCategory.Grass);
+            PartShared(PrimitiveType.Cube, root, "PlanterW", new Vector3(-4.6f, 0.24f, z),
+                new Vector3(1.0f, 0.35f, 1.0f), CityArtMaterialCategory.Dirt);
+            PartShared(PrimitiveType.Cube, root, "PlanterWHedge", new Vector3(-4.6f, 0.5f, z),
+                new Vector3(0.85f, 0.3f, 0.85f), CityArtMaterialCategory.Grass);
+            // Estátuas discretas (fora do eixo).
+            PartShared(PrimitiveType.Cylinder, root, "StatueBaseE", new Vector3(5.5f, 0.25f, z + 2.2f),
+                new Vector3(0.55f, 0.25f, 0.55f), CityArtMaterialCategory.StoneDark);
+            PartShared(PrimitiveType.Cube, root, "StatueE", new Vector3(5.5f, 0.85f, z + 2.2f),
+                new Vector3(0.35f, 1.0f, 0.35f), CityArtMaterialCategory.StoneLight);
+            PartShared(PrimitiveType.Cylinder, root, "StatueBaseW", new Vector3(-5.5f, 0.25f, z + 2.2f),
+                new Vector3(0.55f, 0.25f, 0.55f), CityArtMaterialCategory.StoneDark);
+            PartShared(PrimitiveType.Cube, root, "StatueW", new Vector3(-5.5f, 0.85f, z + 2.2f),
+                new Vector3(0.35f, 1.0f, 0.35f), CityArtMaterialCategory.StoneLight);
 
             if (CityAmbientQualitySettings.AllowFlags)
             {
-                Flag(root, new Vector3(-3.8f, 0.15f, z + 3.4f));
-                Flag(root, new Vector3(3.8f, 0.15f, z + 3.4f));
+                Flag(root, new Vector3(-4.0f, 0.15f, z + 3.6f));
+                Flag(root, new Vector3(4.0f, 0.15f, z + 3.6f));
             }
 
             if (CityAmbientQualitySettings.AllowTorches)
             {
-                Torch(root, new Vector3(-4.6f, 0.7f, z - 1.2f));
-                Torch(root, new Vector3(4.6f, 0.7f, z - 1.2f));
+                Torch(root, new Vector3(-5.0f, 0.75f, z - 1.4f));
+                Torch(root, new Vector3(5.0f, 0.75f, z - 1.4f));
+                Torch(root, new Vector3(-5.0f, 0.75f, z + 1.4f));
+                Torch(root, new Vector3(5.0f, 0.75f, z + 1.4f));
             }
         }
 
@@ -343,15 +377,32 @@ namespace Valgor.City.Visual
             var main = Node(root, "MainRoads");
             var secondary = Node(root, "SecondaryRoads");
 
-            // Portão (S) → Praça → Castelo — Estrada Imperial mais larga e distinta.
+            // Portão (S) → Praça → Castelo — Estrada Imperial pavimentada.
             var imperialW = CityCapitalEnvironmentConfig.ImperialRoadWidth;
             Road(imperial, "ImperialSouth", new Vector3(0f, 0.04f, -11.5f), new Vector3(imperialW, 0.1f, 17f), 0f, imperialGrade: true);
             Road(imperial, "ImperialNorth", new Vector3(0f, 0.04f, 9f), new Vector3(imperialW * 0.85f, 0.1f, 16f), 0f, imperialGrade: true);
-            // Bordas da Estrada Imperial (desgaste / definição).
-            Flat(imperial, "ImperialEdgeL", new Vector3(-imperialW * 0.55f, 0.055f, -8f),
-                new Vector3(0.22f, 0.08f, 22f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
-            Flat(imperial, "ImperialEdgeR", new Vector3(imperialW * 0.55f, 0.055f, -8f),
-                new Vector3(0.22f, 0.08f, 22f), CityVisualMaterials.StoneDark, SurfaceKind.Stone);
+            // Bordas, grama e drenagem lateral.
+            FlatShared(imperial, "ImperialEdgeL", new Vector3(-imperialW * 0.55f, 0.055f, -8f),
+                new Vector3(0.28f, 0.08f, 22f), CityArtMaterialCategory.StoneDark);
+            FlatShared(imperial, "ImperialEdgeR", new Vector3(imperialW * 0.55f, 0.055f, -8f),
+                new Vector3(0.28f, 0.08f, 22f), CityArtMaterialCategory.StoneDark);
+            FlatShared(imperial, "ImperialGrassL", new Vector3(-imperialW * 0.78f, 0.03f, -8f),
+                new Vector3(0.55f, 0.06f, 22f), CityArtMaterialCategory.Grass);
+            FlatShared(imperial, "ImperialGrassR", new Vector3(imperialW * 0.78f, 0.03f, -8f),
+                new Vector3(0.55f, 0.06f, 22f), CityArtMaterialCategory.Grass);
+            FlatShared(imperial, "DrainL", new Vector3(-imperialW * 0.62f, 0.02f, -8f),
+                new Vector3(0.18f, 0.05f, 22f), CityArtMaterialCategory.Dirt);
+            FlatShared(imperial, "DrainR", new Vector3(imperialW * 0.62f, 0.02f, -8f),
+                new Vector3(0.18f, 0.05f, 22f), CityArtMaterialCategory.Dirt);
+            // Pedras irregulares / desgaste (marcas no eixo).
+            FlatShared(imperial, "WearA", new Vector3(-0.55f, 0.07f, -14f), new Vector3(0.7f, 0.04f, 1.2f),
+                CityArtMaterialCategory.StoneDark);
+            FlatShared(imperial, "WearB", new Vector3(0.7f, 0.07f, -10f), new Vector3(0.9f, 0.04f, 0.9f),
+                CityArtMaterialCategory.StoneDark);
+            FlatShared(imperial, "WearC", new Vector3(-0.35f, 0.07f, -6.5f), new Vector3(0.8f, 0.04f, 1.1f),
+                CityArtMaterialCategory.StoneLight);
+            FlatShared(imperial, "WearD", new Vector3(0.4f, 0.07f, -3.5f), new Vector3(0.75f, 0.04f, 0.85f),
+                CityArtMaterialCategory.StoneDark);
             if (CityAmbientQualitySettings.AllowFlags)
             {
                 Flag(imperial, new Vector3(-2.4f, 0.2f, -8f));
@@ -402,8 +453,8 @@ namespace Valgor.City.Visual
         {
             var wall = CityVisualMaterials.StoneLight;
             var cap = CityVisualMaterials.StoneDark;
-            var height = wallLevel <= 0 ? 1.85f : 2.15f + Math.Min(wallLevel, 6) * 0.32f;
-            var thickness = wallLevel <= 0 ? 0.72f : 0.85f + Math.Min(wallLevel, 5) * 0.08f;
+            var height = wallLevel <= 0 ? 2.05f : 2.35f + Math.Min(wallLevel, 6) * 0.34f;
+            var thickness = wallLevel <= 0 ? 0.85f : 0.95f + Math.Min(wallLevel, 5) * 0.09f;
             var radius = CityCapitalLayoutConfig.WallRadius;
             const int segments = 20;
             // Segmento do sul (i≈0) fica aberto para o Portão Principal.
@@ -421,20 +472,37 @@ namespace Valgor.City.Visual
                 var piece = FortPart(PrimitiveType.Cube, root, $"Wall_{i}", pos,
                     new Vector3(3.6f, height, thickness), wall, SurfaceKind.Stone);
                 piece.transform.LookAt(new Vector3(0f, height * 0.5f, 0f));
+                // Passarela superior.
+                var walk = FortPart(PrimitiveType.Cube, root, $"WallWalk_{i}", pos + Vector3.up * (height * 0.42f),
+                    new Vector3(3.4f, 0.16f, thickness + 0.35f), CityVisualMaterials.Path, SurfaceKind.Path);
+                walk.transform.rotation = piece.transform.rotation;
+                // Ameias (merlões).
+                for (var m = -1; m <= 1; m++)
+                {
+                    var merlon = FortPart(PrimitiveType.Cube, root, $"WallMerlon_{i}_{m}",
+                        pos + piece.transform.right * (m * 1.05f) + Vector3.up * (height * 0.58f),
+                        new Vector3(0.7f, 0.55f, thickness + 0.2f), cap, SurfaceKind.Stone);
+                    merlon.transform.rotation = piece.transform.rotation;
+                }
+
                 var capGo = FortPart(PrimitiveType.Cube, root, $"WallCap_{i}", pos + Vector3.up * (height * 0.52f),
-                    new Vector3(3.6f, 0.28f, thickness + 0.12f), cap, SurfaceKind.Stone);
+                    new Vector3(3.6f, 0.22f, thickness + 0.12f), cap, SurfaceKind.Stone);
                 capGo.transform.rotation = piece.transform.rotation;
 
-                if (wallLevel >= 3 && i % 4 == 2)
+                if (i % 4 == 2)
                 {
-                    var towerH = height + 0.85f;
+                    var towerH = height + 1.05f;
                     var tower = FortPart(PrimitiveType.Cube, root, $"WallTower_{i}",
-                        pos + Vector3.up * (height * 0.25f),
-                        new Vector3(1.15f, towerH, 1.15f), cap, SurfaceKind.Stone);
+                        pos + Vector3.up * (height * 0.28f),
+                        new Vector3(1.25f, towerH, 1.25f), cap, SurfaceKind.Stone);
                     tower.transform.rotation = piece.transform.rotation;
                     FortPart(PrimitiveType.Cube, root, $"WallTowerRoof_{i}",
-                        pos + Vector3.up * (height * 0.25f + towerH * 0.55f),
-                        new Vector3(1.3f, 0.35f, 1.3f), CityVisualMaterials.RoofBlue, SurfaceKind.Roof);
+                        pos + Vector3.up * (height * 0.28f + towerH * 0.55f),
+                        new Vector3(1.45f, 0.4f, 1.45f), CityVisualMaterials.RoofBlue, SurfaceKind.Roof);
+                    if (CityAmbientQualitySettings.AllowFlags)
+                    {
+                        Flag(root, pos + Vector3.up * (height * 0.28f + towerH * 0.75f) + piece.transform.forward * -0.2f);
+                    }
                 }
             }
         }
@@ -444,33 +512,50 @@ namespace Valgor.City.Visual
             var stone = CityVisualMaterials.StoneLight;
             var dark = CityVisualMaterials.StoneDark;
             var z = CityCapitalLayoutConfig.MainGateZ;
-            var towerH = wallLevel <= 0 ? 2.2f : 2.6f + Math.Min(wallLevel, 5) * 0.25f;
-            FortPart(PrimitiveType.Cube, root, "GateL", new Vector3(-2.2f, towerH * 0.5f, z),
-                new Vector3(1.5f, towerH, 1.5f), dark, SurfaceKind.Stone);
-            FortPart(PrimitiveType.Cube, root, "GateR", new Vector3(2.2f, towerH * 0.5f, z),
-                new Vector3(1.5f, towerH, 1.5f), dark, SurfaceKind.Stone);
-            FortPart(PrimitiveType.Cube, root, "GateArch", new Vector3(0f, towerH + 0.2f, z),
-                new Vector3(5.2f, 0.55f, 1.6f), stone, SurfaceKind.Stone);
-            if (wallLevel >= 2)
-            {
-                FortPart(PrimitiveType.Cube, root, "GateGold", new Vector3(0f, towerH + 0.55f, z),
-                    new Vector3(1.5f, 0.18f, 0.45f), CityVisualMaterials.Gold, SurfaceKind.Metal);
-            }
+            var towerH = wallLevel <= 0 ? 2.6f : 3.0f + Math.Min(wallLevel, 5) * 0.28f;
+            FortPart(PrimitiveType.Cube, root, "GateL", new Vector3(-2.35f, towerH * 0.5f, z),
+                new Vector3(1.65f, towerH, 1.7f), dark, SurfaceKind.Stone);
+            FortPart(PrimitiveType.Cube, root, "GateR", new Vector3(2.35f, towerH * 0.5f, z),
+                new Vector3(1.65f, towerH, 1.7f), dark, SurfaceKind.Stone);
+            // Arco de pedra em camadas.
+            FortPart(PrimitiveType.Cube, root, "GateArch", new Vector3(0f, towerH + 0.25f, z),
+                new Vector3(5.6f, 0.65f, 1.8f), stone, SurfaceKind.Stone);
+            FortPart(PrimitiveType.Cube, root, "GateArchInner", new Vector3(0f, towerH - 0.15f, z),
+                new Vector3(3.4f, 0.45f, 1.5f), dark, SurfaceKind.Stone);
+            FortPart(PrimitiveType.Cube, root, "GateGold", new Vector3(0f, towerH + 0.65f, z),
+                new Vector3(1.7f, 0.2f, 0.5f), CityVisualMaterials.Gold, SurfaceKind.Metal);
 
-            FortPart(PrimitiveType.Cube, root, "GateDoor", new Vector3(0f, 1.35f, z - 0.15f),
-                new Vector3(2.5f, Math.Min(2.8f, towerH * 0.85f), 0.25f),
-                CityVisualMaterials.Wood, SurfaceKind.Wood);
+            // Portas de madeira reforçadas + ferragens.
+            var doorH = Math.Min(3.0f, towerH * 0.9f);
+            FortPart(PrimitiveType.Cube, root, "GateDoorL", new Vector3(-0.65f, doorH * 0.5f, z - 0.12f),
+                new Vector3(1.2f, doorH, 0.28f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            FortPart(PrimitiveType.Cube, root, "GateDoorR", new Vector3(0.65f, doorH * 0.5f, z - 0.12f),
+                new Vector3(1.2f, doorH, 0.28f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            FortPart(PrimitiveType.Cube, root, "GateHinge", new Vector3(0f, doorH * 0.55f, z - 0.28f),
+                new Vector3(0.14f, doorH * 0.7f, 0.1f), CityVisualMaterials.Gold, SurfaceKind.Metal);
+            FortPart(PrimitiveType.Cube, root, "GateBar", new Vector3(0f, doorH * 0.35f, z - 0.28f),
+                new Vector3(2.0f, 0.12f, 0.1f), CityVisualMaterials.Gold, SurfaceKind.Metal);
 
-            if (wallLevel >= 1 && CityAmbientQualitySettings.AllowTorches)
+            // Ponte de acesso.
+            Flat(root, "GateBridge", new Vector3(0f, 0.1f, z - 2.2f), new Vector3(3.4f, 0.14f, 3.2f),
+                CityVisualMaterials.Path, SurfaceKind.Path);
+            FortPart(PrimitiveType.Cube, root, "BridgeRailL", new Vector3(-1.7f, 0.45f, z - 2.2f),
+                new Vector3(0.18f, 0.65f, 3.0f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+            FortPart(PrimitiveType.Cube, root, "BridgeRailR", new Vector3(1.7f, 0.45f, z - 2.2f),
+                new Vector3(0.18f, 0.65f, 3.0f), CityVisualMaterials.Wood, SurfaceKind.Wood);
+
+            if (CityAmbientQualitySettings.AllowTorches)
             {
-                Torch(root, new Vector3(-2.2f, towerH * 0.85f, z + 0.75f));
-                Torch(root, new Vector3(2.2f, towerH * 0.85f, z + 0.75f));
+                Torch(root, new Vector3(-2.35f, towerH * 0.85f, z + 0.85f));
+                Torch(root, new Vector3(2.35f, towerH * 0.85f, z + 0.85f));
+                Torch(root, new Vector3(-1.4f, 0.9f, z - 3.2f));
+                Torch(root, new Vector3(1.4f, 0.9f, z - 3.2f));
             }
 
             if (CityAmbientQualitySettings.AllowFlags)
             {
-                Flag(root, new Vector3(-3.4f, towerH * 0.7f, z + 0.4f));
-                Flag(root, new Vector3(3.4f, towerH * 0.7f, z + 0.4f));
+                Flag(root, new Vector3(-3.5f, towerH * 0.75f, z + 0.45f));
+                Flag(root, new Vector3(3.5f, towerH * 0.75f, z + 0.45f));
             }
 
             // Portões laterais nas pontes E/W.
@@ -755,6 +840,42 @@ namespace Valgor.City.Visual
             SurfaceKind surface = SurfaceKind.Dirt) =>
             Part(PrimitiveType.Cube, parent, name, position, scale, color, surface);
 
+        private static GameObject FlatShared(
+            Transform parent,
+            string name,
+            Vector3 position,
+            Vector3 scale,
+            CityArtMaterialCategory category) =>
+            PartShared(PrimitiveType.Cube, parent, name, position, scale, category);
+
+        private static GameObject PartShared(
+            PrimitiveType type,
+            Transform parent,
+            string name,
+            Vector3 position,
+            Vector3 scale,
+            CityArtMaterialCategory category,
+            bool keepCollider = false)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            go.name = name;
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = position;
+            go.transform.localScale = scale;
+            if (!keepCollider)
+            {
+                UnityEngine.Object.Destroy(go.GetComponent<Collider>());
+                var ignore = LayerMask.NameToLayer("Ignore Raycast");
+                if (ignore >= 0)
+                {
+                    go.layer = ignore;
+                }
+            }
+
+            CityArtMaterialLibrary.Apply(go.GetComponent<Renderer>(), category);
+            return go;
+        }
+
         private static GameObject Part(
             PrimitiveType type,
             Transform parent,
@@ -793,5 +914,39 @@ namespace Valgor.City.Visual
             Color color,
             SurfaceKind surface = SurfaceKind.Stone) =>
             Part(type, parent, name, position, scale, color, surface, keepCollider: true);
+
+        private static void TryStaticBatch(Transform cityRoot)
+        {
+            if (cityRoot == null)
+            {
+                return;
+            }
+
+            // Batch estático das peças ambientais (Terrain/Roads/Decor) — Medium estável.
+            var batchRoots = new[]
+            {
+                cityRoot.Find("Terrain"),
+                cityRoot.Find("Roads"),
+                cityRoot.Find("Decorations"),
+                cityRoot.Find("Vegetation")
+            };
+            for (var i = 0; i < batchRoots.Length; i++)
+            {
+                var node = batchRoots[i];
+                if (node == null || node.childCount == 0)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    StaticBatchingUtility.Combine(node.gameObject);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[Valgor.City] StaticBatch skip {node.name}: {ex.Message}");
+                }
+            }
+        }
     }
 }

@@ -77,15 +77,52 @@ namespace Valgor.UI
 
         private static IEnumerator CaptureCityOverview()
         {
-            var dir = Path.Combine(Application.dataPath, "..", "evidence", "capital-overview");
+            var dir = Path.Combine(Application.dataPath, "..", "evidence", "capital-artpass1");
             Directory.CreateDirectory(dir);
-            var path = Path.Combine(dir, "overview-boot.png");
             Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
-            yield return new WaitForSecondsRealtime(0.5f);
+            yield return new WaitForSecondsRealtime(0.6f);
+            yield return CaptureNamed(dir, "01-overview");
+            yield return CaptureLookAt(dir, "02-castle", new Vector3(0f, 0f, 0f), 14.5f);
+            yield return CaptureLookAt(dir, "03-dragon-tower", new Vector3(0f, 1.3f, 17.6f), 12.5f);
+            yield return CaptureLookAt(dir, "04-gate", new Vector3(0f, 0f, -19.2f), 11.5f);
+            yield return CaptureLookAt(dir, "05-plaza", new Vector3(0f, 0f, -3.2f), 12f);
+            yield return CaptureLookAt(dir, "06-imperial-road", new Vector3(0f, 0f, -11f), 13f);
+            FrameLookAt(new Vector3(0f, 0f, 0f), 17.6f);
+            Debug.Log($"[Valgor.QA] ArtPass1 captures → {dir}");
+        }
+
+        private static IEnumerator CaptureLookAt(string dir, string name, Vector3 worldTarget, float ortho)
+        {
+            FrameLookAt(worldTarget, ortho);
+            yield return new WaitForSecondsRealtime(0.35f);
+            yield return CaptureNamed(dir, name);
+        }
+
+        private static void FrameLookAt(Vector3 worldTarget, float ortho)
+        {
+            var cam = UnityEngine.Camera.main;
+            if (cam == null)
+            {
+                return;
+            }
+
+            cam.orthographic = true;
+            cam.orthographicSize = ortho;
+            var rot = Quaternion.Euler(46f, 40f, 0f);
+            cam.transform.rotation = rot;
+            var forward = rot * Vector3.forward;
+            const float height = 19.2f;
+            var t = height / Mathf.Max(0.05f, -forward.y);
+            cam.transform.position = worldTarget - forward * t + Vector3.up * height;
+        }
+
+        private static IEnumerator CaptureNamed(string dir, string name)
+        {
+            var path = Path.Combine(dir, name + ".png");
             yield return new WaitForEndOfFrame();
             ScreenCapture.CaptureScreenshot(path);
-            yield return new WaitForSecondsRealtime(1.5f);
-            Debug.Log($"[Valgor.QA] Overview capture → {path}");
+            yield return new WaitForSecondsRealtime(1.2f);
+            Debug.Log($"[Valgor.QA] Capture {path}");
         }
 
         private static IEnumerator CaptureMenu(string name)

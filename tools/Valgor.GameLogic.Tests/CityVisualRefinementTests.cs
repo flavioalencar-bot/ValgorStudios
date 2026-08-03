@@ -59,6 +59,19 @@ public sealed class CityVisualRefinementTests
     {
         Assert.Equal(1, System.Linq.Enumerable.Count(BuildingIdMigration.CanonicalIds, id => id == "wall"));
     }
+
+    [Fact]
+    public void ArtPass1_MaterialCatalog_HasEightUniqueCategories()
+    {
+        Assert.True(CityCapitalEnvironmentConfig.ArtPass1Enabled);
+        Assert.Equal(8, CityArtMaterialCatalog.CategoryCount);
+        Assert.Equal(8, CityCapitalEnvironmentConfig.ArtMaterialCategoryCount);
+        var issues = new System.Collections.Generic.List<string>();
+        CityArtMaterialCatalog.ValidateInvariants(issues.Add);
+        Assert.Empty(issues);
+        Assert.Equal("pedra clara", CityArtMaterialCatalog.DisplayName(CityArtMaterialCategory.StoneLight));
+        Assert.Equal("água", CityArtMaterialCatalog.DisplayName(CityArtMaterialCategory.Water));
+    }
 }
 
 public sealed class CityAmbientQualityTests

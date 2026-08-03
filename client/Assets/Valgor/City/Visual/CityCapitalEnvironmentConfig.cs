@@ -7,6 +7,10 @@ namespace Valgor.City.Visual
     /// </summary>
     public static class CityCapitalEnvironmentConfig
     {
+        /// <summary>Art Pass 1.0 — arquitetura/materiais dos marcos (sem gameplay).</summary>
+        public const bool ArtPass1Enabled = true;
+        public const int ArtMaterialCategoryCount = CityArtMaterialCatalog.CategoryCount;
+
         public const float ImperialRoadWidth = 3.6f;
         public const float PlazaCenterZ = -3.2f;
         public const float CastlePlatformY = 0.08f;
