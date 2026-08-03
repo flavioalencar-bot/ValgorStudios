@@ -31,6 +31,33 @@ namespace Valgor.City.Visual
         public static Color IdentityColor(string buildingId)
         {
             var id = BuildingIdMigration.ToCanonical(buildingId);
+
+            // Sprint 3 — identidade neutra (pedra/madeira); evita silhuetas “cubo colorido”.
+            if (CityArchitectureSprint3Config.Enabled)
+            {
+                return id switch
+                {
+                    "castle" => new Color(0.52f, 0.5f, 0.46f),
+                    "dragon-tower" => new Color(0.32f, 0.28f, 0.3f),
+                    "wall" => new Color(0.5f, 0.48f, 0.44f),
+                    "farm" => new Color(0.42f, 0.38f, 0.28f),
+                    "lumbermill" => new Color(0.44f, 0.34f, 0.22f),
+                    "quarry" => new Color(0.52f, 0.5f, 0.46f),
+                    "mine" => new Color(0.4f, 0.38f, 0.36f),
+                    "warehouse" => new Color(0.46f, 0.38f, 0.28f),
+                    "residence" => new Color(0.5f, 0.46f, 0.4f),
+                    "academy" => new Color(0.48f, 0.46f, 0.44f),
+                    "hero-hall" => new Color(0.5f, 0.46f, 0.4f),
+                    "hospital" => new Color(0.54f, 0.52f, 0.48f),
+                    "market" => new Color(0.48f, 0.4f, 0.3f),
+                    "temple" => new Color(0.52f, 0.48f, 0.42f),
+                    "arena" => new Color(0.5f, 0.44f, 0.38f),
+                    "training-ground" => new Color(0.44f, 0.4f, 0.34f),
+                    "foundry" => new Color(0.4f, 0.34f, 0.3f),
+                    _ => new Color(0.46f, 0.44f, 0.4f)
+                };
+            }
+
             return id switch
             {
                 "castle" => new Color(0.52f, 0.5f, 0.46f),

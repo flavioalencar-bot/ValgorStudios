@@ -20,16 +20,18 @@ namespace Valgor.City.Visual
         public const int StaticNpcMarkerCount = 12;
         public const int DistrictDressingPropBudget = 48;
 
-        /// <summary>HF já presentes via catálogo / loaders (não blockout).</summary>
+        /// <summary>HF já presentes via catálogo / loaders / proxies Sprint 3.</summary>
         public static readonly string[] HighFidelityAssets =
         {
-            "wall-gate", "dragon-tower", "castle-tiers"
+            "wall-gate", "dragon-tower", "castle-tiers",
+            "market", "warehouse", "hospital", "arena", "academy", "training-ground",
+            "residence", "foundry", "temple", "hero-hall", "farm", "lumbermill", "quarry", "mine"
         };
 
-        /// <summary>Ainda procedurais / blockout (sem mesh HF externo).</summary>
+        /// <summary>Ainda procedurais ambientais (não são BuildingId oficiais).</summary>
         public static readonly string[] RemainingBlockout =
         {
-            "habitacao-vernacular", "vegetacao-primitivas", "estradas-flat",
+            "vegetacao-primitivas", "estradas-flat",
             "agua-flat", "props-distrito", "npcs-capsula", "horizonte-esferas"
         };
 

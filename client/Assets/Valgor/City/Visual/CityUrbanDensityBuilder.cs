@@ -12,8 +12,9 @@ namespace Valgor.City.Visual
                 return;
             }
 
-            // Art Pass 3 — habitação vernacular assume a densidade; evita cubos coloridos.
-            if (CityArtPass3Config.Enabled && CityArtPass3Config.VernacularHousingEnabled)
+            // Art Pass 3 / Sprint 3 — sem cubos de cottage coloridos.
+            if ((CityArtPass3Config.Enabled && CityArtPass3Config.VernacularHousingEnabled) ||
+                (CityArchitectureSprint3Config.Enabled && CityArchitectureSprint3Config.SuppressPrototypeHousingRings))
             {
                 var lean = new GameObject("UrbanDensity_Lean").transform;
                 lean.SetParent(decorations, false);

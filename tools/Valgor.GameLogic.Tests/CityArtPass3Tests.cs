@@ -17,7 +17,7 @@ public sealed class CityArtPass3Tests
         Assert.Equal(10, CityArtPass3Config.Stages.Length);
         Assert.Contains("muralha-fechada", CityArtPass3Config.Stages);
         Assert.Contains("wall-gate", CityArtPass3Config.HighFidelityAssets);
-        Assert.Contains("habitacao-vernacular", CityArtPass3Config.RemainingBlockout);
+        Assert.DoesNotContain("habitacao-vernacular", CityArtPass3Config.RemainingBlockout);
         Assert.Equal(12, CityArtPass3Config.StaticNpcMarkerCount);
     }
 

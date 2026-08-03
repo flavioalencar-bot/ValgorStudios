@@ -4,8 +4,8 @@ using Valgor.City.Buildings;
 namespace Valgor.City.Visual
 {
     /// <summary>
-    /// Modelos modulares provisórios. P0 (castle, dragon-tower, farm, warehouse, academy)
-    /// com silhuetas reconhecíveis; demais edifícios mantêm kits básicos.
+    /// Proxies arquitetônicos oficiais (Sprint 3) + fallback procedural.
+    /// HF externo (castle / wall / dragon-tower) via loaders/catálogo; demais = proxy HF.
     /// </summary>
     public static class CityBuildingMeshFactory
     {
@@ -96,6 +96,9 @@ namespace Valgor.City.Visual
                     BuildHouse(visual.transform, Color.Lerp(color, Stone, 0.35f), RoofRed);
                     break;
             }
+
+            // Sprint 3 — integração ao terreno + dressing temático (só visual).
+            CityOfficialBuildingDressing.Attach(id, visual.transform);
 
             return Encapsulate(visual.transform);
         }
@@ -332,81 +335,86 @@ namespace Valgor.City.Visual
 
         private static void BuildLumbermill(Transform root, Color color)
         {
-            var wall = Color.Lerp(Wood, color, 0.35f);
-            Plinth(root, 3.4f, 2.8f);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.05f, 0.15f), new Vector3(2.6f, 1.9f, 2.1f), wall, SurfaceKind.Wood);
-            SimpleRoof(root, new Vector3(0f, 2.2f, 0.15f), 2.9f, 2.4f, RoofRed);
-            Doorway(root, new Vector3(0f, 0.7f, 1.25f));
-            // Roda / lâmina.
-            Part(PrimitiveType.Cylinder, root, new Vector3(-1.7f, 1.35f, 0.3f), new Vector3(0.35f, 1.2f, 0.35f), Wood, SurfaceKind.Wood);
-            Part(PrimitiveType.Cylinder, root, new Vector3(-1.7f, 1.6f, 0.55f), new Vector3(1.15f, 0.08f, 1.15f),
+            var wall = Color.Lerp(Wood, color, 0.28f);
+            Plinth(root, 4.0f, 3.4f);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.15f, 0.1f), new Vector3(3.0f, 2.1f, 2.4f), wall, SurfaceKind.Wood);
+            SimpleRoof(root, new Vector3(0f, 2.4f, 0.1f), 3.4f, 2.8f, RoofRed);
+            Doorway(root, new Vector3(0f, 0.75f, 1.35f));
+            Part(PrimitiveType.Cylinder, root, new Vector3(-1.9f, 1.45f, 0.25f), new Vector3(0.4f, 1.35f, 0.4f), Wood, SurfaceKind.Wood);
+            Part(PrimitiveType.Cylinder, root, new Vector3(-1.9f, 1.7f, 0.55f), new Vector3(1.35f, 0.1f, 1.35f),
                 new Color(0.55f, 0.55f, 0.58f), SurfaceKind.Metal);
-            Part(PrimitiveType.Cylinder, root, new Vector3(1.45f, 0.4f, 0.9f), new Vector3(0.55f, 0.35f, 0.55f), Wood, SurfaceKind.Wood);
-            Part(PrimitiveType.Cylinder, root, new Vector3(1.45f, 0.4f, -0.2f), new Vector3(0.55f, 0.35f, 0.55f), Wood, SurfaceKind.Wood);
-            SmallFlag(root, new Vector3(0f, 2.9f, 0.15f), Banner);
+            Part(PrimitiveType.Cube, root, new Vector3(1.7f, 0.85f, -0.6f), new Vector3(1.5f, 1.4f, 1.5f), wall, SurfaceKind.Wood);
+            SimpleRoof(root, new Vector3(1.7f, 1.7f, -0.6f), 1.7f, 1.7f, RoofRed);
+            SmallFlag(root, new Vector3(0f, 3.1f, 0.1f), Banner);
         }
 
         private static void BuildQuarry(Transform root, Color color)
         {
-            Plinth(root, 3.4f, 3.0f);
-            Part(PrimitiveType.Cube, root, new Vector3(-0.9f, 0.85f, 0.2f), new Vector3(1.9f, 1.5f, 1.7f), StoneDark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0.95f, 1.3f, -0.25f), new Vector3(1.6f, 2.4f, 1.5f),
-                Color.Lerp(Stone, color, 0.2f), SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0.15f, 0.45f, 1.25f), new Vector3(1.2f, 0.75f, 1.1f), Stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0.95f, 2.7f, -0.25f), new Vector3(1.0f, 0.35f, 1.0f), RoofRed, SurfaceKind.Roof);
-            SmallFlag(root, new Vector3(0.95f, 3.2f, -0.25f), Gold);
+            Plinth(root, 4.2f, 3.6f);
+            Part(PrimitiveType.Cube, root, new Vector3(-1.1f, 1.0f, 0.15f), new Vector3(2.2f, 1.8f, 2.0f), StoneDark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(1.15f, 1.55f, -0.2f), new Vector3(1.9f, 2.8f, 1.8f),
+                Color.Lerp(Stone, color, 0.18f), SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(0.1f, 0.55f, 1.45f), new Vector3(1.5f, 0.9f, 1.3f), Stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(1.15f, 3.15f, -0.2f), new Vector3(1.2f, 0.35f, 1.2f), RoofRed, SurfaceKind.Roof);
+            Part(PrimitiveType.Cube, root, new Vector3(2.1f, 1.8f, 0.9f), new Vector3(0.22f, 3.0f, 0.22f), Wood, SurfaceKind.Wood);
+            SmallFlag(root, new Vector3(1.15f, 3.7f, -0.2f), Gold);
         }
 
         private static void BuildMine(Transform root, Color color)
         {
-            Plinth(root, 3.0f, 2.8f);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.05f, 0.55f), new Vector3(2.5f, 1.9f, 1.9f),
-                Color.Lerp(Stone, color, 0.2f), SurfaceKind.Stone);
-            SimpleRoof(root, new Vector3(0f, 2.2f, 0.55f), 2.8f, 2.2f, RoofRed);
-            // Boca da mina.
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.75f, -0.95f), new Vector3(1.6f, 1.35f, 1.4f), StoneDark, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.7f, -1.55f), new Vector3(1.0f, 1.1f, 0.2f),
+            Plinth(root, 3.6f, 3.4f);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.15f, 0.55f), new Vector3(2.8f, 2.1f, 2.2f),
+                Color.Lerp(Stone, color, 0.18f), SurfaceKind.Stone);
+            SimpleRoof(root, new Vector3(0f, 2.4f, 0.55f), 3.1f, 2.5f, RoofRed);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.95f, -1.15f), new Vector3(1.9f, 1.7f, 1.6f), StoneDark, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.85f, -1.85f), new Vector3(1.15f, 1.3f, 0.25f),
                 new Color(0.08f, 0.08f, 0.1f), SurfaceKind.Plain);
-            Doorway(root, new Vector3(0f, 0.7f, 1.55f));
+            Part(PrimitiveType.Cube, root, new Vector3(-1.0f, 1.6f, -1.0f), new Vector3(0.2f, 2.4f, 0.2f), Wood, SurfaceKind.Wood);
+            Part(PrimitiveType.Cube, root, new Vector3(1.0f, 1.6f, -1.0f), new Vector3(0.2f, 2.4f, 0.2f), Wood, SurfaceKind.Wood);
+            Doorway(root, new Vector3(0f, 0.75f, 1.7f));
         }
 
         private static void BuildMarket(Transform root, Color color)
         {
-            Plinth(root, 3.8f, 3.0f);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.7f, 0f), new Vector3(3.3f, 1.15f, 2.5f),
-                Color.Lerp(Wood, color, 0.3f), SurfaceKind.Wood);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.5f, 0f), new Vector3(3.7f, 0.2f, 2.9f), RoofRed, SurfaceKind.Roof);
-            Part(PrimitiveType.Cylinder, root, new Vector3(-1.45f, 0.95f, 0f), new Vector3(0.16f, 0.9f, 0.16f), Wood, SurfaceKind.Wood);
-            Part(PrimitiveType.Cylinder, root, new Vector3(1.45f, 0.95f, 0f), new Vector3(0.16f, 0.9f, 0.16f), Wood, SurfaceKind.Wood);
-            Part(PrimitiveType.Cube, root, new Vector3(-0.8f, 0.4f, 1.4f), new Vector3(0.45f, 0.45f, 0.45f),
-                new Color(0.5f, 0.38f, 0.22f), SurfaceKind.Wood);
-            Part(PrimitiveType.Cylinder, root, new Vector3(0.9f, 0.4f, 1.35f), new Vector3(0.5f, 0.35f, 0.5f),
-                new Color(0.4f, 0.28f, 0.16f), SurfaceKind.Wood);
-            SmallFlag(root, new Vector3(0f, 2.05f, 0f), Banner);
+            // Centro comercial — hall + toldo (props em ArchSprint3Dressing).
+            Plinth(root, 4.4f, 3.6f);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.95f, 0f), new Vector3(3.6f, 1.6f, 2.8f),
+                Color.Lerp(Wood, color, 0.22f), SurfaceKind.Wood);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.9f, 0f), new Vector3(4.0f, 0.22f, 3.2f), RoofRed, SurfaceKind.Roof);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.15f, 0f), new Vector3(2.4f, 0.35f, 1.6f),
+                Color.Lerp(RoofRed, StoneDark, 0.2f), SurfaceKind.Roof);
+            Part(PrimitiveType.Cylinder, root, new Vector3(-1.7f, 1.15f, 0f), new Vector3(0.18f, 1.1f, 0.18f), Wood, SurfaceKind.Wood);
+            Part(PrimitiveType.Cylinder, root, new Vector3(1.7f, 1.15f, 0f), new Vector3(0.18f, 1.1f, 0.18f), Wood, SurfaceKind.Wood);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 0.7f, 1.55f), new Vector3(2.4f, 1.1f, 0.35f), Wood, SurfaceKind.Wood);
+            SmallFlag(root, new Vector3(0f, 2.75f, 0f), Banner);
         }
 
         private static void BuildTemple(Transform root, Color color)
         {
-            Plinth(root, 3.2f, 3.2f);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.35f, 0f), new Vector3(2.7f, 2.5f, 2.7f),
-                Color.Lerp(Stone, color, 0.25f), SurfaceKind.Stone);
-            Part(PrimitiveType.Cylinder, root, new Vector3(-1.25f, 1.25f, 1.25f), new Vector3(0.38f, 1.25f, 0.38f), Stone, SurfaceKind.Stone);
-            Part(PrimitiveType.Cylinder, root, new Vector3(1.25f, 1.25f, 1.25f), new Vector3(0.38f, 1.25f, 0.38f), Stone, SurfaceKind.Stone);
-            ConeRoof(root, new Vector3(0f, 2.9f, 0f), 2.6f, 1.1f, RoofBlue);
-            SmallFlag(root, new Vector3(0f, 4.2f, 0f), Gold);
-            Doorway(root, new Vector3(0f, 0.85f, 1.4f));
+            Plinth(root, 3.8f, 3.8f);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.55f, 0f), new Vector3(3.0f, 2.9f, 3.0f),
+                Color.Lerp(Stone, color, 0.2f), SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(-1.4f, 1.4f, 1.4f), new Vector3(0.42f, 1.4f, 0.42f), Stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(1.4f, 1.4f, 1.4f), new Vector3(0.42f, 1.4f, 0.42f), Stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(-1.4f, 1.4f, -1.2f), new Vector3(0.36f, 1.3f, 0.36f), Stone, SurfaceKind.Stone);
+            Part(PrimitiveType.Cylinder, root, new Vector3(1.4f, 1.4f, -1.2f), new Vector3(0.36f, 1.3f, 0.36f), Stone, SurfaceKind.Stone);
+            ConeRoof(root, new Vector3(0f, 3.25f, 0f), 2.9f, 1.25f, RoofBlue);
+            SmallFlag(root, new Vector3(0f, 4.7f, 0f), Gold);
+            Doorway(root, new Vector3(0f, 0.9f, 1.55f));
         }
 
         private static void BuildHospital(Transform root, Color color)
         {
-            var wall = Color.Lerp(Stone, color, 0.35f);
-            Plinth(root, 3.0f, 2.6f);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.1f, 0.15f), new Vector3(2.5f, 2.0f, 2.1f), wall, SurfaceKind.Stone);
-            SimpleRoof(root, new Vector3(0f, 2.35f, 0.15f), 2.8f, 2.4f, RoofRed);
-            Doorway(root, new Vector3(0f, 0.75f, 1.25f));
-            // Cruz.
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.75f, 0.15f), new Vector3(1.05f, 0.22f, 0.22f), Banner, SurfaceKind.Plain);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.75f, 0.15f), new Vector3(0.22f, 0.22f, 1.05f), Banner, SurfaceKind.Plain);
+            var wall = Color.Lerp(Stone, color, 0.28f);
+            Plinth(root, 3.6f, 3.2f);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.25f, 0.1f), new Vector3(2.9f, 2.3f, 2.4f), wall, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(-1.55f, 1.0f, -0.15f), new Vector3(1.4f, 1.7f, 1.8f),
+                Color.Lerp(wall, Wood, 0.15f), SurfaceKind.Stone);
+            SimpleRoof(root, new Vector3(0f, 2.55f, 0.1f), 3.2f, 2.7f, RoofRed);
+            SimpleRoof(root, new Vector3(-1.55f, 2.0f, -0.15f), 1.6f, 2.0f, RoofRed);
+            Doorway(root, new Vector3(0f, 0.8f, 1.35f));
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.95f, 0.1f), new Vector3(1.15f, 0.22f, 0.22f), Banner, SurfaceKind.Plain);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 2.95f, 0.1f), new Vector3(0.22f, 0.22f, 1.15f), Banner, SurfaceKind.Plain);
         }
 
         private static void BuildHeroHall(Transform root, Color color)
@@ -475,21 +483,21 @@ namespace Valgor.City.Visual
 
         private static void BuildResidence(Transform root, Color color)
         {
-            // Residência oficial — mansão compacta (≠ cottage decorativo).
-            var wall = Color.Lerp(Stone, color, 0.35f);
-            Plinth(root, 3.6f, 3.2f);
-            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.2f, 0.15f), new Vector3(2.8f, 2.2f, 2.4f), wall, SurfaceKind.Stone);
-            Part(PrimitiveType.Cube, root, new Vector3(1.55f, 0.85f, 0.15f), new Vector3(1.3f, 1.5f, 1.8f),
-                Color.Lerp(wall, Wood, 0.25f), SurfaceKind.Stone);
-            PitchedRoof(root, new Vector3(0f, 2.5f, 0.15f), 3.15f, RoofRed);
-            Part(PrimitiveType.Cube, root, new Vector3(1.55f, 1.8f, 0.15f), new Vector3(1.5f, 0.35f, 2.0f), RoofRed, SurfaceKind.Roof);
-            Doorway(root, new Vector3(0f, 0.8f, 1.4f));
-            Part(PrimitiveType.Cube, root, new Vector3(-0.7f, 1.55f, 1.35f), new Vector3(0.55f, 0.55f, 0.12f),
-                new Color(0.45f, 0.65f, 0.8f), SurfaceKind.Plain);
-            Part(PrimitiveType.Cube, root, new Vector3(0.7f, 1.55f, 1.35f), new Vector3(0.55f, 0.55f, 0.12f),
-                new Color(0.45f, 0.65f, 0.8f), SurfaceKind.Plain);
-            Part(PrimitiveType.Cube, root, new Vector3(-1.5f, 0.25f, 1.5f), new Vector3(0.9f, 0.35f, 0.55f), Grass, SurfaceKind.Vegetation);
-            SmallFlag(root, new Vector3(0f, 3.15f, 0.15f), Banner);
+            // Residência nobre — pedra/ardósia (sem casas coloridas de blockout).
+            var wall = Color.Lerp(Stone, color, 0.22f);
+            Plinth(root, 4.0f, 3.6f);
+            Part(PrimitiveType.Cube, root, new Vector3(0f, 1.35f, 0.1f), new Vector3(3.1f, 2.5f, 2.7f), wall, SurfaceKind.Stone);
+            Part(PrimitiveType.Cube, root, new Vector3(1.75f, 1.0f, 0.1f), new Vector3(1.5f, 1.7f, 2.0f),
+                Color.Lerp(wall, Wood, 0.18f), SurfaceKind.Stone);
+            PitchedRoof(root, new Vector3(0f, 2.8f, 0.1f), 3.5f, RoofBlue);
+            Part(PrimitiveType.Cube, root, new Vector3(1.75f, 2.05f, 0.1f), new Vector3(1.7f, 0.32f, 2.2f), RoofBlue, SurfaceKind.Roof);
+            Doorway(root, new Vector3(0f, 0.85f, 1.5f));
+            Part(PrimitiveType.Cube, root, new Vector3(-0.75f, 1.7f, 1.45f), new Vector3(0.55f, 0.6f, 0.12f),
+                new Color(0.42f, 0.55f, 0.62f), SurfaceKind.Plain);
+            Part(PrimitiveType.Cube, root, new Vector3(0.75f, 1.7f, 1.45f), new Vector3(0.55f, 0.6f, 0.12f),
+                new Color(0.42f, 0.55f, 0.62f), SurfaceKind.Plain);
+            Part(PrimitiveType.Cube, root, new Vector3(-1.7f, 0.28f, 1.55f), new Vector3(1.0f, 0.35f, 0.65f), Grass, SurfaceKind.Vegetation);
+            SmallFlag(root, new Vector3(0f, 3.5f, 0.1f), Banner);
         }
 
         private static void BuildFoundry(Transform root, Color color)

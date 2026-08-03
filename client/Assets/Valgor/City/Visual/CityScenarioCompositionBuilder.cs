@@ -18,7 +18,12 @@ namespace Valgor.City.Visual
             BuildMoat(water);
             BuildOuterMountains(terrain);
             BuildForestBelts(vegetation);
-            if (CityArtPass3Config.Enabled && CityArtPass3Config.VernacularHousingEnabled)
+            if (CityArchitectureSprint3Config.Enabled && CityArchitectureSprint3Config.SuppressPrototypeHousingRings)
+            {
+                // Sprint 3: sem anéis de casas coloridas / vernacular de protótipo.
+                // Residência oficial + Distrito Real cobrem habitação.
+            }
+            else if (CityArtPass3Config.Enabled && CityArtPass3Config.VernacularHousingEnabled)
             {
                 CityArtPass3Builder.BuildVernacularHousing(decorations);
             }

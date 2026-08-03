@@ -69,10 +69,14 @@ namespace Valgor.City.Visual
                 }
             }
 
-            var dir = Path.Combine(Application.dataPath, "..", "evidence", "capital-artpass2");
+            var dir = CityArchitectureSprint3Config.Enabled
+                ? @"C:\Valgor_Studio\docs\releases\capital-sprint3"
+                : Path.Combine(Application.dataPath, "..", "evidence", "capital-artpass2");
             Directory.CreateDirectory(dir);
             var sb = new StringBuilder();
-            sb.AppendLine("# Art Pass 2.0 — Profiler leve (runtime QA)");
+            sb.AppendLine(CityArchitectureSprint3Config.Enabled
+                ? "# Sprint 3 Architecture — Profiler leve (runtime QA)"
+                : "# Art Pass 2.0 — Profiler leve (runtime QA)");
             sb.AppendLine($"quality={CityAmbientQualitySettings.Current}");
             sb.AppendLine($"fps_avg={avg:0.0}");
             sb.AppendLine($"fps_min={min:0.0}");
@@ -81,7 +85,7 @@ namespace Valgor.City.Visual
             sb.AppendLine($"mem_mono_mb={System.GC.GetTotalMemory(false) / (1024f * 1024f):0.0}");
             sb.AppendLine("note=Amostra runtime; Unity Profiler Editor recomendado para batches/draw calls oficiais.");
             File.WriteAllText(Path.Combine(dir, "profiler-runtime.md"), sb.ToString());
-            Debug.Log($"[Valgor.QA] ArtPass2 perf avg={avg:0.0} min={min:0.0} tris~{tris}");
+            Debug.Log($"[Valgor.QA] PerfProbe avg={avg:0.0} min={min:0.0} tris~{tris} → {dir}");
         }
     }
 }

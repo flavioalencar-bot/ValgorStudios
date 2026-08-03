@@ -83,6 +83,28 @@ namespace Valgor.UI
             yield return new WaitForSecondsRealtime(0.7f);
             FrameLookAt(Vector3.zero, 22f);
             yield return CaptureNamed(dir, "01-overview-1920x1080");
+
+            // Sprint 3 — capturar cedo (antes do AutoTest encerrar o processo).
+            var sprint3Dir = @"C:\Valgor_Studio\docs\releases\capital-sprint3\screenshots";
+            System.IO.Directory.CreateDirectory(sprint3Dir);
+            yield return CaptureLookAt(sprint3Dir, "01-overview", new Vector3(0f, 0.6f, -2f), 24f);
+            yield return CaptureLookAt(sprint3Dir, "02-castelo", new Vector3(0f, 0.2f, 0f), 13f);
+            yield return CaptureLookAt(sprint3Dir, "03-mercado", new Vector3(-8.6f, 0.3f, -6.4f), 10f);
+            yield return CaptureLookAt(sprint3Dir, "04-hospital", new Vector3(-9.2f, 0.3f, 4.2f), 10f);
+            yield return CaptureLookAt(sprint3Dir, "05-arena", new Vector3(11.2f, 0.3f, 0.8f), 11f);
+            yield return CaptureLookAt(sprint3Dir, "06-templo", new Vector3(9.0f, 0.3f, 4.8f), 10f);
+            yield return CaptureLookAt(sprint3Dir, "07-herohall", new Vector3(-6.8f, 0.3f, 5.2f), 10f);
+            yield return CaptureLookAt(sprint3Dir, "08-fundicao", new Vector3(12.8f, 0.3f, -13.0f), 10f);
+            yield return CaptureLookAt(sprint3Dir, "09-fazenda", new Vector3(-14.2f, 0.3f, -7.5f), 11f);
+            yield return CaptureLookAt(sprint3Dir, "10-mina", new Vector3(-15.0f, 1.0f, 11.8f), 10f);
+            yield return CaptureLookAt(sprint3Dir, "11-pedreira", new Vector3(15.2f, 1.0f, 12.2f), 10f);
+            Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
+            yield return null;
+            yield return CaptureNamed(sprint3Dir, "12-1080x640");
+            Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+            yield return null;
+            yield return CaptureNamed(sprint3Dir, "13-1920x1080");
+
             yield return CaptureNamed(dir, "20-full-ui");
             yield return CaptureNamed(dir, "03-player-panel");
             yield return CaptureNamed(dir, "04-resource-bar");

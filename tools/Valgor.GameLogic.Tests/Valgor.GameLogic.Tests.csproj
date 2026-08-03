@@ -45,6 +45,7 @@
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtPass3Config.cs" Link="City\CityArtPass3Config.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityFortressWallConfig.cs" Link="City\CityFortressWallConfig.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityRoyalDistrictConfig.cs" Link="City\CityRoyalDistrictConfig.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArchitectureSprint3Config.cs" Link="City\CityArchitectureSprint3Config.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalFinalConfig.cs" Link="City\CityCapitalFinalConfig.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityArtPipelineConfig.cs" Link="City\CityArtPipelineConfig.cs" />
     <Compile Include="..\..\client\Assets\_Valgor\Scripts\Runtime\UI\ValgorHudConfig.cs" Link="UI\ValgorHudConfig.cs" />
