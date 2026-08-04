@@ -46,23 +46,23 @@ namespace Valgor.City.Visual
             Node(root, "NPCs");
             Node(root, "Navigation");
 
-            BuildTerrain(terrain);
             if (CityCapitalWorldConfig.Enabled)
             {
                 CityTerrainCompositionBuilder.Build(root);
             }
             else
             {
+                BuildTerrain(terrain);
                 BuildHorizon(terrain);
-            }
-
-            CityReliefBuilder.Build(terrain);
-            if (!CityCapitalWorldConfig.Enabled)
-            {
+                CityReliefBuilder.Build(terrain);
                 BuildRivers(water);
             }
 
-            BuildDistrictPads(districts);
+            if (!CityCapitalWorldNoTripo.IsActive)
+            {
+                BuildDistrictPads(districts);
+            }
+
             if (CityRoyalDistrictConfig.Enabled)
             {
                 // Sprint 2 assume praça / complexo imperial (BuildPlaza legado omitido).
@@ -78,37 +78,81 @@ namespace Valgor.City.Visual
             {
                 BuildPlateaus(terrain);
             }
-            else
+
+            if (!CityCapitalWorldNoTripo.IsActive)
             {
-                // Platô/penhasco da Torre vêm do CityTerrainCompositionBuilder (V1/V2 aware).
+                CityDistrictVisualBuilder.BuildAll(districts, decorations, ambient);
             }
 
-            CityDistrictVisualBuilder.BuildAll(districts, decorations, ambient);
-            if (!(CityArtPass3Config.Enabled && CityArtPass3Config.LayeredVegetationEnabled))
+            if (!CityCapitalWorldConfig.Enabled &&
+                !(CityArtPass3Config.Enabled && CityArtPass3Config.LayeredVegetationEnabled))
             {
                 BuildTrees(vegetation);
             }
 
-            CityNatureBuilder.Build(vegetation);
-            BuildTierDecoration(tierGroups);
-            BuildAmbientProps(decorations, ambient);
-            CityUrbanDensityBuilder.Build(decorations);
-            CityScenarioCompositionBuilder.Build(terrain, water, decorations, vegetation);
+            if (!CityCapitalWorldConfig.Enabled)
+            {
+                CityNatureBuilder.Build(vegetation);
+            }
+
+            if (!CityCapitalWorldNoTripo.IsActive)
+            {
+                BuildTierDecoration(tierGroups);
+                BuildAmbientProps(decorations, ambient);
+                CityUrbanDensityBuilder.Build(decorations);
+            }
+            if (!CityCapitalWorldConfig.Enabled)
+            {
+                CityScenarioCompositionBuilder.Build(terrain, water, decorations, vegetation);
+            }
+
             var npcs = root.Find("NPCs") ?? Node(root, "NPCs");
-            CityArtPass3Builder.Build(terrain, water, roads, districts, decorations, vegetation, npcs);
-            if (CityRoyalDistrictConfig.Enabled)
+            if (!CityCapitalWorldConfig.Enabled)
+            {
+                CityArtPass3Builder.Build(terrain, water, roads, districts, decorations, vegetation, npcs);
+            }
+
+            if (CityRoyalDistrictConfig.Enabled && !CityCapitalWorldNoTripo.IsActive)
             {
                 CityRoyalDistrictBuilder.Build(roads, decorations, vegetation);
             }
 
-            CityFaunaBuilder.Build(ambient);
+            if (!CityCapitalWorldNoTripo.IsActive)
+            {
+                CityFaunaBuilder.Build(ambient);
+            }
+
             CityNpcAmbientBuilder.Build(npcs);
             CityDistrictAmbienceAudio.Build(root);
             SoftenLighting();
+            if (CityCapitalWorldNoTripo.IsActive)
+            {
+                // SoftenLighting usa fog fraco — reaplica atmosfera da correção.
+                RenderSettings.fog = true;
+                RenderSettings.fogMode = FogMode.ExponentialSquared;
+                RenderSettings.fogDensity = 0.02f;
+                RenderSettings.fogColor = new Color(0.55f, 0.6f, 0.68f);
+                RenderSettings.ambientSkyColor = new Color(0.52f, 0.58f, 0.66f);
+                RenderSettings.ambientEquatorColor = new Color(0.42f, 0.46f, 0.4f);
+                RenderSettings.ambientGroundColor = new Color(0.2f, 0.18f, 0.15f);
+            }
+
             CityArtMaterialLibrary.WarmPalette();
             CityAtmosphereFx.Attach(root);
             // Muralha sempre presente no boot (nível visual mínimo 1) — reforça leitura da Capital.
             ApplyWallLevel(parent, 1);
+            if (CityCapitalWorldConfig.Enabled)
+            {
+                // Reduz dominância vertical no overview (entidade lógica inalterada).
+                var forts = FindFortifications(parent);
+                if (forts != null)
+                {
+                    forts.localScale = CityCapitalWorldNoTripo.IsActive
+                        ? new Vector3(0.96f, 0.72f, 0.96f)
+                        : new Vector3(0.98f, 0.76f, 0.98f);
+                }
+            }
+
             TryStaticBatch(root);
             CityArtPass2PerfProbe.Ensure();
             TryAttachLodHints(root);
@@ -1139,10 +1183,29 @@ namespace Valgor.City.Visual
 
         private static void HideSceneGround()
         {
-            var ground = GameObject.Find("Ground");
-            if (ground != null)
+            foreach (var name in new[] { "Ground", "Plane", "Terrain", "Floor", "Grass" })
             {
-                ground.SetActive(false);
+                var ground = GameObject.Find(name);
+                if (ground != null)
+                {
+                    ground.SetActive(false);
+                }
+            }
+
+            // Desativa planos grandes da cena com renderer verde/chão.
+            foreach (var rend in UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            {
+                if (rend == null || rend.transform.root.name.Contains("CityRoot"))
+                {
+                    continue;
+                }
+
+                var n = rend.gameObject.name;
+                if (n.IndexOf("Ground", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    n.IndexOf("Plane", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    rend.gameObject.SetActive(false);
+                }
             }
         }
 

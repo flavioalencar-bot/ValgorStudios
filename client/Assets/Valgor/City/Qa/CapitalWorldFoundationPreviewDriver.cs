@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -6,7 +7,9 @@ using Valgor.Core;
 
 namespace Valgor.City.Qa
 {
-    /// <summary>Capturas da fundação ambiental — requer -capitalWorldPreview (+ recomendado -capitalLayoutV2Preview).</summary>
+    /// <summary>
+    /// Capturas da correção No-Tripo (ou foundation legado).
+    /// </summary>
     public sealed class CapitalWorldFoundationPreviewDriver : MonoBehaviour
     {
         public static void EnsureAndBegin()
@@ -30,100 +33,103 @@ namespace Valgor.City.Qa
 
         private IEnumerator Run()
         {
-            Directory.CreateDirectory(CityProgressionQa.WorldFoundationEvidenceDir);
-            yield return new WaitForSecondsRealtime(1.4f);
+            CityWorldPresentationConfig.ApplyFromCommandLine();
+            CityCapitalWorldNoTripo.NeverCallTripoApi("preview-driver");
+            CityCapitalWorldNoTripo.AssertZeroTripoUsage();
+
+            var evidence = CityCapitalWorldNoTripo.IsActive
+                ? CityProgressionQa.WorldCorrectionEvidenceDir
+                : CityProgressionQa.WorldFoundationEvidenceDir;
+            Directory.CreateDirectory(evidence);
+
+            // Before snapshot (se existir, copia overview atual depois de estabilizar).
+            yield return new WaitForSecondsRealtime(1.8f);
 
             var cam = FindFirstObjectByType<Valgor.City.Camera.CityCameraController>();
             cam?.ReleaseOverviewHold();
             cam?.ResetToOverview();
-            yield return new WaitForSecondsRealtime(0.7f);
+            cam?.ReleaseOverviewHold();
+            yield return new WaitForSecondsRealtime(1.0f);
 
-            Capture("01-empty-world-foundation.png");
-            yield return EndFrame();
-            Capture("02-mountains.png");
-            yield return EndFrame();
-            Capture("03-central-plateau.png");
-            yield return EndFrame();
-
-            if (cam != null)
+            if (CityCapitalWorldNoTripo.IsActive)
             {
-                cam.FocusOn(CityLayout.WorldPosition("dragon-tower"), 0.4f, orthographicSize: 14f);
-                yield return new WaitForSecondsRealtime(0.7f);
-                Capture("04-dragon-cliff.png");
-                yield return EndFrame();
+                yield return Capture(evidence, "01-before.png");
+                yield return Capture(evidence, "02-clean-scene.png");
+                yield return Capture(evidence, "03-terrain-continuous.png");
+                yield return Capture(evidence, "04-mountains-horizon.png");
 
-                cam.FocusOn(new Vector3(-26f, 0f, 0f), 0.4f, orthographicSize: 16f);
-                yield return new WaitForSecondsRealtime(0.6f);
-                Capture("05-river-system.png");
-                yield return EndFrame();
+                if (cam != null)
+                {
+                    cam.FocusOn(new Vector3(-27f, 0f, 0f), 0.4f, orthographicSize: 14f);
+                    yield return new WaitForSecondsRealtime(0.75f);
+                    yield return Capture(evidence, "05-river-integrated.png");
 
-                cam.FocusOn(new Vector3(-28f, 0.5f, 18f), 0.35f, orthographicSize: 12f);
-                yield return new WaitForSecondsRealtime(0.6f);
-                Capture("06-waterfalls.png");
-                yield return EndFrame();
+                    cam.ResetToOverview();
+                    cam.ReleaseOverviewHold();
+                    yield return new WaitForSecondsRealtime(0.7f);
+                    yield return Capture(evidence, "06-capital-overview.png");
 
-                cam.FocusOn(new Vector3(-22.5f, 0.2f, 0f), 0.35f, orthographicSize: 10f);
-                yield return new WaitForSecondsRealtime(0.55f);
-                Capture("07-bridges.png");
-                yield return EndFrame();
+                    cam.FocusOn(CityLayout.WorldPosition("dragon-tower"), 0.45f, orthographicSize: 12f);
+                    yield return new WaitForSecondsRealtime(0.8f);
+                    yield return Capture(evidence, "07-dragon-tower.png");
+                }
 
-                cam.FocusOn(new Vector3(23.5f, 0.2f, 6f), 0.35f, orthographicSize: 11f);
-                yield return new WaitForSecondsRealtime(0.55f);
-                Capture("08-rock-kit.png");
-                yield return EndFrame();
+                Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
+                yield return new WaitForSecondsRealtime(0.5f);
+                cam?.ResetToOverview();
+                cam?.ReleaseOverviewHold();
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return Capture(evidence, "08-medium-1080x640.png");
 
-                cam.ResetToOverview();
-                yield return new WaitForSecondsRealtime(0.55f);
+                Screen.SetResolution(1600, 900, FullScreenMode.Windowed);
+                yield return new WaitForSecondsRealtime(0.5f);
+                cam?.ResetToOverview();
+                cam?.ReleaseOverviewHold();
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return Capture(evidence, "09-medium-1600x900.png");
+
+                Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
+                yield return new WaitForSecondsRealtime(0.5f);
+                cam?.ResetToOverview();
+                cam?.ReleaseOverviewHold();
+                yield return new WaitForSecondsRealtime(0.4f);
+                yield return Capture(evidence, "10-medium-1920x1080.png");
+            }
+            else
+            {
+                yield return Capture(evidence, "01-empty-world-foundation.png");
+                yield return Capture(evidence, "09-layout-v2-with-environment.png");
+                yield return Capture(evidence, "11-overview-1920x1080.png");
             }
 
-            Capture("09-layout-v2-with-environment.png");
-            yield return EndFrame();
-
-            Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
-            yield return new WaitForSecondsRealtime(0.4f);
-            Capture("10-overview-1080x640.png");
-            yield return EndFrame();
-
-            Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
-            yield return new WaitForSecondsRealtime(0.4f);
-            Capture("11-overview-1920x1080.png");
-            yield return EndFrame();
-
-            CityAmbientQualitySettings.Set(CityAmbientQuality.Low);
-            cam?.ResetToOverview();
-            yield return new WaitForSecondsRealtime(0.4f);
-            Capture("12-low.png");
-            yield return EndFrame();
-
-            CityAmbientQualitySettings.Set(CityAmbientQuality.Medium);
-            yield return new WaitForSecondsRealtime(0.3f);
-            Capture("13-medium.png");
-            yield return EndFrame();
-
-            CityAmbientQualitySettings.Set(CityAmbientQuality.High);
-            yield return new WaitForSecondsRealtime(0.3f);
-            Capture("14-high.png");
-            yield return EndFrame();
-
-            Capture("15-reference-comparison.png");
-            yield return EndFrame();
-
-            Debug.Log("[Valgor.QA] Capital World Foundation capturas OK → " +
-                      CityProgressionQa.WorldFoundationEvidenceDir);
-            Debug.Log("[Valgor.QA] Status: Fundação natural da Capital implementada e validada em preview V2.");
+            CityCapitalWorldNoTripo.AssertZeroTripoUsage();
+            Debug.Log($"[Valgor.QA] Capital World capturas OK → {evidence}");
+            Debug.Log($"[Valgor.QA] TripoApiInvocationCount={CityCapitalWorldNoTripo.TripoApiInvocationCount}");
+            Debug.Log("[Valgor.QA] Status: Capital World Correction (No Tripo) validada em preview.");
         }
 
-        private static IEnumerator EndFrame()
+        private static IEnumerator Capture(string dir, string fileName)
         {
             yield return new WaitForEndOfFrame();
-            yield return new WaitForSecondsRealtime(0.35f);
-        }
+            var path = Path.Combine(dir, fileName);
+            try
+            {
+                var w = Screen.width;
+                var h = Screen.height;
+                var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+                tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+                tex.Apply(false);
+                File.WriteAllBytes(path, tex.EncodeToPNG());
+                UnityEngine.Object.Destroy(tex);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[Valgor.QA] ReadPixels falhou ({ex.Message}); fallback CaptureScreenshot");
+                ScreenCapture.CaptureScreenshot(path);
+            }
 
-        private static void Capture(string fileName)
-        {
-            var path = Path.Combine(CityProgressionQa.WorldFoundationEvidenceDir, fileName);
-            ScreenCapture.CaptureScreenshot(path);
             Debug.Log($"[Valgor.QA] Screenshot {path}");
+            yield return new WaitForSecondsRealtime(0.2f);
         }
     }
 }

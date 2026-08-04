@@ -114,17 +114,17 @@ namespace Valgor.City.Visual
 
         public static IReadOnlyList<WorldPropPlacement> HorizonMountains()
         {
-            // Fundo cinematográfico — fora do jogável, sem collider (raio visível no overview mobile).
+            // Dentro do overview (~±32): silhuetas altas e escuras, sem discos.
             return new[]
             {
-                new WorldPropPlacement("DistantMountain_A", 0f, 3.2f, 44f, 18f, 16f, 11f, 12f),
-                new WorldPropPlacement("DistantMountain_B", 36f, 2.8f, 28f, -55f, 14f, 10f, 11f),
-                new WorldPropPlacement("Mountain_C", -38f, 2.6f, 18f, 40f, 13f, 8f, 10f),
-                new WorldPropPlacement("Mountain_D", 40f, 3.5f, -16f, 155f, 15f, 12f, 12f),
-                new WorldPropPlacement("Mountain_A", -34f, 2.4f, -22f, -120f, 11f, 7.5f, 9f),
-                new WorldPropPlacement("Mountain_B", 22f, 3.0f, 38f, 70f, 8f, 12f, 7f),
-                new WorldPropPlacement("Mountain_A", -18f, 2.2f, 42f, 200f, 10f, 7f, 8f),
-                new WorldPropPlacement("Mountain_C", 10f, 2.4f, -42f, -20f, 14f, 7.5f, 10f)
+                new WorldPropPlacement("DistantMountain_A", 0f, 0.2f, 34f, 18f, 14f, 12f, 10f),
+                new WorldPropPlacement("DistantMountain_B", 30f, 0.2f, 22f, -55f, 12f, 11f, 9f),
+                new WorldPropPlacement("Mountain_C", -30f, 0.2f, 16f, 40f, 12f, 9f, 9f),
+                new WorldPropPlacement("Mountain_D", 32f, 0.2f, -14f, 155f, 13f, 12f, 10f),
+                new WorldPropPlacement("Mountain_A", -28f, 0.2f, -18f, -120f, 11f, 10f, 8f),
+                new WorldPropPlacement("Mountain_B", 18f, 0.2f, 32f, 70f, 8f, 14f, 7f),
+                new WorldPropPlacement("Mountain_A", -16f, 0.2f, 33f, 200f, 10f, 11f, 8f),
+                new WorldPropPlacement("Mountain_C", 8f, 0.2f, -34f, -20f, 13f, 9f, 9f)
             };
         }
 
@@ -151,21 +151,21 @@ namespace Valgor.City.Visual
 
         public static IReadOnlyList<WorldPropPlacement> RiverSegments()
         {
-            // Contorna o jogável — fora dos 17 slots (raio canal estreito).
+            // Contorna o jogável — azul vivo, dentro do overview.
             return new[]
             {
-                new WorldPropPlacement("River_Straight", -27.5f, -0.12f, 0f, 0f, 3.6f, 0.22f, 42f),
-                new WorldPropPlacement("River_Curve_Left", -28.2f, -0.11f, 17f, 25f, 3.2f, 0.2f, 12f),
-                new WorldPropPlacement("River_Curve_Right", -27.8f, -0.11f, -17f, -25f, 3.0f, 0.2f, 12f),
-                new WorldPropPlacement("River_Straight", 27.5f, -0.12f, 0f, 0f, 3.6f, 0.22f, 42f),
-                new WorldPropPlacement("River_Curve_Right", 28.0f, -0.11f, 15f, -20f, 3.1f, 0.2f, 12f),
-                new WorldPropPlacement("River_Curve_Left", 27.8f, -0.11f, -15f, 20f, 3.0f, 0.2f, 12f),
-                new WorldPropPlacement("River_Wide", 0.5f, -0.14f, -33f, 90f, 16f, 0.18f, 4.5f),
-                new WorldPropPlacement("Stream", 20f, -0.1f, 24f, 35f, 2.0f, 0.15f, 9f),
-                new WorldPropPlacement("RiverBank_A", -25.4f, -0.02f, 0f, 0f, 1.1f, 0.14f, 40f),
-                new WorldPropPlacement("RiverBank_B", 25.4f, -0.02f, 0f, 0f, 1.1f, 0.14f, 40f),
-                new WorldPropPlacement("RiverBank_C", 0.5f, -0.02f, -30.5f, 90f, 14f, 0.12f, 2.0f),
-                new WorldPropPlacement("Lake_A", -32f, -0.16f, 24f, 0f, 6.5f, 0.2f, 5.5f)
+                new WorldPropPlacement("River_Straight", -24.5f, -0.08f, 0f, 0f, 3.8f, 0.28f, 40f),
+                new WorldPropPlacement("River_Curve_Left", -25.2f, -0.07f, 15f, 25f, 3.4f, 0.26f, 11f),
+                new WorldPropPlacement("River_Curve_Right", -24.8f, -0.07f, -15f, -25f, 3.2f, 0.26f, 11f),
+                new WorldPropPlacement("River_Straight", 24.5f, -0.08f, 0f, 0f, 3.8f, 0.28f, 40f),
+                new WorldPropPlacement("River_Curve_Right", 25.0f, -0.07f, 13f, -20f, 3.3f, 0.26f, 11f),
+                new WorldPropPlacement("River_Curve_Left", 24.8f, -0.07f, -13f, 20f, 3.2f, 0.26f, 11f),
+                new WorldPropPlacement("River_Wide", 0.5f, -0.1f, -30f, 90f, 14f, 0.24f, 4.2f),
+                new WorldPropPlacement("Stream", 22f, -0.06f, 26f, 35f, 2.2f, 0.2f, 8f),
+                new WorldPropPlacement("RiverBank_A", -22.6f, 0.01f, 0f, 0f, 1.2f, 0.16f, 38f),
+                new WorldPropPlacement("RiverBank_B", 22.6f, 0.01f, 0f, 0f, 1.2f, 0.16f, 38f),
+                new WorldPropPlacement("RiverBank_C", 0.5f, 0.01f, -27.5f, 90f, 12f, 0.14f, 2.0f),
+                new WorldPropPlacement("Lake_A", -29f, -0.12f, 22f, 0f, 6f, 0.25f, 5f)
             };
         }
 
@@ -173,12 +173,12 @@ namespace Valgor.City.Visual
         {
             return new[]
             {
-                new WorldPropPlacement("Waterfall_Large", -28f, 0.6f, 18f, 15f, 3.5f, 4.5f, 2.2f),
-                new WorldPropPlacement("Waterfall_Medium", 28.5f, 0.45f, -12f, -20f, 2.6f, 3.2f, 1.8f),
-                new WorldPropPlacement("Waterfall_Small", -27f, 0.3f, -10f, 10f, 1.8f, 2.2f, 1.2f),
-                new WorldPropPlacement("StoneBridge_A", -22.5f, 0.08f, 0f, 0f, 4.2f, 0.5f, 3.0f),
-                new WorldPropPlacement("WoodBridge_A", 22.5f, 0.08f, 0f, 0f, 4.0f, 0.4f, 2.8f),
-                new WorldPropPlacement("StoneBridge_A", 0.5f, 0.1f, -28.5f, 90f, 5.0f, 0.5f, 3.2f)
+                new WorldPropPlacement("Waterfall_Large", -26f, 0.5f, 16f, 15f, 3.8f, 5.0f, 2.4f),
+                new WorldPropPlacement("Waterfall_Medium", 26.5f, 0.4f, -11f, -20f, 2.8f, 3.4f, 1.9f),
+                new WorldPropPlacement("Waterfall_Small", -25f, 0.25f, -9f, 10f, 1.9f, 2.3f, 1.3f),
+                new WorldPropPlacement("StoneBridge_A", -21.2f, 0.1f, 0f, 0f, 4.4f, 0.55f, 3.1f),
+                new WorldPropPlacement("WoodBridge_A", 21.2f, 0.1f, 0f, 0f, 4.2f, 0.45f, 2.9f),
+                new WorldPropPlacement("StoneBridge_A", 0.5f, 0.12f, -26.8f, 90f, 5.2f, 0.55f, 3.3f)
             };
         }
 

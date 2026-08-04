@@ -41,6 +41,7 @@
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalLayoutRuntime.cs" Link="City\CityCapitalLayoutRuntime.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalLayoutMigration.cs" Link="City\CityCapitalLayoutMigration.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalWorldConfig.cs" Link="City\CityCapitalWorldConfig.cs" />
+    <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalWorldNoTripo.cs" Link="City\CityCapitalWorldNoTripo.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityTerrainAssetCatalog.cs" Link="City\CityTerrainAssetCatalog.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityAmbientQuality.cs" Link="City\CityAmbientQuality.cs" />
     <Compile Include="..\..\client\Assets\Valgor\City\Visual\CityCapitalEnvironmentConfig.cs" Link="City\CityCapitalEnvironmentConfig.cs" />

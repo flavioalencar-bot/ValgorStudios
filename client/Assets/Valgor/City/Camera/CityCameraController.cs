@@ -14,28 +14,36 @@ namespace Valgor.City.Camera
         private static float OverviewZoom =>
             CityPaintedMapConfig.Enabled
                 ? CityPaintedMapConfig.OverviewZoom
-                : CityCapitalLayoutRuntime.IsPreviewV2 ? 24f : 20f;
+                : CityCapitalWorldNoTripo.IsActive
+                    ? 15.5f
+                    : CityCapitalLayoutRuntime.IsPreviewV2 || CityCapitalWorldConfig.Enabled ? 34f : 20f;
         private static float OverviewPitch =>
             CityPaintedMapConfig.Enabled
                 ? CityPaintedMapConfig.OverviewPitch
-                : CityCapitalLayoutRuntime.IsPreviewV2 ? 48f : 50f;
+                : CityCapitalWorldNoTripo.IsActive
+                    ? 52f
+                    : CityCapitalWorldConfig.Enabled ? 44f : CityCapitalLayoutRuntime.IsPreviewV2 ? 48f : 50f;
         private static float OverviewYaw =>
             CityPaintedMapConfig.Enabled
                 ? CityPaintedMapConfig.OverviewYaw
-                : CityCapitalLayoutRuntime.IsPreviewV2 ? 28f : 18f;
+                : CityCapitalWorldNoTripo.IsActive
+                    ? 26f
+                    : CityCapitalLayoutRuntime.IsPreviewV2 || CityCapitalWorldConfig.Enabled ? 34f : 18f;
         private static float OverviewHeight =>
             CityPaintedMapConfig.Enabled
                 ? 26f
-                : CityCapitalLayoutRuntime.IsPreviewV2 ? 26f : 20f;
+                : CityCapitalWorldNoTripo.IsActive
+                    ? 20f
+                    : CityCapitalWorldConfig.Enabled ? 36f : CityCapitalLayoutRuntime.IsPreviewV2 ? 28f : 20f;
 
         [SerializeField] private float minZoom = 10f;
-        [SerializeField] private float maxZoom = 32f;
+        [SerializeField] private float maxZoom = 40f;
         [SerializeField] private float zoomSpeed = 0.015f;
         [SerializeField] private float panSpeed = 0.025f;
         [SerializeField] private float initialZoom = 20f;
         [SerializeField] private float dragThresholdPixels = 10f;
 
-        private readonly CityBounds _bounds = new(-28f, 28f, -28f, 28f);
+        private readonly CityBounds _bounds = new(-36f, 36f, -36f, 36f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
         private Vector2 _pointerDown;
@@ -132,15 +140,29 @@ namespace Valgor.City.Camera
             _camera.orthographicSize = OverviewZoom;
             var rot = Quaternion.Euler(OverviewPitch, OverviewYaw, 0f);
             transform.rotation = rot;
-            // V1: origem. V2 preview: Castelo recuado — inclui Portão S + Torre NE + muralha.
+            // V1: origem. V2 / WorldFoundation: Castelo com leve offset para incluir Torre NE + horizonte.
             var forward = rot * Vector3.forward;
             var t = OverviewHeight / Mathf.Max(0.05f, -forward.y);
             var focus = Vector3.zero;
-            if (CityCapitalLayoutRuntime.IsPreviewV2 &&
-                CityCapitalLayoutConfig.TryGet("castle", out var castleEntry))
+            if (CityCapitalWorldConfig.Enabled || CityCapitalLayoutRuntime.IsPreviewV2)
             {
-                var p = castleEntry.Position;
-                focus = new Vector3(p.X + 1.2f, 0f, p.Z * 0.35f);
+                if (CityCapitalLayoutConfig.TryGet("castle", out var castleEntry))
+                {
+                    var p = castleEntry.Position;
+                    if (CityCapitalWorldNoTripo.IsActive)
+                    {
+                        // Capital no centro do frame; Torre NE e Portão nas bordas.
+                        focus = new Vector3(p.X + 1.2f, 0f, p.Z * 0.1f - 0.5f);
+                    }
+                    else if (CityCapitalWorldConfig.Enabled)
+                    {
+                        focus = new Vector3(p.X + 4.5f, 0f, p.Z * 0.2f + 0.5f);
+                    }
+                    else
+                    {
+                        focus = new Vector3(p.X + 2.5f, 0f, p.Z * 0.25f - 1.5f);
+                    }
+                }
             }
 
             transform.position = focus - forward * t;
@@ -345,6 +367,7 @@ namespace Valgor.City.Camera
         public void ReleaseOverviewHold()
         {
             _holdOverviewUntilUnscaled = 0f;
+            _suppressFocusUntilUnscaled = 0f;
         }
 
         public void CancelFocus()
@@ -425,8 +448,9 @@ namespace Valgor.City.Camera
         private void ClampPosition()
         {
             var clamped = _bounds.ClampPosition(new CityPosition(transform.position.x, transform.position.y, transform.position.z));
-            // Altura acompanha pose inicial / zoom aberto (ex.: Y=22.5 no overview da Capital).
-            transform.position = new Vector3(clamped.X, Mathf.Clamp(clamped.Y, 10f, 28f), clamped.Z);
+            // Overview WorldFoundation usa altura ~36; clamp antigo (28) achatava o enquadramento.
+            var maxY = CityCapitalWorldNoTripo.IsActive ? 32f : CityCapitalWorldConfig.Enabled ? 48f : 28f;
+            transform.position = new Vector3(clamped.X, Mathf.Clamp(clamped.Y, 10f, maxY), clamped.Z);
         }
 
         private Vector3 _focusFrom;

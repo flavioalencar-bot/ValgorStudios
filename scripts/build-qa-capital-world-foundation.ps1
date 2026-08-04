@@ -59,6 +59,11 @@ if (Test-Path $exe) { Remove-Item $exe -Force }
 if (Test-Path $dataDir) { Remove-Item $dataDir -Recurse -Force }
 
 $buildStart = Get-Date
+Write-Host "Import CapitalTerrainKit GLBs..."
+$importLog = Join-Path $root "builds\windows\qa-capital-terrain-import.log"
+$codeImport = Invoke-UnityMethod "Valgor.Editor.CapitalTerrainKitPrefabBuilder.ImportCli" $importLog 25
+Write-Host "Import exit hint=$codeImport"
+
 Write-Host "Building QA Capital WorldFoundation -> $exe"
 $code = Invoke-UnityMethod "Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalWorldFoundationCli" $log 55
 $logOk = (Test-Path $log) -and [bool](Select-String -Path $log -Pattern "Build Successful|Capital WorldFoundation Build OK" -Quiet)

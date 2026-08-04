@@ -3,8 +3,8 @@ using UnityEngine;
 namespace Valgor.City.Visual
 {
     /// <summary>
-    /// Vegetação distante/periférica da fundação (sem atravessar slots).
-    /// Florestas densas completas ficam para etapa seguinte.
+    /// Vegetação distante — billboards (quads), sem árvores esféricas.
+    /// Florestas densas HF ficam para etapa seguinte.
     /// </summary>
     public static class CityVegetationCompositionBuilder
     {
@@ -20,35 +20,29 @@ namespace Valgor.City.Visual
             var root = new GameObject("WorldVegetationHints").transform;
             root.SetParent(parent, false);
 
-            var count = Mathf.RoundToInt(18 * density);
+            var count = Mathf.RoundToInt(28 * density);
             for (var i = 0; i < count; i++)
             {
-                var angle = i * (Mathf.PI * 2f / count);
-                var radius = CityCapitalWorldConfig.PlayableRadius + 6f + (i % 3) * 2.5f;
+                var angle = i * (Mathf.PI * 2f / count) + 0.15f;
+                var radius = CityCapitalWorldConfig.PlayableRadius + 8f + (i % 4) * 2.2f;
                 var x = Mathf.Sin(angle) * radius;
                 var z = Mathf.Cos(angle) * radius;
-                if (CityCapitalWorldConfig.OverlapsReserved(x, z, 1.2f))
+                if (CityCapitalWorldConfig.OverlapsReserved(x, z, 1.5f))
                 {
                     continue;
                 }
 
-                var tree = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                tree.name = $"TreeHint_{i}";
-                tree.transform.SetParent(root, false);
-                tree.transform.localPosition = new Vector3(x, 0.9f, z);
-                tree.transform.localScale = new Vector3(0.55f, 1.1f + (i % 3) * 0.15f, 0.55f);
-                Object.Destroy(tree.GetComponent<Collider>());
-                CityVisualMaterials.Apply(tree.GetComponent<Renderer>(), CityVisualMaterials.Vegetation);
-
-                var canopy = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                canopy.name = "Canopy";
-                canopy.transform.SetParent(tree.transform, false);
-                canopy.transform.localPosition = new Vector3(0f, 1.1f, 0f);
-                canopy.transform.localScale = new Vector3(2.2f, 1.4f, 2.2f);
+                // Billboard flat — silhueta de floresta, não esfera.
+                var canopy = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                canopy.name = $"ForestBillboard_{i}";
+                canopy.transform.SetParent(root, false);
+                canopy.transform.localPosition = new Vector3(x, 1.4f + (i % 3) * 0.35f, z);
+                canopy.transform.localScale = new Vector3(2.8f + (i % 3) * 0.6f, 2.2f + (i % 4) * 0.4f, 0.35f);
+                canopy.transform.LookAt(new Vector3(0f, canopy.transform.position.y, 0f));
                 Object.Destroy(canopy.GetComponent<Collider>());
                 CityVisualMaterials.Apply(
                     canopy.GetComponent<Renderer>(),
-                    Color.Lerp(CityVisualMaterials.Vegetation, new Color(0.2f, 0.35f, 0.18f), 0.35f));
+                    Color.Lerp(CityVisualMaterials.Vegetation, new Color(0.12f, 0.22f, 0.1f), 0.45f));
             }
         }
     }

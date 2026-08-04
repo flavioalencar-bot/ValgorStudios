@@ -19,10 +19,15 @@ namespace Valgor.Core
         public const string CliLayoutV2PreviewFlag = "-capitalLayoutV2Preview";
         /// <summary>Preview da fundação ambiental (terreno/rios/horizonte).</summary>
         public const string CliWorldPreviewFlag = "-capitalWorldPreview";
+        /// <summary>Correção visual sem Tripo — composição curada.</summary>
+        public const string CliWorldNoTripoCorrectionFlag = "-capitalWorldNoTripoCorrection";
+        public const string CliWorldDebugFlag = "-capitalWorldDebug";
         public const string LayoutV2EvidenceDir =
             @"C:\Valgor_Studio\docs\releases\capital-layout-v2\screenshots";
         public const string WorldFoundationEvidenceDir =
             @"C:\Valgor_Studio\docs\releases\capital-world-foundation\screenshots";
+        public const string WorldCorrectionEvidenceDir =
+            @"C:\Valgor_Studio\docs\releases\capital-world-correction-no-tripo\screenshots";
         public const string ResponsiveEvidenceDir =
             @"C:\Valgor_Studio\docs\releases\ui-responsive-p1-fix-evidence";
         public const string SaveSlotId = "city-progression-qa";
@@ -40,6 +45,7 @@ namespace Valgor.Core
         public const string BannerText = "MODO HOMOLOGAÇÃO";
         public const string LayoutV2PreviewBanner = "Capital Layout V2 Preview — sem migração de save";
         public const string WorldPreviewBanner = "Capital World Foundation Preview";
+        public const string WorldNoTripoBanner = "Capital World Correction — No Tripo";
 
         private static bool? _active;
         private static bool? _autoTest;
@@ -47,6 +53,7 @@ namespace Valgor.Core
         private static bool? _responsiveUiTest;
         private static bool? _layoutV2Preview;
         private static bool? _worldPreview;
+        private static bool? _worldNoTripo;
 
         public static bool IsCompiledIn
         {
@@ -71,7 +78,7 @@ namespace Valgor.Core
 
                 _active = IsCompiledIn || HasFlag(CliFlag) || HasFlag(CliUpgradeUxTestFlag) ||
                           HasFlag(CliResponsiveUiTestFlag) || HasFlag(CliLayoutV2PreviewFlag) ||
-                          HasFlag(CliWorldPreviewFlag) ||
+                          HasFlag(CliWorldPreviewFlag) || HasFlag(CliWorldNoTripoCorrectionFlag) ||
                           HasFlag(DragonPhase2Qa.CliFlag) || HasFlag(DragonPhase2Qa.CliE2EFlag) ||
                           HasFlag(DragonPhases14HomologQa.CliFlag);
                 return _active.Value;
@@ -91,8 +98,17 @@ namespace Valgor.Core
         {
             get
             {
-                _worldPreview ??= HasFlag(CliWorldPreviewFlag);
+                _worldPreview ??= HasFlag(CliWorldPreviewFlag) || HasFlag(CliWorldNoTripoCorrectionFlag);
                 return _worldPreview.Value;
+            }
+        }
+
+        public static bool IsWorldNoTripoCorrection
+        {
+            get
+            {
+                _worldNoTripo ??= HasFlag(CliWorldNoTripoCorrectionFlag);
+                return _worldNoTripo.Value;
             }
         }
 
@@ -102,7 +118,8 @@ namespace Valgor.Core
             {
                 _autoTest ??= IsActive && HasFlag(CliAutoTestFlag) && !HasFlag(CliUpgradeUxTestFlag) &&
                               !HasFlag(CliResponsiveUiTestFlag) && !HasFlag(DragonPhase2Qa.CliE2EFlag) &&
-                              !HasFlag(CliLayoutV2PreviewFlag) && !HasFlag(CliWorldPreviewFlag);
+                              !HasFlag(CliLayoutV2PreviewFlag) && !HasFlag(CliWorldPreviewFlag) &&
+                              !HasFlag(CliWorldNoTripoCorrectionFlag);
                 return _autoTest.Value;
             }
         }
@@ -137,6 +154,7 @@ namespace Valgor.Core
             _responsiveUiTest = false;
             _layoutV2Preview = false;
             _worldPreview = false;
+            _worldNoTripo = false;
         }
 
         public static void ForceLayoutV2PreviewForTests(bool enabled)
@@ -153,6 +171,16 @@ namespace Valgor.Core
             _worldPreview = enabled;
             if (enabled)
             {
+                _active = true;
+            }
+        }
+
+        public static void ForceWorldNoTripoForTests(bool enabled)
+        {
+            _worldNoTripo = enabled;
+            if (enabled)
+            {
+                _worldPreview = true;
                 _active = true;
             }
         }

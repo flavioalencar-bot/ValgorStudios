@@ -45,6 +45,7 @@ namespace Valgor.City
 
         private void Awake()
         {
+            CityWorldPresentationConfig.ApplyFromCommandLine();
             Valgor.City.Qa.CityProgressionQaBootstrap.ApplyBeforeEconomy();
             if (Valgor.Core.CityProgressionQa.IsLayoutV2Preview)
             {
@@ -98,14 +99,14 @@ namespace Valgor.City
                 var hudQa = gameObject.GetComponent<Valgor.City.Qa.CityProgressionQaHud>() ??
                             gameObject.AddComponent<Valgor.City.Qa.CityProgressionQaHud>();
                 hudQa.Initialize(qa);
-                if (Valgor.Core.CityProgressionQa.IsLayoutV2Preview)
-                {
-                    Valgor.City.Qa.CapitalLayoutV2PreviewDriver.EnsureAndBegin();
-                }
-
                 if (Valgor.Core.CityProgressionQa.IsWorldPreview)
                 {
+                    // World Foundation captura sozinha — evita corrida com Layout V2 driver.
                     Valgor.City.Qa.CapitalWorldFoundationPreviewDriver.EnsureAndBegin();
+                }
+                else if (Valgor.Core.CityProgressionQa.IsLayoutV2Preview)
+                {
+                    Valgor.City.Qa.CapitalLayoutV2PreviewDriver.EnsureAndBegin();
                 }
                 else if (Valgor.Core.CityProgressionQa.IsResponsiveUiTest)
                 {

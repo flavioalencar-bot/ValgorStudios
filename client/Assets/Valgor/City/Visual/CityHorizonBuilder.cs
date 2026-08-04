@@ -27,18 +27,6 @@ namespace Valgor.City.Visual
 
                 i++;
             }
-
-            // Anel de névoa / solo distante.
-            var mist = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            mist.name = "HorizonMistRing";
-            mist.transform.SetParent(root, false);
-            mist.transform.localPosition = new Vector3(0f, -0.1f, 0f);
-            mist.transform.localScale = new Vector3(CityCapitalWorldConfig.DistantHorizonRadius * 2.1f, 0.05f,
-                CityCapitalWorldConfig.DistantHorizonRadius * 2.1f);
-            Object.Destroy(mist.GetComponent<Collider>());
-            CityVisualMaterials.Apply(
-                mist.GetComponent<Renderer>(),
-                Color.Lerp(CityVisualMaterials.Vegetation, new Color(0.45f, 0.5f, 0.48f), 0.45f));
         }
     }
 }

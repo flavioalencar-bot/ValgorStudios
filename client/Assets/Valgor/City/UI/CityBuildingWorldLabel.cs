@@ -148,7 +148,15 @@ namespace Valgor.City.UI
 
             for (var i = 0; i < _labels.Count; i++)
             {
-                _labels[i].SetDistanceVisible(show);
+                if (Valgor.City.Visual.CityWorldPresentationConfig.CleanPresentation)
+                {
+                    _labels[i].SetDistanceVisible(false);
+                    _labels[i].SetForceVisible(false);
+                }
+                else
+                {
+                    _labels[i].SetDistanceVisible(show);
+                }
             }
         }
     }

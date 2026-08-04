@@ -499,6 +499,24 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital World Correction No-Tripo: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalWorldCorrectionCli</summary>
+        public static void BuildCapitalWorldCorrectionCli()
+        {
+            Debug.Log("[Valgor] Capital World Correction build — Tripo API calls: 0 (blocked).");
+            var report = Build("Valgor-QA-Capital-WorldCorrection");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital WorldCorrection Build OK: {GetOutputExe("Valgor-QA-Capital-WorldCorrection")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital WorldCorrection Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

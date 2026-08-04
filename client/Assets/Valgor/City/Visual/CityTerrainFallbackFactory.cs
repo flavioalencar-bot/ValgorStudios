@@ -63,15 +63,18 @@ namespace Valgor.City.Visual
 
         private static void MakeMountain(Transform root, bool soft)
         {
+            // Silhueta em blocos (não esfera) — legível em câmera isométrica.
             var rock = soft
-                ? Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.StoneDark, 0.45f)
+                ? Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.Vegetation, 0.2f)
                 : CityVisualMaterials.StoneDark;
-            Part(root, PrimitiveType.Sphere, "Mass", Vector3.up * 0.45f, new Vector3(1.1f, 0.85f, 1f), rock);
-            Part(root, PrimitiveType.Sphere, "Peak", Vector3.up * 0.95f, new Vector3(0.55f, 0.65f, 0.5f),
-                Color.Lerp(rock, new Color(0.55f, 0.58f, 0.56f), 0.35f));
+            var mid = Color.Lerp(rock, CityVisualMaterials.StoneLight, 0.25f);
+            Part(root, PrimitiveType.Cube, "Base", new Vector3(0f, 0.35f, 0f), new Vector3(1.2f, 0.7f, 1.0f), rock);
+            Part(root, PrimitiveType.Cube, "Mid", new Vector3(0.05f, 0.85f, -0.05f), new Vector3(0.85f, 0.7f, 0.75f), mid);
+            Part(root, PrimitiveType.Cube, "Peak", new Vector3(-0.05f, 1.35f, 0.05f), new Vector3(0.45f, 0.65f, 0.4f), rock);
             if (!soft)
             {
-                Part(root, PrimitiveType.Cube, "Spur", new Vector3(0.35f, 0.35f, -0.2f), new Vector3(0.4f, 0.7f, 0.35f), rock);
+                Part(root, PrimitiveType.Cube, "SpurL", new Vector3(-0.45f, 0.55f, 0.15f), new Vector3(0.4f, 0.9f, 0.35f), mid);
+                Part(root, PrimitiveType.Cube, "SpurR", new Vector3(0.5f, 0.45f, -0.2f), new Vector3(0.35f, 0.7f, 0.4f), rock);
             }
         }
 
@@ -115,8 +118,23 @@ namespace Valgor.City.Visual
 
         private static void MakeWaterChannel(Transform root)
         {
-            var water = new Color(0.22f, 0.38f, 0.48f, 0.92f);
-            Part(root, PrimitiveType.Cube, "Channel", Vector3.zero, new Vector3(1f, 0.08f, 1f), water);
+            // Leito escavado + água fina + margens — sem bloco azul sólido.
+            Part(root, PrimitiveType.Cube, "Bed", new Vector3(0f, -0.04f, 0f), new Vector3(1.05f, 0.08f, 1.05f),
+                Color.Lerp(CityVisualMaterials.StoneDark, CityVisualMaterials.Dirt, 0.35f));
+            Part(root, PrimitiveType.Cube, "BankL", new Vector3(-0.48f, 0.06f, 0f), new Vector3(0.14f, 0.16f, 1.02f),
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Vegetation, 0.4f));
+            Part(root, PrimitiveType.Cube, "BankR", new Vector3(0.48f, 0.06f, 0f), new Vector3(0.14f, 0.16f, 1.02f),
+                Color.Lerp(CityVisualMaterials.Dirt, CityVisualMaterials.Vegetation, 0.35f));
+
+            var water = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            water.name = "Water";
+            water.transform.SetParent(root, false);
+            water.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+            water.transform.localScale = new Vector3(0.55f, 0.04f, 0.88f);
+            Object.Destroy(water.GetComponent<Collider>());
+            // Força material seguro (evita ciano default URP Lit + luz).
+            water.GetComponent<Renderer>().sharedMaterial =
+                Valgor.Core.RuntimeSafeMaterials.Create(new Color(0.08f, 0.22f, 0.3f), "CapitalRiverWater");
         }
 
         private static void MakeBank(Transform root)
@@ -147,7 +165,11 @@ namespace Valgor.City.Visual
 
         private static void MakeRock(Transform root, Color color, float s)
         {
-            Part(root, PrimitiveType.Sphere, "Rock", Vector3.up * 0.35f * s, Vector3.one * s, color);
+            Part(root, PrimitiveType.Cube, "Rock", Vector3.up * 0.28f * s,
+                new Vector3(0.9f * s, 0.55f * s, 0.75f * s), color);
+            Part(root, PrimitiveType.Cube, "RockB", new Vector3(0.2f * s, 0.18f * s, -0.15f * s),
+                new Vector3(0.55f * s, 0.4f * s, 0.5f * s),
+                Color.Lerp(color, CityVisualMaterials.StoneLight, 0.2f));
         }
 
         private static void MakeSlope(Transform root)
