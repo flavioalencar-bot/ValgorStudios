@@ -8,42 +8,34 @@ namespace Valgor.City.Camera
     [DefaultExecutionOrder(-40)]
     public sealed class CityCameraController : MonoBehaviour
     {
-        // Overview aberto: muralha circular + rios + Torre + Portão na mesma vista.
-        // Painted map: ângulo mais top-down para ler o Art Pass 2.0.
-        // Layout V2 preview: yaw maior para incluir Torre NE sem cortar.
+        // Referência estável (pré–World Foundation, commit 8cd4d78) com fill ~70%:
+        // zoom um pouco mais fechado que 22 para a Capital ocupar a tela útil.
         private static float OverviewZoom =>
             CityPaintedMapConfig.Enabled
                 ? CityPaintedMapConfig.OverviewZoom
-                : CityCapitalWorldNoTripo.IsActive
-                    ? 15.5f
-                    : CityCapitalLayoutRuntime.IsPreviewV2 || CityCapitalWorldConfig.Enabled ? 34f : 20f;
+                : CityCapitalLayoutRuntime.IsPreviewV2 ? 13.5f : 14f;
         private static float OverviewPitch =>
             CityPaintedMapConfig.Enabled
                 ? CityPaintedMapConfig.OverviewPitch
-                : CityCapitalWorldNoTripo.IsActive
-                    ? 52f
-                    : CityCapitalWorldConfig.Enabled ? 44f : CityCapitalLayoutRuntime.IsPreviewV2 ? 48f : 50f;
+                : CityCapitalLayoutRuntime.IsPreviewV2 ? 48f : 46f;
         private static float OverviewYaw =>
             CityPaintedMapConfig.Enabled
                 ? CityPaintedMapConfig.OverviewYaw
-                : CityCapitalWorldNoTripo.IsActive
-                    ? 26f
-                    : CityCapitalLayoutRuntime.IsPreviewV2 || CityCapitalWorldConfig.Enabled ? 34f : 18f;
+                : CityCapitalLayoutRuntime.IsPreviewV2 ? 36f : 40f;
         private static float OverviewHeight =>
             CityPaintedMapConfig.Enabled
                 ? 26f
-                : CityCapitalWorldNoTripo.IsActive
-                    ? 20f
-                    : CityCapitalWorldConfig.Enabled ? 36f : CityCapitalLayoutRuntime.IsPreviewV2 ? 28f : 20f;
+                : CityCapitalLayoutRuntime.IsPreviewV2 ? 18f : 18f;
 
-        [SerializeField] private float minZoom = 10f;
-        [SerializeField] private float maxZoom = 40f;
+        [SerializeField] private float minZoom = 8f;
+        [SerializeField] private float maxZoom = 20f;
         [SerializeField] private float zoomSpeed = 0.015f;
+        [SerializeField] private float mouseScrollZoomSpeed = 0.055f;
         [SerializeField] private float panSpeed = 0.025f;
-        [SerializeField] private float initialZoom = 20f;
+        [SerializeField] private float initialZoom = 14f;
         [SerializeField] private float dragThresholdPixels = 10f;
 
-        private readonly CityBounds _bounds = new(-36f, 36f, -36f, 36f);
+        private readonly CityBounds _bounds = new(-28f, 28f, -28f, 28f);
         private UnityEngine.Camera _camera = null!;
         private Vector2 _lastPointer;
         private Vector2 _pointerDown;
@@ -56,7 +48,6 @@ namespace Valgor.City.Camera
         private PoseSnapshot _lockedPose;
         private float _holdOverviewUntilUnscaled;
 
-        /// <summary>True se o último gesto foi arrasto de câmera — não selecionar prédio.</summary>
         public static bool ShouldSuppressBuildingClick =>
             Time.unscaledTime < _suppressClickUntilUnscaled;
 
@@ -83,14 +74,12 @@ namespace Valgor.City.Camera
 
         private void Start()
         {
-            // Garante overview após bootstrap (evita herdar pose da cena).
             if (!_poseLocked)
             {
                 ResetToOverview();
             }
         }
 
-        /// <summary>Enquadramento inicial da Capital (pull-back SW).</summary>
         public void ResetToOverview()
         {
             if (_poseLocked)
@@ -100,7 +89,6 @@ namespace Valgor.City.Camera
 
             CancelFocus();
             ApplyOverviewPoseSilent();
-            // Evita FocusOn / pan fantasma (ativação de janela) logo após o boot.
             _suppressFocusUntilUnscaled = Mathf.Max(
                 _suppressFocusUntilUnscaled,
                 Time.unscaledTime + 2.5f);
@@ -140,29 +128,16 @@ namespace Valgor.City.Camera
             _camera.orthographicSize = OverviewZoom;
             var rot = Quaternion.Euler(OverviewPitch, OverviewYaw, 0f);
             transform.rotation = rot;
-            // V1: origem. V2 / WorldFoundation: Castelo com leve offset para incluir Torre NE + horizonte.
             var forward = rot * Vector3.forward;
             var t = OverviewHeight / Mathf.Max(0.05f, -forward.y);
+
+            // Estável: origem. V2: leve offset para Castelo + Torre NE.
             var focus = Vector3.zero;
-            if (CityCapitalWorldConfig.Enabled || CityCapitalLayoutRuntime.IsPreviewV2)
+            if (CityCapitalLayoutRuntime.IsPreviewV2 &&
+                CityCapitalLayoutConfig.TryGet("castle", out var castleEntry))
             {
-                if (CityCapitalLayoutConfig.TryGet("castle", out var castleEntry))
-                {
-                    var p = castleEntry.Position;
-                    if (CityCapitalWorldNoTripo.IsActive)
-                    {
-                        // Capital no centro do frame; Torre NE e Portão nas bordas.
-                        focus = new Vector3(p.X + 1.2f, 0f, p.Z * 0.1f - 0.5f);
-                    }
-                    else if (CityCapitalWorldConfig.Enabled)
-                    {
-                        focus = new Vector3(p.X + 4.5f, 0f, p.Z * 0.2f + 0.5f);
-                    }
-                    else
-                    {
-                        focus = new Vector3(p.X + 2.5f, 0f, p.Z * 0.25f - 1.5f);
-                    }
-                }
+                var p = castleEntry.Position;
+                focus = new Vector3(p.X + 1.5f, 0f, p.Z * 0.2f - 0.5f);
             }
 
             transform.position = focus - forward * t;
@@ -220,7 +195,7 @@ namespace Valgor.City.Camera
                 _dragExceededThreshold = false;
             }
 
-            Zoom(mouse.scroll.ReadValue().y * zoomSpeed);
+            Zoom(mouse.scroll.ReadValue().y * mouseScrollZoomSpeed);
         }
 
         private void HandleTouch()
@@ -270,34 +245,35 @@ namespace Valgor.City.Camera
             }
 
             _lastPinchDistance = 0f;
-
-            var first = touchscreen.primaryTouch;
-            if (first.press.wasPressedThisFrame)
+            if (activeCount == 1)
             {
-                _lastPointer = first.position.ReadValue();
-                _pointerDown = _lastPointer;
-                _isPanning = true;
-                _dragExceededThreshold = false;
-            }
-            else if (first.press.isPressed && _isPanning)
-            {
-                var position = first.position.ReadValue();
-                var delta = position - _lastPointer;
-                var fromDown = position - _pointerDown;
-                if (!_dragExceededThreshold && fromDown.sqrMagnitude >= dragThresholdPixels * dragThresholdPixels)
+                var pos = firstPos;
+                if (!_isPanning)
                 {
-                    _dragExceededThreshold = true;
+                    _lastPointer = pos;
+                    _pointerDown = pos;
+                    _isPanning = true;
+                    _dragExceededThreshold = false;
                 }
-
-                if (_dragExceededThreshold && delta.sqrMagnitude > 1f)
+                else
                 {
-                    Pan(delta);
-                    _lastPointer = position;
+                    var delta = pos - _lastPointer;
+                    if (!_dragExceededThreshold &&
+                        (pos - _pointerDown).sqrMagnitude >= dragThresholdPixels * dragThresholdPixels)
+                    {
+                        _dragExceededThreshold = true;
+                    }
+
+                    if (_dragExceededThreshold)
+                    {
+                        Pan(delta);
+                        _lastPointer = pos;
+                    }
                 }
             }
-            else if (first.press.wasReleasedThisFrame)
+            else
             {
-                if (_dragExceededThreshold)
+                if (_isPanning && _dragExceededThreshold)
                 {
                     _suppressClickUntilUnscaled = Time.unscaledTime + 0.2f;
                 }
@@ -307,19 +283,25 @@ namespace Valgor.City.Camera
             }
         }
 
-        private void Pan(Vector2 delta)
+        private void Pan(Vector2 screenDelta)
         {
-            transform.position += (-transform.right * delta.x + -transform.forward * delta.y) * panSpeed;
+            EnsureCamera();
+            var right = transform.right;
+            var forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+            var world = (-right * screenDelta.x - forward * screenDelta.y) * panSpeed *
+                        (_camera.orthographicSize / 20f);
+            transform.position += world;
             ClampPosition();
         }
 
         private void Zoom(float amount)
         {
-            if (Mathf.Approximately(amount, 0f))
+            if (Mathf.Abs(amount) < 0.0001f)
             {
                 return;
             }
 
+            EnsureCamera();
             _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize - amount, minZoom, maxZoom);
         }
 
@@ -331,39 +313,28 @@ namespace Valgor.City.Camera
 
         public void RestorePose(PoseSnapshot pose)
         {
-            EnsureCamera();
             CancelFocus();
             transform.SetPositionAndRotation(pose.Position, pose.Rotation);
+            EnsureCamera();
             _camera.orthographicSize = Mathf.Clamp(pose.OrthographicSize, minZoom, maxZoom);
         }
 
-        /// <summary>Congela pose (posição/rotação/zoom) até <see cref="UnlockPose"/>.</summary>
+        /// <summary>Congela a pose atual até <see cref="UnlockPose"/>.</summary>
         public void LockPose()
         {
             _lockedPose = CapturePose();
             _poseLocked = true;
-            CancelFocus();
         }
 
-        public void UnlockPose()
+        public void LockPose(PoseSnapshot pose)
         {
-            if (_poseLocked)
-            {
-                RestorePose(_lockedPose);
-            }
-
-            _poseLocked = false;
+            _poseLocked = true;
+            _lockedPose = pose;
+            RestorePose(pose);
         }
 
-        public void SuppressFocus(float seconds = 0.6f)
-        {
-            _suppressFocusUntilUnscaled = Mathf.Max(
-                _suppressFocusUntilUnscaled,
-                Time.unscaledTime + Mathf.Max(0.05f, seconds));
-            CancelFocus();
-        }
+        public void UnlockPose() => _poseLocked = false;
 
-        /// <summary>Libera o hold de overview para capturas / frames manuais.</summary>
         public void ReleaseOverviewHold()
         {
             _holdOverviewUntilUnscaled = 0f;
@@ -376,6 +347,14 @@ namespace Valgor.City.Camera
             _focusElapsed = 0f;
         }
 
+        public void SuppressFocus(float seconds = 0.6f)
+        {
+            _suppressFocusUntilUnscaled = Mathf.Max(
+                _suppressFocusUntilUnscaled,
+                Time.unscaledTime + Mathf.Max(0.05f, seconds));
+            CancelFocus();
+        }
+
         public void FocusOn(Vector3 worldTarget, float duration = 0.35f, float? orthographicSize = null)
         {
             if (_poseLocked || Time.unscaledTime < _suppressFocusUntilUnscaled)
@@ -384,8 +363,6 @@ namespace Valgor.City.Camera
             }
 
             EnsureCamera();
-
-            // Zoom só muda se o caller pedir explicitamente — troca de tier nunca deve pedir.
             if (orthographicSize.HasValue)
             {
                 _camera.orthographicSize = Mathf.Clamp(orthographicSize.Value, minZoom, maxZoom);
@@ -425,7 +402,6 @@ namespace Valgor.City.Camera
         {
             if (_poseLocked)
             {
-                RestorePose(_lockedPose);
                 return;
             }
 
@@ -448,9 +424,7 @@ namespace Valgor.City.Camera
         private void ClampPosition()
         {
             var clamped = _bounds.ClampPosition(new CityPosition(transform.position.x, transform.position.y, transform.position.z));
-            // Overview WorldFoundation usa altura ~36; clamp antigo (28) achatava o enquadramento.
-            var maxY = CityCapitalWorldNoTripo.IsActive ? 32f : CityCapitalWorldConfig.Enabled ? 48f : 28f;
-            transform.position = new Vector3(clamped.X, Mathf.Clamp(clamped.Y, 10f, maxY), clamped.Z);
+            transform.position = new Vector3(clamped.X, Mathf.Clamp(clamped.Y, 10f, 28f), clamped.Z);
         }
 
         private Vector3 _focusFrom;

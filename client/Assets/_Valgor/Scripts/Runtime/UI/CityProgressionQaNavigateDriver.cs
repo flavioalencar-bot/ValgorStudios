@@ -71,7 +71,22 @@ namespace Valgor.UI
             yield return nav.GoToCity();
             yield return WaitForScene("City", 90f);
             yield return new WaitForSecondsRealtime(1.2f);
-            yield return CaptureCityOverview();
+
+            // Tour de screenshots só com -cityProgressionQACapture (senão a câmera “pula” edifício a edifício).
+            if (CityProgressionQa.IsCapturePass)
+            {
+                yield return CaptureCityOverview();
+            }
+            else if (CityProgressionQa.IsLayoutV2Preview && !CityProgressionQa.IsWorldPreview)
+            {
+                // Capital Restored — overview fechado (~70%); não forçar 22.
+                FrameLookAt(Vector3.zero, 13.5f);
+            }
+            else
+            {
+                FrameLookAt(Vector3.zero, 22f);
+            }
+
             Debug.Log("[Valgor.QA] City carregada — modo homologação pronto.");
         }
 
@@ -130,7 +145,7 @@ namespace Valgor.UI
             yield return CaptureLookAt(fixDir, "03-overview-separated", new Vector3(0f, 0.5f, 11f), 24f);
             yield return CaptureLookAt(fixDir, "04-axis-castle-to-tower", new Vector3(0f, 0.8f, 13f), 20f);
 
-            yield return CaptureLookAt(dir, "12-wall-gate", new Vector3(0f, 0f, -19.2f), 11f);
+            yield return CaptureLookAt(dir, "12-wall-gate", new Vector3(0f, 0f, -20.5f), 11f);
 
             // Evidência muralha HF.
             var wallDir = @"C:\Valgor_Studio\docs\releases\capital-wall-high-fidelity\screenshots";
@@ -138,11 +153,11 @@ namespace Valgor.UI
             Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
             yield return new WaitForSecondsRealtime(0.4f);
             yield return CaptureLookAt(wallDir, "01-overview", new Vector3(0f, 0.5f, -4f), 22f);
-            yield return CaptureLookAt(wallDir, "02-portao", new Vector3(0f, 0f, -19.2f), 11f);
-            yield return CaptureLookAt(wallDir, "03-closeup", new Vector3(0f, 1.2f, -19.2f), 8.5f);
+            yield return CaptureLookAt(wallDir, "02-portao", new Vector3(0f, 0f, -20.5f), 11f);
+            yield return CaptureLookAt(wallDir, "03-closeup", new Vector3(0f, 1.2f, -20.5f), 8.5f);
             yield return CaptureLookAt(wallDir, "04-isometrica", new Vector3(0f, 0.8f, -12f), 16f);
-            yield return CaptureLookAt(wallDir, "05-selecao", new Vector3(0f, 0.5f, -19.2f), 10.5f);
-            yield return CaptureLookAt(wallDir, "06-painel", new Vector3(0f, 0.5f, -19.2f), 10.5f);
+            yield return CaptureLookAt(wallDir, "05-selecao", new Vector3(0f, 0.5f, -20.5f), 10.5f);
+            yield return CaptureLookAt(wallDir, "06-painel", new Vector3(0f, 0.5f, -20.5f), 10.5f);
             yield return CaptureLookAt(wallDir, "07-castelo", new Vector3(0f, 0f, 0f), 14.5f);
             yield return CaptureLookAt(wallDir, "08-torre", new Vector3(0f, 1.3f, 25.5f), 11.5f);
             Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
@@ -154,7 +169,7 @@ namespace Valgor.UI
             System.IO.Directory.CreateDirectory(art3Dir);
             yield return CaptureLookAt(art3Dir, "01-overview", new Vector3(0f, 0.5f, -2f), 24f);
             yield return CaptureLookAt(art3Dir, "02-muralha-fechada", new Vector3(0f, 0.8f, -8f), 20f);
-            yield return CaptureLookAt(art3Dir, "03-portao-hf", new Vector3(0f, 0.5f, -19.2f), 11f);
+            yield return CaptureLookAt(art3Dir, "03-portao-hf", new Vector3(0f, 0.5f, -20.5f), 11f);
             yield return CaptureLookAt(art3Dir, "04-distrito-real", new Vector3(0f, 0f, 0f), 14f);
             yield return CaptureLookAt(art3Dir, "05-distrito-dragoes", new Vector3(0f, 1.3f, 25.5f), 12f);
             yield return CaptureLookAt(art3Dir, "06-distrito-economico", new Vector3(-8f, 0f, -7f), 11f);
@@ -169,7 +184,7 @@ namespace Valgor.UI
             var sprint1Dir = @"C:\Valgor_Studio\docs\releases\capital-wall-sprint1\screenshots";
             System.IO.Directory.CreateDirectory(sprint1Dir);
             yield return CaptureLookAt(sprint1Dir, "01-overview", new Vector3(0f, 0.6f, -2f), 24f);
-            yield return CaptureLookAt(sprint1Dir, "02-portao", new Vector3(0f, 0.4f, -19.2f), 11f);
+            yield return CaptureLookAt(sprint1Dir, "02-portao", new Vector3(0f, 0.4f, -20.5f), 11f);
             yield return CaptureLookAt(sprint1Dir, "03-torre", new Vector3(14f, 1.2f, 0f), 12f);
             yield return CaptureLookAt(sprint1Dir, "04-canto", new Vector3(14f, 1.0f, 14f), 13f);
             yield return CaptureLookAt(sprint1Dir, "05-topo-da-muralha", new Vector3(10f, 4.5f, -8f), 10f);
@@ -190,7 +205,7 @@ namespace Valgor.UI
             yield return CaptureLookAt(sprint2Dir, "04-castelo", new Vector3(0f, 0.2f, 0f), 13f);
             yield return CaptureLookAt(sprint2Dir, "05-jardins", new Vector3(-4f, 0.4f, -2f), 11f);
             yield return CaptureLookAt(sprint2Dir, "06-residencias", new Vector3(-6f, 0.5f, 2f), 11f);
-            yield return CaptureLookAt(sprint2Dir, "07-portao", new Vector3(0f, 0.4f, -19.2f), 11f);
+            yield return CaptureLookAt(sprint2Dir, "07-portao", new Vector3(0f, 0.4f, -20.5f), 11f);
             yield return CaptureLookAt(sprint2Dir, "08-visao-aerea", new Vector3(0f, 1.0f, 2f), 26f);
             Screen.SetResolution(1080, 640, FullScreenMode.Windowed);
             yield return null;

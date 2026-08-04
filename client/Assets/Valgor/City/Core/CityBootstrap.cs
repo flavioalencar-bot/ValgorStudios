@@ -106,7 +106,9 @@ namespace Valgor.City
                 }
                 else if (Valgor.Core.CityProgressionQa.IsLayoutV2Preview)
                 {
-                    Valgor.City.Qa.CapitalLayoutV2PreviewDriver.EnsureAndBegin();
+                    // Cena de jogo restaurada (sem World Foundation / sem galeria).
+                    // Layout V2 permanece ativo via CityCapitalLayoutRuntime.UsePreviewV2().
+                    Valgor.City.Qa.CapitalRestoredCaptureDriver.EnsureAndBegin();
                 }
                 else if (Valgor.Core.CityProgressionQa.IsResponsiveUiTest)
                 {

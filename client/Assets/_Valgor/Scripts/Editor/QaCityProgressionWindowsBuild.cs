@@ -517,6 +517,24 @@ namespace Valgor.Editor
             EditorApplication.Exit(code);
         }
 
+        /// <summary>CLI Capital Restored: -executeMethod Valgor.Editor.QaCityProgressionWindowsBuild.BuildCapitalRestoredCli</summary>
+        public static void BuildCapitalRestoredCli()
+        {
+            Debug.Log("[Valgor] Capital Restored build — World Foundation OFF | Tripo API: 0.");
+            var report = Build("Valgor-QA-Capital-Restored");
+            var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+            if (code == 0)
+            {
+                Debug.Log($"[Valgor] QA Capital Restored Build OK: {GetOutputExe("Valgor-QA-Capital-Restored")}");
+            }
+            else
+            {
+                Debug.LogError($"[Valgor] QA Capital Restored Build FAIL: {report.summary.result}");
+            }
+
+            EditorApplication.Exit(code);
+        }
+
         public static string GetOutputDir(string? folderNameOverride = null)
         {
             var clientRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

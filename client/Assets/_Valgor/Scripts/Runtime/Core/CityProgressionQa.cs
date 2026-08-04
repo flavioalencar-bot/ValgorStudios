@@ -28,6 +28,8 @@ namespace Valgor.Core
             @"C:\Valgor_Studio\docs\releases\capital-world-foundation\screenshots";
         public const string WorldCorrectionEvidenceDir =
             @"C:\Valgor_Studio\docs\releases\capital-world-correction-no-tripo\screenshots";
+        public const string RestoredEvidenceDir =
+            @"C:\Valgor_Studio\docs\releases\capital-world-restoration";
         public const string ResponsiveEvidenceDir =
             @"C:\Valgor_Studio\docs\releases\ui-responsive-p1-fix-evidence";
         public const string SaveSlotId = "city-progression-qa";

@@ -48,19 +48,19 @@ namespace Valgor.City.Visual
 
             if (CityCapitalWorldConfig.Enabled)
             {
+                // Experimental / galeria — nunca no build Restored padrão.
+                if (CityCapitalWorldConfig.IsAssetGallery)
+                {
+                    Debug.Log("[Valgor.City] Terrain asset gallery flag ativa — composição de jogo não monta World Foundation.");
+                }
+
                 CityTerrainCompositionBuilder.Build(root);
             }
             else
             {
-                BuildTerrain(terrain);
-                BuildHorizon(terrain);
-                CityReliefBuilder.Build(terrain);
-                BuildRivers(water);
-            }
-
-            if (!CityCapitalWorldNoTripo.IsActive)
-            {
-                BuildDistrictPads(districts);
+                // Capital restaurada: base mínima limpa (sem catálogo / sem círculos de teste).
+                // RiverBase já vem em RestoredComposition — NÃO chamar BuildRivers (evita bends retangulares).
+                CityCapitalRestoredComposition.Build(terrain, water);
             }
 
             if (CityRoyalDistrictConfig.Enabled)
@@ -79,7 +79,14 @@ namespace Valgor.City.Visual
                 BuildPlateaus(terrain);
             }
 
-            if (!CityCapitalWorldNoTripo.IsActive)
+            // Restored / V2: sem pads coloridos de demonstração (só solo contínuo).
+            if (CityCapitalWorldConfig.Enabled || !CityCapitalLayoutRuntime.IsPreviewV2)
+            {
+                BuildDistrictPads(districts);
+            }
+
+            // Pads de distrito V1 hardcoded — fora do lugar no Layout V2 e parecem “quadrados de teste”.
+            if (!CityCapitalLayoutRuntime.IsPreviewV2)
             {
                 CityDistrictVisualBuilder.BuildAll(districts, decorations, ambient);
             }
@@ -95,64 +102,51 @@ namespace Valgor.City.Visual
                 CityNatureBuilder.Build(vegetation);
             }
 
-            if (!CityCapitalWorldNoTripo.IsActive)
-            {
-                BuildTierDecoration(tierGroups);
-                BuildAmbientProps(decorations, ambient);
-                CityUrbanDensityBuilder.Build(decorations);
-            }
+            BuildTierDecoration(tierGroups);
+            BuildAmbientProps(decorations, ambient);
+            CityUrbanDensityBuilder.Build(decorations);
             if (!CityCapitalWorldConfig.Enabled)
             {
                 CityScenarioCompositionBuilder.Build(terrain, water, decorations, vegetation);
             }
 
             var npcs = root.Find("NPCs") ?? Node(root, "NPCs");
-            if (!CityCapitalWorldConfig.Enabled)
+            // ArtPass3 em Layout V2 ainda spawna props V1 desalinhados (planos coloridos).
+            if (!CityCapitalWorldConfig.Enabled && !CityCapitalLayoutRuntime.IsPreviewV2)
             {
                 CityArtPass3Builder.Build(terrain, water, roads, districts, decorations, vegetation, npcs);
             }
 
-            if (CityRoyalDistrictConfig.Enabled && !CityCapitalWorldNoTripo.IsActive)
+            if (CityRoyalDistrictConfig.Enabled)
             {
                 CityRoyalDistrictBuilder.Build(roads, decorations, vegetation);
             }
 
-            if (!CityCapitalWorldNoTripo.IsActive)
-            {
-                CityFaunaBuilder.Build(ambient);
-            }
-
+            CityFaunaBuilder.Build(ambient);
             CityNpcAmbientBuilder.Build(npcs);
             CityDistrictAmbienceAudio.Build(root);
             SoftenLighting();
-            if (CityCapitalWorldNoTripo.IsActive)
+            if (!CityCapitalWorldConfig.Enabled)
             {
-                // SoftenLighting usa fog fraco — reaplica atmosfera da correção.
+                // Reaplica atmosfera restored (SoftenLighting sobrescreve fog/céu).
+                var sky = new Color(0.48f, 0.64f, 0.82f);
+                var cam = global::UnityEngine.Camera.main;
+                if (cam != null)
+                {
+                    cam.clearFlags = CameraClearFlags.SolidColor;
+                    cam.backgroundColor = sky;
+                }
+
                 RenderSettings.fog = true;
                 RenderSettings.fogMode = FogMode.ExponentialSquared;
-                RenderSettings.fogDensity = 0.02f;
-                RenderSettings.fogColor = new Color(0.55f, 0.6f, 0.68f);
-                RenderSettings.ambientSkyColor = new Color(0.52f, 0.58f, 0.66f);
-                RenderSettings.ambientEquatorColor = new Color(0.42f, 0.46f, 0.4f);
-                RenderSettings.ambientGroundColor = new Color(0.2f, 0.18f, 0.15f);
+                RenderSettings.fogDensity = 0.022f;
+                RenderSettings.fogColor = new Color(0.55f, 0.64f, 0.74f);
             }
 
             CityArtMaterialLibrary.WarmPalette();
             CityAtmosphereFx.Attach(root);
             // Muralha sempre presente no boot (nível visual mínimo 1) — reforça leitura da Capital.
             ApplyWallLevel(parent, 1);
-            if (CityCapitalWorldConfig.Enabled)
-            {
-                // Reduz dominância vertical no overview (entidade lógica inalterada).
-                var forts = FindFortifications(parent);
-                if (forts != null)
-                {
-                    forts.localScale = CityCapitalWorldNoTripo.IsActive
-                        ? new Vector3(0.96f, 0.72f, 0.96f)
-                        : new Vector3(0.98f, 0.76f, 0.98f);
-                }
-            }
-
             TryStaticBatch(root);
             CityArtPass2PerfProbe.Ensure();
             TryAttachLodHints(root);
@@ -401,9 +395,11 @@ namespace Valgor.City.Visual
 
         private static void BuildDistrictPads(Transform root)
         {
-            var soft = CityArtPass3Config.Enabled && CityArtPass3Config.SoftDistrictPadsEnabled;
+            // Restored: pads misturam com grama — evita “quadrados de teste” coloridos.
+            var restored = !CityCapitalWorldConfig.Enabled;
+            var soft = restored || (CityArtPass3Config.Enabled && CityArtPass3Config.SoftDistrictPadsEnabled);
             var soil = soft
-                ? Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, 0.22f)
+                ? Color.Lerp(CityVisualMaterials.Vegetation, CityVisualMaterials.Dirt, restored ? 0.12f : 0.22f)
                 : Color.Lerp(CityVisualMaterials.Path, CityVisualMaterials.StoneLight, 0.2f);
             var castle = CityCapitalLayoutConfig.GetPosition("castle");
             Flat(root, "PadRoyal", new Vector3(castle.X, 0.004f, castle.Z + 0.4f), new Vector3(14f, 0.04f, 12f),

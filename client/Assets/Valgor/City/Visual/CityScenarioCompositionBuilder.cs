@@ -15,9 +15,18 @@ namespace Valgor.City.Visual
                 return;
             }
 
-            BuildMoat(water);
-            BuildOuterMountains(terrain);
-            BuildForestBelts(vegetation);
+            // Restored: sem fosso em segmentos (retângulos azuis ao redor da muralha).
+            if (CityCapitalWorldConfig.Enabled)
+            {
+                BuildMoat(water);
+            }
+
+            // Restored / World OFF: DistantBackdrop cuida do horizonte — sem esferas ScenarioPeak.
+            if (!CityCapitalWorldConfig.Enabled)
+            {
+                BuildForestBelts(vegetation);
+            }
+
             if (CityArchitectureSprint3Config.Enabled && CityArchitectureSprint3Config.SuppressPrototypeHousingRings)
             {
                 // Sprint 3: sem anéis de casas coloridas / vernacular de protótipo.

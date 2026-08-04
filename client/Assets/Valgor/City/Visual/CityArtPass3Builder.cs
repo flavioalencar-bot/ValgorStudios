@@ -50,7 +50,7 @@ namespace Valgor.City.Visual
                 BuildCobbleAccents(roads);
             }
 
-            if (CityArtPass3Config.WaterPolishEnabled && water != null)
+            if (CityArtPass3Config.WaterPolishEnabled && water != null && CityCapitalWorldConfig.Enabled)
             {
                 BuildWaterPolish(water);
             }

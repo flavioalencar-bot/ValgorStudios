@@ -12,7 +12,28 @@ namespace Valgor.City.Visual
     {
         public const string KitId = "CapitalTerrainKit_01";
         public const string WorldRootName = "CapitalWorldFoundation";
-        public static bool Enabled => true;
+
+        /// <summary>
+        /// World Foundation / galeria — OFF por padrão.
+        /// Só com -capitalWorldPreview ou -capitalTerrainAssetGallery.
+        /// </summary>
+        public static bool Enabled =>
+            HasCliFlag("-capitalWorldPreview") || HasCliFlag("-capitalTerrainAssetGallery");
+
+        public static bool IsAssetGallery => HasCliFlag("-capitalTerrainAssetGallery");
+
+        private static bool HasCliFlag(string flag)
+        {
+            foreach (var arg in Environment.GetCommandLineArgs())
+            {
+                if (string.Equals(arg, flag, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         public const float WorldBoundsHalf = 56f;
         public const float PlayableRadius = 28f;
@@ -222,12 +243,8 @@ namespace Valgor.City.Visual
 
         public static IReadOnlyList<string> ValidateInvariants()
         {
+            // Valida dados do kit mesmo com runtime OFF (restauração / World Foundation desativado).
             var issues = new List<string>();
-            if (!Enabled)
-            {
-                return issues;
-            }
-
             var reserved = ReservedBuildingAreas();
             if (reserved.Count < BuildingIdMigration.OfficialCount)
             {
